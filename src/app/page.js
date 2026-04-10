@@ -1689,7 +1689,7 @@ const categories = [
 ];
 
 export default function DialectPlatform() {
-  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz
+  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz | history
   const [selectedDialect, setSelectedDialect] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("greetings");
   const [cardIndex, setCardIndex] = useState(0);
@@ -1803,7 +1803,7 @@ export default function DialectPlatform() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          {[["home","Learn"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"]].map(([s,label]) => (
+          {[["home","Learn"],["singlish","DialectsInSinglish"],["history","DialectHistory"],["network","Network"],["about","About"]].map(([s,label]) => (
             <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
               {label}
             </span>
@@ -2559,6 +2559,369 @@ export default function DialectPlatform() {
             <button className="btn-hover" onClick={() => setScreen("home")}
               style={{ background: "#C0392B", color: "white", border: "none", padding: "16px 40px", borderRadius: 10, fontSize: 16, cursor: "pointer", fontFamily: "inherit" }}>
               Start Learning Now
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* DIALECT HISTORY */}
+      {screen === "history" && (
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 24px" }} className="fade-up">
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ fontSize: 64, marginBottom: 16 }}>🛶 📜 🏮</div>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 52, fontWeight: 700, color: "#1A1208", marginBottom: 16 }}>
+              Dialect <span style={{ color: "#C0392B" }}>History</span> & Migration
+            </h1>
+            <p style={{ color: "#6B5B45", fontSize: 18, lineHeight: 1.8, maxWidth: 700, margin: "0 auto" }}>
+              Trace the journeys of Singapore's Chinese dialect groups — from their ancestral villages in China to the bustling port of Singapore. 
+              Discover where they settled, the trades they pursued, and the lasting legacy they left behind.
+            </p>
+          </div>
+
+          {/* Timeline Intro */}
+          <div style={{ background: "linear-gradient(135deg, #FDF6E8 0%, #F5E6D0 100%)", borderRadius: 20, padding: 40, marginBottom: 56, border: "2px solid #E8D5B5" }}>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 20, textAlign: "center" }}>📅 Waves of Migration to Singapore</h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", marginBottom: 24 }}>
+              {[
+                { period: "1819", event: "Raffles establishes trading post" },
+                { period: "1820s-40s", event: "First major wave: Hokkien & Teochew" },
+                { period: "1850s-70s", event: "Cantonese & Hakka arrive" },
+                { period: "1880s-1920s", event: "Peak migration period" },
+                { period: "1930s-40s", event: "Migration slows due to war" },
+                { period: "1965+", event: "Singapore independence" },
+              ].map((item) => (
+                <div key={item.period} style={{ background: "white", borderRadius: 12, padding: "12px 20px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", border: "1px solid #E8D5B5" }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#C0392B" }}>{item.period}</div>
+                  <div style={{ fontSize: 13, color: "#6B5B45" }}>{item.event}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dialect Group Cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, marginBottom: 56 }}>
+            {/* HOKKIEN */}
+            <div style={{ background: "#FDF0EF", borderRadius: 20, padding: 32, border: "2px solid #E74C3C", boxShadow: "0 4px 16px rgba(192,57,43,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                <span style={{ fontSize: 40 }}>🏮</span>
+                <div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#C0392B", margin: 0 }}>Hokkien 福建话</h3>
+                  <div style={{ fontSize: 13, color: "#8B4545" }}>From Fujian Province</div>
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🛶</span>
+                  <strong style={{ color: "#1A1208" }}>Migration Period:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  Major waves from <strong>1820s onwards</strong>, with peak migration between <strong>1880-1920</strong>. Most came from southern Fujian, particularly Xiamen (Amoy), Zhangzhou, and Quanzhou.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🏙️</span>
+                  <strong style={{ color: "#1A1208" }}>Settlement Areas:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Telok Ayer</strong> (first landing point), <strong>Chinatown</strong>, <strong>Amoy Street</strong>, <strong>Hokkien Street</strong>, <strong>Geylang</strong>, and along the <strong>Singapore River</strong> as boatmen and traders.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💼</span>
+                  <strong style={{ color: "#1A1208" }}>Traditional Occupations:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  Merchants, ship owners, <strong>coolies</strong> (dock workers), boatmen, traders in spices and textiles. Many became prominent <strong>towkays</strong> (businessmen).
+                </p>
+              </div>
+
+              <div style={{ background: "rgba(192,57,43,0.08)", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>✨</span>
+                  <strong style={{ color: "#C0392B" }}>Fun Facts:</strong>
+                </div>
+                <ul style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 24 }}>
+                  <li>Hokkien is the <strong>most widely spoken</strong> Chinese dialect in Singapore (~40% of Chinese population).</li>
+                  <li>The famous <strong>Thian Hock Keng Temple</strong> (1840) on Telok Ayer Street was built by Hokkien immigrants to thank Mazu, the sea goddess.</li>
+                  <li><strong>"Hokkien Mee"</strong> — the iconic prawn noodle dish — originated from Hokkien fishermen cooking their catch on boats.</li>
+                  <li>The <strong>Ngee Ann Kongsi</strong>, established by Teochews, and <strong>Tan Kah Kee</strong>, a famous Hokkien philanthropist, shaped Singapore's education landscape.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* TEOCHEW */}
+            <div style={{ background: "#EAFAF1", borderRadius: 20, padding: 32, border: "2px solid #27AE60", boxShadow: "0 4px 16px rgba(39,174,96,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                <span style={{ fontSize: 40 }}>🍵</span>
+                <div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A6B3C", margin: 0 }}>Teochew 潮州话</h3>
+                  <div style={{ fontSize: 13, color: "#4A7C59" }}>From Chaozhou, Guangdong</div>
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🛶</span>
+                  <strong style={{ color: "#1A1208" }}>Migration Period:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  Arrived from <strong>1820s-1840s</strong>, with significant waves in the <strong>1850s-1880s</strong>. Came from Chaozhou (Chiuchow), Shantou (Swatow), and Jieyang in eastern Guangdong.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🏙️</span>
+                  <strong style={{ color: "#1A1208" }}>Settlement Areas:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Kreta Ayer</strong>, <strong>Tiong Bahru</strong>, <strong>Geylang Serai</strong>, <strong>Upper Pickering Street</strong>, and areas near the <strong>Rochor River</strong>. Many also settled in rural areas for farming.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💼</span>
+                  <strong style={{ color: "#1A1208" }}>Traditional Occupations:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Gambier and pepper planters</strong>, farmers, fishermen, coolies, and later shopkeepers. Known for dominating the <strong>rice trade</strong> and <strong>banking sector</strong>.
+                </p>
+              </div>
+
+              <div style={{ background: "rgba(39,174,96,0.08)", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>✨</span>
+                  <strong style={{ color: "#1A6B3C" }}>Fun Facts:</strong>
+                </div>
+                <ul style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 24 }}>
+                  <li>Teochews are the <strong>second-largest</strong> dialect group in Singapore (~22%).</li>
+                  <li>The <strong>Ngee Ann Kongsi</strong> (1845) is one of Singapore's oldest clan associations, originally helping Teochew immigrants.</li>
+                  <li>Teochew cuisine is famous for <strong>Bak Kut Teh</strong> (pork rib tea soup) and <strong>Teochew Porridge</strong> (muay).</li>
+                  <li>Many Teochews were involved in the <strong>secret societies</strong> of early Singapore, such as the Ngee Hai Kongsi.</li>
+                  <li>The word <strong>"Teochew"</strong> literally means "潮洲" — "Tidal Prefecture", named after the tidal rivers in the region.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* CANTONESE */}
+            <div style={{ background: "#F5EEF8", borderRadius: 20, padding: 32, border: "2px solid #9B59B6", boxShadow: "0 4px 16px rgba(155,89,182,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                <span style={{ fontSize: 40 }}>🎎</span>
+                <div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#8E44AD", margin: 0 }}>Cantonese 广东话</h3>
+                  <div style={{ fontSize: 13, color: "#7D5A8C" }}>From Guangdong Province</div>
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🛶</span>
+                  <strong style={{ color: "#1A1208" }}>Migration Period:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  Major arrival from <strong>1850s-1870s</strong>, continuing through the <strong>1880s-1920s</strong>. Primarily from Guangzhou (Canton), Foshan, Shunde, and Nanhai in central Guangdong.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🏙️</span>
+                  <strong style={{ color: "#1A1208" }}>Settlement Areas:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Cantonment Road</strong>, <strong>Bukit Pasoh</strong>, <strong>Spottiswoode Park</strong>, <strong>Tanjong Pagar</strong>, and <strong>Smith Street</strong> (Food Street). Many lived near their workplaces in shophouses.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💼</span>
+                  <strong style={{ color: "#1A1208" }}>Traditional Occupations:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Skilled craftsmen</strong> (carpenters, tailors, cooks), goldsmiths, restaurant workers, musicians, and <strong>opera performers</strong>. Many worked in the service industry.
+                </p>
+              </div>
+
+              <div style={{ background: "rgba(142,68,173,0.08)", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>✨</span>
+                  <strong style={{ color: "#8E44AD" }}>Fun Facts:</strong>
+                </div>
+                <ul style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 24 }}>
+                  <li>Cantonese make up ~<strong>17%</strong> of Singapore's Chinese population.</li>
+                  <li>The <strong>Yueh Hai Ching Temple</strong> (1855) on Phillip Street is one of the oldest Cantonese temples in Singapore.</li>
+                  <li>Cantonese opera was extremely popular in early Singapore, with performances at <strong>Victoria Theatre</strong> and street operas during festivals.</li>
+                  <li>Many famous <strong>Singaporean dishes</strong> like Dim Sum, Roast Duck, and Wonton Noodles have Cantonese origins.</li>
+                  <li>Cantonese became widely known through <strong>Hong Kong TV dramas</strong> and movies in the 1970s-80s.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* HAKKA */}
+            <div style={{ background: "#FEF9E7", borderRadius: 20, padding: 32, border: "2px solid #E67E22", boxShadow: "0 4px 16px rgba(230,126,34,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                <span style={{ fontSize: 40 }}>🌾</span>
+                <div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#D4860B", margin: 0 }}>Hakka 客家话</h3>
+                  <div style={{ fontSize: 13, color: "#9C6B14" }}>The "Guest People"</div>
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🛶</span>
+                  <strong style={{ color: "#1A1208" }}>Migration Period:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  Arrived from <strong>1850s onwards</strong>, with peaks in the <strong>1870s-1900s</strong>. Came from various regions including Meixian, Huizhou, and parts of Jiangxi and Fujian provinces.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🏙️</span>
+                  <strong style={{ color: "#1A1208" }}>Settlement Areas:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>North Bridge Road</strong>, <strong>Jalan Besar</strong>, <strong>Geylang</strong>, <strong>Serangoon</strong>, and rural areas like <strong>Changi</strong> and <strong>Punggol</strong> for farming.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💼</span>
+                  <strong style={{ color: "#1A1208" }}>Traditional Occupations:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Farmers</strong>, quarry workers, construction laborers, carpenters, and later <strong>restaurant owners</strong>. Known for hard work and resilience.
+                </p>
+              </div>
+
+              <div style={{ background: "rgba(212,134,11,0.08)", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>✨</span>
+                  <strong style={{ color: "#D4860B" }}>Fun Facts:</strong>
+                </div>
+                <ul style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 24 }}>
+                  <li>Hakka means <strong>"guest families"</strong> (客家) — they were historically migrants within China who settled among other dialect groups.</li>
+                  <li>Despite being only ~<strong>7%</strong> of Singapore's Chinese population, Hakkas produced notable leaders like <strong>Lee Kuan Yew</strong> (first PM) and <strong>Lee Hsien Loong</strong> (current PM).</li>
+                  <li>Hakka women were known for not binding their feet, allowing them to work alongside men in fields and quarries.</li>
+                  <li><strong>Hakka Yong Tau Foo</strong> (stuffed tofu) is a beloved Singaporean dish with Hakka origins.</li>
+                  <li>The Hakka are known as the <strong>"Jews of Asia"</strong> due to their widespread diaspora and entrepreneurial spirit.</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* HAINANESE */}
+            <div style={{ background: "#EBF5FB", borderRadius: 20, padding: 32, border: "2px solid #2980B9", boxShadow: "0 4px 16px rgba(41,128,185,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                <span style={{ fontSize: 40 }}>🌊</span>
+                <div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A7EA6", margin: 0 }}>Hainanese 海南话</h3>
+                  <div style={{ fontSize: 13, color: "#5A7D8C" }}>From Hainan Island</div>
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🛶</span>
+                  <strong style={{ color: "#1A1208" }}>Migration Period:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  Later arrivals from <strong>1870s-1920s</strong>. Came from Hainan Island, primarily from the coastal towns of Haikou, Wenchang, and Qionghai.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>🏙️</span>
+                  <strong style={{ color: "#1A1208" }}>Settlement Areas:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Selegie Road</strong>, <strong>Waterloo Street</strong>, <strong>Bugis</strong>, <strong>Kampong Glam</strong>, and areas near <strong>Beach Road</strong>. Many lived in quarters provided by their employers.
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>💼</span>
+                  <strong style={{ color: "#1A1208" }}>Traditional Occupations:</strong>
+                </div>
+                <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                  <strong>Cooks</strong> (especially for British colonials), <strong>coffee shop operators</strong>, waiters, barbers, and hotel staff. Dominated the F&B industry.
+                </p>
+              </div>
+
+              <div style={{ background: "rgba(41,128,185,0.08)", borderRadius: 12, padding: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>✨</span>
+                  <strong style={{ color: "#1A7EA6" }}>Fun Facts:</strong>
+                </div>
+                <ul style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 24 }}>
+                  <li>Hainanese make up ~<strong>7%</strong> of Singapore's Chinese population.</li>
+                  <li><strong>Hainanese Chicken Rice</strong> — Singapore's national dish — was created by Hainanese immigrants adapting Wenchang chicken from their homeland.</li>
+                  <li>Hainanese were the preferred <strong>cooks for British colonial households</strong>, which gave them access to Western culinary techniques.</li>
+                  <li>The <strong>Hainanese Coffee</strong> culture (Kopi) is legendary — using butter and sugar to create a unique rich brew.</li>
+                  <li>Many famous Singaporean <strong>coffee chains</strong> and restaurants were founded by Hainanese families.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Map Placeholder */}
+          <div style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 100%)", borderRadius: 20, padding: 40, textAlign: "center", color: "#F5E6C8" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🗺️</div>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, marginBottom: 16 }}>From China to Singapore</h2>
+            <p style={{ fontSize: 16, lineHeight: 1.8, opacity: 0.9, maxWidth: 600, margin: "0 auto 24px" }}>
+              Each dialect group embarked on perilous sea journeys aboard junk ships, crossing the South China Sea for weeks in search of better opportunities. 
+              They left behind their ancestral homes, carrying only dreams and determination.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
+              <span style={{ background: "rgba(255,255,255,0.1)", padding: "8px 16px", borderRadius: 20, fontSize: 13 }}>🛶 Fujian → Singapore</span>
+              <span style={{ background: "rgba(255,255,255,0.1)", padding: "8px 16px", borderRadius: 20, fontSize: 13 }}>🛶 Chaozhou → Singapore</span>
+              <span style={{ background: "rgba(255,255,255,0.1)", padding: "8px 16px", borderRadius: 20, fontSize: 13 }}>🛶 Guangzhou → Singapore</span>
+              <span style={{ background: "rgba(255,255,255,0.1)", padding: "8px 16px", borderRadius: 20, fontSize: 13 }}>🛶 Hainan → Singapore</span>
+            </div>
+          </div>
+
+          {/* Clan Associations Section */}
+          <div style={{ marginTop: 56, background: "#FDF6E8", borderRadius: 20, padding: 40, border: "2px solid #E8D5B5" }}>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 20, textAlign: "center" }}>🏛️ Clan Associations: Supporting New Immigrants</h2>
+            <p style={{ color: "#6B5B45", fontSize: 15, lineHeight: 1.8, textAlign: "center", maxWidth: 700, margin: "0 auto 32px" }}>
+              Upon arrival, immigrants relied heavily on <strong>clan associations</strong> (会馆) for housing, jobs, and community support. These organizations, based on dialect and surname, played crucial roles in settling newcomers.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
+              {[
+                { name: "Ngee Ann Kongsi", dialect: "Teochew", year: "1845" },
+                { name: "Singapore Hokkien Huay Kuan", dialect: "Hokkien", year: "1840" },
+                { name: "Kwong Wai Siew Peck San Theng", dialect: "Cantonese", year: "1870" },
+                { name: "Nam Yang Hakka Kwun Yit Tong", dialect: "Hakka", year: "1880" },
+                { name: "Hainan Hwee Kuan", dialect: "Hainanese", year: "1854" },
+              ].map((assoc) => (
+                <div key={assoc.name} style={{ background: "white", borderRadius: 12, padding: 20, textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>{assoc.name}</div>
+                  <div style={{ fontSize: 12, color: "#C0392B" }}>{assoc.dialect}</div>
+                  <div style={{ fontSize: 11, color: "#8B7355" }}>Est. {assoc.year}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Back Button */}
+          <div style={{ textAlign: "center", marginTop: 56 }}>
+            <button 
+              className="btn-hover" 
+              onClick={() => setScreen("home")}
+              style={{ background: "#C0392B", color: "white", border: "none", padding: "16px 40px", borderRadius: 10, fontSize: 16, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}
+            >
+              ← Back to Home
             </button>
           </div>
         </div>
