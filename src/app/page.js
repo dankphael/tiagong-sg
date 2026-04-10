@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from "react";
+import AuthProvider, { useAuth } from "./components/AuthContext";
+import ProfileManagement from "./components/ProfileManagement";
 
 const dialects = [
   {
@@ -1689,7 +1691,7 @@ const categories = [
 ];
 
 export default function DialectPlatform() {
-  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz | history
+  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz | history | profile
   const [selectedDialect, setSelectedDialect] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("greetings");
   const [cardIndex, setCardIndex] = useState(0);
@@ -1769,6 +1771,10 @@ export default function DialectPlatform() {
 
   const totalProgress = Object.keys(progress).filter(k => k.startsWith(selectedDialect || "")).length;
 
+  // Inner component that uses useAuth
+  function AppContent() {
+    const { user, isAuthenticated, openAuthModal } = useAuth();
+  
   return (
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
       <style>{`
@@ -1809,6 +1815,42 @@ export default function DialectPlatform() {
             </span>
           ))}
           {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
+          {user ? (
+            <button 
+              onClick={() => setScreen("profile")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: "#F5E6C8",
+                border: "none",
+                borderRadius: 20,
+                padding: "6px 14px",
+                cursor: "pointer",
+                fontFamily: "inherit"
+              }}
+            >
+              <span style={{ fontSize: 18 }}>{user.avatar || '👤'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#1A1208" }}>{user.firstName}</span>
+            </button>
+          ) : (
+            <button 
+              onClick={() => openAuthModal('login')}
+              style={{
+                background: "#C0392B",
+                color: "white",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 16px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit"
+              }}
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </nav>
 
@@ -2935,4 +2977,13 @@ export default function DialectPlatform() {
       </div>
     </div>
   );
+  }
+  
+  // Profile screen
+  {screen === "profile" && user && (
+    <ProfileManagement onClose={() => setScreen("home")} />
+  )}
+  
+  {/* Wrap everything in AuthProvider */}
+  return <AuthProvider><AppContent /></AuthProvider>;
 }
