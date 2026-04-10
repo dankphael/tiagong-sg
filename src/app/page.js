@@ -1,65 +1,2575 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from "react";
+
+const dialects = [
+  {
+    id: "hokkien",
+    name: "Hokkien",
+    chinese: "福建话",
+    color: "#C0392B",
+    accent: "#E74C3C",
+    bg: "#FDF0EF",
+    origin: "Fujian Province",
+    speakers: "~40% of Chinese Singaporeans",
+    icon: "🏮",
+    description: "The most widely spoken dialect in Singapore, brought by immigrants from Fujian province.",
+  },
+  {
+    id: "cantonese",
+    name: "Cantonese",
+    chinese: "广东话",
+    color: "#8E44AD",
+    accent: "#9B59B6",
+    bg: "#F5EEF8",
+    origin: "Guangdong Province",
+    speakers: "~17% of Chinese Singaporeans",
+    icon: "🎎",
+    description: "Widely recognised through Hong Kong media, spoken by Cantonese and Hakka communities.",
+  },
+  {
+    id: "teochew",
+    name: "Teochew",
+    chinese: "潮州话",
+    color: "#1A6B3C",
+    accent: "#27AE60",
+    bg: "#EAFAF1",
+    origin: "Chaozhou, Guangdong",
+    speakers: "~22% of Chinese Singaporeans",
+    icon: "🍵",
+    description: "Spoken by Teochew people who settled along the coast; closely related to Hokkien.",
+  },
+  {
+    id: "hakka",
+    name: "Hakka",
+    chinese: "客家话",
+    color: "#D4860B",
+    accent: "#E67E22",
+    bg: "#FEF9E7",
+    origin: "Various southern provinces",
+    speakers: "~7% of Chinese Singaporeans",
+    icon: "🌾",
+    description: "The 'guest people' language — Hakka communities are known for resilience and migration.",
+  },
+  {
+    id: "hainanese",
+    name: "Hainanese",
+    chinese: "海南话",
+    color: "#1A7EA6",
+    accent: "#2980B9",
+    bg: "#EBF5FB",
+    origin: "Hainan Island",
+    speakers: "~7% of Chinese Singaporeans",
+    icon: "🌊",
+    description: "Spoken by immigrants from Hainan Island, known for Hainanese chicken rice!",
+  },
+];
+
+const lessons = {
+  hokkien: {
+    greetings: [
+      { phrase: "Lí hó", chinese: "你好", meaning: "Hello / How are you?", romanisation: "lee ho" },
+      { phrase: "Jia pa buay?", chinese: "吃饱未？", meaning: "Have you eaten?", romanisation: "jia pa buay" },
+      { phrase: "Gong xi", chinese: "恭喜", meaning: "Congratulations", romanisation: "gong see" },
+      { phrase: "Chin ho", chinese: "真好", meaning: "Very good", romanisation: "chin ho" },
+      { phrase: "Beh sai", chinese: "袂使", meaning: "Cannot / Not allowed", romanisation: "beh sai" },
+      { phrase: "Ua ai", chinese: "我爱", meaning: "I love", romanisation: "wa ai" },
+      { phrase: "Siong hoa", chinese: "相好", meaning: "Good friends", romanisation: "siong hoa" },
+      { phrase: "Lo li", chinese: "劳力", meaning: "Thank you (for your effort)", romanisation: "lor li" },
+      { phrase: "Beh pai", chinese: "未歹", meaning: "Not bad", romanisation: "beh pai" },
+      { phrase: "Kin lai", chinese: "紧来", meaning: "Come quickly / Hurry up", romanisation: "kin lai" },
+      { phrase: "Sio sim", chinese: "小心", meaning: "Be careful", romanisation: "sio sim" },
+      { phrase: "Wa m bat", chinese: "我唔识", meaning: "I don't know", romanisation: "wa m bat" },
+      { phrase: "Li toh khi?", chinese: "你去哪？", meaning: "Where are you going?", romanisation: "li doh ki" },
+      { phrase: "Wa lau eh", chinese: "我老的", meaning: "Oh my goodness!", romanisation: "wa lau eh" },
+      { phrase: "Pai seh", chinese: "歹势", meaning: "Embarrassing / Sorry", romanisation: "pai seh" },
+      { phrase: "Si boh?", chinese: "是否？", meaning: "Is it true? / Really?", romanisation: "si boh" },
+      { phrase: "Tua nang", chinese: "大人", meaning: "Adult / Elder", romanisation: "tua nang" },
+      { phrase: "Gao lat", chinese: "够力", meaning: "Very powerful / Impressive", romanisation: "gao lat" },
+      { phrase: "Ho chia", chinese: "好吃", meaning: "Delicious", romanisation: "ho jia" },
+      { phrase: "Wa siong", chinese: "我想", meaning: "I think / I want", romanisation: "wa siong" },
+      { phrase: "Chiak liao", chinese: "食了", meaning: "Already eaten", romanisation: "jiak liao" },
+      { phrase: "Boh lui", chinese: "没钱", meaning: "No money", romanisation: "boh lui" },
+      { phrase: "Eh sai", chinese: "会使", meaning: "Can / OK / Possible", romanisation: "eh sai" },
+      { phrase: "Chin sian", chinese: "真闲", meaning: "Very bored / Idle", romanisation: "chin sian" },
+      { phrase: "Tua liap", chinese: "大粒", meaning: "Big / Large", romanisation: "tua liap" },
+      { phrase: "Sio liap", chinese: "小粒", meaning: "Small / Little", romanisation: "sio liap" },
+      { phrase: "Hao jia", chinese: "好家", meaning: "Good home / Lucky", romanisation: "hao jia" },
+      { phrase: "Chin sui", chinese: "真水", meaning: "Very beautiful", romanisation: "chin sui" },
+      { phrase: "Buay tahan", chinese: "袂担", meaning: "Cannot take it / Unbearable", romanisation: "buay tahan" },
+      { phrase: "Jiak simi", chinese: "食什么", meaning: "What are you eating?", romanisation: "jiak si mi" },
+      { phrase: "Boh eng", chinese: "没空", meaning: "Not free / Busy", romanisation: "boh eng" },
+      { phrase: "Ui tia", chinese: "畏痛", meaning: "Afraid of pain", romanisation: "ui tia" },
+      { phrase: "Jit si", chinese: "一时", meaning: "For a moment / Briefly", romanisation: "jit si" },
+      { phrase: "Hia di", chinese: "兄弟", meaning: "Brothers / Buddies", romanisation: "hia di" },
+      { phrase: "Chin gao", chinese: "真高", meaning: "Very tall / Very high", romanisation: "chin gao" },
+      { phrase: "Tio liao", chinese: "着了", meaning: "Got it / That's right", romanisation: "dio liao" },
+      { phrase: "Hor bo?", chinese: "好无？", meaning: "Is it good? / OK?", romanisation: "hor bo" },
+      { phrase: "Wa eh tio", chinese: "我会着", meaning: "I will manage", romanisation: "wa eh dio" },
+      { phrase: "Siong ban", chinese: "想慢", meaning: "Think slowly / Take your time", romanisation: "siong ban" },
+      { phrase: "Ka li kong", chinese: "给你讲", meaning: "Let me tell you", romanisation: "ka li kong" },
+      { phrase: "Wa ai khi", chinese: "我要去", meaning: "I want to go", romanisation: "wa ai ki" },
+      { phrase: "Peng an", chinese: "平安", meaning: "Peace / Safe journey", romanisation: "peng an" },
+      { phrase: "Ho un", chinese: "好运", meaning: "Good luck", romanisation: "ho un" },
+      { phrase: "Jip lai", chinese: "入来", meaning: "Come in / Enter", romanisation: "jip lai" },
+      { phrase: "Chut khi", chinese: "出去", meaning: "Go out / Exit", romanisation: "jut ki" },
+      { phrase: "Boh su", chinese: "没事", meaning: "Nothing / Never mind", romanisation: "boh su" },
+      { phrase: "Lo kong", chinese: "老公", meaning: "Husband", romanisation: "lo kong" },
+      { phrase: "Lo bo", chinese: "老母", meaning: "Wife / Old mother", romanisation: "lo bo" },
+      { phrase: "Kim si", chinese: "今时", meaning: "Nowadays / These days", romanisation: "kim si" },
+      { phrase: "Chia ah", chinese: "且啊", meaning: "Wait a moment", romanisation: "jia ah" },
+    ],
+    numbers: [
+      { phrase: "Chit", chinese: "一", meaning: "One", romanisation: "chit" },
+      { phrase: "Nn̄g", chinese: "二", meaning: "Two", romanisation: "nng" },
+      { phrase: "Sann", chinese: "三", meaning: "Three", romanisation: "sann" },
+      { phrase: "Sì", chinese: "四", meaning: "Four", romanisation: "si" },
+      { phrase: "Gō͘", chinese: "五", meaning: "Five", romanisation: "go" },
+      { phrase: "Lak", chinese: "六", meaning: "Six", romanisation: "lak" },
+      { phrase: "Chhit", chinese: "七", meaning: "Seven", romanisation: "chhit" },
+      { phrase: "Peh", chinese: "八", meaning: "Eight", romanisation: "peh" },
+      { phrase: "Káu", chinese: "九", meaning: "Nine", romanisation: "kau" },
+      { phrase: "Chap", chinese: "十", meaning: "Ten", romanisation: "chap" },
+      { phrase: "Chap it", chinese: "十一", meaning: "Eleven", romanisation: "chap it" },
+      { phrase: "Chap jī", chinese: "十二", meaning: "Twelve", romanisation: "chap ji" },
+      { phrase: "Chap sann", chinese: "十三", meaning: "Thirteen", romanisation: "chap sann" },
+      { phrase: "Jī chap", chinese: "二十", meaning: "Twenty", romanisation: "ji chap" },
+      { phrase: "Sann chap", chinese: "三十", meaning: "Thirty", romanisation: "sann chap" },
+      { phrase: "Sì chap", chinese: "四十", meaning: "Forty", romanisation: "si chap" },
+      { phrase: "Gō͘ chap", chinese: "五十", meaning: "Fifty", romanisation: "go chap" },
+      { phrase: "Lak chap", chinese: "六十", meaning: "Sixty", romanisation: "lak chap" },
+      { phrase: "Chhit chap", chinese: "七十", meaning: "Seventy", romanisation: "chhit chap" },
+      { phrase: "Peh chap", chinese: "八十", meaning: "Eighty", romanisation: "peh chap" },
+      { phrase: "Káu chap", chinese: "九十", meaning: "Ninety", romanisation: "kau chap" },
+      { phrase: "It pah", chinese: "一百", meaning: "One hundred", romanisation: "it pah" },
+      { phrase: "Jī pah", chinese: "两百", meaning: "Two hundred", romanisation: "ji pah" },
+      { phrase: "It chheng", chinese: "一千", meaning: "One thousand", romanisation: "it chheng" },
+      { phrase: "It bān", chinese: "一万", meaning: "Ten thousand", romanisation: "it ban" },
+      { phrase: "Siu̍t", chinese: "数", meaning: "Number / Count", romanisation: "siok" },
+      { phrase: "Tōa siu̍t", chinese: "大数", meaning: "Large number", romanisation: "toa siok" },
+      { phrase: "Sió siu̍t", chinese: "小数", meaning: "Small number", romanisation: "sio siok" },
+      { phrase: "Pêng hun", chinese: "平分", meaning: "Equal share / Split equally", romanisation: "peng hun" },
+      { phrase: "Chit pái", chinese: "一次", meaning: "Once / One time", romanisation: "chit pai" },
+      { phrase: "Nn̄g pái", chinese: "两次", meaning: "Twice / Two times", romanisation: "nng pai" },
+      { phrase: "Chit tiám", chinese: "一点", meaning: "One o'clock / A little", romanisation: "chit diam" },
+      { phrase: "Jī tiám", chinese: "两点", meaning: "Two o'clock", romanisation: "ji diam" },
+      { phrase: "Sann tiám", chinese: "三点", meaning: "Three o'clock", romanisation: "sann diam" },
+      { phrase: "Pàng àm", chinese: "半暗", meaning: "Midnight / Half past night", romanisation: "pang am" },
+      { phrase: "Chit lé pài", chinese: "一礼拜", meaning: "One week", romanisation: "chit le pai" },
+      { phrase: "Jī lé pài", chinese: "两礼拜", meaning: "Two weeks", romanisation: "ji le pai" },
+      { phrase: "Chit goe̍h", chinese: "一月", meaning: "One month / January", romanisation: "chit geh" },
+      { phrase: "Jī goe̍h", chinese: "二月", meaning: "February", romanisation: "ji geh" },
+      { phrase: "Sann goe̍h", chinese: "三月", meaning: "March", romanisation: "sann geh" },
+      { phrase: "Sì goe̍h", chinese: "四月", meaning: "April", romanisation: "si geh" },
+      { phrase: "Gō͘ goe̍h", chinese: "五月", meaning: "May", romanisation: "go geh" },
+      { phrase: "Lak goe̍h", chinese: "六月", meaning: "June", romanisation: "lak geh" },
+      { phrase: "Chhit goe̍h", chinese: "七月", meaning: "July / Ghost month", romanisation: "chhit geh" },
+      { phrase: "Peh goe̍h", chinese: "八月", meaning: "August", romanisation: "peh geh" },
+      { phrase: "Káu goe̍h", chinese: "九月", meaning: "September", romanisation: "kau geh" },
+      { phrase: "Chap goe̍h", chinese: "十月", meaning: "October", romanisation: "chap geh" },
+      { phrase: "Chap it goe̍h", chinese: "十一月", meaning: "November", romanisation: "chap it geh" },
+      { phrase: "Chap jī goe̍h", chinese: "十二月", meaning: "December", romanisation: "chap ji geh" },
+      { phrase: "Chit nî", chinese: "一年", meaning: "One year", romanisation: "chit ni" },
+    ],
+    food: [
+      { phrase: "Mī", chinese: "面", meaning: "Noodles", romanisation: "mee" },
+      { phrase: "Png", chinese: "饭", meaning: "Rice", romanisation: "pung" },
+      { phrase: "Kopi", chinese: "咖啡", meaning: "Coffee", romanisation: "ko-pee" },
+      { phrase: "Bah kut teh", chinese: "肉骨茶", meaning: "Pork rib soup", romanisation: "bah kut teh" },
+      { phrase: "Char bī hoon", chinese: "炒米粉", meaning: "Fried rice vermicelli", romanisation: "char bee hoon" },
+      { phrase: "Teh", chinese: "茶", meaning: "Tea", romanisation: "teh" },
+      { phrase: "Lor mee", chinese: "卤面", meaning: "Braised noodles", romanisation: "lor mee" },
+      { phrase: "Ban mian", chinese: "板面", meaning: "Hand-cut noodles", romanisation: "ban mian" },
+      { phrase: "Char koay teow", chinese: "炒粿条", meaning: "Fried flat noodles", romanisation: "char kway teow" },
+      { phrase: "Bak chor mee", chinese: "肉碎面", meaning: "Minced pork noodles", romanisation: "bak chor mee" },
+      { phrase: "Chye tow koay", chinese: "菜头粿", meaning: "Carrot cake", romanisation: "chai tow kway" },
+      { phrase: "Oh ah mee sua", chinese: "蚵仔面线", meaning: "Oyster vermicelli", romanisation: "or ah mee sua" },
+      { phrase: "Popiah", chinese: "薄饼", meaning: "Fresh spring roll", romanisation: "popiah" },
+      { phrase: "Kueh", chinese: "粿", meaning: "Rice cake / Kueh", romanisation: "kueh" },
+      { phrase: "Ang ku kueh", chinese: "红龟粿", meaning: "Red tortoise cake", romanisation: "ang ku kueh" },
+      { phrase: "Png kueh", chinese: "饭粿", meaning: "Rice dumpling cake", romanisation: "pung kueh" },
+      { phrase: "Teow chew muay", chinese: "潮州糜", meaning: "Teochew style congee", romanisation: "teow jew muay" },
+      { phrase: "Orh nee", chinese: "芋泥", meaning: "Yam paste dessert", romanisation: "or nee" },
+      { phrase: "Tau suan", chinese: "豆爽", meaning: "Split mung bean dessert", romanisation: "tau suan" },
+      { phrase: "Goreng pisang", chinese: "炸香蕉", meaning: "Fried banana fritter", romanisation: "goreng pisang" },
+      { phrase: "Bak zhang", chinese: "肉粽", meaning: "Savoury rice dumpling", romanisation: "bak zhang" },
+      { phrase: "Soon kueh", chinese: "笋粿", meaning: "Bamboo shoot dumpling", romanisation: "soon kueh" },
+      { phrase: "Bee tai bak", chinese: "米苔目", meaning: "Rice noodle in soup", romanisation: "bee tai bak" },
+      { phrase: "Oh luak", chinese: "蚝烙", meaning: "Oyster omelette", romanisation: "or luak" },
+      { phrase: "Kiam chye", chinese: "咸菜", meaning: "Salted vegetables", romanisation: "kiam chai" },
+      { phrase: "Ter kah", chinese: "猪脚", meaning: "Pig's trotter", romanisation: "ter kah" },
+      { phrase: "Png kah", chinese: "饭脚", meaning: "Side dish with rice", romanisation: "pung kah" },
+      { phrase: "Tau hu", chinese: "豆腐", meaning: "Tofu / Bean curd", romanisation: "tau hu" },
+      { phrase: "Tau kua", chinese: "豆干", meaning: "Firm tofu", romanisation: "tau kwa" },
+      { phrase: "Him chim peng", chinese: "咸煎饼", meaning: "Savoury fried pastry", romanisation: "him jim peng" },
+      { phrase: "Oo ah", chinese: "乌鱼", meaning: "Mullet fish", romanisation: "oo ah" },
+      { phrase: "Hu", chinese: "鱼", meaning: "Fish", romanisation: "hu" },
+      { phrase: "Bak", chinese: "肉", meaning: "Meat / Pork", romanisation: "bak" },
+      { phrase: "Ai kio", chinese: "爱咬", meaning: "Crispy / Chewy texture", romanisation: "ai kio" },
+      { phrase: "Him", chinese: "咸", meaning: "Salty", romanisation: "him" },
+      { phrase: "Ti", chinese: "甜", meaning: "Sweet", romanisation: "ti" },
+      { phrase: "Sng", chinese: "酸", meaning: "Sour", romanisation: "sng" },
+      { phrase: "Hiam", chinese: "辣", meaning: "Spicy", romanisation: "hiam" },
+      { phrase: "Ko", chinese: "苦", meaning: "Bitter", romanisation: "ko" },
+      { phrase: "Bah png", chinese: "肉饭", meaning: "Braised pork rice", romanisation: "bah pung" },
+      { phrase: "Tng", chinese: "汤", meaning: "Soup / Broth", romanisation: "tng" },
+      { phrase: "Chye", chinese: "菜", meaning: "Vegetables", romanisation: "chai" },
+      { phrase: "Nng", chinese: "卵", meaning: "Egg", romanisation: "nng" },
+      { phrase: "Ke", chinese: "鸡", meaning: "Chicken", romanisation: "ke" },
+      { phrase: "Beh", chinese: "马", meaning: "Horse / Old-style beef", romanisation: "beh" },
+      { phrase: "Hae", chinese: "虾", meaning: "Prawns / Shrimp", romanisation: "hae" },
+      { phrase: "Hae bee", chinese: "虾米", meaning: "Dried shrimp", romanisation: "hae bee" },
+      { phrase: "Mee pok", chinese: "面薄", meaning: "Flat yellow noodles", romanisation: "mee pok" },
+      { phrase: "Kway teow soup", chinese: "粿条汤", meaning: "Rice noodle soup", romanisation: "kway teow soup" },
+      { phrase: "Teh tarik", chinese: "拉茶", meaning: "Pulled milk tea", romanisation: "teh tarik" },
+    ],
+  },
+  cantonese: {
+    greetings: [
+      { phrase: "Néih hóu", chinese: "你好", meaning: "Hello", romanisation: "nay ho" },
+      { phrase: "Sihk jó faahn meih a?", chinese: "食咗饭未呀？", meaning: "Have you eaten?", romanisation: "sik jo faan mei aa" },
+      { phrase: "Gūng hēi", chinese: "恭喜", meaning: "Congratulations", romanisation: "gung hey" },
+      { phrase: "Hóu leng", chinese: "好靓", meaning: "Very beautiful", romanisation: "ho leng" },
+      { phrase: "Mh̀ gōi", chinese: "唔该", meaning: "Thank you / Excuse me", romanisation: "mm goi" },
+      { phrase: "Dō jeh", chinese: "多谢", meaning: "Thank you (for a gift)", romanisation: "doh jeh" },
+      { phrase: "Baai baai", chinese: "拜拜", meaning: "Bye bye", romanisation: "bye bye" },
+      { phrase: "Hóu noi móuh gin", chinese: "好耐冇见", meaning: "Long time no see", romanisation: "ho noy mo gin" },
+      { phrase: "Néih hóu ma?", chinese: "你好吗？", meaning: "How are you?", romanisation: "nay ho maa" },
+      { phrase: "Ngóh hóu hóu", chinese: "我好好", meaning: "I am very well", romanisation: "ngo ho ho" },
+      { phrase: "Deui mh jyuh", chinese: "对唔住", meaning: "Sorry / I apologise", romanisation: "dui mm jyu" },
+      { phrase: "Mhsái haak hei", chinese: "唔使客气", meaning: "Don't be polite / You're welcome", romanisation: "mm sai haak hay" },
+      { phrase: "Léih gwai sing?", chinese: "你贵姓？", meaning: "What is your surname?", romanisation: "lay gwai sing" },
+      { phrase: "Ngóh giu...", chinese: "我叫...", meaning: "My name is...", romanisation: "ngo giu" },
+      { phrase: "Géi dō chin?", chinese: "几多钱？", meaning: "How much does it cost?", romanisation: "gay doh chin" },
+      { phrase: "Taai gwai laa", chinese: "太贵啦", meaning: "Too expensive!", romanisation: "tai gwai laa" },
+      { phrase: "Hóu sihk", chinese: "好食", meaning: "Delicious / Tasty", romanisation: "ho sik" },
+      { phrase: "Hóu wáan", chinese: "好玩", meaning: "Fun / Enjoyable", romanisation: "ho waan" },
+      { phrase: "Mh̀ haih", chinese: "唔系", meaning: "No / That is not right", romanisation: "mm hai" },
+      { phrase: "Haih lā", chinese: "系啦", meaning: "Yes / That's right", romanisation: "hai laa" },
+      { phrase: "Mh̀ sái", chinese: "唔使", meaning: "No need", romanisation: "mm sai" },
+      { phrase: "Dáng háh", chinese: "等下", meaning: "Wait a moment", romanisation: "dang haa" },
+      { phrase: "Faai dī lā", chinese: "快啲啦", meaning: "Hurry up!", romanisation: "fai dee laa" },
+      { phrase: "Màhn màhn lái", chinese: "慢慢嚟", meaning: "Take your time", romanisation: "maan maan lai" },
+      { phrase: "Sai mún", chinese: "细蚊", meaning: "Child / Little one", romanisation: "sai moon" },
+      { phrase: "Laih laih", chinese: "嚟嚟", meaning: "Come here", romanisation: "lai lai" },
+      { phrase: "Héi san la", chinese: "起身啦", meaning: "Wake up! / Get up!", romanisation: "hay san laa" },
+      { phrase: "Faan uk kéi", chinese: "返屋企", meaning: "Go home", romanisation: "faan uk kay" },
+      { phrase: "Síu sàm", chinese: "小心", meaning: "Be careful", romanisation: "siu sam" },
+      { phrase: "Jóu san", chinese: "早晨", meaning: "Good morning", romanisation: "jou san" },
+      { phrase: "Jóu táu", chinese: "早头", meaning: "Early morning", romanisation: "jou tau" },
+      { phrase: "Maan on", chinese: "晚安", meaning: "Good night", romanisation: "maan on" },
+      { phrase: "Ngóh mh̀ ji", chinese: "我唔知", meaning: "I don't know", romanisation: "ngo mm ji" },
+      { phrase: "Zing haih", chinese: "正系", meaning: "Exactly / Correct", romanisation: "jing hai" },
+      { phrase: "Gám yaht", chinese: "今日", meaning: "Today", romanisation: "gam yat" },
+      { phrase: "Kàhm yaht", chinese: "琴日", meaning: "Yesterday", romanisation: "kam yat" },
+      { phrase: "Tìng yaht", chinese: "听日", meaning: "Tomorrow", romanisation: "ting yat" },
+      { phrase: "Hóu chòi", chinese: "好彩", meaning: "Lucky / Fortunately", romanisation: "ho choi" },
+      { phrase: "Waih?", chinese: "喂？", meaning: "Hello? (phone) / Hey!", romanisation: "way" },
+      { phrase: "Góng máh?", chinese: "讲咩？", meaning: "What are you saying?", romanisation: "gong maa" },
+      { phrase: "Giu jo", chinese: "叫左", meaning: "Already ordered / Called", romanisation: "giu jo" },
+      { phrase: "Móuh man tai", chinese: "冇问题", meaning: "No problem", romanisation: "mo man tai" },
+      { phrase: "Gam gwóng", chinese: "咁光", meaning: "So bright / So early", romanisation: "gam gwong" },
+      { phrase: "Geng geng", chinese: "叻叻", meaning: "Very smart / Clever", romanisation: "geng geng" },
+      { phrase: "Ho leng zai", chinese: "好靓仔", meaning: "Handsome boy", romanisation: "ho leng jai" },
+      { phrase: "Ho leng lui", chinese: "好靓女", meaning: "Beautiful girl", romanisation: "ho leng lui" },
+      { phrase: "Faan gaau laa", chinese: "翻觉啦", meaning: "Go back to sleep", romanisation: "faan gaau laa" },
+      { phrase: "Sihk yeuhk", chinese: "食药", meaning: "Take medicine", romanisation: "sik yeuk" },
+      { phrase: "Taai mahn la", chinese: "太慢啦", meaning: "Too slow!", romanisation: "tai maan laa" },
+      { phrase: "Leng jai", chinese: "靓仔", meaning: "Good-looking / Nice", romanisation: "leng jai" },
+    ],
+    numbers: [
+      { phrase: "Yāt", chinese: "一", meaning: "One", romanisation: "yat" },
+      { phrase: "Yih", chinese: "二", meaning: "Two", romanisation: "yee" },
+      { phrase: "Sāam", chinese: "三", meaning: "Three", romanisation: "saam" },
+      { phrase: "Sei", chinese: "四", meaning: "Four", romanisation: "say" },
+      { phrase: "Ńgh", chinese: "五", meaning: "Five", romanisation: "ng" },
+      { phrase: "Luhk", chinese: "六", meaning: "Six", romanisation: "luk" },
+      { phrase: "Chāt", chinese: "七", meaning: "Seven", romanisation: "chat" },
+      { phrase: "Baat", chinese: "八", meaning: "Eight", romanisation: "baat" },
+      { phrase: "Gáu", chinese: "九", meaning: "Nine", romanisation: "gau" },
+      { phrase: "Sahp", chinese: "十", meaning: "Ten", romanisation: "sap" },
+      { phrase: "Sahp yāt", chinese: "十一", meaning: "Eleven", romanisation: "sap yat" },
+      { phrase: "Sahp yih", chinese: "十二", meaning: "Twelve", romanisation: "sap yee" },
+      { phrase: "Sahp sāam", chinese: "十三", meaning: "Thirteen", romanisation: "sap saam" },
+      { phrase: "Sahp sei", chinese: "十四", meaning: "Fourteen", romanisation: "sap say" },
+      { phrase: "Sahp ńgh", chinese: "十五", meaning: "Fifteen", romanisation: "sap ng" },
+      { phrase: "Yih sahp", chinese: "二十", meaning: "Twenty", romanisation: "yee sap" },
+      { phrase: "Sāam sahp", chinese: "三十", meaning: "Thirty", romanisation: "saam sap" },
+      { phrase: "Sei sahp", chinese: "四十", meaning: "Forty", romanisation: "say sap" },
+      { phrase: "Ńgh sahp", chinese: "五十", meaning: "Fifty", romanisation: "ng sap" },
+      { phrase: "Luhk sahp", chinese: "六十", meaning: "Sixty", romanisation: "luk sap" },
+      { phrase: "Chāt sahp", chinese: "七十", meaning: "Seventy", romanisation: "chat sap" },
+      { phrase: "Baat sahp", chinese: "八十", meaning: "Eighty", romanisation: "baat sap" },
+      { phrase: "Gáu sahp", chinese: "九十", meaning: "Ninety", romanisation: "gau sap" },
+      { phrase: "Yāt baak", chinese: "一百", meaning: "One hundred", romanisation: "yat baak" },
+      { phrase: "Yih baak", chinese: "两百", meaning: "Two hundred", romanisation: "yee baak" },
+      { phrase: "Yāt chīn", chinese: "一千", meaning: "One thousand", romanisation: "yat chin" },
+      { phrase: "Yāt maanh", chinese: "一万", meaning: "Ten thousand", romanisation: "yat maan" },
+      { phrase: "Bun", chinese: "半", meaning: "Half", romanisation: "bun" },
+      { phrase: "Deih yāt", chinese: "第一", meaning: "First / Number one", romanisation: "dai yat" },
+      { phrase: "Deih yih", chinese: "第二", meaning: "Second / Number two", romanisation: "dai yee" },
+      { phrase: "Deih sāam", chinese: "第三", meaning: "Third", romanisation: "dai saam" },
+      { phrase: "Gēi dō?", chinese: "几多？", meaning: "How many? / How much?", romanisation: "gay doh" },
+      { phrase: "Yāt go", chinese: "一个", meaning: "One piece / one unit", romanisation: "yat go" },
+      { phrase: "Léuhng go", chinese: "两个", meaning: "Two pieces", romanisation: "leung go" },
+      { phrase: "Sāam go", chinese: "三个", meaning: "Three pieces", romanisation: "saam go" },
+      { phrase: "Yāt jek", chinese: "一只", meaning: "One (animal/small obj)", romanisation: "yat jek" },
+      { phrase: "Yāt tìuh", chinese: "一条", meaning: "One long object / strip", romanisation: "yat tiu" },
+      { phrase: "Yāt wun", chinese: "一碗", meaning: "One bowl", romanisation: "yat wun" },
+      { phrase: "Léuhng wun", chinese: "两碗", meaning: "Two bowls", romanisation: "leung wun" },
+      { phrase: "Yāt bui", chinese: "一杯", meaning: "One cup / glass", romanisation: "yat bui" },
+      { phrase: "Léuhng bui", chinese: "两杯", meaning: "Two cups", romanisation: "leung bui" },
+      { phrase: "Yāt jek", chinese: "一碟", meaning: "One plate", romanisation: "yat dip" },
+      { phrase: "Yāt go jūng tàuh", chinese: "一个钟头", meaning: "One hour", romanisation: "yat go jung tau" },
+      { phrase: "Léuhng go jūng tàuh", chinese: "两个钟头", meaning: "Two hours", romanisation: "leung go jung tau" },
+      { phrase: "Yāt go yuht", chinese: "一个月", meaning: "One month", romanisation: "yat go yuet" },
+      { phrase: "Yāt nihn", chinese: "一年", meaning: "One year", romanisation: "yat nin" },
+      { phrase: "Yāt go láih baai", chinese: "一个礼拜", meaning: "One week", romanisation: "yat go lai baai" },
+      { phrase: "Yāt go jūng", chinese: "一个钟", meaning: "One clock / One hour", romanisation: "yat go jung" },
+      { phrase: "Gau dī", chinese: "够嘅", meaning: "Enough", romanisation: "gau dee" },
+      { phrase: "Mh̀ gau", chinese: "唔够", meaning: "Not enough", romanisation: "mm gau" },
+    ],
+    food: [
+      { phrase: "Dim sum", chinese: "点心", meaning: "Dim sum", romanisation: "dim sum" },
+      { phrase: "Chāsīu", chinese: "叉烧", meaning: "BBQ pork", romanisation: "cha siu" },
+      { phrase: "Tōng", chinese: "汤", meaning: "Soup", romanisation: "tong" },
+      { phrase: "Báau", chinese: "包", meaning: "Bun", romanisation: "bao" },
+      { phrase: "Cheung fan", chinese: "肠粉", meaning: "Rice noodle roll", romanisation: "cheung fun" },
+      { phrase: "Haahm séui gaau", chinese: "咸水角", meaning: "Savoury glutinous dumpling", romanisation: "haam sui gaau" },
+      { phrase: "Siu maai", chinese: "烧卖", meaning: "Steamed pork dumpling", romanisation: "siu mai" },
+      { phrase: "Haa gáau", chinese: "虾饺", meaning: "Steamed shrimp dumpling", romanisation: "har gaau" },
+      { phrase: "Loh baahk gou", chinese: "萝卜糕", meaning: "Turnip cake", romanisation: "lo baak go" },
+      { phrase: "Wun tān", chinese: "云吞", meaning: "Wonton", romanisation: "wun tan" },
+      { phrase: "Jūk", chinese: "粥", meaning: "Congee / Porridge", romanisation: "juk" },
+      { phrase: "Gāi jūk", chinese: "鸡粥", meaning: "Chicken congee", romanisation: "gai juk" },
+      { phrase: "Yu jūk", chinese: "鱼粥", meaning: "Fish congee", romanisation: "yu juk" },
+      { phrase: "Míhn", chinese: "面", meaning: "Noodles", romanisation: "min" },
+      { phrase: "Wun tān míhn", chinese: "云吞面", meaning: "Wonton noodles", romanisation: "wun tan min" },
+      { phrase: "Ngàuh láam míhn", chinese: "牛腩面", meaning: "Beef brisket noodles", romanisation: "ngau laam min" },
+      { phrase: "Faahn", chinese: "饭", meaning: "Rice", romanisation: "faan" },
+      { phrase: "Sīu yuhk faahn", chinese: "烧肉饭", meaning: "Roast pork rice", romanisation: "siu yuk faan" },
+      { phrase: "Gāi faahn", chinese: "鸡饭", meaning: "Chicken rice", romanisation: "gai faan" },
+      { phrase: "Yuhk yuán tōng", chinese: "肉丸汤", meaning: "Meatball soup", romanisation: "yuk yun tong" },
+      { phrase: "Gāi tōng", chinese: "鸡汤", meaning: "Chicken soup", romanisation: "gai tong" },
+      { phrase: "Dáan tāat", chinese: "蛋挞", meaning: "Egg tart", romanisation: "dan taat" },
+      { phrase: "Lōu baahk gou", chinese: "老婆糕", meaning: "Wife cake", romanisation: "lo por go" },
+      { phrase: "Ngàuh yuhk", chinese: "牛肉", meaning: "Beef", romanisation: "ngau yuk" },
+      { phrase: "Jyu yuhk", chinese: "猪肉", meaning: "Pork", romanisation: "jyu yuk" },
+      { phrase: "Hā", chinese: "虾", meaning: "Shrimp / Prawn", romanisation: "ha" },
+      { phrase: "Yú", chinese: "鱼", meaning: "Fish", romanisation: "yu" },
+      { phrase: "Hóuh", chinese: "蚝", meaning: "Oyster", romanisation: "hou" },
+      { phrase: "Haai", chinese: "蟹", meaning: "Crab", romanisation: "haai" },
+      { phrase: "Chíng choi", chinese: "青菜", meaning: "Green vegetables", romanisation: "ching choi" },
+      { phrase: "Dáu fuh", chinese: "豆腐", meaning: "Tofu", romanisation: "dau fu" },
+      { phrase: "Dáan", chinese: "蛋", meaning: "Egg", romanisation: "dan" },
+      { phrase: "Jīng dáan", chinese: "蒸蛋", meaning: "Steamed egg", romanisation: "jing dan" },
+      { phrase: "Hóhng sīu ngàap", chinese: "红烧鸭", meaning: "Braised duck", romanisation: "hong siu ngaap" },
+      { phrase: "Bēi jāu", chinese: "啤酒", meaning: "Beer", romanisation: "bei jau" },
+      { phrase: "Séui", chinese: "水", meaning: "Water", romanisation: "seui" },
+      { phrase: "Gāfē", chinese: "咖啡", meaning: "Coffee", romanisation: "ga fe" },
+      { phrase: "Náaih chàh", chinese: "奶茶", meaning: "Milk tea", romanisation: "naai cha" },
+      { phrase: "Chàh", chinese: "茶", meaning: "Tea", romanisation: "cha" },
+      { phrase: "Pou léi chàh", chinese: "普洱茶", meaning: "Pu-erh tea", romanisation: "po lei cha" },
+      { phrase: "Jáu", chinese: "酒", meaning: "Alcohol / Wine", romanisation: "jau" },
+      { phrase: "Gwó jāp", chinese: "果汁", meaning: "Fruit juice", romanisation: "gwo jap" },
+      { phrase: "Tòhng", chinese: "糖", meaning: "Sugar / Candy", romanisation: "tong" },
+      { phrase: "Yìhm", chinese: "盐", meaning: "Salt", romanisation: "yim" },
+      { phrase: "Jéung", chinese: "酱", meaning: "Sauce / Paste", romanisation: "jeung" },
+      { phrase: "Syū jái", chinese: "薯仔", meaning: "Potato", romanisation: "syu jai" },
+      { phrase: "Fāan keh", chinese: "番茄", meaning: "Tomato", romanisation: "faan ke" },
+      { phrase: "Jūk sēung", chinese: "竹笙", meaning: "Bamboo pith mushroom", romanisation: "juk sing" },
+      { phrase: "Bōk choi", chinese: "白菜", meaning: "Bok choy / Chinese cabbage", romanisation: "bok choi" },
+      { phrase: "Gāi lāan", chinese: "芥兰", meaning: "Chinese broccoli", romanisation: "gai lan" },
+    ],
+  },
+  teochew: {
+    greetings: [
+      { phrase: "Lu ho", chinese: "你好", meaning: "Hello", romanisation: "lu ho" },
+      { phrase: "Ziah pa boih?", chinese: "食饱未？", meaning: "Have you eaten?", romanisation: "ziah pa boi" },
+      { phrase: "Gong hi", chinese: "恭喜", meaning: "Congratulations", romanisation: "gong hi" },
+      { phrase: "Zing ho", chinese: "真好", meaning: "Very good", romanisation: "zing ho" },
+      { phrase: "M sai", chinese: "唔使", meaning: "No need / Cannot", romanisation: "m sai" },
+      { phrase: "Dor jia", chinese: "多谢", meaning: "Thank you", romanisation: "dor jia" },
+      { phrase: "M sai ke ki", chinese: "唔使客气", meaning: "You're welcome", romanisation: "m sai ke ki" },
+      { phrase: "Pai seh", chinese: "歹势", meaning: "Sorry / Embarrassed", romanisation: "pai seh" },
+      { phrase: "Wa m bat", chinese: "我唔识", meaning: "I don't know", romanisation: "wa m bat" },
+      { phrase: "Lu khi toh?", chinese: "你去哪里？", meaning: "Where are you going?", romanisation: "lu ki doh" },
+      { phrase: "Wa ai khi", chinese: "我要去", meaning: "I want to go", romanisation: "wa ai ki" },
+      { phrase: "Kin lai", chinese: "紧来", meaning: "Come quickly", romanisation: "kin lai" },
+      { phrase: "Sio sim", chinese: "小心", meaning: "Be careful", romanisation: "sio sim" },
+      { phrase: "Ho un", chinese: "好运", meaning: "Good luck", romanisation: "ho un" },
+      { phrase: "Peng an", chinese: "平安", meaning: "Safe journey / Peace", romanisation: "peng an" },
+      { phrase: "Boh eng", chinese: "无空", meaning: "No time / Busy", romanisation: "boh eng" },
+      { phrase: "Si boh?", chinese: "是否？", meaning: "Is that so? / Really?", romanisation: "si boh" },
+      { phrase: "Ho jia", chinese: "好吃", meaning: "Delicious", romanisation: "ho jia" },
+      { phrase: "Tua nang", chinese: "大人", meaning: "Elder / Adult", romanisation: "tua nang" },
+      { phrase: "Sio nang", chinese: "小人", meaning: "Child / Young person", romanisation: "sio nang" },
+      { phrase: "Hia di", chinese: "兄弟", meaning: "Brothers / Buddies", romanisation: "hia di" },
+      { phrase: "Ka li kong", chinese: "给你讲", meaning: "Let me tell you", romanisation: "ka li kong" },
+      { phrase: "Kim si", chinese: "今时", meaning: "Nowadays", romanisation: "kim si" },
+      { phrase: "Zia ah", chinese: "且啊", meaning: "Wait a moment", romanisation: "zia ah" },
+      { phrase: "Gao lat", chinese: "够力", meaning: "Impressive / Powerful", romanisation: "gao lat" },
+      { phrase: "Chin sui", chinese: "真水", meaning: "Very beautiful", romanisation: "chin sui" },
+      { phrase: "Eh sai", chinese: "会使", meaning: "Can / OK", romanisation: "eh sai" },
+      { phrase: "Beh sai", chinese: "袂使", meaning: "Cannot", romanisation: "beh sai" },
+      { phrase: "Boh lui", chinese: "无钱", meaning: "No money", romanisation: "boh lui" },
+      { phrase: "Chin sian", chinese: "真闲", meaning: "Very bored", romanisation: "chin sian" },
+      { phrase: "Tio liao", chinese: "着了", meaning: "Got it / Correct", romanisation: "dio liao" },
+      { phrase: "Lo bo", chinese: "老母", meaning: "Wife / Old mother", romanisation: "lo bo" },
+      { phrase: "Lo kong", chinese: "老公", meaning: "Husband", romanisation: "lo kong" },
+      { phrase: "Wa siong", chinese: "我想", meaning: "I think / I want", romanisation: "wa siong" },
+      { phrase: "Jip lai", chinese: "入来", meaning: "Come in", romanisation: "jip lai" },
+      { phrase: "Chut khi", chinese: "出去", meaning: "Go out", romanisation: "jut ki" },
+      { phrase: "Boh su", chinese: "无事", meaning: "Nothing / Never mind", romanisation: "boh su" },
+      { phrase: "Hor bo?", chinese: "好无？", meaning: "Is it good?", romanisation: "hor bo" },
+      { phrase: "Buay tahan", chinese: "袂担", meaning: "Cannot take it", romanisation: "buay tahan" },
+      { phrase: "Sui bo?", chinese: "水无？", meaning: "Beautiful right?", romanisation: "sui bo" },
+      { phrase: "Zao khi", chinese: "走去", meaning: "Walk / Go on foot", romanisation: "zao ki" },
+      { phrase: "Tioh liao", chinese: "着了", meaning: "Correct / That's it", romanisation: "tioh liao" },
+      { phrase: "Ti bo?", chinese: "甜无？", meaning: "Is it sweet?", romanisation: "ti bo" },
+      { phrase: "Hiam bo?", chinese: "辣无？", meaning: "Is it spicy?", romanisation: "hiam bo" },
+      { phrase: "Lim jui", chinese: "饮水", meaning: "Drink water", romanisation: "lim jui" },
+      { phrase: "Jiah mi?", chinese: "食什么？", meaning: "What are you eating?", romanisation: "jiah mi" },
+      { phrase: "Wa ai lim", chinese: "我爱饮", meaning: "I want to drink", romanisation: "wa ai lim" },
+      { phrase: "Lua nang", chinese: "两人", meaning: "Two people / A couple", romanisation: "lua nang" },
+      { phrase: "Tng khi", chinese: "转去", meaning: "Return / Go back", romanisation: "tng ki" },
+      { phrase: "Jua hor", chinese: "坐好", meaning: "Sit properly", romanisation: "jua hor" },
+    ],
+    numbers: [
+      { phrase: "Ik", chinese: "一", meaning: "One", romanisation: "ik" },
+      { phrase: "Nang", chinese: "二", meaning: "Two", romanisation: "nang" },
+      { phrase: "Suan", chinese: "三", meaning: "Three", romanisation: "suan" },
+      { phrase: "Si", chinese: "四", meaning: "Four", romanisation: "si" },
+      { phrase: "Ngou", chinese: "五", meaning: "Five", romanisation: "ngou" },
+      { phrase: "Lak", chinese: "六", meaning: "Six", romanisation: "lak" },
+      { phrase: "Chik", chinese: "七", meaning: "Seven", romanisation: "chik" },
+      { phrase: "Poih", chinese: "八", meaning: "Eight", romanisation: "poih" },
+      { phrase: "Kau", chinese: "九", meaning: "Nine", romanisation: "kau" },
+      { phrase: "Zap", chinese: "十", meaning: "Ten", romanisation: "zap" },
+      { phrase: "Zap ik", chinese: "十一", meaning: "Eleven", romanisation: "zap ik" },
+      { phrase: "Zap nang", chinese: "十二", meaning: "Twelve", romanisation: "zap nang" },
+      { phrase: "Zap suan", chinese: "十三", meaning: "Thirteen", romanisation: "zap suan" },
+      { phrase: "Nang zap", chinese: "二十", meaning: "Twenty", romanisation: "nang zap" },
+      { phrase: "Suan zap", chinese: "三十", meaning: "Thirty", romanisation: "suan zap" },
+      { phrase: "Si zap", chinese: "四十", meaning: "Forty", romanisation: "si zap" },
+      { phrase: "Ngou zap", chinese: "五十", meaning: "Fifty", romanisation: "ngou zap" },
+      { phrase: "Lak zap", chinese: "六十", meaning: "Sixty", romanisation: "lak zap" },
+      { phrase: "Chik zap", chinese: "七十", meaning: "Seventy", romanisation: "chik zap" },
+      { phrase: "Poih zap", chinese: "八十", meaning: "Eighty", romanisation: "poih zap" },
+      { phrase: "Kau zap", chinese: "九十", meaning: "Ninety", romanisation: "kau zap" },
+      { phrase: "Ik bah", chinese: "一百", meaning: "One hundred", romanisation: "ik bah" },
+      { phrase: "Nang bah", chinese: "两百", meaning: "Two hundred", romanisation: "nang bah" },
+      { phrase: "Ik ceng", chinese: "一千", meaning: "One thousand", romanisation: "ik ceng" },
+      { phrase: "Ik buan", chinese: "一万", meaning: "Ten thousand", romanisation: "ik buan" },
+      { phrase: "Buan", chinese: "半", meaning: "Half", romanisation: "buan" },
+      { phrase: "Di ik", chinese: "第一", meaning: "First", romanisation: "di ik" },
+      { phrase: "Di nang", chinese: "第二", meaning: "Second", romanisation: "di nang" },
+      { phrase: "Di suan", chinese: "第三", meaning: "Third", romanisation: "di suan" },
+      { phrase: "Gei ze?", chinese: "几多？", meaning: "How many?", romanisation: "gei ze" },
+      { phrase: "Ik pai", chinese: "一次", meaning: "Once / One time", romanisation: "ik pai" },
+      { phrase: "Nang pai", chinese: "两次", meaning: "Twice", romanisation: "nang pai" },
+      { phrase: "Ik diam", chinese: "一点", meaning: "One o'clock", romanisation: "ik diam" },
+      { phrase: "Nang diam", chinese: "两点", meaning: "Two o'clock", romanisation: "nang diam" },
+      { phrase: "Suan diam", chinese: "三点", meaning: "Three o'clock", romanisation: "suan diam" },
+      { phrase: "Ik le pai", chinese: "一礼拜", meaning: "One week", romanisation: "ik le pai" },
+      { phrase: "Nang le pai", chinese: "两礼拜", meaning: "Two weeks", romanisation: "nang le pai" },
+      { phrase: "Ik geh", chinese: "一月", meaning: "One month / January", romanisation: "ik geh" },
+      { phrase: "Nang geh", chinese: "二月", meaning: "February", romanisation: "nang geh" },
+      { phrase: "Suan geh", chinese: "三月", meaning: "March", romanisation: "suan geh" },
+      { phrase: "Si geh", chinese: "四月", meaning: "April", romanisation: "si geh" },
+      { phrase: "Ngou geh", chinese: "五月", meaning: "May", romanisation: "ngou geh" },
+      { phrase: "Lak geh", chinese: "六月", meaning: "June", romanisation: "lak geh" },
+      { phrase: "Chik geh", chinese: "七月", meaning: "July / Ghost month", romanisation: "chik geh" },
+      { phrase: "Poih geh", chinese: "八月", meaning: "August", romanisation: "poih geh" },
+      { phrase: "Kau geh", chinese: "九月", meaning: "September", romanisation: "kau geh" },
+      { phrase: "Zap geh", chinese: "十月", meaning: "October", romanisation: "zap geh" },
+      { phrase: "Zap ik geh", chinese: "十一月", meaning: "November", romanisation: "zap ik geh" },
+      { phrase: "Zap nang geh", chinese: "十二月", meaning: "December", romanisation: "zap nang geh" },
+      { phrase: "Ik ni", chinese: "一年", meaning: "One year", romanisation: "ik ni" },
+    ],
+    food: [
+      { phrase: "Kway teow", chinese: "粿条", meaning: "Flat rice noodles", romanisation: "kway teow" },
+      { phrase: "Png", chinese: "饭", meaning: "Rice", romanisation: "pung" },
+      { phrase: "Bak chang", chinese: "肉粽", meaning: "Rice dumpling", romanisation: "bak zhang" },
+      { phrase: "Orh jian", chinese: "蚵煎", meaning: "Oyster omelette", romanisation: "or jian" },
+      { phrase: "Chai tow kway", chinese: "菜头粿", meaning: "Carrot cake", romanisation: "chai tow kway" },
+      { phrase: "Teow chew muay", chinese: "潮州糜", meaning: "Teochew porridge", romanisation: "teow jew muay" },
+      { phrase: "Orh nee", chinese: "芋泥", meaning: "Yam paste dessert", romanisation: "or nee" },
+      { phrase: "Kway chap", chinese: "粿汁", meaning: "Flat rice noodle soup", romanisation: "kway chap" },
+      { phrase: "Soon kueh", chinese: "笋粿", meaning: "Bamboo shoot dumpling", romanisation: "soon kueh" },
+      { phrase: "Png kueh", chinese: "饭粿", meaning: "Rice cake with filling", romanisation: "pung kueh" },
+      { phrase: "Tau suan", chinese: "豆爽", meaning: "Green bean dessert", romanisation: "tau suan" },
+      { phrase: "Oh luak", chinese: "蚝烙", meaning: "Oyster omelette (Teochew style)", romanisation: "or luak" },
+      { phrase: "Bak chor mee", chinese: "肉碎面", meaning: "Minced pork noodles", romanisation: "bak chor mee" },
+      { phrase: "Char kway teow", chinese: "炒粿条", meaning: "Fried flat noodles", romanisation: "char kway teow" },
+      { phrase: "Hae mee", chinese: "虾面", meaning: "Prawn noodle soup", romanisation: "hae mee" },
+      { phrase: "Popiah", chinese: "薄饼", meaning: "Fresh spring roll", romanisation: "popiah" },
+      { phrase: "Kueh", chinese: "粿", meaning: "Rice cake", romanisation: "kueh" },
+      { phrase: "Ang ku kueh", chinese: "红龟粿", meaning: "Red tortoise cake", romanisation: "ang ku kueh" },
+      { phrase: "Hu", chinese: "鱼", meaning: "Fish", romanisation: "hu" },
+      { phrase: "Bak", chinese: "肉", meaning: "Meat / Pork", romanisation: "bak" },
+      { phrase: "Ke", chinese: "鸡", meaning: "Chicken", romanisation: "ke" },
+      { phrase: "Hae", chinese: "虾", meaning: "Prawns", romanisation: "hae" },
+      { phrase: "Nng", chinese: "卵", meaning: "Egg", romanisation: "nng" },
+      { phrase: "Tng", chinese: "汤", meaning: "Soup", romanisation: "tng" },
+      { phrase: "Chye", chinese: "菜", meaning: "Vegetables", romanisation: "chai" },
+      { phrase: "Kiam chye", chinese: "咸菜", meaning: "Salted vegetables", romanisation: "kiam chai" },
+      { phrase: "Tau hu", chinese: "豆腐", meaning: "Tofu", romanisation: "tau hu" },
+      { phrase: "Him", chinese: "咸", meaning: "Salty", romanisation: "him" },
+      { phrase: "Ti", chinese: "甜", meaning: "Sweet", romanisation: "ti" },
+      { phrase: "Sng", chinese: "酸", meaning: "Sour", romanisation: "sng" },
+      { phrase: "Hiam", chinese: "辣", meaning: "Spicy", romanisation: "hiam" },
+      { phrase: "Ko", chinese: "苦", meaning: "Bitter", romanisation: "ko" },
+      { phrase: "Teh", chinese: "茶", meaning: "Tea", romanisation: "teh" },
+      { phrase: "Kopi", chinese: "咖啡", meaning: "Coffee", romanisation: "ko-pee" },
+      { phrase: "Jui", chinese: "水", meaning: "Water", romanisation: "jui" },
+      { phrase: "Ba wan", chinese: "肉丸", meaning: "Meatball", romanisation: "ba wan" },
+      { phrase: "Lor bak", chinese: "卤肉", meaning: "Braised pork", romanisation: "lor bak" },
+      { phrase: "Ter kah", chinese: "猪脚", meaning: "Pig's trotter", romanisation: "ter kah" },
+      { phrase: "Bah lua", chinese: "肉卵", meaning: "Pork with egg", romanisation: "bah lua" },
+      { phrase: "Cai png", chinese: "菜饭", meaning: "Mixed rice with veg", romanisation: "cai pung" },
+      { phrase: "Mee sua", chinese: "面线", meaning: "Thin wheat noodles", romanisation: "mee sua" },
+      { phrase: "Bee hoon", chinese: "米粉", meaning: "Rice vermicelli", romanisation: "bee hoon" },
+      { phrase: "Chai tow", chinese: "菜头", meaning: "Radish / Turnip", romanisation: "chai tow" },
+      { phrase: "Gor bak", chinese: "糕肉", meaning: "Steamed pork cake", romanisation: "gor bak" },
+      { phrase: "Lim jui", chinese: "饮水", meaning: "Drink water", romanisation: "lim jui" },
+      { phrase: "Siong tng", chinese: "上汤", meaning: "Superior broth", romanisation: "siong tng" },
+      { phrase: "Ba kua", chinese: "肉干", meaning: "Dried barbecued meat", romanisation: "ba kwa" },
+      { phrase: "Hae bee", chinese: "虾米", meaning: "Dried shrimp", romanisation: "hae bee" },
+      { phrase: "Jiak png", chinese: "食饭", meaning: "Eat rice / Have a meal", romanisation: "jiak pung" },
+      { phrase: "Zhor bia", chinese: "烧饼", meaning: "Sesame flatbread", romanisation: "zhor bia" },
+    ],
+  },
+  hakka: {
+    greetings: [
+      { phrase: "Ngi ho", chinese: "你好", meaning: "Hello", romanisation: "ngi ho" },
+      { phrase: "Ya fan liaw maa?", chinese: "食饭了吗？", meaning: "Have you eaten?", romanisation: "ya fan liaw maa" },
+      { phrase: "Kung hi", chinese: "恭喜", meaning: "Congratulations", romanisation: "kung hi" },
+      { phrase: "Chang ho", chinese: "真好", meaning: "Very good", romanisation: "chang ho" },
+      { phrase: "Mo het", chinese: "冇得", meaning: "Cannot / Not possible", romanisation: "mo het" },
+      { phrase: "Do jia", chinese: "多谢", meaning: "Thank you", romanisation: "do jia" },
+      { phrase: "M sai ke ki", chinese: "唔使客气", meaning: "You're welcome", romanisation: "m sai ke ki" },
+      { phrase: "Pai seh", chinese: "歹势", meaning: "Sorry / Embarrassed", romanisation: "pai seh" },
+      { phrase: "Nga m sik", chinese: "我唔识", meaning: "I don't know", romanisation: "nga m sik" },
+      { phrase: "Ngi hi pa?", chinese: "你去哪？", meaning: "Where are you going?", romanisation: "ngi hi ba" },
+      { phrase: "Nga ai hi", chinese: "我要去", meaning: "I want to go", romanisation: "nga ai hi" },
+      { phrase: "Fong sim", chinese: "放心", meaning: "Don't worry / Relax", romanisation: "fong sim" },
+      { phrase: "Sio sim", chinese: "小心", meaning: "Be careful", romanisation: "sio sim" },
+      { phrase: "Ho un", chinese: "好运", meaning: "Good luck", romanisation: "ho un" },
+      { phrase: "Piang an", chinese: "平安", meaning: "Safe journey", romanisation: "piang an" },
+      { phrase: "Mo kung", chinese: "无空", meaning: "No time / Busy", romanisation: "mo kung" },
+      { phrase: "Si mo?", chinese: "是吗？", meaning: "Is that so?", romanisation: "si mo" },
+      { phrase: "Ho shik", chinese: "好食", meaning: "Delicious", romanisation: "ho sik" },
+      { phrase: "Tai ngin", chinese: "大人", meaning: "Adult / Elder", romanisation: "tai ngin" },
+      { phrase: "Sai ngin", chinese: "细人", meaning: "Child", romanisation: "sai ngin" },
+      { phrase: "Hiung ti", chinese: "兄弟", meaning: "Brothers / Buddies", romanisation: "hiung ti" },
+      { phrase: "Ka ngi gong", chinese: "给你讲", meaning: "Let me tell you", romanisation: "ka ngi gong" },
+      { phrase: "Gim si", chinese: "今时", meaning: "Nowadays", romanisation: "gim si" },
+      { phrase: "Den ha", chinese: "等下", meaning: "Wait a moment", romanisation: "den ha" },
+      { phrase: "Ho leng", chinese: "好靓", meaning: "Very beautiful", romanisation: "ho leng" },
+      { phrase: "Tit liao", chinese: "得了", meaning: "Got it / Correct", romanisation: "tit liao" },
+      { phrase: "Hor mo?", chinese: "好无？", meaning: "Is it good?", romanisation: "hor mo" },
+      { phrase: "Mo lui", chinese: "无钱", meaning: "No money", romanisation: "mo lui" },
+      { phrase: "Chang sian", chinese: "真闲", meaning: "Very bored", romanisation: "chang sian" },
+      { phrase: "Hip liaw", chinese: "入来了", meaning: "Come in now", romanisation: "hip liaw" },
+      { phrase: "Chut hi", chinese: "出去", meaning: "Go out", romanisation: "chut hi" },
+      { phrase: "Mo shi", chinese: "无事", meaning: "Nothing / Never mind", romanisation: "mo shi" },
+      { phrase: "Lo gong", chinese: "老公", meaning: "Husband", romanisation: "lo gong" },
+      { phrase: "Lo po", chinese: "老婆", meaning: "Wife", romanisation: "lo po" },
+      { phrase: "Nga siong", chinese: "我想", meaning: "I think / I want", romanisation: "nga siong" },
+      { phrase: "Ya tiaw", chinese: "一道", meaning: "Together / Along the way", romanisation: "ya tiaw" },
+      { phrase: "Tia tia", chinese: "爸爸", meaning: "Father / Dad", romanisation: "tia tia" },
+      { phrase: "Ama", chinese: "阿妈", meaning: "Mother / Mum", romanisation: "ama" },
+      { phrase: "A gung", chinese: "阿公", meaning: "Grandfather", romanisation: "a gung" },
+      { phrase: "A po", chinese: "阿婆", meaning: "Grandmother", romanisation: "a po" },
+      { phrase: "Hiung di", chinese: "兄弟", meaning: "Brothers", romanisation: "hiung di" },
+      { phrase: "Ji mui", chinese: "姐妹", meaning: "Sisters", romanisation: "ji mui" },
+      { phrase: "Lai lai", chinese: "来来", meaning: "Come here!", romanisation: "lai lai" },
+      { phrase: "Zo san", chinese: "早晨", meaning: "Good morning", romanisation: "zo san" },
+      { phrase: "Am on", chinese: "暗安", meaning: "Good night", romanisation: "am on" },
+      { phrase: "Chang sui", chinese: "真水", meaning: "Very pretty / Beautiful", romanisation: "chang sui" },
+      { phrase: "Gau lat", chinese: "够力", meaning: "Impressive", romanisation: "gau lat" },
+      { phrase: "Wa ai lim", chinese: "我要饮", meaning: "I want to drink", romanisation: "wa ai lim" },
+      { phrase: "Jia mi?", chinese: "食什么？", meaning: "What are you eating?", romanisation: "jia mi" },
+      { phrase: "Jua ho", chinese: "坐好", meaning: "Sit properly", romanisation: "jua ho" },
+    ],
+    numbers: [
+      { phrase: "Yit", chinese: "一", meaning: "One", romanisation: "yit" },
+      { phrase: "Ngi", chinese: "二", meaning: "Two", romanisation: "ngi" },
+      { phrase: "Sam", chinese: "三", meaning: "Three", romanisation: "sam" },
+      { phrase: "Si", chinese: "四", meaning: "Four", romanisation: "si" },
+      { phrase: "Ng", chinese: "五", meaning: "Five", romanisation: "ng" },
+      { phrase: "Liuk", chinese: "六", meaning: "Six", romanisation: "liuk" },
+      { phrase: "Chit", chinese: "七", meaning: "Seven", romanisation: "chit" },
+      { phrase: "Pat", chinese: "八", meaning: "Eight", romanisation: "pat" },
+      { phrase: "Giu", chinese: "九", meaning: "Nine", romanisation: "giu" },
+      { phrase: "Siip", chinese: "十", meaning: "Ten", romanisation: "siip" },
+      { phrase: "Siip yit", chinese: "十一", meaning: "Eleven", romanisation: "siip yit" },
+      { phrase: "Siip ngi", chinese: "十二", meaning: "Twelve", romanisation: "siip ngi" },
+      { phrase: "Siip sam", chinese: "十三", meaning: "Thirteen", romanisation: "siip sam" },
+      { phrase: "Ngi siip", chinese: "二十", meaning: "Twenty", romanisation: "ngi siip" },
+      { phrase: "Sam siip", chinese: "三十", meaning: "Thirty", romanisation: "sam siip" },
+      { phrase: "Si siip", chinese: "四十", meaning: "Forty", romanisation: "si siip" },
+      { phrase: "Ng siip", chinese: "五十", meaning: "Fifty", romanisation: "ng siip" },
+      { phrase: "Liuk siip", chinese: "六十", meaning: "Sixty", romanisation: "liuk siip" },
+      { phrase: "Chit siip", chinese: "七十", meaning: "Seventy", romanisation: "chit siip" },
+      { phrase: "Pat siip", chinese: "八十", meaning: "Eighty", romanisation: "pat siip" },
+      { phrase: "Giu siip", chinese: "九十", meaning: "Ninety", romanisation: "giu siip" },
+      { phrase: "Yit pak", chinese: "一百", meaning: "One hundred", romanisation: "yit pak" },
+      { phrase: "Ngi pak", chinese: "两百", meaning: "Two hundred", romanisation: "ngi pak" },
+      { phrase: "Yit chien", chinese: "一千", meaning: "One thousand", romanisation: "yit chien" },
+      { phrase: "Yit van", chinese: "一万", meaning: "Ten thousand", romanisation: "yit van" },
+      { phrase: "Pan", chinese: "半", meaning: "Half", romanisation: "pan" },
+      { phrase: "Di yit", chinese: "第一", meaning: "First", romanisation: "di yit" },
+      { phrase: "Di ngi", chinese: "第二", meaning: "Second", romanisation: "di ngi" },
+      { phrase: "Di sam", chinese: "第三", meaning: "Third", romanisation: "di sam" },
+      { phrase: "Gi do?", chinese: "几多？", meaning: "How many?", romanisation: "gi do" },
+      { phrase: "Yit phai", chinese: "一次", meaning: "Once", romanisation: "yit phai" },
+      { phrase: "Ngi phai", chinese: "两次", meaning: "Twice", romanisation: "ngi phai" },
+      { phrase: "Yit diam", chinese: "一点", meaning: "One o'clock", romanisation: "yit diam" },
+      { phrase: "Ngi diam", chinese: "两点", meaning: "Two o'clock", romanisation: "ngi diam" },
+      { phrase: "Sam diam", chinese: "三点", meaning: "Three o'clock", romanisation: "sam diam" },
+      { phrase: "Yit li pai", chinese: "一礼拜", meaning: "One week", romanisation: "yit li pai" },
+      { phrase: "Ngi li pai", chinese: "两礼拜", meaning: "Two weeks", romanisation: "ngi li pai" },
+      { phrase: "Yit giet", chinese: "一月", meaning: "January", romanisation: "yit giet" },
+      { phrase: "Ngi giet", chinese: "二月", meaning: "February", romanisation: "ngi giet" },
+      { phrase: "Sam giet", chinese: "三月", meaning: "March", romanisation: "sam giet" },
+      { phrase: "Si giet", chinese: "四月", meaning: "April", romanisation: "si giet" },
+      { phrase: "Ng giet", chinese: "五月", meaning: "May", romanisation: "ng giet" },
+      { phrase: "Liuk giet", chinese: "六月", meaning: "June", romanisation: "liuk giet" },
+      { phrase: "Chit giet", chinese: "七月", meaning: "July / Ghost month", romanisation: "chit giet" },
+      { phrase: "Pat giet", chinese: "八月", meaning: "August", romanisation: "pat giet" },
+      { phrase: "Giu giet", chinese: "九月", meaning: "September", romanisation: "giu giet" },
+      { phrase: "Siip giet", chinese: "十月", meaning: "October", romanisation: "siip giet" },
+      { phrase: "Siip yit giet", chinese: "十一月", meaning: "November", romanisation: "siip yit giet" },
+      { phrase: "Siip ngi giet", chinese: "十二月", meaning: "December", romanisation: "siip ngi giet" },
+      { phrase: "Yit ngien", chinese: "一年", meaning: "One year", romanisation: "yit ngien" },
+    ],
+    food: [
+      { phrase: "Kiu nyuk", chinese: "扣肉", meaning: "Braised pork belly", romanisation: "kiu nyuk" },
+      { phrase: "Fan", chinese: "饭", meaning: "Rice", romanisation: "fan" },
+      { phrase: "Abacus seeds", chinese: "算盘子", meaning: "Yam abacus dumplings", romanisation: "suan pan zi" },
+      { phrase: "Mee", chinese: "面", meaning: "Noodles", romanisation: "mee" },
+      { phrase: "Lei cha", chinese: "擂茶", meaning: "Pounded tea with herbs", romanisation: "lui cha" },
+      { phrase: "Yong tau foo", chinese: "酿豆腐", meaning: "Stuffed tofu", romanisation: "yong tau fu" },
+      { phrase: "Ban mian", chinese: "板面", meaning: "Hand-made flat noodles", romanisation: "ban mian" },
+      { phrase: "Cha siew", chinese: "叉烧", meaning: "BBQ pork", romanisation: "cha siew" },
+      { phrase: "Tong", chinese: "汤", meaning: "Soup / Broth", romanisation: "tong" },
+      { phrase: "Tong fun", chinese: "汤粉", meaning: "Noodles in soup", romanisation: "tong fun" },
+      { phrase: "Ya fan", chinese: "鸭饭", meaning: "Duck rice", romanisation: "ya fan" },
+      { phrase: "Ji fan", chinese: "鸡饭", meaning: "Chicken rice", romanisation: "ji fan" },
+      { phrase: "Bak kut teh", chinese: "肉骨茶", meaning: "Pork rib soup", romanisation: "bak kut teh" },
+      { phrase: "Chai bo", chinese: "菜脯", meaning: "Preserved radish", romanisation: "chai bo" },
+      { phrase: "Tau fu", chinese: "豆腐", meaning: "Tofu / Bean curd", romanisation: "tau fu" },
+      { phrase: "Tau kua", chinese: "豆干", meaning: "Firm tofu", romanisation: "tau kwa" },
+      { phrase: "Nyuk", chinese: "肉", meaning: "Meat / Pork", romanisation: "nyuk" },
+      { phrase: "Gai", chinese: "鸡", meaning: "Chicken", romanisation: "gai" },
+      { phrase: "Ha", chinese: "虾", meaning: "Prawn / Shrimp", romanisation: "ha" },
+      { phrase: "Yu", chinese: "鱼", meaning: "Fish", romanisation: "yu" },
+      { phrase: "Kai tan", chinese: "鸡蛋", meaning: "Egg", romanisation: "kai tan" },
+      { phrase: "Chai", chinese: "菜", meaning: "Vegetables", romanisation: "chai" },
+      { phrase: "Ham", chinese: "咸", meaning: "Salty", romanisation: "ham" },
+      { phrase: "Tim", chinese: "甜", meaning: "Sweet", romanisation: "tim" },
+      { phrase: "Son", chinese: "酸", meaning: "Sour", romanisation: "son" },
+      { phrase: "Lat", chinese: "辣", meaning: "Spicy", romanisation: "lat" },
+      { phrase: "Ku", chinese: "苦", meaning: "Bitter", romanisation: "ku" },
+      { phrase: "Cha", chinese: "茶", meaning: "Tea", romanisation: "cha" },
+      { phrase: "Ka feh", chinese: "咖啡", meaning: "Coffee", romanisation: "ka feh" },
+      { phrase: "Shui", chinese: "水", meaning: "Water", romanisation: "shui" },
+      { phrase: "Pong pong tong", chinese: "碰碰糖", meaning: "Honeycomb candy", romanisation: "pong pong tong" },
+      { phrase: "Fong tong", chinese: "红糖", meaning: "Brown sugar / Jaggery", romanisation: "fong tong" },
+      { phrase: "Giu nyuk tong", chinese: "猪脚汤", meaning: "Pig trotter soup", romanisation: "giu nyuk tong" },
+      { phrase: "Char mee", chinese: "炒面", meaning: "Fried noodles", romanisation: "char mee" },
+      { phrase: "Char fun", chinese: "炒粉", meaning: "Fried vermicelli", romanisation: "char fun" },
+      { phrase: "Kiu fun", chinese: "粿粉", meaning: "Rice flour noodles", romanisation: "kiu fun" },
+      { phrase: "Tong yuan", chinese: "汤圆", meaning: "Glutinous rice balls", romanisation: "tong yuan" },
+      { phrase: "Ba kua", chinese: "肉干", meaning: "Dried BBQ pork", romanisation: "ba kwa" },
+      { phrase: "Hae bee", chinese: "虾米", meaning: "Dried shrimp", romanisation: "hae bee" },
+      { phrase: "Lo han guo", chinese: "罗汉果", meaning: "Monk fruit drink", romanisation: "lo han guo" },
+      { phrase: "Sam ten tong", chinese: "三天糖", meaning: "Three-day candy (toffee)", romanisation: "sam ten tong" },
+      { phrase: "Fun", chinese: "粉", meaning: "Noodles / Flour", romanisation: "fun" },
+      { phrase: "Pork congee", chinese: "猪肉粥", meaning: "Pork congee", romanisation: "nyuk juk" },
+      { phrase: "Kam heong", chinese: "金香", meaning: "Golden fragrant (style)", romanisation: "kam heong" },
+      { phrase: "Tung cai", chinese: "冬菜", meaning: "Preserved winter vegetable", romanisation: "tung cai" },
+      { phrase: "Dou miu", chinese: "豆苗", meaning: "Pea shoots", romanisation: "dou miu" },
+      { phrase: "Fong gua", chinese: "冬瓜", meaning: "Winter melon", romanisation: "fong gua" },
+      { phrase: "Guk", chinese: "菊花", meaning: "Chrysanthemum (tea)", romanisation: "guk" },
+      { phrase: "Mui choi", chinese: "梅菜", meaning: "Preserved mustard greens", romanisation: "mui choi" },
+      { phrase: "Lui cha fun", chinese: "擂茶粉", meaning: "Hakka pounded tea rice", romanisation: "lui cha fun" },
+    ],
+  },
+  hainanese: {
+    greetings: [
+      { phrase: "Nee hoh", chinese: "你好", meaning: "Hello", romanisation: "nee hoh" },
+      { phrase: "Chiak boh?", chinese: "食了没？", meaning: "Have you eaten?", romanisation: "chiak boh" },
+      { phrase: "Gong hi", chinese: "恭喜", meaning: "Congratulations", romanisation: "gong hi" },
+      { phrase: "Zin ho", chinese: "真好", meaning: "Very good", romanisation: "zin ho" },
+      { phrase: "Beh sai", chinese: "袂使", meaning: "Cannot", romanisation: "beh sai" },
+      { phrase: "Doh jiah", chinese: "多谢", meaning: "Thank you", romanisation: "doh jiah" },
+      { phrase: "M sai ke ki", chinese: "唔使客气", meaning: "You're welcome", romanisation: "m sai ke ki" },
+      { phrase: "Pai seh", chinese: "歹势", meaning: "Sorry / Embarrassed", romanisation: "pai seh" },
+      { phrase: "Wa m bat", chinese: "我唔识", meaning: "I don't know", romanisation: "wa m bat" },
+      { phrase: "Nee hi na li?", chinese: "你去哪里？", meaning: "Where are you going?", romanisation: "nee hi na li" },
+      { phrase: "Wa ai hi", chinese: "我要去", meaning: "I want to go", romanisation: "wa ai hi" },
+      { phrase: "Kin lai", chinese: "紧来", meaning: "Come quickly", romanisation: "kin lai" },
+      { phrase: "Sio sim", chinese: "小心", meaning: "Be careful", romanisation: "sio sim" },
+      { phrase: "Ho un", chinese: "好运", meaning: "Good luck", romanisation: "ho un" },
+      { phrase: "Peng an", chinese: "平安", meaning: "Safe journey", romanisation: "peng an" },
+      { phrase: "Boh eng", chinese: "无空", meaning: "No time / Busy", romanisation: "boh eng" },
+      { phrase: "Si moh?", chinese: "是吗？", meaning: "Is that so?", romanisation: "si moh" },
+      { phrase: "Ho jia", chinese: "好吃", meaning: "Delicious", romanisation: "ho jia" },
+      { phrase: "Tua nang", chinese: "大人", meaning: "Adult / Elder", romanisation: "tua nang" },
+      { phrase: "Sio nang", chinese: "小人", meaning: "Child", romanisation: "sio nang" },
+      { phrase: "Hia di", chinese: "兄弟", meaning: "Brothers / Buddies", romanisation: "hia di" },
+      { phrase: "Ka nee kong", chinese: "给你讲", meaning: "Let me tell you", romanisation: "ka nee kong" },
+      { phrase: "Kim si", chinese: "今时", meaning: "Nowadays", romanisation: "kim si" },
+      { phrase: "Den ah", chinese: "等啊", meaning: "Wait a moment", romanisation: "den ah" },
+      { phrase: "Ho leng", chinese: "好靓", meaning: "Very beautiful", romanisation: "ho leng" },
+      { phrase: "Eh sai", chinese: "会使", meaning: "Can / OK", romanisation: "eh sai" },
+      { phrase: "Boh lui", chinese: "无钱", meaning: "No money", romanisation: "boh lui" },
+      { phrase: "Lo gong", chinese: "老公", meaning: "Husband", romanisation: "lo gong" },
+      { phrase: "Lo bo", chinese: "老婆", meaning: "Wife", romanisation: "lo bo" },
+      { phrase: "Wa ai lim", chinese: "我要饮", meaning: "I want to drink", romanisation: "wa ai lim" },
+      { phrase: "Jip lai", chinese: "入来", meaning: "Come in", romanisation: "jip lai" },
+      { phrase: "Chut hi", chinese: "出去", meaning: "Go out", romanisation: "chut hi" },
+      { phrase: "Boh su", chinese: "无事", meaning: "Nothing / Never mind", romanisation: "boh su" },
+      { phrase: "Zor san", chinese: "早晨", meaning: "Good morning", romanisation: "zor san" },
+      { phrase: "Am on", chinese: "暗安", meaning: "Good night", romanisation: "am on" },
+      { phrase: "Gam jit", chinese: "今日", meaning: "Today", romanisation: "gam jit" },
+      { phrase: "Kam jit", chinese: "琴日", meaning: "Yesterday", romanisation: "kam jit" },
+      { phrase: "Ting jit", chinese: "听日", meaning: "Tomorrow", romanisation: "ting jit" },
+      { phrase: "Fong sim", chinese: "放心", meaning: "Don't worry", romanisation: "fong sim" },
+      { phrase: "Gao lat", chinese: "够力", meaning: "Impressive / Powerful", romanisation: "gao lat" },
+      { phrase: "Chin sian", chinese: "真闲", meaning: "Very bored", romanisation: "chin sian" },
+      { phrase: "Tio liao", chinese: "着了", meaning: "Got it / Correct", romanisation: "dio liao" },
+      { phrase: "Ka nee kong suah", chinese: "给你讲话", meaning: "I have something to tell you", romanisation: "ka nee kong sua" },
+      { phrase: "Wa siong", chinese: "我想", meaning: "I think / I want", romanisation: "wa siong" },
+      { phrase: "Hor bo?", chinese: "好无？", meaning: "Is it good?", romanisation: "hor bo" },
+      { phrase: "Hia mui", chinese: "兄妹", meaning: "Siblings", romanisation: "hia mui" },
+      { phrase: "A gong", chinese: "阿公", meaning: "Grandfather", romanisation: "a gong" },
+      { phrase: "A ma", chinese: "阿妈", meaning: "Grandmother / Mother", romanisation: "a ma" },
+      { phrase: "Boh man tai", chinese: "没问题", meaning: "No problem", romanisation: "boh man tai" },
+      { phrase: "Lua nang", chinese: "两人", meaning: "Two people / A couple", romanisation: "lua nang" },
+    ],
+    numbers: [
+      { phrase: "Yat", chinese: "一", meaning: "One", romanisation: "yat" },
+      { phrase: "Yi", chinese: "二", meaning: "Two", romanisation: "yi" },
+      { phrase: "Lam", chinese: "三", meaning: "Three", romanisation: "lam" },
+      { phrase: "Si", chinese: "四", meaning: "Four", romanisation: "si" },
+      { phrase: "Ngau", chinese: "五", meaning: "Five", romanisation: "ngau" },
+      { phrase: "Lak", chinese: "六", meaning: "Six", romanisation: "lak" },
+      { phrase: "Chit", chinese: "七", meaning: "Seven", romanisation: "chit" },
+      { phrase: "Puak", chinese: "八", meaning: "Eight", romanisation: "puak" },
+      { phrase: "Kau", chinese: "九", meaning: "Nine", romanisation: "kau" },
+      { phrase: "Zap", chinese: "十", meaning: "Ten", romanisation: "zap" },
+      { phrase: "Zap yat", chinese: "十一", meaning: "Eleven", romanisation: "zap yat" },
+      { phrase: "Zap yi", chinese: "十二", meaning: "Twelve", romanisation: "zap yi" },
+      { phrase: "Zap lam", chinese: "十三", meaning: "Thirteen", romanisation: "zap lam" },
+      { phrase: "Yi zap", chinese: "二十", meaning: "Twenty", romanisation: "yi zap" },
+      { phrase: "Lam zap", chinese: "三十", meaning: "Thirty", romanisation: "lam zap" },
+      { phrase: "Si zap", chinese: "四十", meaning: "Forty", romanisation: "si zap" },
+      { phrase: "Ngau zap", chinese: "五十", meaning: "Fifty", romanisation: "ngau zap" },
+      { phrase: "Lak zap", chinese: "六十", meaning: "Sixty", romanisation: "lak zap" },
+      { phrase: "Chit zap", chinese: "七十", meaning: "Seventy", romanisation: "chit zap" },
+      { phrase: "Puak zap", chinese: "八十", meaning: "Eighty", romanisation: "puak zap" },
+      { phrase: "Kau zap", chinese: "九十", meaning: "Ninety", romanisation: "kau zap" },
+      { phrase: "Yat bah", chinese: "一百", meaning: "One hundred", romanisation: "yat bah" },
+      { phrase: "Yi bah", chinese: "两百", meaning: "Two hundred", romanisation: "yi bah" },
+      { phrase: "Yat zeng", chinese: "一千", meaning: "One thousand", romanisation: "yat zeng" },
+      { phrase: "Yat ban", chinese: "一万", meaning: "Ten thousand", romanisation: "yat ban" },
+      { phrase: "Buan", chinese: "半", meaning: "Half", romanisation: "buan" },
+      { phrase: "Di yat", chinese: "第一", meaning: "First", romanisation: "di yat" },
+      { phrase: "Di yi", chinese: "第二", meaning: "Second", romanisation: "di yi" },
+      { phrase: "Di lam", chinese: "第三", meaning: "Third", romanisation: "di lam" },
+      { phrase: "Gi ze?", chinese: "几多？", meaning: "How many?", romanisation: "gi ze" },
+      { phrase: "Yat pai", chinese: "一次", meaning: "Once", romanisation: "yat pai" },
+      { phrase: "Yi pai", chinese: "两次", meaning: "Twice", romanisation: "yi pai" },
+      { phrase: "Yat diam", chinese: "一点", meaning: "One o'clock", romanisation: "yat diam" },
+      { phrase: "Yi diam", chinese: "两点", meaning: "Two o'clock", romanisation: "yi diam" },
+      { phrase: "Lam diam", chinese: "三点", meaning: "Three o'clock", romanisation: "lam diam" },
+      { phrase: "Yat le pai", chinese: "一礼拜", meaning: "One week", romanisation: "yat le pai" },
+      { phrase: "Yi le pai", chinese: "两礼拜", meaning: "Two weeks", romanisation: "yi le pai" },
+      { phrase: "Yat geh", chinese: "一月", meaning: "January", romanisation: "yat geh" },
+      { phrase: "Yi geh", chinese: "二月", meaning: "February", romanisation: "yi geh" },
+      { phrase: "Lam geh", chinese: "三月", meaning: "March", romanisation: "lam geh" },
+      { phrase: "Si geh", chinese: "四月", meaning: "April", romanisation: "si geh" },
+      { phrase: "Ngau geh", chinese: "五月", meaning: "May", romanisation: "ngau geh" },
+      { phrase: "Lak geh", chinese: "六月", meaning: "June", romanisation: "lak geh" },
+      { phrase: "Chit geh", chinese: "七月", meaning: "July / Ghost month", romanisation: "chit geh" },
+      { phrase: "Puak geh", chinese: "八月", meaning: "August", romanisation: "puak geh" },
+      { phrase: "Kau geh", chinese: "九月", meaning: "September", romanisation: "kau geh" },
+      { phrase: "Zap geh", chinese: "十月", meaning: "October", romanisation: "zap geh" },
+      { phrase: "Zap yat geh", chinese: "十一月", meaning: "November", romanisation: "zap yat geh" },
+      { phrase: "Zap yi geh", chinese: "十二月", meaning: "December", romanisation: "zap yi geh" },
+      { phrase: "Yat ni", chinese: "一年", meaning: "One year", romanisation: "yat ni" },
+    ],
+    food: [
+      { phrase: "Ji faan", chinese: "鸡饭", meaning: "Chicken rice", romanisation: "ji faan" },
+      { phrase: "Mee", chinese: "面", meaning: "Noodles", romanisation: "mee" },
+      { phrase: "Kopi", chinese: "咖啡", meaning: "Coffee", romanisation: "ko-pee" },
+      { phrase: "Wonton", chinese: "云吞", meaning: "Wonton dumplings", romanisation: "wun ton" },
+      { phrase: "Chee cheong fun", chinese: "猪肠粉", meaning: "Rice noodle rolls", romanisation: "chee cheong fun" },
+      { phrase: "Teh", chinese: "茶", meaning: "Tea", romanisation: "teh" },
+      { phrase: "Hainanese curry rice", chinese: "海南咖喱饭", meaning: "Hainanese curry rice", romanisation: "hainanese curry rice" },
+      { phrase: "Pork chop rice", chinese: "猪排饭", meaning: "Pork chop with rice", romanisation: "ter pai fan" },
+      { phrase: "Satay", chinese: "沙爹", meaning: "Grilled meat skewers", romanisation: "satay" },
+      { phrase: "Wonton mee", chinese: "云吞面", meaning: "Wonton noodle soup", romanisation: "wun ton mee" },
+      { phrase: "Bah kut teh", chinese: "肉骨茶", meaning: "Pork rib herbal soup", romanisation: "bah kut teh" },
+      { phrase: "Juk", chinese: "粥", meaning: "Congee / Porridge", romanisation: "juk" },
+      { phrase: "Ji juk", chinese: "鸡粥", meaning: "Chicken congee", romanisation: "ji juk" },
+      { phrase: "Yu juk", chinese: "鱼粥", meaning: "Fish congee", romanisation: "yu juk" },
+      { phrase: "Fan", chinese: "饭", meaning: "Rice", romanisation: "fan" },
+      { phrase: "Chye", chinese: "菜", meaning: "Vegetables", romanisation: "chye" },
+      { phrase: "Nng", chinese: "卵", meaning: "Egg", romanisation: "nng" },
+      { phrase: "Bak", chinese: "肉", meaning: "Pork / Meat", romanisation: "bak" },
+      { phrase: "Ji", chinese: "鸡", meaning: "Chicken", romanisation: "ji" },
+      { phrase: "Hae", chinese: "虾", meaning: "Prawn / Shrimp", romanisation: "hae" },
+      { phrase: "Hu", chinese: "鱼", meaning: "Fish", romanisation: "hu" },
+      { phrase: "Tng", chinese: "汤", meaning: "Soup", romanisation: "tng" },
+      { phrase: "Him", chinese: "咸", meaning: "Salty", romanisation: "him" },
+      { phrase: "Ti", chinese: "甜", meaning: "Sweet", romanisation: "ti" },
+      { phrase: "Sng", chinese: "酸", meaning: "Sour", romanisation: "sng" },
+      { phrase: "Hiam", chinese: "辣", meaning: "Spicy", romanisation: "hiam" },
+      { phrase: "Tau hu", chinese: "豆腐", meaning: "Tofu", romanisation: "tau hu" },
+      { phrase: "Teh tarik", chinese: "拉茶", meaning: "Pulled milk tea", romanisation: "teh tarik" },
+      { phrase: "Milo", chinese: "美禄", meaning: "Milo drink", romanisation: "milo" },
+      { phrase: "Kopi O", chinese: "咖啡乌", meaning: "Black coffee", romanisation: "ko-pee oh" },
+      { phrase: "Teh O", chinese: "茶乌", meaning: "Black tea", romanisation: "teh oh" },
+      { phrase: "Kopi C", chinese: "咖啡西", meaning: "Coffee with evaporated milk", romanisation: "ko-pee see" },
+      { phrase: "Lor mee", chinese: "卤面", meaning: "Braised noodles in thick gravy", romanisation: "lor mee" },
+      { phrase: "Mee rebus", chinese: "湿炒面", meaning: "Noodles in thick sauce", romanisation: "mee rebus" },
+      { phrase: "Mee siam", chinese: "暹面", meaning: "Spicy tangy rice noodles", romanisation: "mee siam" },
+      { phrase: "Char kway teow", chinese: "炒粿条", meaning: "Fried flat noodles", romanisation: "char kway teow" },
+      { phrase: "Chwee kueh", chinese: "水粿", meaning: "Steamed rice cake with chai poh", romanisation: "chwee kueh" },
+      { phrase: "Kueh pie tee", chinese: "粿杯底", meaning: "Crispy tart shells with filling", romanisation: "kueh pie tee" },
+      { phrase: "Popiah", chinese: "薄饼", meaning: "Fresh spring roll", romanisation: "popiah" },
+      { phrase: "Hae mee", chinese: "虾面", meaning: "Prawn noodle soup", romanisation: "hae mee" },
+      { phrase: "Oh ah", chinese: "蚝", meaning: "Oyster", romanisation: "oh ah" },
+      { phrase: "Beef noodles", chinese: "牛肉面", meaning: "Beef noodle soup", romanisation: "ngau yuk mee" },
+      { phrase: "Ba kua", chinese: "肉干", meaning: "Dried BBQ pork", romanisation: "ba kwa" },
+      { phrase: "Hae bee", chinese: "虾米", meaning: "Dried shrimp", romanisation: "hae bee" },
+      { phrase: "Soon kueh", chinese: "笋粿", meaning: "Bamboo shoot dumpling", romanisation: "soon kueh" },
+      { phrase: "Kueh lapis", chinese: "千层糕", meaning: "Layered cake", romanisation: "kueh lapis" },
+      { phrase: "Ondeh ondeh", chinese: "椰丝球", meaning: "Pandan glutinous rice balls", romanisation: "onde onde" },
+      { phrase: "Cendol", chinese: "煎蕊", meaning: "Shaved ice with green jelly", romanisation: "cendol" },
+      { phrase: "Ice kachang", chinese: "红豆冰", meaning: "Shaved ice dessert", romanisation: "ice kachang" },
+      { phrase: "Chendol", chinese: "摩摩喳喳", meaning: "Mixed fruit dessert", romanisation: "chendol" },
+    ],
+  },
+};
+
+
+const singlishPhrases = [
+  {
+    id: 1,
+    phrase: "Bo Liao",
+    chinese: "無聊",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Nothing to do; bored; meaningless or silly",
+    fullExplanation: "Literally means 'nothing' (bo) + 'interesting/meaningful' (liao). Used when someone is bored, has nothing to do, or is being silly and wasting time.",
+    examples: [
+      "Eh, so bo liao la — you really got nothing better to do?",
+      "That show damn bo liao, I fell asleep halfway.",
+      "We were just bo liao-ing at the kopitiam the whole afternoon."
+    ],
+    tags: ["mood", "everyday", "NS", "school"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 2,
+    phrase: "Jiak Zua",
+    chinese: "食蛇",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To slack off; to skive; eating snake (being lazy on the job)",
+    fullExplanation: "'Jiak' means 'to eat' and 'zua' means 'snake'. The phrase originates from the Hokkien expression of slacking like a snake hidden in the grass. Very common in NS and work contexts.",
+    examples: [
+      "Wah, he never come for duty — confirm jiak zua at the back.",
+      "That new colleague always jiak zua during work hours.",
+      "In NS we jiak zua until kena scolded by sergeant."
+    ],
+    tags: ["NS", "work", "classic"],
+    category: "Work & Effort"
+  },
+  {
+    id: 3,
+    phrase: "Hum Sup",
+    chinese: "鹹濕",
+    dialect: "Cantonese",
+    dialectColor: "#8E44AD",
+    meaning: "Perverted; lecherous; dirty-minded",
+    fullExplanation: "From Cantonese 'hahm' (salty/lewd) and 'sap' (wet/damp). 'Salty and wet' is a Cantonese metaphor for someone with perverted or dirty thoughts. Commonly used across all ages in Singapore.",
+    examples: [
+      "Eh, stop being so hum sup la, uncle!",
+      "That hum sup look he gave — so uncomfortable.",
+      "Hum sup lo alert — cover up lah!"
+    ],
+    tags: ["attitude", "classic", "adults"],
+    category: "Character & Personality"
+  },
+  {
+    id: 4,
+    phrase: "Jit Pai Siao Liao",
+    chinese: "一擺痟了",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Gone crazy this time; really lost it now",
+    fullExplanation: "'Jit pai' means 'this time' in Hokkien, and 'siao' means 'crazy'. 'Liao' is a completion marker. Used to exclaim that someone has gone completely mad or done something extremely reckless.",
+    examples: [
+      "He quit his job and bought a boat — jit pai siao liao.",
+      "You want to run a marathon tomorrow with no training? Jit pai siao liao!",
+      "Wah jit pai siao liao, the queue is like 3 hours long."
+    ],
+    tags: ["exclamation", "NS", "everyday", "classic"],
+    category: "Exclamations"
+  },
+  {
+    id: 5,
+    phrase: "Kaypoh",
+    chinese: "鷄婆",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Nosy; busybody; interfering in others' affairs",
+    fullExplanation: "Literally 'chicken woman' — a Hokkien term for a woman who meddles in other people's business. Now gender-neutral and universally used in Singlish to describe anyone who is nosy or overly curious.",
+    examples: [
+      "Why are you so kaypoh? Mind your own business lah.",
+      "The kaypoh aunty next door knows everything about everyone.",
+      "Don't be kaypoh, it's not your problem."
+    ],
+    tags: ["character", "classic", "everyday"],
+    category: "Character & Personality"
+  },
+  {
+    id: 6,
+    phrase: "Paiseh",
+    chinese: "歹勢",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Embarrassed; shy; sorry; feeling bad about something",
+    fullExplanation: "Directly from Hokkien meaning 'bad situation/posture'. Used to express embarrassment, shyness, or apology. One of the most universally used dialect words in Singaporean daily life.",
+    examples: [
+      "Paiseh ah, I forgot to bring your present.",
+      "Wah so paiseh — I accidentally called the teacher 'Mum'.",
+      "Paiseh paiseh, can you repeat that?"
+    ],
+    tags: ["feelings", "classic", "everyday", "school"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 7,
+    phrase: "Sian",
+    chinese: "仙",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Bored; tired; fed up; sick of something",
+    fullExplanation: "From the Hokkien word 'sian' originally referring to a magical/immortal being detached from worldly matters. In Singlish, it evolved to mean boredom, fatigue, or being completely over something.",
+    examples: [
+      "Sian ah, same thing every day.",
+      "Three more hours of guard duty — super sian.",
+      "I so sian of this project already."
+    ],
+    tags: ["mood", "NS", "school", "everyday"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 8,
+    phrase: "Buay Tahan",
+    chinese: "袂擔",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Cannot take it; unbearable; can't stand it",
+    fullExplanation: "'Buay' means 'cannot' and 'tahan' is Malay for 'endure/bear'. A classic Hokkien-Malay hybrid phrase deeply embedded in Singlish. Used when something is too much to handle — physically, emotionally, or comedically.",
+    examples: [
+      "The heat today buay tahan sia.",
+      "He keeps talking and talking — I buay tahan already.",
+      "That spicy mala buay tahan level!"
+    ],
+    tags: ["feelings", "exclamation", "everyday", "food"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 9,
+    phrase: "Kiasu",
+    chinese: "驚輸",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Fear of losing out; overly competitive; always wanting to be first",
+    fullExplanation: "'Kia' means 'afraid' and 'su' means 'lose' in Hokkien. The quintessential Singaporean trait — standing in long queues, joining everything, grabbing freebies. So culturally significant it entered the Oxford English Dictionary.",
+    examples: [
+      "He queued 4 hours for bubble tea — classic kiasu Singaporean.",
+      "Don't be so kiasu, there's enough for everyone.",
+      "My mum so kiasu she registered me for 10 CCAs."
+    ],
+    tags: ["culture", "classic", "school", "everyday"],
+    category: "Culture & Mindset"
+  },
+  {
+    id: 10,
+    phrase: "Kiasi",
+    chinese: "驚死",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Afraid of dying; overly cautious; cowardly",
+    fullExplanation: "'Kia' means 'afraid' and 'si' means 'die/death'. Companion phrase to kiasu. Describes someone who is overly fearful of consequences, risks, or confrontation.",
+    examples: [
+      "He never dare to try the durian — so kiasi.",
+      "Don't be kiasi la, just jump into the pool.",
+      "Wah he wear mask, shield, and gloves — kiasi max."
+    ],
+    tags: ["character", "classic", "everyday"],
+    category: "Character & Personality"
+  },
+  {
+    id: 11,
+    phrase: "Gong Gong",
+    chinese: "戇戇",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Silly; blur; foolish; naive",
+    fullExplanation: "From Hokkien 'gōng' meaning foolish or dull-witted. In Singlish, used affectionately or mockingly to describe someone who is naive, simple-minded, or just not thinking straight.",
+    examples: [
+      "Don't act gong gong — you know what you did.",
+      "He so gong gong, kena cheated by the scammer.",
+      "Why you stand there gong gong? Help lah!"
+    ],
+    tags: ["character", "school", "everyday"],
+    category: "Character & Personality"
+  },
+  {
+    id: 12,
+    phrase: "Lao Kui",
+    chinese: "老龜",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Old-fashioned; outdated; embarrassing; uncool",
+    fullExplanation: "Literally 'old tortoise' in Hokkien. Used to describe something embarrassingly outdated, or a person who is out of touch with current trends. Similar to the English 'dinosaur' or 'fossil'.",
+    examples: [
+      "You still using that phone? So lao kui.",
+      "That hairstyle very lao kui leh, change already.",
+      "Dad's jokes are super lao kui but we still laugh."
+    ],
+    tags: ["style", "everyday", "school"],
+    category: "Culture & Mindset"
+  },
+  {
+    id: 13,
+    phrase: "Steady Pom Pi Pi",
+    chinese: "穩陣",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Very cool; reliable; composure under pressure; well done",
+    fullExplanation: "'Steady' from English, 'pom pi pi' is an onomatopoeic Hokkien filler for emphasis. Used to praise someone who handled something impressively or stayed calm under pressure.",
+    examples: [
+      "You finish everything in one day? Steady pom pi pi!",
+      "He never panic during the fire drill — steady pom pi pi.",
+      "Wah, that presentation steady pom pi pi sia."
+    ],
+    tags: ["praise", "NS", "everyday"],
+    category: "Exclamations"
+  },
+  {
+    id: 14,
+    phrase: "Shiok",
+    chinese: "爽",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Feels great; satisfying; delicious; awesome",
+    fullExplanation: "Believed to derive from Hokkien 'shuang' or Punjabi 'shikar'. Used to describe intense pleasure or satisfaction — from food, rest, a massage, or good news.",
+    examples: [
+      "This laksa damn shiok!",
+      "After gym then mandi — so shiok.",
+      "The air con so shiok after the hot weather."
+    ],
+    tags: ["food", "mood", "classic", "everyday"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 15,
+    phrase: "Walao Eh",
+    chinese: "我老耶",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Oh my goodness; expressing shock, disbelief, or exasperation",
+    fullExplanation: "'Wa' means 'I/me', 'lao' means 'old', and 'eh' is an exclamatory suffix from Hokkien. The phrase loosely means 'my father!' used as an expletive of surprise. Ubiquitous in Singaporean speech.",
+    examples: [
+      "Walao eh, you ate the whole thing by yourself?!",
+      "Walao, the queue so long!",
+      "Walao eh — you forgot again?!"
+    ],
+    tags: ["exclamation", "classic", "everyday", "NS"],
+    category: "Exclamations"
+  },
+  {
+    id: 16,
+    phrase: "Chio Bu",
+    chinese: "笑美",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Attractive woman; pretty girl",
+    fullExplanation: "'Chio' means 'to laugh/smile' and 'bu' means 'woman' in Hokkien. A 'smiling woman' became shorthand for an attractive girl. Widely used by young Singaporeans, especially in NS.",
+    examples: [
+      "Wah, that chio bu over there — dare to intro?",
+      "NS guys all talk about chio bu one.",
+      "She confirm chio bu status."
+    ],
+    tags: ["NS", "slang", "youth"],
+    category: "People & Relationships"
+  },
+  {
+    id: 17,
+    phrase: "Lanjiao",
+    chinese: "𪚩鳥",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Vulgar expletive (male anatomy); used broadly as an intensifier",
+    fullExplanation: "Hokkien vulgar term widely used in Singlish as a strong expletive or intensifier, similar to how English speakers use certain words. Very common in casual male speech, NS, and comedy.",
+    examples: [
+      "Cannot find parking — lan jiao la!",
+      "Talk lanjiao only, no action.",
+      "Lanjiao weather today."
+    ],
+    tags: ["vulgar", "NS", "adult", "classic"],
+    category: "Expletives & Intensifiers"
+  },
+  {
+    id: 18,
+    phrase: "Chao Keng",
+    chinese: "臭𝙸",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To fake illness or injury; to skive by pretending to be sick",
+    fullExplanation: "'Chao' means 'smelly' and 'keng' refers to a crafty trick or dodge. Originally a NS term for soldiers faking injury to avoid duties. Now broadly used for anyone pretending to be incapable.",
+    examples: [
+      "He chao keng every Monday, confirm fake headache.",
+      "NS staple: chao keng at the medical centre.",
+      "Don't chao keng la, just do the work."
+    ],
+    tags: ["NS", "work", "classic"],
+    category: "Work & Effort"
+  },
+  {
+    id: 19,
+    phrase: "Sabo",
+    chinese: "破壞",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To sabotage someone; to set someone up; to get someone into trouble",
+    fullExplanation: "Shortened from English 'sabotage', but the Hokkien oral culture of playful betrayal and mischief shaped how it's used in Singlish — often for light-hearted pranks or setting someone up.",
+    examples: [
+      "Eh don't sabo me — I never do anything to you!",
+      "He sabo his friend by telling the teacher.",
+      "Classic NS move: sabo your buddy for a laugh."
+    ],
+    tags: ["NS", "school", "friends", "everyday"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 20,
+    phrase: "Tok Kong",
+    chinese: "督工",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "The best; top-tier; outstanding quality",
+    fullExplanation: "From Hokkien 'tok' (sole/exceptional) and 'kong' (of a kind/calibre). Used to describe someone or something that is simply the best — in skill, quality, or character.",
+    examples: [
+      "This chicken rice tok kong — best in Singapore.",
+      "Your freestyle dance tok kong sia!",
+      "He the tok kong in our platoon, always steady."
+    ],
+    tags: ["praise", "food", "NS", "everyday"],
+    category: "Exclamations"
+  },
+  {
+    id: 21,
+    phrase: "Jialat",
+    chinese: "食力",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "In serious trouble; very bad situation; draining of energy",
+    fullExplanation: "'Jia' means 'eat/drain' and 'lat' means 'strength/energy'. Literally, something that 'eats your strength'. Used to describe a bad situation, tough predicament, or an exhausting task.",
+    examples: [
+      "Failed three subjects — jialat liao.",
+      "The traffic is jialat, going to be late.",
+      "This project jialat — deadline tomorrow, only started today."
+    ],
+    tags: ["exclamation", "NS", "school", "everyday"],
+    category: "Exclamations"
+  },
+  {
+    id: 22,
+    phrase: "Orbi Quek",
+    chinese: "活該",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Serves you right; you deserved it",
+    fullExplanation: "'Orbi' comes from Hokkien 'ur bi' meaning 'serves right/proper fate' and 'quek' (sometimes spelt 'good') is added for emphasis. Said when someone suffers consequences they brought upon themselves.",
+    examples: [
+      "Orbi quek — I told you not to eat so much.",
+      "Didn't study and failed? Orbi quek.",
+      "Orbi quek, who ask you never listen?"
+    ],
+    tags: ["friends", "school", "everyday", "classic"],
+    category: "Reactions & Responses"
+  },
+  {
+    id: 23,
+    phrase: "Pek Chek",
+    chinese: "薄脊",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Frustrated; annoyed; irritated",
+    fullExplanation: "From Hokkien, originally describing the uncomfortable feeling of being pressed thin. Now used broadly to describe frustration, irritation, or feeling exasperated by a situation or person.",
+    examples: [
+      "Damn pek chek — waited 40 minutes for the bus.",
+      "He pek chek until cannot talk already.",
+      "Every time he does this I super pek chek."
+    ],
+    tags: ["mood", "everyday", "NS", "work"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 24,
+    phrase: "Wah Piang",
+    chinese: "我評",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Oh wow; expressing disbelief, awe, or frustration",
+    fullExplanation: "A Hokkien exclamation of strong emotion — could be surprise, disbelief, or exasperation. A softer alternative to 'Walao eh' and commonly used by older generations and in heartland communities.",
+    examples: [
+      "Wah piang, the price jump so much?",
+      "Wah piang eh — you only tell me now?",
+      "Wah piang, this is too much already."
+    ],
+    tags: ["exclamation", "classic", "everyday"],
+    category: "Exclamations"
+  },
+  {
+    id: 25,
+    phrase: "Ang Moh",
+    chinese: "紅毛",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Caucasian / Western person; literally 'red hair'",
+    fullExplanation: "Hokkien term historically used for Western/European people based on their reddish or light-coloured hair. Now a casual, everyday term in Singapore for any Caucasian person. Not considered offensive in local context.",
+    examples: [
+      "The ang moh at the kopitiam ordered teh tarik — cute.",
+      "My ang moh colleague loves chicken rice more than me.",
+      "Got ang moh housemate, she says everything here 'so cheap'."
+    ],
+    tags: ["culture", "everyday", "classic"],
+    category: "People & Relationships"
+  },
+  {
+    id: 26,
+    phrase: "Lim Peh",
+    chinese: "恁爸",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "I/me (arrogant first-person pronoun); literally 'your father'",
+    fullExplanation: "'Lim peh' literally means 'your father' in Hokkien, used as a boastful first-person pronoun implying dominance or superiority. Common in NS culture and among young men showing off.",
+    examples: [
+      "Lim peh never scared of anything one.",
+      "You think lim peh so easy to bluff ah?",
+      "Lim peh already finished the whole assignment by 9pm."
+    ],
+    tags: ["NS", "youth", "bravado", "classic"],
+    category: "People & Relationships"
+  },
+  {
+    id: 27,
+    phrase: "Siam",
+    chinese: "閃",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Move out of the way; dodge; avoid; step aside",
+    fullExplanation: "From Hokkien 'siám' meaning to dodge or move aside. In Singlish, used as a command to get someone to move, or as a verb meaning to avoid something or someone.",
+    examples: [
+      "Siam! Bicycle coming!",
+      "He siam the whole meeting — MIA.",
+      "I siam that topic whenever she brings it up."
+    ],
+    tags: ["NS", "everyday", "action", "classic"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 28,
+    phrase: "Lepak",
+    chinese: "歇",
+    dialect: "Malay/Hokkien blend",
+    dialectColor: "#C0392B",
+    meaning: "To hang out; to chill; to loaf around with no agenda",
+    fullExplanation: "Originally Malay, but absorbed deeply into Hokkien-influenced Singlish culture. 'Lepak' describes the very Singaporean habit of hanging out at void decks, kopitiams, or mamak stalls with friends doing nothing in particular.",
+    examples: [
+      "Tonight lepak at the void deck?",
+      "We just lepak at the kopitiam the whole Sunday.",
+      "NS life is all about lepak then kena arrow."
+    ],
+    tags: ["lifestyle", "friends", "NS", "classic"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 29,
+    phrase: "Tekan",
+    chinese: "壓",
+    dialect: "Malay/Hokkien blend",
+    dialectColor: "#C0392B",
+    meaning: "To press / bully / give someone a hard time intentionally",
+    fullExplanation: "From Malay 'tekan' meaning to press or oppress. In Singlish (especially NS), it means to deliberately give someone more work, punishment, or a hard time — often by a superior.",
+    examples: [
+      "The sergeant always tekan us for fun.",
+      "He tekan the new guy every day.",
+      "Why you tekan me only, others never do anything also."
+    ],
+    tags: ["NS", "school", "work", "classic"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 30,
+    phrase: "Bojio",
+    chinese: "無招",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "You didn't invite me! (expression of being left out)",
+    fullExplanation: "'Bo' means 'no/none' and 'jio' means 'to invite' in Hokkien. A staple Singlish complaint when someone did something fun or ate something good without including you.",
+    examples: [
+      "Went Jap buffet without me? Bojio!",
+      "Eh, movie night bojio sia.",
+      "Every time you all go makan also bojio — what friends."
+    ],
+    tags: ["friends", "food", "school", "classic", "everyday"],
+    category: "Reactions & Responses"
+  },
+  {
+    id: 31,
+    phrase: "Jio",
+    chinese: "招",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To invite someone; to ask someone to join",
+    fullExplanation: "From Hokkien 'jioh' meaning to invite or beckon. The positive counterpart to 'bojio'. Used casually to mean inviting or asking someone along.",
+    examples: [
+      "Can jio me along? I want to eat too!",
+      "He jio all his NS friends to the gathering.",
+      "Jio her la — she's been asking to hang out."
+    ],
+    tags: ["friends", "everyday", "school"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 32,
+    phrase: "Sotong",
+    chinese: "魷魚",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Blur like sotong; confused; clueless; forgetful",
+    fullExplanation: "'Sotong' is the Malay word for squid. Squids squirt ink and escape in a cloud — used metaphorically for someone who is perpetually confused or doesn't know what's going on. Beloved expression in NS.",
+    examples: [
+      "He damn sotong — asked him to buy red marker came back with blue.",
+      "Don't be sotong la, I told you three times already.",
+      "First day of camp everyone is sotong."
+    ],
+    tags: ["NS", "school", "everyday", "character"],
+    category: "Character & Personality"
+  },
+  {
+    id: 33,
+    phrase: "Zhun Bo?",
+    chinese: "準無",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Is it accurate? / Is that true? / Are you sure?",
+    fullExplanation: "'Zhun' means 'accurate/precise' and 'bo' is a question tag meaning 'right?/or not?' in Hokkien. Used to question the accuracy or truthfulness of a claim. Very common in casual speech.",
+    examples: [
+      "You say she likes me — zhun bo?",
+      "Zhun bo? The hawker closed down already meh?",
+      "PSLE score 270? Zhun bo sia."
+    ],
+    tags: ["everyday", "school", "friends", "classic"],
+    category: "Reactions & Responses"
+  },
+  {
+    id: 34,
+    phrase: "Gahmen",
+    chinese: "政府",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "The government (Singaporean government)",
+    fullExplanation: "A phonetic Hokkien rendering of the English word 'government'. Widely used across generations in Singapore as a casual, affectionate, or slightly irreverent way to refer to the authorities or state.",
+    examples: [
+      "Gahmen say cannot, so cannot lor.",
+      "The gahmen give out vouchers again.",
+      "Gahmen everything also want to regulate."
+    ],
+    tags: ["culture", "everyday", "classic"],
+    category: "Culture & Mindset"
+  },
+  {
+    id: 35,
+    phrase: "Wah Lau",
+    chinese: "我老",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Oh my! (expression of surprise or exasperation)",
+    fullExplanation: "Shortened form of 'Walao eh'. 'Wa' is 'I/me' and 'lau' means 'old' in Hokkien — originally an exclamation invoking one's father. Used freely as a general exclamation of shock, disbelief or mild irritation.",
+    examples: [
+      "Wah lau, you scared me!",
+      "Wah lau eh, how come so expensive one.",
+      "Wah lau — 5am wake up?!"
+    ],
+    tags: ["exclamation", "classic", "everyday", "NS"],
+    category: "Exclamations"
+  },
+  {
+    id: 36,
+    phrase: "Makan",
+    chinese: "食",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To eat; food; a meal",
+    fullExplanation: "Malay for 'eat', deeply embedded in Singlish through Hokkien-Malay interaction in Singapore's early hawker culture. Singaporeans say 'go makan' instead of 'go eat' as naturally as breathing.",
+    examples: [
+      "Where to makan tonight?",
+      "Let's go makan at the hawker centre.",
+      "He always makan then disappear."
+    ],
+    tags: ["food", "everyday", "classic"],
+    category: "Food & Eating"
+  },
+  {
+    id: 37,
+    phrase: "Lobang",
+    chinese: "洞",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "An opportunity; a good tip-off; a lucrative deal or inside information",
+    fullExplanation: "'Lobang' is Malay for 'hole/cavity', but in Singlish (heavily shaped by Hokkien business culture) it evolved to mean a good opportunity, business deal, or insider information. Very NS and kopitiam in usage.",
+    examples: [
+      "You got any lobang for cheap parking?",
+      "He got lobang for contract jobs.",
+      "Share the lobang la, brother!"
+    ],
+    tags: ["work", "NS", "everyday", "friends"],
+    category: "Work & Effort"
+  },
+  {
+    id: 38,
+    phrase: "Kena",
+    chinese: "著",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To get hit; to receive (usually something bad); to be subjected to",
+    fullExplanation: "From Malay, but cemented in Singlish through Hokkien passive voice constructions. Used almost exclusively for negative outcomes — getting punished, hit, cheated, or unlucky. Singaporeans instinctively say 'kena' for anything that befalls them.",
+    examples: [
+      "I kena scolded by the boss.",
+      "You kena caught playing phone in class.",
+      "Kena arrow for duty again — so suay."
+    ],
+    tags: ["NS", "school", "everyday", "classic"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 39,
+    phrase: "Suay",
+    chinese: "衰",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Unlucky; unfortunate; having bad luck",
+    fullExplanation: "From Hokkien 'soe' or 'suai' meaning unlucky or inauspicious. A core vocabulary word in Singapore — used whenever something goes wrong or someone has a string of bad luck.",
+    examples: [
+      "So suay — rain only when I forget umbrella.",
+      "Kena parking summon, damn suay.",
+      "Today very suay leh — everything also go wrong."
+    ],
+    tags: ["everyday", "classic", "NS"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 40,
+    phrase: "Ownself Check Ownself",
+    chinese: "自己查自己",
+    dialect: "Hokkien/Singlish",
+    dialectColor: "#C0392B",
+    meaning: "Self-regulation; to check oneself; originally used politically but now ironic",
+    fullExplanation: "A phrase made famous in Singaporean political discourse — rooted in the Hokkien concept of self-accountability ('jiaji'). Now used satirically or humorously in everyday speech to call out double standards.",
+    examples: [
+      "You make the rule then you ownself check ownself?",
+      "Ownself check ownself — very the reliable.",
+      "Classic Singaporean government move: ownself check ownself."
+    ],
+    tags: ["culture", "irony", "classic", "everyday"],
+    category: "Culture & Mindset"
+  },
+  {
+    id: 41,
+    phrase: "Wayang",
+    chinese: "戲",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To put on a show; to act for appearances; insincere performance",
+    fullExplanation: "Malay for 'theatre/performance', absorbed into Singlish via Hokkien-Peranakan culture. In Singapore it means performing for show without sincerity — especially common in NS contexts when acting hardworking for superiors.",
+    examples: [
+      "He only works hard when the boss is around — pure wayang.",
+      "Wayang until like that — don't waste my time.",
+      "NS full of people wayang during inspection."
+    ],
+    tags: ["NS", "work", "culture", "classic"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 42,
+    phrase: "Chope",
+    chinese: "佔",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "To reserve / claim a seat; typically with a tissue packet",
+    fullExplanation: "Derived from Hokkien 'chhiap' meaning to cut in or stake a claim. The uniquely Singaporean practice of placing tissue packets to 'chope' (reserve) a seat at hawker centres. A beloved national custom.",
+    examples: [
+      "Quick, chope that table before the aunties do.",
+      "He choped the seat with tissue — classic Singapore.",
+      "Can you chope a seat for me? I go order first."
+    ],
+    tags: ["food", "culture", "hawker", "classic"],
+    category: "Culture & Mindset"
+  },
+  {
+    id: 43,
+    phrase: "Hao Lian",
+    chinese: "好臉",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Show-off; boastful; arrogant; full of oneself",
+    fullExplanation: "'Hao' means 'good/wanting' and 'lian' means 'face'. Literally 'wanting face (status)'. Describes someone who shows off, brags, or acts superior. Very common playground and NS vocabulary.",
+    examples: [
+      "Don't hao lian la — everyone also can do.",
+      "He buy new car then drive around — so hao lian.",
+      "Damn hao lian sia, keep showing off his rank."
+    ],
+    tags: ["character", "NS", "school", "everyday"],
+    category: "Character & Personality"
+  },
+  {
+    id: 44,
+    phrase: "Suka Suka",
+    chinese: "隨便",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Do as you like; anyhow; without care or discipline",
+    fullExplanation: "From Malay 'suka' meaning 'to like/enjoy'. In Singlish, 'suka suka' means doing something however you feel, without regard for rules or others. Often used to call out reckless or inconsiderate behaviour.",
+    examples: [
+      "You cannot suka suka park here lah.",
+      "Don't suka suka change the plan without telling us.",
+      "He suka suka put his stuff everywhere."
+    ],
+    tags: ["attitude", "everyday", "NS"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 45,
+    phrase: "Anyhow",
+    chinese: "隨便",
+    dialect: "Hokkien influenced",
+    dialectColor: "#C0392B",
+    meaning: "Carelessly; recklessly; without proper thought",
+    fullExplanation: "Though English in origin, 'anyhow' in Singlish carries strong Hokkien flavour from 'boh pian' (no choice) and 'luan luan' (chaotic) culture. In Singlish it means doing something carelessly or without proper consideration.",
+    examples: [
+      "Don't anyhow say things about people.",
+      "He anyhow cut the queue.",
+      "Cannot anyhow do — must follow the SOP."
+    ],
+    tags: ["attitude", "everyday", "NS", "classic"],
+    category: "Actions & Behaviours"
+  },
+  {
+    id: 46,
+    phrase: "Mati",
+    chinese: "死",
+    dialect: "Malay/Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Dead; done for; finished; you're in deep trouble",
+    fullExplanation: "Malay for 'dead/die', used in Singlish (with heavy Hokkien expressive culture) to describe being done for or in terrible trouble. Often used dramatically for minor inconveniences.",
+    examples: [
+      "Left my wallet at home — mati liao.",
+      "Forget to submit assignment? Mati.",
+      "If sergeant find out we mati liao."
+    ],
+    tags: ["exclamation", "NS", "school", "everyday"],
+    category: "Exclamations"
+  },
+  {
+    id: 47,
+    phrase: "Blur Like Sotong",
+    chinese: "模糊如魷魚",
+    dialect: "Hokkien/Malay blend",
+    dialectColor: "#C0392B",
+    meaning: "Completely clueless; confused and disoriented",
+    fullExplanation: "A full Singlish idiom combining English 'blur', Malay 'sotong' (squid), all shaped by Hokkien expressive style. Squids become clouded when confused. Used to describe someone totally lost in a situation.",
+    examples: [
+      "First day at new job — blur like sotong.",
+      "He blur like sotong, doesn't know what's happening.",
+      "Don't be blur like sotong, wake up!"
+    ],
+    tags: ["NS", "school", "classic", "character"],
+    category: "Character & Personality"
+  },
+  {
+    id: 48,
+    phrase: "Kan Cheong",
+    chinese: "緊張",
+    dialect: "Cantonese",
+    dialectColor: "#8E44AD",
+    meaning: "Anxious; nervous; panicky; flustered",
+    fullExplanation: "From Cantonese 'gān jēung' meaning tense or nervous. One of the most beloved Cantonese contributions to Singlish — describing the flustered, anxious energy many Singaporeans experience before exams, interviews, or NS.",
+    examples: [
+      "Don't so kan cheong la, still got time.",
+      "She kan cheong until cannot speak properly.",
+      "Wah he so kan cheong over one interview."
+    ],
+    tags: ["feelings", "school", "NS", "everyday"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 49,
+    phrase: "Gam Siah",
+    chinese: "感謝",
+    dialect: "Cantonese",
+    dialectColor: "#8E44AD",
+    meaning: "Thank you; heartfelt gratitude",
+    fullExplanation: "Cantonese for 'grateful' or 'thank you'. While 'doh jeh' and 'mm goi' are more common in Cantonese-speaking families, 'gam siah' has entered Singlish as a warm, slightly formal expression of genuine thanks.",
+    examples: [
+      "Gam siah ah, you really helped me a lot.",
+      "Gam siah for the ang pow, auntie!",
+      "Wah gam siah — didn't expect you to remember."
+    ],
+    tags: ["manners", "classic", "everyday"],
+    category: "Feelings & Attitudes"
+  },
+  {
+    id: 50,
+    phrase: "Ah Lian / Ah Beng",
+    chinese: "亞蓮/亞明",
+    dialect: "Hokkien",
+    dialectColor: "#C0392B",
+    meaning: "Stereotypical working-class Singaporean Chinese girl/boy; could be affectionate or derogatory depending on context",
+    fullExplanation: "'Ah Lian' and 'Ah Beng' are Hokkien names commonly given to characters representing the stereotypical young Singaporean Chinese working-class identity — with distinct fashion, slang, and attitude. Often used humorously.",
+    examples: [
+      "She very Ah Lian — big hair, loud shirt.",
+      "He dress like Ah Beng but actually scholarship holder.",
+      "The Ah Beng at the void deck actually super nice."
+    ],
+    tags: ["culture", "identity", "classic", "everyday"],
+    category: "People & Relationships"
+  },
+];
+
+
+const networkMembers = [
+  { id: 1, name: "Mdm Tan Ah Lian", age: 68, dialects: ["Hokkien", "Teochew"], level: "Native Speaker", location: "Bedok", bio: "Grew up speaking Hokkien at home, want to share with younger folks!", avatar: "👵", interests: ["cooking", "gardening", "mahjong"] },
+  { id: 2, name: "Kevin Lim", age: 24, dialects: ["Cantonese"], level: "Beginner", location: "Tampines", bio: "My grandma speaks Cantonese but I never learnt it. Hoping to connect with her better.", avatar: "👦", interests: ["gaming", "food", "music"] },
+  { id: 3, name: "Priya Shankar", age: 31, dialects: ["Hokkien", "Hakka"], level: "Intermediate", location: "Jurong", bio: "Married into a Hokkien family — learning the dialect to feel closer to my in-laws!", avatar: "👩", interests: ["reading", "travel", "photography"] },
+  { id: 4, name: "Uncle Henry Ong", age: 72, dialects: ["Teochew"], level: "Native Speaker", location: "Toa Payoh", bio: "Retired hawker, Teochew kway teow seller for 40 years. Happy to teach dialect and share stories.", avatar: "👴", interests: ["hawker food", "tai chi", "Chinese opera"] },
+  { id: 5, name: "Samantha Goh", age: 19, dialects: ["Hainanese"], level: "Beginner", location: "Yishun", bio: "Poly student studying heritage and culture — learning Hainanese as part of my roots project.", avatar: "👧", interests: ["art", "history", "baking"] },
+  { id: 6, name: "Desmond Chua", age: 45, dialects: ["Hokkien", "Cantonese"], level: "Intermediate", location: "Clementi", bio: "Can understand bits of Hokkien from my parents but never spoke it fluently. Time to change that!", avatar: "🧑", interests: ["cycling", "coffee", "family"] },
+  { id: 7, name: "Auntie Rose Chan", age: 60, dialects: ["Cantonese", "Hakka"], level: "Native Speaker", location: "Geylang", bio: "Cantonese opera enthusiast. Would love to find others who appreciate the dialect arts.", avatar: "👩‍🦳", interests: ["opera", "calligraphy", "dim sum"] },
+  { id: 8, name: "Marcus Ng", age: 28, dialects: ["Teochew", "Hokkien"], level: "Beginner", location: "Punggol", bio: "Both my parents speak different dialects — trying to learn both to bridge the family gap.", avatar: "🧑", interests: ["tech", "sports", "travel"] },
+];
+
+const sinSehMentors = [
+  { id: 1, name: "Mdm Wong Siew Lin", age: 70, dialects: ["Hokkien", "Teochew"], experience: "50+ years", location: "Ang Mo Kio", bio: "Born in Fujian, I have spoken Hokkien my whole life. I want to ensure the younger generation can keep this dialect alive.", avatar: "👵", availability: "Weekday mornings", slots: 3, style: "Conversational, story-based learning", badge: "Top Rated" },
+  { id: 2, name: "Mr Lau Ah Kow", age: 65, dialects: ["Cantonese"], experience: "40+ years", location: "Chinatown", bio: "Former Cantonese opera performer. I teach dialect through songs, stories and culture — not just vocabulary.", avatar: "👴", availability: "Weekend afternoons", slots: 2, style: "Arts & culture approach", badge: "Cultural Expert" },
+  { id: 3, name: "Auntie Mei Fong", age: 58, dialects: ["Hainanese", "Hokkien"], experience: "30+ years", location: "Telok Blangah", bio: "Hainanese chicken rice recipe passed down five generations. I teach dialect alongside food culture.", avatar: "👩‍🦳", availability: "Flexible", slots: 5, style: "Food & daily life vocabulary", badge: "Community Favourite" },
+  { id: 4, name: "Mr Tan Bak Chye", age: 74, dialects: ["Teochew", "Hakka"], experience: "60+ years", location: "Geylang", bio: "Retired school principal. Patient, structured teacher. I adapt my lessons to your pace and learning goals.", avatar: "👴", availability: "Tuesday & Thursday evenings", slots: 4, style: "Structured, beginner-friendly", badge: "Most Patient" },
+  { id: 5, name: "Mdm Koh Geok Eng", age: 62, dialects: ["Hakka"], experience: "35+ years", location: "Bukit Timah", bio: "Hakka is a minority dialect even among dialects — I am passionate about preserving it before it truly disappears.", avatar: "👵", availability: "Weekend mornings", slots: 2, style: "Immersive conversation", badge: "Rare Dialect" },
+];
+
+const categories = [
+  { id: "greetings", label: "Greetings", icon: "👋" },
+  { id: "numbers", label: "Numbers", icon: "🔢" },
+  { id: "food", label: "Food", icon: "🍜" },
+];
+
+export default function DialectPlatform() {
+  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz
+  const [selectedDialect, setSelectedDialect] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("greetings");
+  const [cardIndex, setCardIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [quizState, setQuizState] = useState({ q: 0, score: 0, answered: null, done: false });
+  const [progress, setProgress] = useState({});
+  const [networkTab, setNetworkTab] = useState("community");
+  const [sinSehTab, setSinSehTab] = useState("mentors");
+  const [disMode, setDisMode] = useState("cards"); // cards | search
+  const [disSearch, setDisSearch] = useState("");
+  const [disFilter, setDisFilter] = useState("All");
+  const [disCard, setDisCard] = useState(0);
+  const [disFlipped, setDisFlipped] = useState(false);
+  const [disExpanded, setDisExpanded] = useState(null);
+  const [networkFilter, setNetworkFilter] = useState("All");
+  const [connectModal, setConnectModal] = useState(null);
+  const [applyModal, setApplyModal] = useState(null);
+  const [applyForm, setApplyForm] = useState({ name: "", age: "", dialect: "Hokkien", location: "", message: "" });
+  const [mentorForm, setMentorForm] = useState({ name: "", age: "", dialect: "Hokkien", location: "", experience: "", bio: "" });
+  const [submitted, setSubmitted] = useState(false);
+  const [mentorSubmitted, setMentorSubmitted] = useState(false);
+  const [connectedMembers, setConnectedMembers] = useState([]);
+
+  const dialect = dialects.find(d => d.id === selectedDialect);
+  const cards = selectedDialect && lessons[selectedDialect]?.[selectedCategory] || [];
+
+  function selectDialect(id) {
+    setSelectedDialect(id);
+    setSelectedCategory("greetings");
+    setCardIndex(0);
+    setFlipped(false);
+    setScreen("lesson");
+  }
+
+  function nextCard() {
+    setFlipped(false);
+    setTimeout(() => {
+      if (cardIndex < cards.length - 1) setCardIndex(cardIndex + 1);
+      else {
+        const key = `${selectedDialect}-${selectedCategory}`;
+        setProgress(p => ({ ...p, [key]: true }));
+        setCardIndex(0);
+      }
+    }, 150);
+  }
+
+  function prevCard() {
+    setFlipped(false);
+    setTimeout(() => setCardIndex(Math.max(0, cardIndex - 1)), 150);
+  }
+
+  function startQuiz() {
+    const allPhrases = Object.values(lessons[selectedDialect]).flat();
+    setQuizState({ questions: allPhrases.sort(() => Math.random() - 0.5).slice(0, 5), q: 0, score: 0, answered: null, done: false });
+    setScreen("quiz");
+  }
+
+  function answerQuiz(choice) {
+    const q = quizState.questions[quizState.q];
+    const correct = choice === q.meaning;
+    const newScore = correct ? quizState.score + 1 : quizState.score;
+    setQuizState(s => ({ ...s, answered: choice, score: newScore }));
+    setTimeout(() => {
+      if (quizState.q + 1 >= quizState.questions.length) {
+        setQuizState(s => ({ ...s, done: true, score: newScore }));
+      } else {
+        setQuizState(s => ({ ...s, q: s.q + 1, answered: null }));
+      }
+    }, 1000);
+  }
+
+  function getQuizOptions(q) {
+    const allMeanings = Object.values(lessons[selectedDialect]).flat().map(p => p.meaning);
+    const wrong = allMeanings.filter(m => m !== q.meaning).sort(() => Math.random() - 0.5).slice(0, 3);
+    return [...wrong, q.meaning].sort(() => Math.random() - 0.5);
+  }
+
+  const totalProgress = Object.keys(progress).filter(k => k.startsWith(selectedDialect || "")).length;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
+      <style>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .card-3d { perspective: 1000px; }
+        .card-inner { transition: transform 0.6s cubic-bezier(.4,2,.6,1); transform-style: preserve-3d; position: relative; }
+        .card-inner.flipped { transform: rotateY(180deg); }
+        .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 20px; }
+        .card-back { transform: rotateY(180deg); }
+        .btn-hover { transition: all 0.2s; cursor: pointer; }
+        .btn-hover:hover { transform: translateY(-2px); }
+        .dialect-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important; }
+        .dialect-card { transition: all 0.3s cubic-bezier(.4,2,.6,1); cursor: pointer; }
+        .tab-btn { transition: all 0.2s; cursor: pointer; border: none; font-family: inherit; }
+        .nav-link { cursor: pointer; transition: opacity 0.2s; }
+        .nav-link:hover { opacity: 0.7; }
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; background-size: 200% 100%; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+        .fade-up { animation: fadeUp 0.5s ease forwards; }
+        .progress-bar { height: 6px; border-radius: 3px; background: #E8DDD0; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+      `}</style>
+
+      {/* NAVBAR */}
+      <nav style={{ background: "#1A1208", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid #C0392B" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => setScreen("home")}>
+          <span style={{ fontSize: 28 }}>🏮</span>
+          <div>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#F5E6C8", letterSpacing: 1 }}>tiagong.sg</div>
+            <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+          {[["home","Learn"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"]].map(([s,label]) => (
+            <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
+              {label}
+            </span>
+          ))}
+          {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
         </div>
-      </main>
+      </nav>
+
+      {/* HOME */}
+      {screen === "home" && (
+        <div>
+          {/* Hero */}
+          <div style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 50%, #3D1F10 100%)", padding: "80px 32px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(192,57,43,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(212,134,11,0.1) 0%, transparent 50%)" }} />
+            <div style={{ position: "relative", maxWidth: 680, margin: "0 auto" }} className="fade-up">
+              <div style={{ fontSize: 56, marginBottom: 16 }}>🏮 🎋 🍵</div>
+              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 56, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
+                Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
+              </h1>
+              <p style={{ color: "#A08060", fontSize: 18, lineHeight: 1.7, marginBottom: 8 }}>
+                Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
+              </p>
+              <p style={{ color: "#7A6040", fontSize: 14, marginBottom: 40, fontStyle: "italic" }}>
+                每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
+              </p>
+              <button className="btn-hover" onClick={() => document.getElementById("dialects").scrollIntoView({ behavior: "smooth" })} style={{ background: "#C0392B", color: "#F5E6C8", border: "none", padding: "16px 40px", fontSize: 16, borderRadius: 8, cursor: "pointer", fontFamily: "inherit", letterSpacing: 1 }}>
+                Start Learning →
+              </button>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div style={{ background: "#F0E8DA", padding: "32px", display: "flex", justifyContent: "center", gap: 64, flexWrap: "wrap" }}>
+            {[["5", "Dialects"], ["50+", "Phrases"], ["3", "Categories"], ["Free", "Forever"]].map(([n, l]) => (
+              <div key={l} style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#C0392B" }}>{n}</div>
+                <div style={{ fontSize: 12, color: "#8B7355", letterSpacing: 2, textTransform: "uppercase" }}>{l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Dialect Cards */}
+          <div id="dialects" style={{ padding: "64px 32px", maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Choose Your Dialect</div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 40, color: "#1A1208" }}>Which dialect calls to you?</h2>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+              {dialects.map((d, i) => {
+                const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
+                return (
+                  <div key={d.id} className="dialect-card" onClick={() => selectDialect(d.id)}
+                    style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", border: `1px solid ${d.color}22`, animationDelay: `${i * 0.08}s` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                      <div style={{ fontSize: 40 }}>{d.icon}</div>
+                      <div style={{ background: d.bg, color: d.color, fontSize: 11, padding: "4px 10px", borderRadius: 20, fontWeight: 600, letterSpacing: 1 }}>
+                        {dialectProgress}/3 done
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>{d.name}</div>
+                    <div style={{ fontSize: 22, color: d.color, marginBottom: 12, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
+                    <p style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.6, marginBottom: 16 }}>{d.description}</p>
+                    <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 8 }}>📍 {d.origin}</div>
+                    <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 16 }}>👥 {d.speakers}</div>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${(dialectProgress / 3) * 100}%`, background: d.color }} />
+                    </div>
+                    <div style={{ textAlign: "right", marginTop: 16 }}>
+                      <span style={{ color: d.color, fontSize: 14, fontStyle: "italic" }}>Begin learning →</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div style={{ background: "#1A1208", padding: "40px 32px", textAlign: "center", borderTop: "3px solid #C0392B" }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>🏮</div>
+            <p style={{ color: "#8B7355", fontSize: 14, fontStyle: "italic" }}>
+              "A language lost is a culture lost." — Promote dialect preservation in Singapore.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* LESSON */}
+      {screen === "lesson" && dialect && (
+        <div style={{ maxWidth: 720, margin: "0 auto", padding: "40px 24px" }}>
+          {/* Dialect Header */}
+          <div style={{ background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "32px", marginBottom: 32, display: "flex", alignItems: "center", gap: 24 }}>
+            <div style={{ fontSize: 56 }}>{dialect.icon}</div>
+            <div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>{dialect.name}</div>
+              <div style={{ fontSize: 24, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
+              <div style={{ fontSize: 12, color: "#8B7355", marginTop: 4 }}>📍 {dialect.origin}</div>
+            </div>
+          </div>
+
+          {/* Category Tabs */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+            {categories.map(cat => {
+              const key = `${selectedDialect}-${cat.id}`;
+              const done = progress[key];
+              return (
+                <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
+                  style={{ flex: 1, padding: "12px 8px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 13, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, position: "relative" }}>
+                  {cat.icon} {cat.label} {done && <span style={{ marginLeft: 4 }}>✓</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Progress */}
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 13, color: "#8B7355" }}>
+            <span>Card {cardIndex + 1} of {cards.length}</span>
+            <span style={{ color: dialect.color }}>{Math.round(((cardIndex + 1) / cards.length) * 100)}%</span>
+          </div>
+          <div className="progress-bar" style={{ marginBottom: 32 }}>
+            <div className="progress-fill" style={{ width: `${((cardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
+          </div>
+
+          {/* Flashcard */}
+          <div className="card-3d" style={{ height: 280, marginBottom: 24 }} onClick={() => setFlipped(!flipped)}>
+            <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
+              {/* Front */}
+              <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", marginBottom: 16 }}>Tap to reveal</div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
+                  {cards[cardIndex]?.phrase}
+                </div>
+                <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 28, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
+                  {cards[cardIndex]?.chinese}
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>
+                  /{cards[cardIndex]?.romanisation}/
+                </div>
+              </div>
+              {/* Back */}
+              <div className="card-face card-back" style={{ background: "#F5E6C8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}` }}>
+                <div style={{ fontSize: 11, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 16 }}>Meaning</div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 42, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 24px" }}>
+                  {cards[cardIndex]?.meaning}
+                </div>
+                <div style={{ fontSize: 13, color: "#8B7355", marginTop: 16, fontStyle: "italic", textAlign: "center", padding: "0 32px" }}>
+                  Romanisation: <strong>{cards[cardIndex]?.romanisation}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Nav Buttons */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
+            <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
+              style={{ flex: 1, padding: "14px", background: cardIndex === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 16, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208" }}>
+              ← Prev
+            </button>
+            <button className="btn-hover" onClick={nextCard}
+              style={{ flex: 1, padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer" }}>
+              {cardIndex < cards.length - 1 ? "Next →" : "✓ Complete!"}
+            </button>
+          </div>
+
+          {/* Quiz CTA */}
+          <div style={{ background: "#1A1208", borderRadius: 16, padding: 24, textAlign: "center" }}>
+            <div style={{ color: "#F5E6C8", fontSize: 16, marginBottom: 8, fontFamily: "'Cormorant Garamond', serif" }}>Ready to test yourself?</div>
+            <div style={{ color: "#8B7355", fontSize: 13, marginBottom: 16 }}>Take a quick quiz across all categories</div>
+            <button className="btn-hover" onClick={startQuiz}
+              style={{ background: dialect.color, color: "white", border: "none", padding: "12px 32px", borderRadius: 8, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+              Start Quiz 🎯
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* QUIZ */}
+      {screen === "quiz" && dialect && quizState.questions && (
+        <div style={{ maxWidth: 600, margin: "0 auto", padding: "40px 24px" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#1A1208" }}>
+              {dialect.icon} {dialect.name} Quiz
+            </div>
+          </div>
+
+          {!quizState.done ? (
+            <div className="fade-up">
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, fontSize: 14, color: "#8B7355" }}>
+                <span>Question {quizState.q + 1} / {quizState.questions.length}</span>
+                <span style={{ color: dialect.color, fontWeight: 600 }}>Score: {quizState.score}</span>
+              </div>
+              <div className="progress-bar" style={{ marginBottom: 32 }}>
+                <div className="progress-fill" style={{ width: `${((quizState.q + 1) / quizState.questions.length) * 100}%`, background: dialect.color }} />
+              </div>
+
+              <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: 40, textAlign: "center", marginBottom: 24 }}>
+                <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>WHAT DOES THIS MEAN?</div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "white" }}>
+                  {quizState.questions[quizState.q]?.phrase}
+                </div>
+                <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 24, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>
+                  {quizState.questions[quizState.q]?.chinese}
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {getQuizOptions(quizState.questions[quizState.q]).map((opt, i) => {
+                  const isCorrect = opt === quizState.questions[quizState.q].meaning;
+                  const isSelected = opt === quizState.answered;
+                  let bg = "white", border = "#E8DDD0", color = "#1A1208";
+                  if (quizState.answered) {
+                    if (isCorrect) { bg = "#EAFAF1"; border = "#27AE60"; color = "#1A6B3C"; }
+                    else if (isSelected) { bg = "#FDEDEC"; border = "#E74C3C"; color = "#C0392B"; }
+                  }
+                  return (
+                    <button key={i} className="btn-hover" onClick={() => !quizState.answered && answerQuiz(opt)}
+                      style={{ padding: "16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 15, cursor: quizState.answered ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
+                      {isCorrect && quizState.answered ? "✓ " : isSelected && !isCorrect ? "✗ " : ""}{opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div style={{ textAlign: "center" }} className="fade-up">
+              <div style={{ fontSize: 72, marginBottom: 16 }}>{quizState.score >= 4 ? "🎉" : quizState.score >= 2 ? "👍" : "📚"}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>
+                {quizState.score} / {quizState.questions.length}
+              </div>
+              <div style={{ fontSize: 18, color: "#8B7355", marginBottom: 8, fontStyle: "italic" }}>
+                {quizState.score >= 4 ? "Excellent! 做得好！" : quizState.score >= 2 ? "Good effort! Keep practising!" : "Keep learning! 继续加油！"}
+              </div>
+              <div style={{ background: "#F5E6C8", borderRadius: 16, padding: 24, margin: "24px 0", borderLeft: `4px solid ${dialect.color}` }}>
+                <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.7 }}>
+                  Every dialect phrase you learn is a step toward preserving Singapore's rich cultural heritage. Share what you've learned with your grandparents — they'll be delighted!
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                <button className="btn-hover" onClick={startQuiz}
+                  style={{ background: dialect.color, color: "white", border: "none", padding: "14px 28px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                  Retry Quiz
+                </button>
+                <button className="btn-hover" onClick={() => setScreen("lesson")}
+                  style={{ background: "white", color: "#1A1208", border: "2px solid #E8DDD0", padding: "14px 28px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                  Back to Lessons
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+
+
+      {/* DIALECTS IN SINGLISH */}
+      {screen === "singlish" && (() => {
+        const disCategories = ["All", "Feelings & Attitudes", "Character & Personality", "Exclamations", "Actions & Behaviours", "Culture & Mindset", "People & Relationships", "Work & Effort", "Food & Eating", "Reactions & Responses", "Expletives & Intensifiers"];
+        const allTags = ["All", "everyday", "NS", "school", "friends", "food", "classic", "culture", "work"];
+        const filtered = singlishPhrases.filter(p => {
+          const catMatch = disFilter === "All" || p.category === disFilter;
+          const searchMatch = disSearch === "" || p.phrase.toLowerCase().includes(disSearch.toLowerCase()) || p.meaning.toLowerCase().includes(disSearch.toLowerCase()) || p.tags.some(t => t.toLowerCase().includes(disSearch.toLowerCase()));
+          return catMatch && searchMatch;
+        });
+        const cardPhrase = filtered[disCard] || filtered[0];
+        return (
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
+            {/* Header */}
+            <div style={{ textAlign: "center", marginBottom: 40 }}>
+              <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Singapore Heritage</div>
+              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: "#1A1208", marginBottom: 8, lineHeight: 1.1 }}>
+                Dialects<span style={{ color: "#C0392B", fontStyle: "italic" }}>In</span>Singlish
+              </h1>
+              <p style={{ color: "#8B7355", fontSize: 15, maxWidth: 640, margin: "0 auto", lineHeight: 1.7 }}>
+                The Singlish we speak every day — at the market, in NS, at the kopitiam — is woven through with dialect. Discover where your favourite phrases really come from.
+              </p>
+            </div>
+
+            {/* Mode Toggle */}
+            <div style={{ display: "flex", background: "#F0E8DA", borderRadius: 14, padding: 4, maxWidth: 360, margin: "0 auto 36px" }}>
+              {[["cards","🃏 Flashcards"],["search","🔍 Smart Search"]].map(([mode, label]) => (
+                <button key={mode} className="tab-btn" onClick={() => { setDisMode(mode); setDisCard(0); setDisFlipped(false); setDisExpanded(null); }}
+                  style={{ flex: 1, padding: "12px 16px", borderRadius: 10, background: disMode === mode ? "#1A1208" : "transparent", color: disMode === mode ? "#F5E6C8" : "#8B7355", fontSize: 14, fontWeight: 600 }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* FLASHCARD MODE */}
+            {disMode === "cards" && cardPhrase && (
+              <div style={{ maxWidth: 680, margin: "0 auto" }}>
+                {/* Category Filter Pills */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
+                  {disCategories.map(c => (
+                    <button key={c} className="tab-btn" onClick={() => { setDisFilter(c); setDisCard(0); setDisFlipped(false); }}
+                      style={{ padding: "6px 14px", borderRadius: 20, background: disFilter === c ? "#C0392B" : "white", color: disFilter === c ? "white" : "#6B5B45", fontSize: 12, border: "1px solid " + (disFilter === c ? "#C0392B" : "#E8DDD0"), fontWeight: disFilter === c ? 600 : 400 }}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Progress */}
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 13, color: "#8B7355" }}>
+                  <span>{disFilter !== "All" ? disFilter : "All Categories"}</span>
+                  <span style={{ color: "#C0392B" }}>{disCard + 1} / {filtered.length}</span>
+                </div>
+                <div className="progress-bar" style={{ marginBottom: 28 }}>
+                  <div className="progress-fill" style={{ width: filtered.length ? ((disCard + 1) / filtered.length * 100) + "%" : "0%", background: "#C0392B" }} />
+                </div>
+
+                {/* Flashcard */}
+                <div className="card-3d" style={{ height: 320, marginBottom: 20, cursor: "pointer" }} onClick={() => setDisFlipped(!disFlipped)}>
+                  <div className={"card-inner" + (disFlipped ? " flipped" : "")} style={{ height: "100%", width: "100%" }}>
+                    {/* Front */}
+                    <div className="card-face" style={{ background: "linear-gradient(135deg, #1A1208 0%, #3D1F10 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center" }}>
+                      <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 20 }}>Tap to reveal meaning</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 52, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 10 }}>{cardPhrase.phrase}</div>
+                      <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(245,230,200,0.6)", marginBottom: 16 }}>{cardPhrase.chinese}</div>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                        <span style={{ fontSize: 12, background: cardPhrase.dialectColor + "40", color: cardPhrase.dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{cardPhrase.dialect}</span>
+                        <span style={{ fontSize: 12, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", padding: "4px 12px", borderRadius: 12 }}>{cardPhrase.category}</span>
+                      </div>
+                    </div>
+                    {/* Back */}
+                    <div className="card-face card-back" style={{ background: "#FAF6F0", border: "3px solid #C0392B", padding: 28, display: "flex", flexDirection: "column", justifyContent: "center", overflowY: "auto" }}>
+                      <div style={{ fontSize: 11, letterSpacing: 3, color: "#C0392B", textTransform: "uppercase", marginBottom: 12 }}>Meaning</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 14, lineHeight: 1.4 }}>{cardPhrase.meaning}</div>
+                      <div style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.7, marginBottom: 14 }}>{cardPhrase.fullExplanation}</div>
+                      <div style={{ fontSize: 12, color: "#C0392B", fontStyle: "italic", fontWeight: 600 }}>"{cardPhrase.examples[0]}"</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Nav + Expand */}
+                <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                  <button className="btn-hover" onClick={() => { setDisFlipped(false); setTimeout(() => setDisCard(Math.max(0, disCard - 1)), 150); }} disabled={disCard === 0}
+                    style={{ flex: 1, padding: "13px", background: disCard === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 15, cursor: disCard === 0 ? "default" : "pointer", color: disCard === 0 ? "#C0B0A0" : "#1A1208" }}>
+                    ← Prev
+                  </button>
+                  <button className="btn-hover" onClick={() => setDisExpanded(disExpanded === cardPhrase.id ? null : cardPhrase.id)}
+                    style={{ padding: "13px 20px", background: "#F0E8DA", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 13, cursor: "pointer", color: "#6B5B45", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                    {disExpanded === cardPhrase.id ? "▲ Less" : "▼ Full Details"}
+                  </button>
+                  <button className="btn-hover" onClick={() => { setDisFlipped(false); setTimeout(() => setDisCard(Math.min(filtered.length - 1, disCard + 1)), 150); }} disabled={disCard >= filtered.length - 1}
+                    style={{ flex: 1, padding: "13px", background: disCard >= filtered.length - 1 ? "#E8DDD0" : "#1A1208", color: disCard >= filtered.length - 1 ? "#C0B0A0" : "#F5E6C8", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: disCard >= filtered.length - 1 ? "default" : "pointer" }}>
+                    Next →
+                  </button>
+                </div>
+
+                {/* Expanded Detail Panel */}
+                {disExpanded === cardPhrase.id && (
+                  <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }} className="fade-up">
+                    <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 13, background: cardPhrase.dialectColor + "18", color: cardPhrase.dialectColor, padding: "5px 14px", borderRadius: 20, fontWeight: 700 }}>🗣️ {cardPhrase.dialect}</span>
+                      <span style={{ fontSize: 13, background: "#F0E8DA", color: "#6B5B45", padding: "5px 14px", borderRadius: 20 }}>📂 {cardPhrase.category}</span>
+                    </div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{cardPhrase.phrase} <span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "#9B8B75" }}>{cardPhrase.chinese}</span></div>
+                    <div style={{ fontSize: 15, color: "#C0392B", fontWeight: 600, marginBottom: 12 }}>{cardPhrase.meaning}</div>
+                    <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.8, marginBottom: 20 }}>{cardPhrase.fullExplanation}</div>
+                    <div style={{ fontSize: 13, color: "#8B7355", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Examples in use:</div>
+                    {cardPhrase.examples.map((ex, i) => (
+                      <div key={i} style={{ background: "#FAF6F0", borderRadius: 10, padding: "12px 16px", marginBottom: 8, fontSize: 14, color: "#1A1208", fontStyle: "italic", borderLeft: "3px solid #C0392B" }}>
+                        "{ex}"
+                      </div>
+                    ))}
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 16 }}>
+                      {cardPhrase.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "#9B8B75", padding: "4px 10px", borderRadius: 8 }}>#{t}</span>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SMART SEARCH MODE */}
+            {disMode === "search" && (
+              <div>
+                {/* Search Bar */}
+                <div style={{ maxWidth: 600, margin: "0 auto 28px", position: "relative" }}>
+                  <input
+                    type="text"
+                    value={disSearch}
+                    onChange={e => { setDisSearch(e.target.value); setDisExpanded(null); }}
+                    placeholder="Search phrases, meanings, or contexts (e.g. 'NS', 'food', 'sian')..."
+                    style={{ width: "100%", padding: "16px 56px 16px 20px", borderRadius: 16, border: "2px solid " + (disSearch ? "#C0392B" : "#E8DDD0"), fontSize: 15, fontFamily: "inherit", background: "white", outline: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", transition: "border 0.2s" }}
+                  />
+                  <span style={{ position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)", fontSize: 20, color: "#C0B0A0" }}>🔍</span>
+                </div>
+
+                {/* Category Filter */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
+                  {disCategories.map(c => (
+                    <button key={c} className="tab-btn" onClick={() => { setDisFilter(c); setDisExpanded(null); }}
+                      style={{ padding: "6px 14px", borderRadius: 20, background: disFilter === c ? "#C0392B" : "white", color: disFilter === c ? "white" : "#6B5B45", fontSize: 12, border: "1px solid " + (disFilter === c ? "#C0392B" : "#E8DDD0"), fontWeight: disFilter === c ? 600 : 400 }}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Results count */}
+                <div style={{ textAlign: "center", fontSize: 13, color: "#8B7355", marginBottom: 24 }}>
+                  {filtered.length === singlishPhrases.length ? `Showing all ${singlishPhrases.length} Singlish dialect phrases` : `Found ${filtered.length} phrase${filtered.length !== 1 ? "s" : ""}${disSearch ? " for \"" + disSearch + "\"" : ""}`}
+                </div>
+
+                {/* Results Grid */}
+                {filtered.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>No phrases found</div>
+                    <div style={{ color: "#8B7355", fontSize: 14 }}>Try a different search or clear the filters</div>
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+                    {filtered.map(p => (
+                      <div key={p.id} style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.05)", border: "1px solid " + (disExpanded === p.id ? "#C0392B" : "#F0E8DA"), cursor: "pointer", transition: "all 0.2s" }}
+                        className="dialect-card" onClick={() => setDisExpanded(disExpanded === p.id ? null : p.id)}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                          <div>
+                            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: "#1A1208", lineHeight: 1 }}>{p.phrase}</div>
+                            <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 14, color: "#9B8B75", marginTop: 2 }}>{p.chinese}</div>
+                          </div>
+                          <span style={{ fontSize: 11, background: p.dialectColor + "18", color: p.dialectColor, padding: "4px 10px", borderRadius: 10, fontWeight: 700, whiteSpace: "nowrap", marginLeft: 8 }}>{p.dialect}</span>
+                        </div>
+                        <div style={{ fontSize: 14, color: "#C0392B", fontWeight: 600, marginBottom: 8 }}>{p.meaning}</div>
+                        {disExpanded !== p.id && (
+                          <div style={{ fontSize: 13, color: "#8B7355", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.fullExplanation}</div>
+                        )}
+                        {disExpanded === p.id && (
+                          <div className="fade-up">
+                            <div style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.7, marginBottom: 16 }}>{p.fullExplanation}</div>
+                            <div style={{ fontSize: 12, color: "#8B7355", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Examples:</div>
+                            {p.examples.map((ex, i) => (
+                              <div key={i} style={{ background: "#FAF6F0", borderRadius: 8, padding: "10px 14px", marginBottom: 6, fontSize: 13, color: "#1A1208", fontStyle: "italic", borderLeft: "3px solid " + p.dialectColor }}>
+                                "{ex}"
+                              </div>
+                            ))}
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
+                              <span style={{ fontSize: 11, background: "#F0E8DA", color: "#8B7355", padding: "3px 10px", borderRadius: 8 }}>📂 {p.category}</span>
+                              {p.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "#9B8B75", padding: "3px 8px", borderRadius: 8 }}>#{t}</span>)}
+                            </div>
+                          </div>
+                        )}
+                        <div style={{ marginTop: 12, fontSize: 12, color: "#C0B0A0", textAlign: "right" }}>{disExpanded === p.id ? "▲ Collapse" : "▼ Expand"}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Context banner at bottom */}
+            <div style={{ marginTop: 56, background: "linear-gradient(135deg, #1A1208, #3D1F10)", borderRadius: 20, padding: "36px 32px", textAlign: "center" }}>
+              <div style={{ fontSize: 32, marginBottom: 12 }}>🗣️</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, color: "#F5E6C8", marginBottom: 8 }}>Singlish is dialect in disguise</div>
+              <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.8, maxWidth: 600, margin: "0 auto" }}>
+                From "bojio" to "jialat", the phrases that make Singlish uniquely ours are rooted in Hokkien, Cantonese, Teochew, Hakka and Hainanese. Every time you say "walao" or "paiseh", you're speaking dialect — and keeping it alive.
+              </p>
+            </div>
+          </div>
+        );
+      })()}
+
+      {screen === "network" && (
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Community</div>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: "#1A1208", marginBottom: 12 }}>Network</h1>
+            <p style={{ color: "#8B7355", fontSize: 16, maxWidth: 560, margin: "0 auto" }}>Connect with fellow learners across Singapore. Find practice partners, share stories, and keep our dialects alive together.</p>
+          </div>
+          <div style={{ display: "flex", background: "#F0E8DA", borderRadius: 14, padding: 4, maxWidth: 500, margin: "0 auto 40px" }}>
+            {[["community","Community"],["sinseh","Sin Seh (Mentorship)"]].map(([tab, label]) => (
+              <button key={tab} className="tab-btn" onClick={() => setNetworkTab(tab)}
+                style={{ flex: 1, padding: "12px 16px", borderRadius: 10, background: networkTab === tab ? "#1A1208" : "transparent", color: networkTab === tab ? "#F5E6C8" : "#8B7355", fontSize: 14, fontWeight: 600 }}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {networkTab === "community" && (
+            <div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 32 }}>
+                {["All","Hokkien","Cantonese","Teochew","Hakka","Hainanese","Beginner","Intermediate","Native Speaker"].map(f => (
+                  <button key={f} className="tab-btn" onClick={() => setNetworkFilter(f)}
+                    style={{ padding: "8px 16px", borderRadius: 20, background: networkFilter === f ? "#C0392B" : "white", color: networkFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (networkFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: networkFilter === f ? 600 : 400 }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+                {networkMembers.filter(m => networkFilter === "All" || m.dialects.includes(networkFilter) || m.level === networkFilter).map(m => {
+                  const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+                  const isConnected = connectedMembers.includes(m.id);
+                  return (
+                    <div key={m.id} style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: "1px solid #F0E8DA", display: "flex", flexDirection: "column", gap: 12 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                          <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{m.name}</div>
+                            <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} - {m.location}</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 11, background: m.level === "Native Speaker" ? "#FEF3E2" : m.level === "Intermediate" ? "#EAF6EC" : "#EEF2FF", color: m.level === "Native Speaker" ? "#D4860B" : m.level === "Intermediate" ? "#1A6B3C" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 600 }}>
+                          {m.level}
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.6, margin: 0 }}>{m.bio}</p>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {m.dialects.map(d => <span key={d} style={{ fontSize: 11, background: dColors[d] + "18", color: dColors[d], padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{d}</span>)}
+                      </div>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {m.interests.map(i => <span key={i} style={{ fontSize: 11, color: "#9B8B75", background: "#F5F0EA", padding: "3px 8px", borderRadius: 8 }}>#{i}</span>)}
+                      </div>
+                      <button className="btn-hover" onClick={() => !isConnected && setConnectModal(m)}
+                        style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: isConnected ? "#EAFAF1" : "#1A1208", color: isConnected ? "#1A6B3C" : "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: isConnected ? "default" : "pointer" }}>
+                        {isConnected ? "Connected!" : "Connect"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 48, background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "40px 32px", textAlign: "center" }}>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#F5E6C8", marginBottom: 8 }}>Add yourself to the community</div>
+                <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Let others find you as a practice partner across Singapore.</p>
+                <button className="btn-hover" onClick={() => setConnectModal({ join: true })}
+                  style={{ background: "#C0392B", color: "white", border: "none", padding: "14px 36px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                  Join the Network
+                </button>
+              </div>
+            </div>
+          )}
+          {networkTab === "sinseh" && (
+            <div>
+              <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 36, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ fontSize: 56 }}>🎓</div>
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
+                  <div style={{ fontSize: 14, color: "#A08060", marginTop: 4, marginBottom: 8 }}>Mentorship Programme - Completely Free</div>
+                  <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.7, maxWidth: 560 }}>Our volunteer mentors are native speakers who give their time freely. Apply as a mentee, or volunteer as a sin seh yourself.</p>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 32, flexWrap: "wrap" }}>
+                {[["mentors","Find a Sin Seh"],["apply-mentee","Apply as Mentee"],["apply-mentor","Volunteer as Sin Seh"]].map(([tab, label]) => (
+                  <button key={tab} className="tab-btn" onClick={() => { setSinSehTab(tab); setSubmitted(false); setMentorSubmitted(false); }}
+                    style={{ padding: "11px 20px", borderRadius: 10, background: sinSehTab === tab ? "#C0392B" : "white", color: sinSehTab === tab ? "white" : "#6B5B45", fontSize: 14, border: "2px solid " + (sinSehTab === tab ? "#C0392B" : "#E8DDD0"), fontWeight: 600 }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {sinSehTab === "mentors" && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 24 }}>
+                  {sinSehMentors.map(m => {
+                    const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+                    const bColors = { "Top Rated": "#D4860B", "Cultural Expert": "#8E44AD", "Community Favourite": "#C0392B", "Most Patient": "#1A6B3C", "Rare Dialect": "#1A7EA6" };
+                    return (
+                      <div key={m.id} style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", display: "flex", flexDirection: "column", gap: 14 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                            <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208" }}>{m.name}</div>
+                              <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} - {m.location}</div>
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 11, background: (bColors[m.badge] || "#C0392B") + "18", color: bColors[m.badge] || "#C0392B", padding: "4px 10px", borderRadius: 8, fontWeight: 700, height: "fit-content" }}>{m.badge}</div>
+                        </div>
+                        <p style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.6, margin: 0 }}>{m.bio}</p>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          {m.dialects.map(d => <span key={d} style={{ fontSize: 12, background: dColors[d] + "18", color: dColors[d], padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{d}</span>)}
+                        </div>
+                        <div style={{ background: "#FAF6F0", borderRadius: 12, padding: "12px 16px", fontSize: 13, display: "flex", flexDirection: "column", gap: 6 }}>
+                          <div style={{ color: "#6B5B45" }}><strong>Availability:</strong> {m.availability}</div>
+                          <div style={{ color: "#6B5B45" }}><strong>Style:</strong> {m.style}</div>
+                          <div style={{ color: "#6B5B45" }}><strong>Experience:</strong> {m.experience}</div>
+                          <div style={{ color: m.slots > 0 ? "#1A6B3C" : "#C0392B", fontWeight: 600 }}>{m.slots > 0 ? m.slots + " mentee slot" + (m.slots > 1 ? "s" : "") + " available" : "Fully booked"}</div>
+                        </div>
+                        <button className="btn-hover" onClick={() => { setSinSehTab("apply-mentee"); setApplyModal(m); }}
+                          style={{ padding: "12px", borderRadius: 10, background: m.slots > 0 ? "#1A1208" : "#E8DDD0", color: m.slots > 0 ? "#F5E6C8" : "#9B8B75", border: "none", fontSize: 14, fontWeight: 600, cursor: m.slots > 0 ? "pointer" : "default" }}>
+                          {m.slots > 0 ? "Apply to learn from " + m.name.split(" ")[0] : "Fully Booked"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {sinSehTab === "apply-mentee" && (
+                <div style={{ maxWidth: 600, margin: "0 auto" }}>
+                  {applyModal && (
+                    <div style={{ background: "#F5ECD8", borderRadius: 14, padding: 20, marginBottom: 28, display: "flex", gap: 14, alignItems: "center", border: "2px solid #D4860B" }}>
+                      <div style={{ fontSize: 32 }}>{applyModal.avatar}</div>
+                      <div>
+                        <div style={{ fontSize: 13, color: "#8B6020", fontWeight: 600 }}>Applying to learn from:</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#1A1208" }}>{applyModal.name}</div>
+                        <div style={{ fontSize: 12, color: "#9B8B75" }}>{applyModal.dialects.join(", ")} - {applyModal.location}</div>
+                      </div>
+                      <button onClick={() => setApplyModal(null)} style={{ marginLeft: "auto", background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#9B8B75" }}>x</button>
+                    </div>
+                  )}
+                  {!submitted ? (
+                    <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Apply as a Mentee</div>
+                      <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 28 }}>Tell us about yourself so we can match you with the right sin seh. This is a free programme.</p>
+                      {[["Your Full Name","text",applyForm.name,v=>setApplyForm(f=>({...f,name:v}))],["Your Age","number",applyForm.age,v=>setApplyForm(f=>({...f,age:v}))],["Your Town / Estate","text",applyForm.location,v=>setApplyForm(f=>({...f,location:v}))]].map(([label,type,val,setter]) => (
+                        <div key={label} style={{ marginBottom: 20 }}>
+                          <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                          <input type={type} value={val} onChange={e=>setter(e.target.value)} placeholder={label} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                        </div>
+                      ))}
+                      <div style={{ marginBottom: 20 }}>
+                        <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect you want to learn</label>
+                        <select value={applyForm.dialect} onChange={e=>setApplyForm(f=>({...f,dialect:e.target.value}))} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                          {["Hokkien","Cantonese","Teochew","Hakka","Hainanese"].map(d=><option key={d}>{d}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ marginBottom: 28 }}>
+                        <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Why do you want to learn this dialect?</label>
+                        <textarea value={applyForm.message} onChange={e=>setApplyForm(f=>({...f,message:e.target.value}))} rows={4} placeholder="Share your story..." style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0", resize: "vertical" }} />
+                      </div>
+                      <button className="btn-hover" onClick={() => { if(applyForm.name && applyForm.dialect) setSubmitted(true); }} style={{ width: "100%", padding: "16px", background: "#C0392B", color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Submit Application
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: "center", background: "white", borderRadius: 20, padding: 48, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }} className="fade-up">
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Application Submitted!</div>
+                      <p style={{ color: "#8B7355", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>Thank you, <strong>{applyForm.name}</strong>! Your application to learn <strong>{applyForm.dialect}</strong> has been received. A sin seh will reach out within 3 to 5 working days.</p>
+                      <div style={{ background: "#F5E6C8", borderRadius: 14, padding: 20, marginBottom: 28, textAlign: "left", border: "2px solid #D4860B" }}>
+                        <div style={{ fontSize: 13, color: "#8B6020", fontWeight: 700, marginBottom: 8 }}>Your Application Summary</div>
+                        <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 2 }}>
+                          <div>Name: {applyForm.name}, Age {applyForm.age}</div>
+                          <div>Location: {applyForm.location}</div>
+                          <div>Learning: {applyForm.dialect}</div>
+                        </div>
+                      </div>
+                      <button className="btn-hover" onClick={() => { setSubmitted(false); setApplyForm({name:"",age:"",dialect:"Hokkien",location:"",message:""}); setSinSehTab("mentors"); }} style={{ background: "#1A1208", color: "#F5E6C8", border: "none", padding: "14px 32px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>Browse More Sin Sehs</button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {sinSehTab === "apply-mentor" && (
+                <div style={{ maxWidth: 600, margin: "0 auto" }}>
+                  {!mentorSubmitted ? (
+                    <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Become a Sin Seh 先生</div>
+                      <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 20 }}>Are you a native or fluent speaker willing to volunteer your time? Your knowledge is irreplaceable.</p>
+                      <div style={{ background: "#FEF3E2", borderRadius: 12, padding: 16, marginBottom: 28, border: "1px solid #D4860B" }}>
+                        <div style={{ fontSize: 13, color: "#8B6020", fontWeight: 700, marginBottom: 6 }}>As a Sin Seh you will:</div>
+                        <div style={{ fontSize: 13, color: "#6B5B45", lineHeight: 2 }}>
+                          <div>Set your own availability and pace</div>
+                          <div>Choose how many mentees you take on</div>
+                          <div>Teach in any format: in person, video call, or voice notes</div>
+                          <div>Receive a digital Heritage Keeper certificate</div>
+                        </div>
+                      </div>
+                      {[["Your Full Name","text",mentorForm.name,v=>setMentorForm(f=>({...f,name:v}))],["Your Age","number",mentorForm.age,v=>setMentorForm(f=>({...f,age:v}))],["Your Town / Estate","text",mentorForm.location,v=>setMentorForm(f=>({...f,location:v}))],["Years speaking the dialect","text",mentorForm.experience,v=>setMentorForm(f=>({...f,experience:v}))]].map(([label,type,val,setter]) => (
+                        <div key={label} style={{ marginBottom: 20 }}>
+                          <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                          <input type={type} value={val} onChange={e=>setter(e.target.value)} placeholder={label} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                        </div>
+                      ))}
+                      <div style={{ marginBottom: 20 }}>
+                        <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect(s) you can teach</label>
+                        <select value={mentorForm.dialect} onChange={e=>setMentorForm(f=>({...f,dialect:e.target.value}))} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                          {["Hokkien","Cantonese","Teochew","Hakka","Hainanese","Hokkien & Teochew","Cantonese & Hakka"].map(d=><option key={d}>{d}</option>)}
+                        </select>
+                      </div>
+                      <div style={{ marginBottom: 28 }}>
+                        <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>About you and your teaching style</label>
+                        <textarea value={mentorForm.bio} onChange={e=>setMentorForm(f=>({...f,bio:e.target.value}))} rows={4} placeholder="Share your background and how you would like to teach..." style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0", resize: "vertical" }} />
+                      </div>
+                      <button className="btn-hover" onClick={() => { if(mentorForm.name && mentorForm.dialect) setMentorSubmitted(true); }} style={{ width: "100%", padding: "16px", background: "#C0392B", color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Register as Sin Seh
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: "center", background: "white", borderRadius: 20, padding: 48, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }} className="fade-up">
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>🏅</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Thank You! 多谢你！</div>
+                      <p style={{ color: "#8B7355", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}><strong>{mentorForm.name}</strong>, you are now a registered Sin Seh volunteer. We will be in touch with your first mentee match soon.</p>
+                      <div style={{ background: "#1A1208", borderRadius: 14, padding: 24, marginBottom: 28 }}>
+                        <div style={{ fontSize: 13, color: "#C0392B", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 4 }}>Heritage Keeper Certificate</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#F5E6C8" }}>{mentorForm.name}</div>
+                        <div style={{ fontSize: 13, color: "#8B7355", marginTop: 4 }}>Volunteer Sin Seh - {mentorForm.dialect} - tiagong.sg</div>
+                      </div>
+                      <button className="btn-hover" onClick={() => { setMentorSubmitted(false); setMentorForm({name:"",age:"",dialect:"Hokkien",location:"",experience:"",bio:""}); setSinSehTab("mentors"); }} style={{ background: "#C0392B", color: "white", border: "none", padding: "14px 32px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>View Sin Seh Directory</button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {connectModal && !connectModal.join && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 24 }} onClick={e => { if(e.target===e.currentTarget) setConnectModal(null); }}>
+          <div style={{ background: "white", borderRadius: 24, padding: 36, maxWidth: 440, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }} className="fade-up">
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <div style={{ fontSize: 56, marginBottom: 8 }}>{connectModal.avatar}</div>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>Connect with {connectModal.name.split(" ")[0]}?</div>
+              <p style={{ color: "#8B7355", fontSize: 14, marginTop: 8 }}>A connection request will be sent so you can arrange a practice session.</p>
+            </div>
+            <div style={{ background: "#FAF6F0", borderRadius: 12, padding: 16, marginBottom: 24, fontSize: 14, color: "#6B5B45", lineHeight: 2 }}>
+              <div>{connectModal.name}, Age {connectModal.age}</div>
+              <div>{connectModal.location}</div>
+              <div>{connectModal.dialects.join(", ")} - {connectModal.level}</div>
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+              <button className="btn-hover" onClick={() => { setConnectedMembers(prev => [...prev, connectModal.id]); setConnectModal(null); }} style={{ flex: 1, padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Send Request</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {connectModal && connectModal.join && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 24 }} onClick={e => { if(e.target===e.currentTarget) setConnectModal(null); }}>
+          <div style={{ background: "white", borderRadius: 24, padding: 36, maxWidth: 440, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }} className="fade-up">
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Join the Network</div>
+            <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Create your learner profile so others can find and connect with you.</p>
+            {[["Your Name","text"],["Age","number"],["Town / Estate","text"]].map(([ph, type]) => (
+              <input key={ph} type={type} placeholder={ph} style={{ display: "block", width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", marginBottom: 12, background: "#FAF6F0" }} />
+            ))}
+            <select style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", marginBottom: 20, background: "#FAF6F0" }}>
+              {["Hokkien","Cantonese","Teochew","Hakka","Hainanese"].map(d => <option key={d}>{d}</option>)}
+            </select>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
+              <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Join!</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {screen === "about" && (
+        <div style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px" }} className="fade-up">
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🏮</div>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: "#1A1208", marginBottom: 16 }}>Why tiagong.sg?</h1>
+          </div>
+          {[
+            ["📉", "A Heritage at Risk", "Since the 1980 Speak Mandarin Campaign, the use of Chinese dialects in Singapore has declined sharply. Many younger Singaporeans can no longer communicate with their grandparents in dialect."],
+            ["🔗", "The Cultural Thread", "Dialects carry more than words — they hold proverbs, songs, rituals, recipes, and stories that cannot be fully translated. When a dialect disappears, a whole worldview is lost."],
+            ["🌱", "Our Mission", "We believe every Singaporean should have a chance to reconnect with their dialect roots, even if just a few phrases. Small steps lead to big cultural preservation."],
+            ["👵", "Talk to Your Elders", "The best way to learn is from your grandparents, relatives, and community. Use this platform to start the conversation, then continue it at home."],
+          ].map(([icon, title, text]) => (
+            <div key={title} style={{ display: "flex", gap: 20, marginBottom: 32, background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.04)", border: "1px solid #F0E8DA" }}>
+              <div style={{ fontSize: 32, flexShrink: 0 }}>{icon}</div>
+              <div>
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{title}</div>
+                <div style={{ color: "#6B5B45", lineHeight: 1.7 }}>{text}</div>
+              </div>
+            </div>
+          ))}
+          <div style={{ textAlign: "center", marginTop: 48 }}>
+            <button className="btn-hover" onClick={() => setScreen("home")}
+              style={{ background: "#C0392B", color: "white", border: "none", padding: "16px 40px", borderRadius: 10, fontSize: 16, cursor: "pointer", fontFamily: "inherit" }}>
+              Start Learning Now
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ background: "#1A1208", padding: "40px 32px", textAlign: "center", borderTop: "3px solid #C0392B" }}>
+        <div style={{ fontSize: 24, marginBottom: 8 }}>🏮</div>
+        <p style={{ color: "#8B7355", fontSize: 14, fontStyle: "italic" }}>
+          "A language lost is a culture lost." — Promote dialect preservation in Singapore.
+        </p>
+      </div>
     </div>
   );
 }
