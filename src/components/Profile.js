@@ -16,10 +16,12 @@ export default function Profile({ currentUser, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [sentRequests, setSentRequests] = useState([]);
   const [connections, setConnections] = useState([]);
 
   useEffect(() => {
     fetchPendingRequests();
+    fetchSentRequests();
     fetchConnections();
   }, []);
 
@@ -32,6 +34,18 @@ export default function Profile({ currentUser, onLogout }) {
       }
     } catch (error) {
       console.error('Error fetching pending requests:', error);
+    }
+  }
+
+  async function fetchSentRequests() {
+    try {
+      const res = await fetch(`/api/connections/sent?userId=${currentUser.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSentRequests(data);
+      }
+    } catch (error) {
+      console.error('Error fetching sent requests:', error);
     }
   }
 
@@ -93,12 +107,33 @@ export default function Profile({ currentUser, onLogout }) {
 
       if (res.ok) {
         fetchPendingRequests();
+        fetchSentRequests();
         fetchConnections();
         setMessage({ type: 'success', text: `Request ${action === 'accept' ? 'approved' : 'declined'}!` });
       }
     } catch (error) {
       console.error('Error responding to request:', error);
       setMessage({ type: 'error', text: 'Failed to respond to request' });
+    }
+  }
+
+  async function cancelSentRequest(requestId) {
+    try {
+      const res = await fetch(`/api/connections/${requestId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+      });
+
+      if (res.ok) {
+        fetchSentRequests();
+        setMessage({ type: 'success', text: 'Request cancelled!' });
+      }
+    } catch (error) {
+      console.error('Error cancelling request:', error);
+      setMessage({ type: 'error', text: 'Failed to cancel request' });
     }
   }
 
@@ -127,8 +162,8 @@ export default function Profile({ currentUser, onLogout }) {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', background: '#F0E8DA', borderRadius: 14, padding: 4, maxWidth: 600, marginBottom: 40 }}>
-        {[['profile', 'Edit Profile'], ['requests', `Requests (${pendingRequests.length})`], ['connections', `Connections (${acceptedConnections.length})`]].map(([t, label]) => (
+      <div style={{ display: 'flex', background: '#F0E8DA', borderRadius: 14, padding: 4, maxWidth: 700, marginBottom: 40 }}>
+        {[['profile', 'Edit Profile'], ['incoming', `Incoming (${pendingRequests.length})`], ['sent', `Sent (${sentRequests.length})`], ['connections', `Connections (${acceptedConnections.length})`]].map(([t, label]) => (
           <button
             key={t}
             onClick={() => setActiveTab(t)}
@@ -269,8 +304,8 @@ export default function Profile({ currentUser, onLogout }) {
         </div>
       )}
 
-      {/* Requests Tab */}
-      {activeTab === 'requests' && (
+      {/* Incoming Requests Tab */}
+      {activeTab === 'incoming' && (
         <div>
           <h2 style={{ fontSize: 24, color: '#1A1208', marginBottom: 24 }}>Incoming Connection Requests</h2>
           {pendingRequests.length === 0 ? (
@@ -319,6 +354,46 @@ export default function Profile({ currentUser, onLogout }) {
                       ✕ Decline
                     </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Sent Requests Tab */}
+      {activeTab === 'sent' && (
+        <div>
+          <h2 style={{ fontSize: 24, color: '#1A1208', marginBottom: 24 }}>Sent Connection Requests</h2>
+          {sentRequests.length === 0 ? (
+            <div style={{ background: 'white', borderRadius: 20, padding: 40, textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <p style={{ color: '#8B7355', fontSize: 16 }}>No sent requests</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+              {sentRequests.map((req) => (
+                <div key={req.id} style={{ background: 'white', borderRadius: 18, padding: 24, boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1A1208', marginBottom: 8 }}>
+                    {req.receiver_name}
+                  </h3>
+                  <p style={{ fontSize: 13, color: '#9B8B75', marginBottom: 12 }}>{req.dialect_group} • {req.occupation}</p>
+                  <p style={{ fontSize: 12, color: '#D4860B', marginBottom: 12 }}>⏳ Pending since {new Date(req.created_at).toLocaleDateString()}</p>
+                  <button
+                    onClick={() => cancelSentRequest(req.id)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      borderRadius: 8,
+                      background: '#FDEDEC',
+                      color: '#C0392B',
+                      border: '2px solid #C0392B',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Cancel Request
+                  </button>
                 </div>
               ))}
             </div>

@@ -48,3 +48,39 @@ export async function PATCH(req, { params }) {
     return Response.json({ error: 'Failed to update connection' }, { status: 500 });
   }
 }
+
+export async function DELETE(req, { params }) {
+  try {
+    const auth = requireAuth(req);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { id } = params;
+
+    // Get the connection
+    const connectionResult = await query(
+      'SELECT * FROM connections WHERE id = $1',
+      [id]
+    );
+
+    if (connectionResult.rows.length === 0) {
+      return Response.json({ error: 'Connection not found' }, { status: 404 });
+    }
+
+    const connection = connectionResult.rows[0];
+
+    // Verify the current user is the requester (sender)
+    if (connection.requester_id !== auth.decoded.userId) {
+      return Response.json({ error: 'Not authorized to cancel this request' }, { status: 403 });
+    }
+
+    // Delete the connection request
+    await query('DELETE FROM connections WHERE id = $1', [id]);
+
+    return Response.json({ message: 'Request cancelled successfully' }, { status: 200 });
+  } catch (error) {
+    console.error('Error cancelling connection:', error);
+    return Response.json({ error: 'Failed to cancel connection' }, { status: 500 });
+  }
+}
