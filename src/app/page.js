@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const dialects = [
   {
@@ -1663,25 +1663,6 @@ const singlishPhrases = [
 ];
 
 
-const networkMembers = [
-  { id: 1, name: "Mdm Tan Ah Lian", age: 68, dialects: ["Hokkien", "Teochew"], level: "Native Speaker", location: "Bedok", bio: "Grew up speaking Hokkien at home, want to share with younger folks!", avatar: "👵", interests: ["cooking", "gardening", "mahjong"] },
-  { id: 2, name: "Kevin Lim", age: 24, dialects: ["Cantonese"], level: "Beginner", location: "Tampines", bio: "My grandma speaks Cantonese but I never learnt it. Hoping to connect with her better.", avatar: "👦", interests: ["gaming", "food", "music"] },
-  { id: 3, name: "Priya Shankar", age: 31, dialects: ["Hokkien", "Hakka"], level: "Intermediate", location: "Jurong", bio: "Married into a Hokkien family — learning the dialect to feel closer to my in-laws!", avatar: "👩", interests: ["reading", "travel", "photography"] },
-  { id: 4, name: "Uncle Henry Ong", age: 72, dialects: ["Teochew"], level: "Native Speaker", location: "Toa Payoh", bio: "Retired hawker, Teochew kway teow seller for 40 years. Happy to teach dialect and share stories.", avatar: "👴", interests: ["hawker food", "tai chi", "Chinese opera"] },
-  { id: 5, name: "Samantha Goh", age: 19, dialects: ["Hainanese"], level: "Beginner", location: "Yishun", bio: "Poly student studying heritage and culture — learning Hainanese as part of my roots project.", avatar: "👧", interests: ["art", "history", "baking"] },
-  { id: 6, name: "Desmond Chua", age: 45, dialects: ["Hokkien", "Cantonese"], level: "Intermediate", location: "Clementi", bio: "Can understand bits of Hokkien from my parents but never spoke it fluently. Time to change that!", avatar: "🧑", interests: ["cycling", "coffee", "family"] },
-  { id: 7, name: "Auntie Rose Chan", age: 60, dialects: ["Cantonese", "Hakka"], level: "Native Speaker", location: "Geylang", bio: "Cantonese opera enthusiast. Would love to find others who appreciate the dialect arts.", avatar: "👩‍🦳", interests: ["opera", "calligraphy", "dim sum"] },
-  { id: 8, name: "Marcus Ng", age: 28, dialects: ["Teochew", "Hokkien"], level: "Beginner", location: "Punggol", bio: "Both my parents speak different dialects — trying to learn both to bridge the family gap.", avatar: "🧑", interests: ["tech", "sports", "travel"] },
-];
-
-const sinSehMentors = [
-  { id: 1, name: "Mdm Wong Siew Lin", age: 70, dialects: ["Hokkien", "Teochew"], experience: "50+ years", location: "Ang Mo Kio", bio: "Born in Fujian, I have spoken Hokkien my whole life. I want to ensure the younger generation can keep this dialect alive.", avatar: "👵", availability: "Weekday mornings", slots: 3, style: "Conversational, story-based learning", badge: "Top Rated" },
-  { id: 2, name: "Mr Lau Ah Kow", age: 65, dialects: ["Cantonese"], experience: "40+ years", location: "Chinatown", bio: "Former Cantonese opera performer. I teach dialect through songs, stories and culture — not just vocabulary.", avatar: "👴", availability: "Weekend afternoons", slots: 2, style: "Arts & culture approach", badge: "Cultural Expert" },
-  { id: 3, name: "Auntie Mei Fong", age: 58, dialects: ["Hainanese", "Hokkien"], experience: "30+ years", location: "Telok Blangah", bio: "Hainanese chicken rice recipe passed down five generations. I teach dialect alongside food culture.", avatar: "👩‍🦳", availability: "Flexible", slots: 5, style: "Food & daily life vocabulary", badge: "Community Favourite" },
-  { id: 4, name: "Mr Tan Bak Chye", age: 74, dialects: ["Teochew", "Hakka"], experience: "60+ years", location: "Geylang", bio: "Retired school principal. Patient, structured teacher. I adapt my lessons to your pace and learning goals.", avatar: "👴", availability: "Tuesday & Thursday evenings", slots: 4, style: "Structured, beginner-friendly", badge: "Most Patient" },
-  { id: 5, name: "Mdm Koh Geok Eng", age: 62, dialects: ["Hakka"], experience: "35+ years", location: "Bukit Timah", bio: "Hakka is a minority dialect even among dialects — I am passionate about preserving it before it truly disappears.", avatar: "👵", availability: "Weekend mornings", slots: 2, style: "Immersive conversation", badge: "Rare Dialect" },
-];
-
 const categories = [
   { id: "greetings", label: "Greetings", icon: "👋" },
   { id: "numbers", label: "Numbers", icon: "🔢" },
@@ -1689,32 +1670,121 @@ const categories = [
 ];
 
 export default function DialectPlatform() {
-  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz
+  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz | profile
   const [selectedDialect, setSelectedDialect] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("greetings");
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [quizState, setQuizState] = useState({ q: 0, score: 0, answered: null, done: false });
   const [progress, setProgress] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
+  
+  // Network state
   const [networkTab, setNetworkTab] = useState("community");
   const [sinSehTab, setSinSehTab] = useState("mentors");
-  const [disMode, setDisMode] = useState("cards"); // cards | search
-  const [disSearch, setDisSearch] = useState("");
-  const [disFilter, setDisFilter] = useState("All");
-  const [disCard, setDisCard] = useState(0);
-  const [disFlipped, setDisFlipped] = useState(false);
-  const [disExpanded, setDisExpanded] = useState(null);
   const [networkFilter, setNetworkFilter] = useState("All");
-  const [connectModal, setConnectModal] = useState(null);
-  const [applyModal, setApplyModal] = useState(null);
+  const [connectedIds, setConnectedIds] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // SinSeh application forms
   const [applyForm, setApplyForm] = useState({ name: "", age: "", dialect: "Hokkien", location: "", message: "" });
   const [mentorForm, setMentorForm] = useState({ name: "", age: "", dialect: "Hokkien", location: "", experience: "", bio: "" });
   const [submitted, setSubmitted] = useState(false);
   const [mentorSubmitted, setMentorSubmitted] = useState(false);
-  const [connectedMembers, setConnectedMembers] = useState([]);
+  const [applyModal, setApplyModal] = useState(null);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
   const cards = selectedDialect && lessons[selectedDialect]?.[selectedCategory] || [];
+  
+  // Load users and connections when component mounts or user logs in
+  useEffect(() => {
+    if (currentUser) {
+      fetchUsers();
+      fetchConnections();
+      fetchPendingRequests();
+    }
+  }, [currentUser]);
+  
+  async function fetchUsers() {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/users');
+      const data = await res.json();
+      setUsers(data.filter((u) => u.id !== currentUser.id));
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  async function fetchConnections() {
+    try {
+      const res = await fetch(`/api/connections?userId=${currentUser.id}`);
+      const data = await res.json();
+      setConnectedIds(data.filter(c => c.status === 'accepted').map(c => c.requester_id === currentUser.id ? c.receiver_id : c.requester_id));
+    } catch (error) {
+      console.error('Error fetching connections:', error);
+    }
+  }
+  
+  async function fetchPendingRequests() {
+    try {
+      const res = await fetch(`/api/connections/pending?userId=${currentUser.id}`);
+      const data = await res.json();
+      setPendingRequests(data);
+    } catch (error) {
+      console.error('Error fetching pending requests:', error);
+    }
+  }
+  
+  async function sendConnectionRequest(receiverId) {
+    try {
+      const res = await fetch('/api/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requesterId: currentUser.id, receiverId }),
+      });
+      if (res.ok) {
+        alert('Connection request sent!');
+        fetchConnections();
+        fetchPendingRequests();
+      }
+    } catch (error) {
+      console.error('Error sending connection request:', error);
+    }
+  }
+  
+  async function respondToRequest(requestId, action) {
+    try {
+      const res = await fetch(`/api/connections/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        fetchConnections();
+        fetchPendingRequests();
+      }
+    } catch (error) {
+      console.error('Error responding to request:', error);
+    }
+  }
+  
+  function handleAuthSuccess(user) {
+    setCurrentUser(user);
+    setShowAuth(false);
+  }
+  
+  function handleLogout() {
+    setCurrentUser(null);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    setScreen("home");
+  }
 
   function selectDialect(id) {
     setSelectedDialect(id);
@@ -1808,6 +1878,15 @@ export default function DialectPlatform() {
               {label}
             </span>
           ))}
+          {currentUser ? (
+            <span className="nav-link" onClick={() => setScreen("profile")} style={{ color: screen === "profile" ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
+              👤 Profile
+            </span>
+          ) : (
+            <button onClick={() => setShowAuth(true)} style={{ background: "#C0392B", color: "#F5E6C8", border: "none", padding: "8px 16px", borderRadius: 8, fontSize: 14, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+              Sign In
+            </button>
+          )}
           {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
         </div>
       </nav>
@@ -2530,6 +2609,64 @@ export default function DialectPlatform() {
             <div style={{ display: "flex", gap: 12 }}>
               <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
               <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Join!</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {screen === "profile" && currentUser && (
+        <div style={{ maxWidth: 700, margin: "0 auto", padding: "60px 24px" }} className="fade-up">
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <div style={{ fontSize: 64, marginBottom: 16 }}>👤</div>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 40, color: "#1A1208", marginBottom: 8 }}>Your Profile</h1>
+            <p style={{ color: "#8B7355", fontSize: 14 }}>Manage your personal information and preferences</p>
+          </div>
+          <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>First Name</label>
+                <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>{currentUser.first_name}</div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Last Name</label>
+                <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>{currentUser.last_name}</div>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Age</label>
+                <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>{currentUser.age}</div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Occupation</label>
+                <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>{currentUser.occupation}</div>
+              </div>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Email</label>
+              <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>{currentUser.email}</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect to Learn</label>
+                <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>{currentUser.dialect_group}</div>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Role</label>
+                <div style={{ padding: "12px 16px", background: "#FAF6F0", borderRadius: 10, fontSize: 15 }}>
+                  {currentUser.role === 'mentor' ? '🎓 Mentor' : currentUser.role === 'mentee' ? '👤 Mentee' : currentUser.role === 'both' ? '🔄 Both' : '🔍 Exploring'}
+                </div>
+              </div>
+            </div>
+            <div style={{ borderTop: "2px solid #E8DDD0", paddingTop: 24, marginTop: 24 }}>
+              <div style={{ display: "flex", gap: 12 }}>
+                <button onClick={() => setScreen("network")} style={{ flex: 1, padding: "14px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Go to Network
+                </button>
+                <button onClick={handleLogout} style={{ flex: 1, padding: "14px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Sign Out
+                </button>
+              </div>
             </div>
           </div>
         </div>
