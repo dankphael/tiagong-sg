@@ -6,22 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
-    "next": "16.2.3",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "^18",
+    "react-dom": "^18",
+    "next": "^16.2.3",
     "@vercel/postgres": "^0.5.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.1.2",
     "pg": "^8.11.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.3",
-    "tailwindcss": "^4"
+    "eslint": "^8",
+    "eslint-config-next": "16"
   }
 }
