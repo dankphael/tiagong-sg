@@ -1669,35 +1669,171 @@ const situationalQuizzes = {
   hokkien: [
     {
       id: 1,
-      title: "Ordering at a Hawker Stall",
-      story: "You're at a hawker stall and the uncle asks what you want to eat.",
+      title: "Morning at Home",
+      story: "You wake up on a Saturday morning. Your Hokkien-speaking grandmother is already in the kitchen preparing breakfast.",
       cues: [
-        { context: "The uncle asks 'Chiah simi?' (What do you want to eat?). What do you say?", dialogues: [
-          { phrase: "Chiah buay?", meaning: "Have you eaten?", correct: false },
-          { phrase: "Wa ai bah png", meaning: "I want braised pork rice", correct: true },
-          { phrase: "Wa m bat", meaning: "I don't know", correct: false }
+        { context: "You walk into the kitchen and see grandma cooking. How do you greet her?", dialogues: [
+          { phrase: "Lí hó! Chiah pa buay?", meaning: "Hello! Have you eaten?", correct: true },
+          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
         ]},
-        { context: "The uncle asks how spicy you want it. You prefer no spice.", dialogues: [
-          { phrase: "Beh sai tia", meaning: "Cannot be spicy", correct: true },
-          { phrase: "Chin ho jia!", meaning: "Very delicious!", correct: false },
-          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        { context: "Grandma asks what you want for breakfast. You want noodles.", dialogues: [
+          { phrase: "Wa ai mī", meaning: "I want noodles", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
         ]}
       ]
     },
     {
       id: 2,
-      title: "Meeting Your Neighbour",
-      story: "You bump into your elderly Hokkien-speaking neighbour at the lift lobby.",
+      title: "Getting Ready to Go Out",
+      story: "After breakfast, you're getting ready to meet friends at the shopping mall. Grandma reminds you to be careful.",
       cues: [
-        { context: "She greets you with 'Lí hó!' How do you respond warmly?", dialogues: [
-          { phrase: "Boh eng lah", meaning: "No time lah", correct: false },
-          { phrase: "Lí hó! Chiah pa buay?", meaning: "Hello! Have you eaten?", correct: true },
-          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false }
+        { context: "Grandma says 'Tua liap ah!' (Be careful!). How do you respond?", dialogues: [
+          { phrase: "Ho un! Wa eh tio", meaning: "Good luck! I will manage", correct: false },
+          { phrase: "Sio sim lor, peng an!", meaning: "I'll be careful, safe journey!", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up, hurry up!", correct: false }
         ]},
-        { context: "She says she's been busy lately. You want to say 'No worries, take your time'.", dialogues: [
-          { phrase: "Boh su, siong ban lor", meaning: "Never mind, take your time", correct: true },
-          { phrase: "Kin lai, kin lai!", meaning: "Come quickly, come quickly!", correct: false },
-          { phrase: "Chin sian lor", meaning: "So bored lah", correct: false }
+        { context: "You're leaving the house. What do you say to grandma?", dialogues: [
+          { phrase: "Wa chut khi liao, lo li!", meaning: "I'm going out, thank you!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "Nothing, nothing", correct: false },
+          { phrase: "Chin ho jia", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "At the MRT Station",
+      story: "You're at the crowded MRT station during lunch hour. An elderly uncle looks confused about the ticket machine.",
+      cues: [
+        { context: "The uncle speaks Hokkien and asks for help. You offer assistance.", dialogues: [
+          { phrase: "Wa o-e ka li kong", meaning: "I can tell you", correct: true },
+          { phrase: "Wa m bat, sorry", meaning: "I don't know, sorry", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You explain how to buy the ticket. The uncle thanks you.", dialogues: [
+          { phrase: "Lo li! Chin ho lang", meaning: "Thank you! Very good person", correct: false },
+          { phrase: "Boh su, sio sim ah", meaning: "No problem, be careful", correct: true },
+          { phrase: "Gao lat ah!", meaning: "Very impressive!", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 4,
+      title: "Meeting Friends at the Mall",
+      story: "You arrive at the mall and meet your Hokkien-speaking friends. They're excited to see you.",
+      cues: [
+        { context: "Your friend greets you enthusiastically. How do you respond?", dialogues: [
+          { phrase: "Lí hó! Chin kú bô见!", meaning: "Hello! Long time no see!", correct: true },
+          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
+        ]},
+        { context: "Friends ask where you want to eat. You suggest food court.", dialogues: [
+          { phrase: "Khi chia png, ho jia!", meaning: "Go eat rice, delicious!", correct: true },
+          { phrase: "Wa boh eng", meaning: "I'm not free", correct: false },
+          { phrase: "Chin sian lor", meaning: "So boring lah", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 5,
+      title: "Ordering at Hawker Centre",
+      story: "At the bustling hawker centre, you approach a popular Hokkien noodle stall with your friends.",
+      cues: [
+        { context: "The uncle asks 'Chiah simi?' (What do you want to eat?). What do you order?", dialogues: [
+          { phrase: "Wa ai char koay teow", meaning: "I want fried flat noodles", correct: true },
+          { phrase: "Wa m bat simi", meaning: "I don't know what", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "The uncle asks if you want spicy. You prefer mild.", dialogues: [
+          { phrase: "Beh sai hiam, sio sio", meaning: "Cannot too spicy, a little bit", correct: true },
+          { phrase: "Chin hiam ho jia", meaning: "Very spicy is delicious", correct: false },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 6,
+      title: "Shopping for Clothes",
+      story: "After lunch, you browse through a clothing store. The shop assistant speaks Hokkien.",
+      cues: [
+        { context: "The assistant asks what size you wear. You want to try medium.", dialogues: [
+          { phrase: "Wa beh sio liap e", meaning: "I want small size", correct: false },
+          { phrase: "Wa beh tiong tiong e", meaning: "I want medium size", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]},
+        { context: "You like the shirt but think it's expensive. How do you negotiate?", dialogues: [
+          { phrase: "Taai gwai liao, ping siu?", meaning: "Too expensive, cheaper?", correct: true },
+          { phrase: "Chin sui ah!", meaning: "Very beautiful!", correct: false },
+          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 7,
+      title: "Unexpected Rain",
+      story: "Suddenly it starts raining heavily outside. You and your friends are stuck at the mall without umbrellas.",
+      cues: [
+        { context: "A friend suggests waiting. You agree it's heavy rain.", dialogues: [
+          { phrase: "Hoo tua liau, tau tau eh", meaning: "Rain is big, wait a while", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up, hurry up!", correct: false },
+          { phrase: "Wa boh sa um", meaning: "I have no umbrella", correct: false }
+        ]},
+        { context: "Another friend offers to share their umbrella. You thank them.", dialogues: [
+          { phrase: "Lo li ah! Siong hoa!", meaning: "Thank you! Good friends!", correct: true },
+          { phrase: "Boh su lah", meaning: "No problem lah", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 8,
+      title: "Watching a Movie",
+      story: "You decide to watch a movie while waiting for the rain to stop. At the cinema counter...",
+      cues: [
+        { context: "The cashier asks which movie you want. You point to the action film.", dialogues: [
+          { phrase: "Wa beh chiah e", meaning: "I want to eat", correct: false },
+          { phrase: "Wa beh chiah hit e", meaning: "I want that one", correct: true },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You need two tickets. The cashier confirms the price.", dialogues: [
+          { phrase: "Nn̄g tiunn, hor bo?", meaning: "Two tickets, OK?", correct: true },
+          { phrase: "Chit tiunn, boh su", meaning: "One ticket, never mind", correct: false },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 9,
+      title: "Evening Return Home",
+      story: "The rain has stopped and it's evening. You're heading back home on the bus.",
+      cues: [
+        { context: "An auntie asks if the seat beside you is taken. You say no.", dialogues: [
+          { phrase: "Boh lang, chiah leh", meaning: "No person, sit here", correct: true },
+          { phrase: "Wa ai chiah", meaning: "I want to sit", correct: false },
+          { phrase: "Kin lai ah", meaning: "Come quickly", correct: false }
+        ]},
+        { context: "The auntie chats about the weather. You agree it was sudden rain.", dialogues: [
+          { phrase: "Si boh? Hoo kia liau", meaning: "Right? Rain was scary", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Chin ho jia", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 10,
+      title: "Dinner with Family",
+      story: "You arrive home and the whole family is gathering for dinner. Grandma prepared your favourite dish.",
+      cues: [
+        { context: "Grandma asks if you're hungry. You smell the delicious food.", dialogues: [
+          { phrase: "Chin ngiu! Wa chang ngiat", meaning: "Smells great! I'm very hungry", correct: true },
+          { phrase: "Wa chiah pa liao", meaning: "I already ate", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "Everyone is eating. You compliment grandma's cooking.", dialogues: [
+          { phrase: "Ho chia! Chin ho jia!", meaning: "Delicious! Very tasty!", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
         ]}
       ]
     }
@@ -1705,35 +1841,171 @@ const situationalQuizzes = {
   cantonese: [
     {
       id: 1,
-      title: "At the Dim Sum Restaurant",
-      story: "The dim sum auntie pushes the trolley past your table. You want to order.",
+      title: "Morning at Home",
+      story: "You wake up on a Saturday morning. Your Cantonese-speaking grandmother is already in the kitchen preparing breakfast.",
       cues: [
-        { context: "She slows down near you. How do you get her attention and ask for har gow?", dialogues: [
-          { phrase: "Sihk jó faahn meih a?", meaning: "Have you eaten rice?", correct: false },
-          { phrase: "Mh̀ gōi, yiu ha gow!", meaning: "Excuse me, I want har gow!", correct: true },
-          { phrase: "Taai gwai laa", meaning: "Too expensive!", correct: false }
+        { context: "You walk into the kitchen and see grandma cooking. How do you greet her?", dialogues: [
+          { phrase: "Jóu san, pó po!", meaning: "Good morning, grandma!", correct: true },
+          { phrase: "Maan on lah", meaning: "Good night lah", correct: false },
+          { phrase: "Faan uk kéi lā", meaning: "Go home now", correct: false }
         ]},
-        { context: "She tells you the price. You want to say 'That's quite expensive'.", dialogues: [
-          { phrase: "Hóu sihk", meaning: "Very delicious", correct: false },
-          { phrase: "Taai gwai laa!", meaning: "Too expensive!", correct: true },
-          { phrase: "Jóu san", meaning: "Good morning", correct: false }
+        { context: "Grandma asks what you want for breakfast. You want congee.", dialogues: [
+          { phrase: "Ngóh yiu jūk", meaning: "I want congee", correct: true },
+          { phrase: "Ngóh mh̀ ji", meaning: "I don't know", correct: false },
+          { phrase: "Taai gwai laa", meaning: "Too expensive", correct: false }
         ]}
       ]
     },
     {
       id: 2,
-      title: "Running into an Old Friend",
-      story: "You spot a Cantonese-speaking friend you haven't seen in a long time.",
+      title: "Getting Ready to Go Out",
+      story: "After breakfast, you're getting ready to meet friends at the shopping mall. Grandma reminds you to be careful.",
       cues: [
-        { context: "You haven't seen them in ages. What do you say first?", dialogues: [
-          { phrase: "Maan on!", meaning: "Good night!", correct: false },
-          { phrase: "Hóu noi móuh gin!", meaning: "Long time no see!", correct: true },
-          { phrase: "Faan uk kéi lā", meaning: "Go home now", correct: false }
+        { context: "Grandma says 'Síu sàm ah!' (Be careful!). How do you respond?", dialogues: [
+          { phrase: "M̀h gōi, hóu chòi!", meaning: "Thank you, good luck!", correct: false },
+          { phrase: "Haih laa, ngóh wúih síu sàm!", meaning: "Yes, I'll be careful!", correct: true },
+          { phrase: "Faai dī lā!", meaning: "Hurry up!", correct: false }
         ]},
-        { context: "They ask how you've been. You want to say 'I'm very well'.", dialogues: [
-          { phrase: "Ngóh hóu hóu, dō jeh!", meaning: "I'm very well, thank you!", correct: true },
+        { context: "You're leaving the house. What do you say to grandma?", dialogues: [
+          { phrase: "Ngóh chēut heui lāu, dō jeh!", meaning: "I'm going out, thank you!", correct: true },
+          { phrase: "Móuh man tai", meaning: "No problem", correct: false },
+          { phrase: "Hóu sihk", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "At the MTR Station",
+      story: "You're at the crowded MTR station during lunch hour. An elderly uncle looks confused about the ticket machine.",
+      cues: [
+        { context: "The uncle speaks Cantonese and asks for help. You offer assistance.", dialogues: [
+          { phrase: "Ngóh hóu bāng néih", meaning: "I can help you", correct: true },
           { phrase: "Ngóh mh̀ ji", meaning: "I don't know", correct: false },
-          { phrase: "Faai dī lā", meaning: "Hurry up!", correct: false }
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You explain how to buy the ticket. The uncle thanks you.", dialogues: [
+          { phrase: "Dō jeh! Néih haih hóu yàn", meaning: "Thank you! You're a good person", correct: false },
+          { phrase: "M̀h sái haak hei, síu sàm ah", meaning: "You're welcome, be careful", correct: true },
+          { phrase: "Geng geng ah!", meaning: "Very clever!", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 4,
+      title: "Meeting Friends at the Mall",
+      story: "You arrive at the mall and meet your Cantonese-speaking friends. They're excited to see you.",
+      cues: [
+        { context: "Your friend greets you enthusiastically. How do you respond?", dialogues: [
+          { phrase: "Néih hóu! Hóu noi móuh gin!", meaning: "Hello! Long time no see!", correct: true },
+          { phrase: "Faan uk kéi lā", meaning: "Go home now", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
+        ]},
+        { context: "Friends ask where you want to eat. You suggest food court.", dialogues: [
+          { phrase: "Heui faahn dihng la!", meaning: "Go to food court!", correct: true },
+          { phrase: "Ngóh móuh hahng", meaning: "I'm not free", correct: false },
+          { phrase: "Chin sian lor", meaning: "So boring lah", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 5,
+      title: "Ordering at Hawker Centre",
+      story: "At the bustling hawker centre, you approach a popular noodle stall with your friends.",
+      cues: [
+        { context: "The uncle asks 'Sihk mān yéh?' (What do you want to eat?). What do you order?", dialogues: [
+          { phrase: "Ngóh yiu chàu fàn", meaning: "I want fried rice", correct: true },
+          { phrase: "Ngóh mh̀ ji yiu mān yéh", meaning: "I don't know what I want", correct: false },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "The uncle asks if you want spicy. You prefer mild.", dialogues: [
+          { phrase: "M̀h yiu taai laht, siu siu lá", meaning: "Don't want too spicy, a little bit", correct: true },
+          { phrase: "Yiu taai laht, hóu sihk", meaning: "Want very spicy, delicious", correct: false },
+          { phrase: "Ngóh móuh chín", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 6,
+      title: "Shopping for Clothes",
+      story: "After lunch, you browse through a clothing store. The shop assistant speaks Cantonese.",
+      cues: [
+        { context: "The assistant asks what size you wear. You want to try medium.", dialogues: [
+          { phrase: "Ngóh yiu séui máaih", meaning: "I want small size", correct: false },
+          { phrase: "Ngóh yiu jūng máaih", meaning: "I want medium size", correct: true },
+          { phrase: "Ngóh móuh chín", meaning: "I have no money", correct: false }
+        ]},
+        { context: "You like the shirt but think it's expensive. How do you negotiate?", dialogues: [
+          { phrase: "Taai gwai lāu, pìhng di lāa?", meaning: "Too expensive, cheaper?", correct: true },
+          { phrase: "Hóu leng ah!", meaning: "Very beautiful!", correct: false },
+          { phrase: "Ngóh yiu fāan uk kéi", meaning: "I want to go home", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 7,
+      title: "Unexpected Rain",
+      story: "Suddenly it starts raining heavily outside. You and your friends are stuck at the mall without umbrellas.",
+      cues: [
+        { context: "A friend suggests waiting. You agree it's heavy rain.", dialogues: [
+          { phrase: "Lohk yuhk daaih, dáhng jāh lāa", meaning: "Rain is big, wait a while", correct: true },
+          { phrase: "Faai dī lā!", meaning: "Hurry up!", correct: false },
+          { phrase: "Ngóh móuh yèuh", meaning: "I have no umbrella", correct: false }
+        ]},
+        { context: "Another friend offers to share their umbrella. You thank them.", dialogues: [
+          { phrase: "Dō jeh! Néih jouh yàhn hòu hòu!", meaning: "Thank you! You're a very good person!", correct: true },
+          { phrase: "Móuh man tai lah", meaning: "No problem lah", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 8,
+      title: "Watching a Movie",
+      story: "You decide to watch a movie while waiting for the rain to stop. At the cinema counter...",
+      cues: [
+        { context: "The cashier asks which movie you want. You point to the action film.", dialogues: [
+          { phrase: "Ngóh yiu sihk yéh", meaning: "I want to eat", correct: false },
+          { phrase: "Ngóh yiu gó戏", meaning: "I want that movie", correct: true },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You need two tickets. The cashier confirms the price.", dialogues: [
+          { phrase: "Léuhng jēung, hóu mah?", meaning: "Two tickets, OK?", correct: true },
+          { phrase: "Yāt jēung, móuh man tai", meaning: "One ticket, never mind", correct: false },
+          { phrase: "Ngóh móuh chín", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 9,
+      title: "Evening Return Home",
+      story: "The rain has stopped and it's evening. You're heading back home on the bus.",
+      cues: [
+        { context: "An auntie asks if the seat beside you is taken. You say no.", dialogues: [
+          { phrase: "Móuh yàhn, chóh nīdōu", meaning: "No person, sit here", correct: true },
+          { phrase: "Ngóh yiu chóh", meaning: "I want to sit", correct: false },
+          { phrase: "Faai dī ah", meaning: "Come quickly", correct: false }
+        ]},
+        { context: "The auntie chats about the weather. You agree it was sudden rain.", dialogues: [
+          { phrase: "Haih ah? Lohk yuhk hou ga", meaning: "Right? Rain was quite something", correct: true },
+          { phrase: "Ngóh mh̀ ji", meaning: "I don't know", correct: false },
+          { phrase: "Hóu sihk", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 10,
+      title: "Dinner with Family",
+      story: "You arrive home and the whole family is gathering for dinner. Grandma prepared your favourite dish.",
+      cues: [
+        { context: "Grandma asks if you're hungry. You smell the delicious food.", dialogues: [
+          { phrase: "Hóu hèung! Ngóh hóu ngát!", meaning: "Smells great! I'm very hungry!", correct: true },
+          { phrase: "Ngóh sihk jó lāu", meaning: "I already ate", correct: false },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "Everyone is eating. You compliment grandma's cooking.", dialogues: [
+          { phrase: "Hóu sihk! Jān haih hóu sihk!", meaning: "Delicious! Really delicious!", correct: true },
+          { phrase: "Ngóh móuh chín", meaning: "I have no money", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
         ]}
       ]
     }
@@ -1741,34 +2013,170 @@ const situationalQuizzes = {
   teochew: [
     {
       id: 1,
-      title: "At the Teochew Porridge Stall",
-      story: "You visit a traditional Teochew muay (porridge) stall for breakfast.",
+      title: "Morning at Home",
+      story: "You wake up on a Saturday morning. Your Teochew-speaking grandmother is already in the kitchen preparing breakfast.",
       cues: [
-        { context: "The auntie greets you. You want to greet her back and ask if she's been well.", dialogues: [
-          { phrase: "Boh eng, boh eng!", meaning: "Busy, busy!", correct: false },
-          { phrase: "Lu ho! Ziah pa boih?", meaning: "Hello! Have you eaten?", correct: true },
-          { phrase: "Wa m bat", meaning: "I don't know", correct: false }
+        { context: "You walk into the kitchen and see grandma cooking. How do you greet her?", dialogues: [
+          { phrase: "Zo san, a ma!", meaning: "Good morning, grandma!", correct: true },
+          { phrase: "Am on lah", meaning: "Good night lah", correct: false },
+          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false }
         ]},
-        { context: "The congee looks amazing. How do you tell the auntie it's delicious?", dialogues: [
-          { phrase: "Ho jia! Zing ho!", meaning: "Delicious! Very good!", correct: true },
-          { phrase: "Boh lui lah", meaning: "No money lah", correct: false },
-          { phrase: "Eh sai, eh sai", meaning: "OK, OK", correct: false }
+        { context: "Grandma asks what you want for breakfast. You want congee.", dialogues: [
+          { phrase: "Wa ai muay", meaning: "I want congee", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
         ]}
       ]
     },
     {
       id: 2,
-      title: "Greeting a Relative at a Family Gathering",
-      story: "It's a family reunion. Your elderly Teochew-speaking uncle greets you at the door.",
+      title: "Getting Ready to Go Out",
+      story: "After breakfast, you're getting ready to meet friends at the shopping mall. Grandma reminds you to be careful.",
       cues: [
-        { context: "Your uncle asks 'Lu khi toh?' (Where are you going?). You're just arriving.", dialogues: [
-          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false },
-          { phrase: "Wa lai lor, m sai worry", meaning: "I just arrived, no need to worry", correct: false },
-          { phrase: "Wa lai jip lai lah!", meaning: "I came to come in!", correct: true }
+        { context: "Grandma says 'Sio sim ah!' (Be careful!). How do you respond?", dialogues: [
+          { phrase: "Dor jia, ho un!", meaning: "Thank you, good luck!", correct: false },
+          { phrase: "Haih, wa uo sio sim!", meaning: "Yes, I'll be careful!", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up!", correct: false }
         ]},
-        { context: "You want to compliment your aunt on the food she prepared.", dialogues: [
-          { phrase: "Boh eng lah", meaning: "No time lah", correct: false },
-          { phrase: "Ho jia! Dor jia ah yi!", meaning: "Delicious! Thank you auntie!", correct: true },
+        { context: "You're leaving the house. What do you say to grandma?", dialogues: [
+          { phrase: "Wa chut khi liao, dor jia!", meaning: "I'm going out, thank you!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "No problem", correct: false },
+          { phrase: "Ho jia", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "At the MRT Station",
+      story: "You're at the crowded MRT station during lunch hour. An elderly uncle looks confused about the ticket machine.",
+      cues: [
+        { context: "The uncle speaks Teochew and asks for help. You offer assistance.", dialogues: [
+          { phrase: "Wa o-e ka lu kong", meaning: "I can tell you", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You explain how to buy the ticket. The uncle thanks you.", dialogues: [
+          { phrase: "Dor jia! Lu ho lang", meaning: "Thank you! Good person", correct: false },
+          { phrase: "M sai ke ki, sio sim ah", meaning: "You're welcome, be careful", correct: true },
+          { phrase: "Gao lat ah!", meaning: "Very clever!", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 4,
+      title: "Meeting Friends at the Mall",
+      story: "You arrive at the mall and meet your Teochew-speaking friends. They're excited to see you.",
+      cues: [
+        { context: "Your friend greets you enthusiastically. How do you respond?", dialogues: [
+          { phrase: "Lu ho! Chin kú bô gín!", meaning: "Hello! Long time no see!", correct: true },
+          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
+        ]},
+        { context: "Friends ask where you want to eat. You suggest food court.", dialogues: [
+          { phrase: "Khi chia png, ho jia!", meaning: "Go eat rice, delicious!", correct: true },
+          { phrase: "Wa boh eng", meaning: "I'm not free", correct: false },
+          { phrase: "Chin sian lor", meaning: "So boring lah", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 5,
+      title: "Ordering at Hawker Centre",
+      story: "At the bustling hawker centre, you approach a popular noodle stall with your friends.",
+      cues: [
+        { context: "The uncle asks 'Ziah simi?' (What do you want to eat?). What do you order?", dialogues: [
+          { phrase: "Wa ai char koay teow", meaning: "I want fried flat noodles", correct: true },
+          { phrase: "Wa m bat simi", meaning: "I don't know what", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "The uncle asks if you want spicy. You prefer mild.", dialogues: [
+          { phrase: "M sai hiam, sio sio", meaning: "Cannot too spicy, a little bit", correct: true },
+          { phrase: "Chin hiam ho jia", meaning: "Very spicy is delicious", correct: false },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 6,
+      title: "Shopping for Clothes",
+      story: "After lunch, you browse through a clothing store. The shop assistant speaks Teochew.",
+      cues: [
+        { context: "The assistant asks what size you wear. You want to try medium.", dialogues: [
+          { phrase: "Wa beh sio liap e", meaning: "I want small size", correct: false },
+          { phrase: "Wa beh tiong tiong e", meaning: "I want medium size", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]},
+        { context: "You like the shirt but think it's expensive. How do you negotiate?", dialogues: [
+          { phrase: "Taai gwai liao, ping siu?", meaning: "Too expensive, cheaper?", correct: true },
+          { phrase: "Chin sui ah!", meaning: "Very beautiful!", correct: false },
+          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 7,
+      title: "Unexpected Rain",
+      story: "Suddenly it starts raining heavily outside. You and your friends are stuck at the mall without umbrellas.",
+      cues: [
+        { context: "A friend suggests waiting. You agree it's heavy rain.", dialogues: [
+          { phrase: "Hoo tua liao, tau tau eh", meaning: "Rain is big, wait a while", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up!", correct: false },
+          { phrase: "Wa boh sa um", meaning: "I have no umbrella", correct: false }
+        ]},
+        { context: "Another friend offers to share their umbrella. You thank them.", dialogues: [
+          { phrase: "Dor jia ah! Siong hoa!", meaning: "Thank you! Good friends!", correct: true },
+          { phrase: "Boh su lah", meaning: "No problem lah", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 8,
+      title: "Watching a Movie",
+      story: "You decide to watch a movie while waiting for the rain to stop. At the cinema counter...",
+      cues: [
+        { context: "The cashier asks which movie you want. You point to the action film.", dialogues: [
+          { phrase: "Wa beh ziah e", meaning: "I want to eat", correct: false },
+          { phrase: "Wa beh hit e", meaning: "I want that one", correct: true },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You need two tickets. The cashier confirms the price.", dialogues: [
+          { phrase: "Nng tiunn, ho bo?", meaning: "Two tickets, OK?", correct: true },
+          { phrase: "Chit tiunn, boh su", meaning: "One ticket, never mind", correct: false },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 9,
+      title: "Evening Return Home",
+      story: "The rain has stopped and it's evening. You're heading back home on the bus.",
+      cues: [
+        { context: "An auntie asks if the seat beside you is taken. You say no.", dialogues: [
+          { phrase: "Boh lang, ziah leh", meaning: "No person, sit here", correct: true },
+          { phrase: "Wa ai ziah", meaning: "I want to sit", correct: false },
+          { phrase: "Kin lai ah", meaning: "Come quickly", correct: false }
+        ]},
+        { context: "The auntie chats about the weather. You agree it was sudden rain.", dialogues: [
+          { phrase: "Si boh? Hoo kia liao", meaning: "Right? Rain was scary", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Ho jia", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 10,
+      title: "Dinner with Family",
+      story: "You arrive home and the whole family is gathering for dinner. Grandma prepared your favourite dish.",
+      cues: [
+        { context: "Grandma asks if you're hungry. You smell the delicious food.", dialogues: [
+          { phrase: "Chin ngiu! Wa chang ngiat", meaning: "Smells great! I'm very hungry!", correct: true },
+          { phrase: "Wa ziah pa liao", meaning: "I already ate", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "Everyone is eating. You compliment grandma's cooking.", dialogues: [
+          { phrase: "Ho jia! Chin ho jia!", meaning: "Delicious! Very tasty!", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false },
           { phrase: "Chin sian", meaning: "Very bored", correct: false }
         ]}
       ]
@@ -1777,35 +2185,171 @@ const situationalQuizzes = {
   hakka: [
     {
       id: 1,
-      title: "Morning Greetings at Home",
-      story: "You wake up and your Hakka-speaking grandmother is in the kitchen.",
+      title: "Morning at Home",
+      story: "You wake up on a Saturday morning. Your Hakka-speaking grandmother is already in the kitchen preparing breakfast.",
       cues: [
-        { context: "You see grandma cooking. What's the warm Hakka morning greeting?", dialogues: [
-          { phrase: "Am on, a po!", meaning: "Good night, grandma!", correct: false },
+        { context: "You walk into the kitchen and see grandma cooking. How do you greet her?", dialogues: [
           { phrase: "Zo san, a po!", meaning: "Good morning, grandma!", correct: true },
+          { phrase: "Am on lah", meaning: "Good night lah", correct: false },
           { phrase: "Chut hi lah", meaning: "Go out lah", correct: false }
         ]},
-        { context: "Grandma asks if you're hungry. You want to say 'Very hungry, smells good!'.", dialogues: [
-          { phrase: "Mo lui lah", meaning: "No money lah", correct: false },
-          { phrase: "Chang sian lah", meaning: "Very bored lah", correct: false },
-          { phrase: "Chang ngiat! Ho shik!", meaning: "Very hungry! Smells delicious!", correct: true }
+        { context: "Grandma asks what you want for breakfast. You want noodles.", dialogues: [
+          { phrase: "Nga yiu mien", meaning: "I want noodles", correct: true },
+          { phrase: "Nga m sik", meaning: "I don't know", correct: false },
+          { phrase: "Mo lui lah", meaning: "No money lah", correct: false }
         ]}
       ]
     },
     {
       id: 2,
-      title: "At the Wet Market",
-      story: "You're helping your mum shop for vegetables at the market. The stallholder speaks Hakka.",
+      title: "Getting Ready to Go Out",
+      story: "After breakfast, you're getting ready to meet friends at the shopping mall. Grandma reminds you to be careful.",
       cues: [
-        { context: "The stallholder greets you with 'Ngi ho!' How do you respond?", dialogues: [
-          { phrase: "Ngi ho! Ya fan liaw maa?", meaning: "Hello! Have you eaten?", correct: true },
-          { phrase: "Mo kung lah", meaning: "No time lah", correct: false },
-          { phrase: "Am on", meaning: "Good night", correct: false }
+        { context: "Grandma says 'Sio sim ah!' (Be careful!). How do you respond?", dialogues: [
+          { phrase: "Do jia, ho un!", meaning: "Thank you, good luck!", correct: false },
+          { phrase: "Haih, nga voi sio sim!", meaning: "Yes, I'll be careful!", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up!", correct: false }
         ]},
-        { context: "The vegetables cost more than expected. You want to say thank you anyway and leave politely.", dialogues: [
-          { phrase: "Mo het, mo het!", meaning: "Cannot, cannot!", correct: false },
-          { phrase: "Do jia! Den ha lah", meaning: "Thank you! Wait a moment", correct: false },
-          { phrase: "Do jia! Piang an!", meaning: "Thank you! Safe journey!", correct: true }
+        { context: "You're leaving the house. What do you say to grandma?", dialogues: [
+          { phrase: "Nga chut hi liao, do jia!", meaning: "I'm going out, thank you!", correct: true },
+          { phrase: "Mo su, mo su", meaning: "No problem", correct: false },
+          { phrase: "Ho sit", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "At the MRT Station",
+      story: "You're at the crowded MRT station during lunch hour. An elderly uncle looks confused about the ticket machine.",
+      cues: [
+        { context: "The uncle speaks Hakka and asks for help. You offer assistance.", dialogues: [
+          { phrase: "Nga o-e ka ngi kong", meaning: "I can tell you", correct: true },
+          { phrase: "Nga m sik", meaning: "I don't know", correct: false },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You explain how to buy the ticket. The uncle thanks you.", dialogues: [
+          { phrase: "Do jia! Ngi ho ngin", meaning: "Thank you! Good person", correct: false },
+          { phrase: "M sai haak hei, sio sim ah", meaning: "You're welcome, be careful", correct: true },
+          { phrase: "Gao lat ah!", meaning: "Very clever!", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 4,
+      title: "Meeting Friends at the Mall",
+      story: "You arrive at the mall and meet your Hakka-speaking friends. They're excited to see you.",
+      cues: [
+        { context: "Your friend greets you enthusiastically. How do you respond?", dialogues: [
+          { phrase: "Ngi ho! Chin ku mo gien!", meaning: "Hello! Long time no see!", correct: true },
+          { phrase: "Nga yiu khi liao", meaning: "I want to leave already", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
+        ]},
+        { context: "Friends ask where you want to eat. You suggest food court.", dialogues: [
+          { phrase: "Hi chit fahn, ho sit!", meaning: "Go eat rice, delicious!", correct: true },
+          { phrase: "Nga mo eng", meaning: "I'm not free", correct: false },
+          { phrase: "Chin sian lor", meaning: "So boring lah", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 5,
+      title: "Ordering at Hawker Centre",
+      story: "At the bustling hawker centre, you approach a popular noodle stall with your friends.",
+      cues: [
+        { context: "The uncle asks 'Chit mat ye?' (What do you want to eat?). What do you order?", dialogues: [
+          { phrase: "Nga yiu char koay teow", meaning: "I want fried flat noodles", correct: true },
+          { phrase: "Nga m sik mat ye", meaning: "I don't know what", correct: false },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "The uncle asks if you want spicy. You prefer mild.", dialogues: [
+          { phrase: "M sai hiam, sio sio", meaning: "Cannot too spicy, a little bit", correct: true },
+          { phrase: "Chin hiam ho sit", meaning: "Very spicy is delicious", correct: false },
+          { phrase: "Nga mo lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 6,
+      title: "Shopping for Clothes",
+      story: "After lunch, you browse through a clothing store. The shop assistant speaks Hakka.",
+      cues: [
+        { context: "The assistant asks what size you wear. You want to try medium.", dialogues: [
+          { phrase: "Nga beh sio liap e", meaning: "I want small size", correct: false },
+          { phrase: "Nga beh tiong tiong e", meaning: "I want medium size", correct: true },
+          { phrase: "Nga mo lui", meaning: "I have no money", correct: false }
+        ]},
+        { context: "You like the shirt but think it's expensive. How do you negotiate?", dialogues: [
+          { phrase: "Taai gwai liao, ping siu?", meaning: "Too expensive, cheaper?", correct: true },
+          { phrase: "Chin sui ah!", meaning: "Very beautiful!", correct: false },
+          { phrase: "Nga yiu khi liao", meaning: "I want to leave already", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 7,
+      title: "Unexpected Rain",
+      story: "Suddenly it starts raining heavily outside. You and your friends are stuck at the mall without umbrellas.",
+      cues: [
+        { context: "A friend suggests waiting. You agree it's heavy rain.", dialogues: [
+          { phrase: "Lok yu liao, tau tau eh", meaning: "Rain is big, wait a while", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up!", correct: false },
+          { phrase: "Nga mo sa um", meaning: "I have no umbrella", correct: false }
+        ]},
+        { context: "Another friend offers to share their umbrella. You thank them.", dialogues: [
+          { phrase: "Do jia ah! Siong hoa!", meaning: "Thank you! Good friends!", correct: true },
+          { phrase: "Mo su lah", meaning: "No problem lah", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 8,
+      title: "Watching a Movie",
+      story: "You decide to watch a movie while waiting for the rain to stop. At the cinema counter...",
+      cues: [
+        { context: "The cashier asks which movie you want. You point to the action film.", dialogues: [
+          { phrase: "Nga beh chit e", meaning: "I want to eat", correct: false },
+          { phrase: "Nga beh hit e", meaning: "I want that one", correct: true },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You need two tickets. The cashier confirms the price.", dialogues: [
+          { phrase: "Nng tiunn, ho bo?", meaning: "Two tickets, OK?", correct: true },
+          { phrase: "Chit tiunn, mo su", meaning: "One ticket, never mind", correct: false },
+          { phrase: "Nga mo lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 9,
+      title: "Evening Return Home",
+      story: "The rain has stopped and it's evening. You're heading back home on the bus.",
+      cues: [
+        { context: "An auntie asks if the seat beside you is taken. You say no.", dialogues: [
+          { phrase: "Mo ngin, chit leh", meaning: "No person, sit here", correct: true },
+          { phrase: "Nga yiu chit", meaning: "I want to sit", correct: false },
+          { phrase: "Kin lai ah", meaning: "Come quickly", correct: false }
+        ]},
+        { context: "The auntie chats about the weather. You agree it was sudden rain.", dialogues: [
+          { phrase: "Si bo? Lok yu kia liao", meaning: "Right? Rain was scary", correct: true },
+          { phrase: "Nga m sik", meaning: "I don't know", correct: false },
+          { phrase: "Ho sit", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 10,
+      title: "Dinner with Family",
+      story: "You arrive home and the whole family is gathering for dinner. Grandma prepared your favourite dish.",
+      cues: [
+        { context: "Grandma asks if you're hungry. You smell the delicious food.", dialogues: [
+          { phrase: "Chin ngiu! Nga chang ngiat", meaning: "Smells great! I'm very hungry!", correct: true },
+          { phrase: "Nga chit pa liao", meaning: "I already ate", correct: false },
+          { phrase: "Mo kung lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "Everyone is eating. You compliment grandma's cooking.", dialogues: [
+          { phrase: "Ho sit! Chin ho sit!", meaning: "Delicious! Very tasty!", correct: true },
+          { phrase: "Nga mo lui", meaning: "I have no money", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
         ]}
       ]
     }
@@ -1813,35 +2357,171 @@ const situationalQuizzes = {
   hainanese: [
     {
       id: 1,
-      title: "At the Hainanese Chicken Rice Stall",
-      story: "You're at a famous chicken rice stall run by an old Hainanese uncle.",
+      title: "Morning at Home",
+      story: "You wake up on a Saturday morning. Your Hainanese-speaking grandmother is already in the kitchen preparing breakfast.",
       cues: [
-        { context: "The uncle greets you with 'Nee hoh!'. You want to greet him back warmly.", dialogues: [
-          { phrase: "Chiak boh? Zin ho!", meaning: "Have you eaten? Very good!", correct: true },
-          { phrase: "Boh eng lah", meaning: "No time lah", correct: false },
+        { context: "You walk into the kitchen and see grandma cooking. How do you greet her?", dialogues: [
+          { phrase: "Zo san, a ma!", meaning: "Good morning, grandma!", correct: true },
+          { phrase: "Am on lah", meaning: "Good night lah", correct: false },
           { phrase: "Wa ai hi liao", meaning: "I want to leave already", correct: false }
         ]},
-        { context: "You finish eating. The chicken rice is incredible. What do you tell the uncle?", dialogues: [
-          { phrase: "Boh lui lah", meaning: "No money lah", correct: false },
-          { phrase: "Ho jia! Doh jiah uncle!", meaning: "Delicious! Thank you uncle!", correct: true },
-          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        { context: "Grandma asks what you want for breakfast. You want chicken rice.", dialogues: [
+          { phrase: "Wa yiu gai png", meaning: "I want chicken rice", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
         ]}
       ]
     },
     {
       id: 2,
-      title: "Saying Goodbye to a Neighbour",
-      story: "Your elderly Hainanese neighbour is heading out. You want to wish them well.",
+      title: "Getting Ready to Go Out",
+      story: "After breakfast, you're getting ready to meet friends at the shopping mall. Grandma reminds you to be careful.",
       cues: [
-        { context: "She's heading to the market. You want to say 'Be careful' and 'Good luck'.", dialogues: [
-          { phrase: "Kin lai! Kin lai!", meaning: "Come quickly! Come quickly!", correct: false },
-          { phrase: "Sio sim! Ho un!", meaning: "Be careful! Good luck!", correct: true },
-          { phrase: "Jip lai lah", meaning: "Come in lah", correct: false }
+        { context: "Grandma says 'Sio sim ah!' (Be careful!). How do you respond?", dialogues: [
+          { phrase: "Doh jia, ho un!", meaning: "Thank you, good luck!", correct: false },
+          { phrase: "Haih, wa uo sio sim!", meaning: "Yes, I'll be careful!", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up!", correct: false }
         ]},
-        { context: "She asks if you're free to chat later. You're busy today.", dialogues: [
-          { phrase: "Eh sai, wa free", meaning: "OK, I'm free", correct: false },
-          { phrase: "Boh man tai, can!", meaning: "No problem, can!", correct: false },
-          { phrase: "Pai seh, boh eng gam jit", meaning: "Sorry, no time today", correct: true }
+        { context: "You're leaving the house. What do you say to grandma?", dialogues: [
+          { phrase: "Wa chut khi liao, doh jia!", meaning: "I'm going out, thank you!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "No problem", correct: false },
+          { phrase: "Ho jia", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "At the MRT Station",
+      story: "You're at the crowded MRT station during lunch hour. An elderly uncle looks confused about the ticket machine.",
+      cues: [
+        { context: "The uncle speaks Hainanese and asks for help. You offer assistance.", dialogues: [
+          { phrase: "Wa o-e ka lu kong", meaning: "I can tell you", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You explain how to buy the ticket. The uncle thanks you.", dialogues: [
+          { phrase: "Doh jia! Lu ho lang", meaning: "Thank you! Good person", correct: false },
+          { phrase: "M sai ke ki, sio sim ah", meaning: "You're welcome, be careful", correct: true },
+          { phrase: "Gao lat ah!", meaning: "Very clever!", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 4,
+      title: "Meeting Friends at the Mall",
+      story: "You arrive at the mall and meet your Hainanese-speaking friends. They're excited to see you.",
+      cues: [
+        { context: "Your friend greets you enthusiastically. How do you respond?", dialogues: [
+          { phrase: "Nee hoh! Chin ku bo gien!", meaning: "Hello! Long time no see!", correct: true },
+          { phrase: "Wa ai hi liao", meaning: "I want to leave already", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
+        ]},
+        { context: "Friends ask where you want to eat. You suggest food court.", dialogues: [
+          { phrase: "Hi chit png, ho jia!", meaning: "Go eat rice, delicious!", correct: true },
+          { phrase: "Wa boh eng", meaning: "I'm not free", correct: false },
+          { phrase: "Chin sian lor", meaning: "So boring lah", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 5,
+      title: "Ordering at Hawker Centre",
+      story: "At the bustling hawker centre, you approach a popular noodle stall with your friends.",
+      cues: [
+        { context: "The uncle asks 'Chiak mat ye?' (What do you want to eat?). What do you order?", dialogues: [
+          { phrase: "Wa yiu char koay teow", meaning: "I want fried flat noodles", correct: true },
+          { phrase: "Wa m bat mat ye", meaning: "I don't know what", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "The uncle asks if you want spicy. You prefer mild.", dialogues: [
+          { phrase: "M sai hiam, sio sio", meaning: "Cannot too spicy, a little bit", correct: true },
+          { phrase: "Chin hiam ho jia", meaning: "Very spicy is delicious", correct: false },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 6,
+      title: "Shopping for Clothes",
+      story: "After lunch, you browse through a clothing store. The shop assistant speaks Hainanese.",
+      cues: [
+        { context: "The assistant asks what size you wear. You want to try medium.", dialogues: [
+          { phrase: "Wa beh sio liap e", meaning: "I want small size", correct: false },
+          { phrase: "Wa beh tiong tiong e", meaning: "I want medium size", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]},
+        { context: "You like the shirt but think it's expensive. How do you negotiate?", dialogues: [
+          { phrase: "Taai gwai liao, ping siu?", meaning: "Too expensive, cheaper?", correct: true },
+          { phrase: "Chin sui ah!", meaning: "Very beautiful!", correct: false },
+          { phrase: "Wa ai hi liao", meaning: "I want to leave already", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 7,
+      title: "Unexpected Rain",
+      story: "Suddenly it starts raining heavily outside. You and your friends are stuck at the mall without umbrellas.",
+      cues: [
+        { context: "A friend suggests waiting. You agree it's heavy rain.", dialogues: [
+          { phrase: "Hoo tua liao, tau tau eh", meaning: "Rain is big, wait a while", correct: true },
+          { phrase: "Kin lai, kin lai!", meaning: "Hurry up!", correct: false },
+          { phrase: "Wa boh sa um", meaning: "I have no umbrella", correct: false }
+        ]},
+        { context: "Another friend offers to share their umbrella. You thank them.", dialogues: [
+          { phrase: "Doh jia ah! Siong hoa!", meaning: "Thank you! Good friends!", correct: true },
+          { phrase: "Boh su lah", meaning: "No problem lah", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 8,
+      title: "Watching a Movie",
+      story: "You decide to watch a movie while waiting for the rain to stop. At the cinema counter...",
+      cues: [
+        { context: "The cashier asks which movie you want. You point to the action film.", dialogues: [
+          { phrase: "Wa beh chiak e", meaning: "I want to eat", correct: false },
+          { phrase: "Wa beh hit e", meaning: "I want that one", correct: true },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "You need two tickets. The cashier confirms the price.", dialogues: [
+          { phrase: "Nng tiunn, ho bo?", meaning: "Two tickets, OK?", correct: true },
+          { phrase: "Chit tiunn, boh su", meaning: "One ticket, never mind", correct: false },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 9,
+      title: "Evening Return Home",
+      story: "The rain has stopped and it's evening. You're heading back home on the bus.",
+      cues: [
+        { context: "An auntie asks if the seat beside you is taken. You say no.", dialogues: [
+          { phrase: "Boh lang, chiak leh", meaning: "No person, sit here", correct: true },
+          { phrase: "Wa ai chiak", meaning: "I want to sit", correct: false },
+          { phrase: "Kin lai ah", meaning: "Come quickly", correct: false }
+        ]},
+        { context: "The auntie chats about the weather. You agree it was sudden rain.", dialogues: [
+          { phrase: "Si boh? Hoo kia liao", meaning: "Right? Rain was scary", correct: true },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false },
+          { phrase: "Ho jia", meaning: "Very delicious", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 10,
+      title: "Dinner with Family",
+      story: "You arrive home and the whole family is gathering for dinner. Grandma prepared your favourite dish.",
+      cues: [
+        { context: "Grandma asks if you're hungry. You smell the delicious food.", dialogues: [
+          { phrase: "Chin ngiu! Wa chang ngiat", meaning: "Smells great! I'm very hungry!", correct: true },
+          { phrase: "Wa chiak pa liao", meaning: "I already ate", correct: false },
+          { phrase: "Boh eng lah", meaning: "No time lah", correct: false }
+        ]},
+        { context: "Everyone is eating. You compliment grandma's cooking.", dialogues: [
+          { phrase: "Ho jia! Chin ho jia!", meaning: "Delicious! Very tasty!", correct: true },
+          { phrase: "Wa boh lui", meaning: "I have no money", correct: false },
+          { phrase: "Chin sian", meaning: "Very bored", correct: false }
         ]}
       ]
     }
