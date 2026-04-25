@@ -1669,35 +1669,58 @@ const situationalQuizzes = {
   hokkien: [
     {
       id: 1,
-      title: "Ordering at a Hawker Stall",
-      story: "You're at a hawker stall and the uncle asks what you want to eat.",
+      title: "A Day in Singapore - Hokkien Community",
+      story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "The uncle asks 'Chiah simi?' (What do you want to eat?). What do you say?", dialogues: [
-          { phrase: "Chiah buay?", meaning: "Have you eaten?", correct: false },
-          { phrase: "Wa ai bah png", meaning: "I want braised pork rice", correct: true },
-          { phrase: "Wa m bat", meaning: "I don't know", correct: false }
+        { context: "Early morning at home. Your grandmother asks 'Chiah pa buay?' (Have you eaten?). You just woke up.", dialogues: [
+          { phrase: "Wa ai chiah tua png loo", meaning: "I want to eat a big plate of rice", correct: true },
+          { phrase: "Wa ai khui liao", meaning: "I want to go already", correct: false },
+          { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
         ]},
-        { context: "The uncle asks how spicy you want it. You prefer no spice.", dialogues: [
-          { phrase: "Beh sai tia", meaning: "Cannot be spicy", correct: true },
-          { phrase: "Chin ho jia!", meaning: "Very delicious!", correct: false },
-          { phrase: "Wa boh lui", meaning: "I have no money", correct: false }
-        ]}
-      ]
-    },
-    {
-      id: 2,
-      title: "Meeting Your Neighbour",
-      story: "You bump into your elderly Hokkien-speaking neighbour at the lift lobby.",
-      cues: [
-        { context: "She greets you with 'Lí hó!' How do you respond warmly?", dialogues: [
-          { phrase: "Boh eng lah", meaning: "No time lah", correct: false },
-          { phrase: "Lí hó! Chiah pa buay?", meaning: "Hello! Have you eaten?", correct: true },
-          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false }
-        ]},
-        { context: "She says she's been busy lately. You want to say 'No worries, take your time'.", dialogues: [
-          { phrase: "Boh su, siong ban lor", meaning: "Never mind, take your time", correct: true },
-          { phrase: "Kin lai, kin lai!", meaning: "Come quickly, come quickly!", correct: false },
+        { context: "At the hawker center. The uncle is serving char kuay teow. You want it.", dialogues: [
+          { phrase: "Beh hiam, beh hiam!", meaning: "Not spicy, not spicy!", correct: true },
+          { phrase: "Wa ai pua liao", meaning: "I'm too full already", correct: false },
           { phrase: "Chin sian lor", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "At the market. A vegetable auntie asks what you're looking for today.", dialogues: [
+          { phrase: "Wa ai chye kia, gao lat!", meaning: "I want vegetables, very nice ones!", correct: true },
+          { phrase: "Wa boh eng gam jit", meaning: "I don't have time today", correct: false },
+          { phrase: "Taai gwai lah", meaning: "Too expensive lah", correct: false }
+        ]},
+        { context: "You bump into an old friend at the MRT station. Long time no see!", dialogues: [
+          { phrase: "Hóu noi buay khua lo!", meaning: "Long time never meet lah!", correct: true },
+          { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false },
+          { phrase: "Boh su, boh su", meaning: "Nothing, nothing", correct: false }
+        ]},
+        { context: "Lunchtime. Your colleague asks where you want to eat. You're hungry!", dialogues: [
+          { phrase: "Wa ai chiah bah png kuay tio!", meaning: "I want to eat pork rice with gravy!", correct: true },
+          { phrase: "Wa m bat khui toh", meaning: "I don't know where to go", correct: false },
+          { phrase: "Chin pua liao", meaning: "So full already", correct: false }
+        ]},
+        { context: "At work, your boss asks about the project. You're making progress.", dialogues: [
+          { phrase: "Tui buan joa liao, beh ghua!", meaning: "Half done already, don't worry!", correct: true },
+          { phrase: "Wa m bat, wa m sai", meaning: "I don't know, I can't do it", correct: false },
+          { phrase: "Chin kua, chin kua lor", meaning: "Very difficult, very difficult lah", correct: false }
+        ]},
+        { context: "Afternoon slump. You're tired at work. Your friend offers to get you a drink.", dialogues: [
+          { phrase: "Ua thinn kua goa, ka bui teh tarik!", meaning: "I'm very tired, get me a pulled tea!", correct: true },
+          { phrase: "Boh eng, boh eng!", meaning: "No time, no time!", correct: false },
+          { phrase: "Wa ai khui khi lie", meaning: "I want to go home", correct: false }
+        ]},
+        { context: "Dinner time. Your mother asks if you'll help cook. You're happy to help.", dialogues: [
+          { phrase: "Tsia, tsia, wa bo ban lo!", meaning: "Sure, sure, I'll help!", correct: true },
+          { phrase: "Wa m bat khui tsua", meaning: "I don't know how to cook", correct: false },
+          { phrase: "Chin pua liao", meaning: "So full already", correct: false }
+        ]},
+        { context: "Oops! You accidentally spilled soup on the table. Your family reassures you.", dialogues: [
+          { phrase: "Boh su, boh su lor, tio thinn ti kua", meaning: "No worries, no worries, just normal", correct: true },
+          { phrase: "Chiah liao beh ho!", meaning: "Eaten already not good!", correct: false },
+          { phrase: "Wa ai khui liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "Before bed. Your grandmother says 'Peh an hoo lo' (Sleep well). You want to wish her good night warmly.", dialogues: [
+          { phrase: "Guan bo, lo bo, khuann tin tshio!", meaning: "Goodnight, parents, sleep well!", correct: true },
+          { phrase: "Boh eng lah, beh tsiann", meaning: "No time lah, no need to talk", correct: false },
+          { phrase: "Wa ai khui khi a", meaning: "I want to go", correct: false }
         ]}
       ]
     }
@@ -1705,35 +1728,58 @@ const situationalQuizzes = {
   cantonese: [
     {
       id: 1,
-      title: "At the Dim Sum Restaurant",
-      story: "The dim sum auntie pushes the trolley past your table. You want to order.",
+      title: "A Day in Singapore - Cantonese Community",
+      story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "She slows down near you. How do you get her attention and ask for har gow?", dialogues: [
-          { phrase: "Sihk jó faahn meih a?", meaning: "Have you eaten rice?", correct: false },
-          { phrase: "Mh̀ gōi, yiu ha gow!", meaning: "Excuse me, I want har gow!", correct: true },
-          { phrase: "Taai gwai laa", meaning: "Too expensive!", correct: false }
+        { context: "Early morning at home. Your grandmother asks 'Sihk jó faahn meih a?' (Have you eaten rice?). You just woke up.", dialogues: [
+          { phrase: "Meih, ngóh yiu sihk fan", meaning: "Not yet, I want to eat rice", correct: true },
+          { phrase: "Sihk jó lā", meaning: "Already eaten lā", correct: false },
+          { phrase: "Ngóh m̀ gau", meaning: "I'm not hungry", correct: false }
         ]},
-        { context: "She tells you the price. You want to say 'That's quite expensive'.", dialogues: [
-          { phrase: "Hóu sihk", meaning: "Very delicious", correct: false },
-          { phrase: "Taai gwai laa!", meaning: "Too expensive!", correct: true },
-          { phrase: "Jóu san", meaning: "Good morning", correct: false }
-        ]}
-      ]
-    },
-    {
-      id: 2,
-      title: "Running into an Old Friend",
-      story: "You spot a Cantonese-speaking friend you haven't seen in a long time.",
-      cues: [
-        { context: "You haven't seen them in ages. What do you say first?", dialogues: [
-          { phrase: "Maan on!", meaning: "Good night!", correct: false },
-          { phrase: "Hóu noi móuh gin!", meaning: "Long time no see!", correct: true },
-          { phrase: "Faan uk kéi lā", meaning: "Go home now", correct: false }
+        { context: "At the dim sum restaurant. The auntie is pushing the trolley. You see char siu bao!", dialogues: [
+          { phrase: "Yiu ni go char siu bao!", meaning: "I want this char siu bao!", correct: true },
+          { phrase: "Taai gwai laa", meaning: "Too expensive laa", correct: false },
+          { phrase: "Ngóh boh jin yan", meaning: "I have no appetite", correct: false }
         ]},
-        { context: "They ask how you've been. You want to say 'I'm very well'.", dialogues: [
-          { phrase: "Ngóh hóu hóu, dō jeh!", meaning: "I'm very well, thank you!", correct: true },
-          { phrase: "Ngóh mh̀ ji", meaning: "I don't know", correct: false },
-          { phrase: "Faai dī lā", meaning: "Hurry up!", correct: false }
+        { context: "At the market. A fruit auntie asks what you need. You want some oranges.", dialogues: [
+          { phrase: "Gei go cam zai, zin leng!", meaning: "Give me some oranges, very fresh!", correct: true },
+          { phrase: "Gam gwai, gam gwai laa", meaning: "So expensive, so expensive laa", correct: false },
+          { phrase: "Mo man tai, mo yiu", meaning: "No problem, don't need", correct: false }
+        ]},
+        { context: "You run into an old friend at MTR. Long time no see!", dialogues: [
+          { phrase: "Hóu noi móuh gin! Nee gam doh?", meaning: "Long time no see! How have you been?", correct: true },
+          { phrase: "Wa ai heoi lie gak", meaning: "I want to go home", correct: false },
+          { phrase: "Ngóh m̀ ji", meaning: "I don't know", correct: false }
+        ]},
+        { context: "Lunchtime. Your colleague asks where to eat. You're hungry!", dialogues: [
+          { phrase: "Wa yiu sihk go wun taan min!", meaning: "I want to eat wonton noodles!", correct: true },
+          { phrase: "Ngóh boh man tai", meaning: "I don't have any problem", correct: false },
+          { phrase: "Chin gau la, m̀ sai sihk", meaning: "Very full already, don't need to eat", correct: false }
+        ]},
+        { context: "At work, your boss asks about the project. It's going well.", dialogues: [
+          { phrase: "Haih gam gwan, mo man tai!", meaning: "That's right, no problem!", correct: true },
+          { phrase: "Ngóh m̀ ji, hai boh hai", meaning: "I don't know, yes or no", correct: false },
+          { phrase: "Taai gaan la", meaning: "Too difficult laa", correct: false }
+        ]},
+        { context: "Afternoon. You're tired. Your friend asks if you want tea.", dialogues: [
+          { phrase: "Ho la! Ka bui naai cha!", meaning: "Yes! Get me milk tea!", correct: true },
+          { phrase: "M̀ sai, m̀ sai", meaning: "Don't need, don't need", correct: false },
+          { phrase: "Ngóh gau gam gwan", meaning: "I'm full enough", correct: false }
+        ]},
+        { context: "Dinner time. Your mother asks if you'll help. You're glad to help.", dialogues: [
+          { phrase: "Dang ha, wa heoi to!", meaning: "Wait, I'll come help!", correct: true },
+          { phrase: "M̀ sai gung fu", meaning: "Don't need to work", correct: false },
+          { phrase: "Ngóh gau, gau la", meaning: "I'm full, full enough", correct: false }
+        ]},
+        { context: "Oops! You knocked over a glass. Your family says it's okay.", dialogues: [
+          { phrase: "Mo man tai, mo man tai lor!", meaning: "No problem, no problem lah!", correct: true },
+          { phrase: "Dap chói, dap chói!", meaning: "Too bad, too bad!", correct: false },
+          { phrase: "Ngóh ai heoi lie", meaning: "I want to go", correct: false }
+        ]},
+        { context: "Before bed. Your grandmother says good night. You want to wish her well warmly.", dialogues: [
+          { phrase: "Maan on, po po! Faan gaau fun!", meaning: "Good night, grandma! Sleep well!", correct: true },
+          { phrase: "Boh si, boh si, faai di la", meaning: "Never mind, never mind, hurry lah", correct: false },
+          { phrase: "Waih? Góng máh?", meaning: "Hello? What are you saying?", correct: false }
         ]}
       ]
     }
@@ -1741,35 +1787,58 @@ const situationalQuizzes = {
   teochew: [
     {
       id: 1,
-      title: "At the Teochew Porridge Stall",
-      story: "You visit a traditional Teochew muay (porridge) stall for breakfast.",
+      title: "A Day in Singapore - Teochew Community",
+      story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "The auntie greets you. You want to greet her back and ask if she's been well.", dialogues: [
-          { phrase: "Boh eng, boh eng!", meaning: "Busy, busy!", correct: false },
-          { phrase: "Lu ho! Ziah pa boih?", meaning: "Hello! Have you eaten?", correct: true },
+        { context: "Early morning at home. Your grandmother asks 'Ziah pa boih?' (Have you eaten?). You just woke up.", dialogues: [
+          { phrase: "Bo pa, wa ai ziah kway teow!", meaning: "Not yet, I want to eat rice noodles!", correct: true },
+          { phrase: "Ziah liao", meaning: "Already eaten", correct: false },
+          { phrase: "Boh lui, boh lui", meaning: "No money, no money", correct: false }
+        ]},
+        { context: "At the teochew porridge stall. The auntie is serving hot muay (porridge). You're tempted!", dialogues: [
+          { phrase: "Oi ka bui muay, siang tng!", meaning: "Give me a bowl of porridge, with soup!", correct: true },
+          { phrase: "Zing gau la", meaning: "Very full already", correct: false },
+          { phrase: "Boh lui gam jit", meaning: "No money today", correct: false }
+        ]},
+        { context: "At the market. A vegetable seller greets you. You want fresh vegetables.", dialogues: [
+          { phrase: "Lu ho! Oi chye siang, gao jat!", meaning: "Hello! Give me fresh vegetables, very fresh!", correct: true },
+          { phrase: "Taai gwai, taai gwai lah", meaning: "Too expensive, too expensive lah", correct: false },
+          { phrase: "Boh eng gam jit", meaning: "No time today", correct: false }
+        ]},
+        { context: "You run into an old friend at the market. Long time since you last met!", dialogues: [
+          { phrase: "Hao noi bo khuann! Nee gam doh?", meaning: "Long time no meet! How have you been?", correct: true },
+          { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false },
           { phrase: "Wa m bat", meaning: "I don't know", correct: false }
         ]},
-        { context: "The congee looks amazing. How do you tell the auntie it's delicious?", dialogues: [
-          { phrase: "Ho jia! Zing ho!", meaning: "Delicious! Very good!", correct: true },
-          { phrase: "Boh lui lah", meaning: "No money lah", correct: false },
-          { phrase: "Eh sai, eh sai", meaning: "OK, OK", correct: false }
-        ]}
-      ]
-    },
-    {
-      id: 2,
-      title: "Greeting a Relative at a Family Gathering",
-      story: "It's a family reunion. Your elderly Teochew-speaking uncle greets you at the door.",
-      cues: [
-        { context: "Your uncle asks 'Lu khi toh?' (Where are you going?). You're just arriving.", dialogues: [
-          { phrase: "Wa ai khi liao", meaning: "I want to leave already", correct: false },
-          { phrase: "Wa lai lor, m sai worry", meaning: "I just arrived, no need to worry", correct: false },
-          { phrase: "Wa lai jip lai lah!", meaning: "I came to come in!", correct: true }
+        { context: "Lunchtime. Your friend asks where to eat. You want something tasty!", dialogues: [
+          { phrase: "Wa ai ziah kway chap, ho jia!", meaning: "I want to eat flat noodle soup, very delicious!", correct: true },
+          { phrase: "M ai ziah gam jit", meaning: "Don't want to eat today", correct: false },
+          { phrase: "Zing gau la", meaning: "Very full already", correct: false }
         ]},
-        { context: "You want to compliment your aunt on the food she prepared.", dialogues: [
-          { phrase: "Boh eng lah", meaning: "No time lah", correct: false },
-          { phrase: "Ho jia! Dor jia ah yi!", meaning: "Delicious! Thank you auntie!", correct: true },
-          { phrase: "Chin sian", meaning: "Very bored", correct: false }
+        { context: "At work, your boss asks how things are going. You're doing well.", dialogues: [
+          { phrase: "Eh sai, eh sai! Kong pua liao", meaning: "Can, can! Already finished", correct: true },
+          { phrase: "Wa m bat, gao guan", meaning: "I don't know, very difficult", correct: false },
+          { phrase: "Boh eng gam jit", meaning: "No time today", correct: false }
+        ]},
+        { context: "Afternoon slump. You're tired and need a pick-me-up. Your friend offers tea.", dialogues: [
+          { phrase: "Oi ka bui teh tarik! Wa suay gua", meaning: "Get me pulled tea! I'm so tired", correct: true },
+          { phrase: "M sai, m sai", meaning: "Don't need, don't need", correct: false },
+          { phrase: "Boh eng, boh eng la", meaning: "No time, no time lah", correct: false }
+        ]},
+        { context: "Dinner time. Your mother asks if you'll help cook. You're happy to!", dialogues: [
+          { phrase: "Tsia, tsia! Wa lai to, ka lu!", meaning: "Sure, sure! I'll come help, let me!", correct: true },
+          { phrase: "Wa m bat zao chui", meaning: "I don't know how to cook", correct: false },
+          { phrase: "Zing gau lo", meaning: "So full lah", correct: false }
+        ]},
+        { context: "Oh no! You spilled some soup. Your family reassures you it's okay.", dialogues: [
+          { phrase: "Boh su, boh su lor! Sio si tio", meaning: "No worries, no worries lah! Just normal", correct: true },
+          { phrase: "Gao guan! Boh lui!", meaning: "Very difficult! No money!", correct: false },
+          { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "Before bed. Your grandmother says good night. You want to wish her well warmly.", dialogues: [
+          { phrase: "Peng an, ama! Sio khi, siang tin siao!", meaning: "Sleep well, mother! Rest well, good night!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "No worries, no worries", correct: false },
+          { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false }
         ]}
       ]
     }
@@ -1777,35 +1846,58 @@ const situationalQuizzes = {
   hakka: [
     {
       id: 1,
-      title: "Morning Greetings at Home",
-      story: "You wake up and your Hakka-speaking grandmother is in the kitchen.",
+      title: "A Day in Singapore - Hakka Community",
+      story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "You see grandma cooking. What's the warm Hakka morning greeting?", dialogues: [
-          { phrase: "Am on, a po!", meaning: "Good night, grandma!", correct: false },
-          { phrase: "Zo san, a po!", meaning: "Good morning, grandma!", correct: true },
-          { phrase: "Chut hi lah", meaning: "Go out lah", correct: false }
+        { context: "Early morning at home. Your grandmother asks 'Nia ho maan, ya pan un maa?' (Good morning, did you sleep well?). You just woke up.", dialogues: [
+          { phrase: "Zo san, a po! Wa ai ya fan", meaning: "Good morning, grandma! I want to eat", correct: true },
+          { phrase: "Ya fan liaw maa", meaning: "Already eaten", correct: false },
+          { phrase: "Mo lui", meaning: "No money", correct: false }
         ]},
-        { context: "Grandma asks if you're hungry. You want to say 'Very hungry, smells good!'.", dialogues: [
-          { phrase: "Mo lui lah", meaning: "No money lah", correct: false },
-          { phrase: "Chang sian lah", meaning: "Very bored lah", correct: false },
-          { phrase: "Chang ngiat! Ho shik!", meaning: "Very hungry! Smells delicious!", correct: true }
-        ]}
-      ]
-    },
-    {
-      id: 2,
-      title: "At the Wet Market",
-      story: "You're helping your mum shop for vegetables at the market. The stallholder speaks Hakka.",
-      cues: [
-        { context: "The stallholder greets you with 'Ngi ho!' How do you respond?", dialogues: [
-          { phrase: "Ngi ho! Ya fan liaw maa?", meaning: "Hello! Have you eaten?", correct: true },
-          { phrase: "Mo kung lah", meaning: "No time lah", correct: false },
-          { phrase: "Am on", meaning: "Good night", correct: false }
+        { context: "At the hawker center. A seller is making fresh fried noodles. You're hungry!", dialogues: [
+          { phrase: "Ngi ho! Ka wa chau mian, m ho la!", meaning: "Hello! Give me fried noodles, not too spicy!", correct: true },
+          { phrase: "Taai gwai la", meaning: "Too expensive lah", correct: false },
+          { phrase: "Mo kung, mo kung", meaning: "No time, no time", correct: false }
         ]},
-        { context: "The vegetables cost more than expected. You want to say thank you anyway and leave politely.", dialogues: [
-          { phrase: "Mo het, mo het!", meaning: "Cannot, cannot!", correct: false },
-          { phrase: "Do jia! Den ha lah", meaning: "Thank you! Wait a moment", correct: false },
-          { phrase: "Do jia! Piang an!", meaning: "Thank you! Safe journey!", correct: true }
+        { context: "At the market. A vegetable seller greets you. You need fresh greens.", dialogues: [
+          { phrase: "Ngi ho! O choi siang, gao tshoi!", meaning: "Hello! Give me fresh vegetables, very good quality!", correct: true },
+          { phrase: "Taai gwai, boh lui", meaning: "Too expensive, no money", correct: false },
+          { phrase: "Mo kung gam zit", meaning: "No time today", correct: false }
+        ]},
+        { context: "You meet an old friend at the MRT. It's been a while!", dialogues: [
+          { phrase: "Hao noi bho gin! Nee gam doh ngi?", meaning: "Long time no see! How are you?", correct: true },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false },
+          { phrase: "Wa m sik", meaning: "I don't know", correct: false }
+        ]},
+        { context: "Lunchtime. Your colleague asks what you want to eat. You're hungry!", dialogues: [
+          { phrase: "Wa ai ya fan chau nian, gao sik!", meaning: "I want fried noodles, very delicious!", correct: true },
+          { phrase: "M ai ya fan gam zit", meaning: "Don't want to eat today", correct: false },
+          { phrase: "Chang gau liaw", meaning: "Very full already", correct: false }
+        ]},
+        { context: "At work, your boss asks about progress. Things are going well!", dialogues: [
+          { phrase: "Mo het! Ya ban zau liaw", meaning: "No problem! Nearly finished", correct: true },
+          { phrase: "Wa m sik, gao guan", meaning: "I don't know, very difficult", correct: false },
+          { phrase: "Mo kung", meaning: "No time", correct: false }
+        ]},
+        { context: "Afternoon. You're feeling tired. Your friend suggests getting some tea.", dialogues: [
+          { phrase: "Do ngo! Ka nga teh tarik, chang oi!", meaning: "Yes please! Get me pulled tea, I'd love that!", correct: true },
+          { phrase: "M sai, m sai", meaning: "Don't need, don't need", correct: false },
+          { phrase: "Chang gau lo", meaning: "So full lah", correct: false }
+        ]},
+        { context: "Dinner time. Your mother asks if you can help prepare food. You're glad to!", dialogues: [
+          { phrase: "Tsia tsia! Wa lai to, pa ngo!", meaning: "Sure, sure! I'll help, let me help!", correct: true },
+          { phrase: "Wa m sik ya chui", meaning: "I don't know how to cook", correct: false },
+          { phrase: "Chang gau lo", meaning: "So full lah", correct: false }
+        ]},
+        { context: "Oops! You accidentally knocked over a pot. Your family says don't worry!", dialogues: [
+          { phrase: "Mo het, mo het lo! Si ngo tshoi", meaning: "No problem, no problem lah! Just normal", correct: true },
+          { phrase: "Gao guan! Boh lui!", meaning: "Very difficult! No money!", correct: false },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "Before bed. Your grandmother says good night. You want to wish her well warmly.", dialogues: [
+          { phrase: "Am on, a po! Sio khi, siang tin siao!", meaning: "Good night, grandma! Rest well, sleep tight!", correct: true },
+          { phrase: "Mo het, mo het", meaning: "No problem, no problem", correct: false },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
         ]}
       ]
     }
@@ -1813,35 +1905,58 @@ const situationalQuizzes = {
   hainanese: [
     {
       id: 1,
-      title: "At the Hainanese Chicken Rice Stall",
-      story: "You're at a famous chicken rice stall run by an old Hainanese uncle.",
+      title: "A Day in Singapore - Hainanese Community",
+      story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "The uncle greets you with 'Nee hoh!'. You want to greet him back warmly.", dialogues: [
-          { phrase: "Chiak boh? Zin ho!", meaning: "Have you eaten? Very good!", correct: true },
-          { phrase: "Boh eng lah", meaning: "No time lah", correct: false },
-          { phrase: "Wa ai hi liao", meaning: "I want to leave already", correct: false }
+        { context: "Early morning at home. Your grandmother asks 'Zao san, chiak bo?' (Good morning, have you eaten?). You just woke up.", dialogues: [
+          { phrase: "Zao san! Wa ai chiak ke fan", meaning: "Good morning! I want to eat chicken rice", correct: true },
+          { phrase: "Chiak liao", meaning: "Already eaten", correct: false },
+          { phrase: "Boh lui gam jit", meaning: "No money today", correct: false }
         ]},
-        { context: "You finish eating. The chicken rice is incredible. What do you tell the uncle?", dialogues: [
-          { phrase: "Boh lui lah", meaning: "No money lah", correct: false },
-          { phrase: "Ho jia! Doh jiah uncle!", meaning: "Delicious! Thank you uncle!", correct: true },
-          { phrase: "Chin sian", meaning: "Very bored", correct: false }
-        ]}
-      ]
-    },
-    {
-      id: 2,
-      title: "Saying Goodbye to a Neighbour",
-      story: "Your elderly Hainanese neighbour is heading out. You want to wish them well.",
-      cues: [
-        { context: "She's heading to the market. You want to say 'Be careful' and 'Good luck'.", dialogues: [
-          { phrase: "Kin lai! Kin lai!", meaning: "Come quickly! Come quickly!", correct: false },
-          { phrase: "Sio sim! Ho un!", meaning: "Be careful! Good luck!", correct: true },
-          { phrase: "Jip lai lah", meaning: "Come in lah", correct: false }
+        { context: "At the hainanese chicken rice stall. The uncle is preparing fresh chicken. You want some!", dialogues: [
+          { phrase: "Uncle! Ka ngho ke fan, zin ho!", meaning: "Uncle! Give me chicken rice, very good!", correct: true },
+          { phrase: "Taai gwai", meaning: "Too expensive", correct: false },
+          { phrase: "Boh eng gam jit", meaning: "No time today", correct: false }
         ]},
-        { context: "She asks if you're free to chat later. You're busy today.", dialogues: [
-          { phrase: "Eh sai, wa free", meaning: "OK, I'm free", correct: false },
-          { phrase: "Boh man tai, can!", meaning: "No problem, can!", correct: false },
-          { phrase: "Pai seh, boh eng gam jit", meaning: "Sorry, no time today", correct: true }
+        { context: "At the market. A seller greets you. You need fresh fruits.", dialogues: [
+          { phrase: "Nee hoh! Oi cam zai, zin siang!", meaning: "Hello! Give me oranges, very fresh!", correct: true },
+          { phrase: "Taai gwai, boh lui", meaning: "Too expensive, no money", correct: false },
+          { phrase: "Boh eng", meaning: "No time", correct: false }
+        ]},
+        { context: "You run into an old friend at the hawker center. Long time no see!", dialogues: [
+          { phrase: "Hao noi bo gin! Nee gam doh?", meaning: "Long time no see! How have you been?", correct: true },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false }
+        ]},
+        { context: "Lunchtime. Your friend asks where to eat. You're hungry!", dialogues: [
+          { phrase: "Wa ai chiak bah png, ho jia!", meaning: "I want to eat rice with braised pork, very delicious!", correct: true },
+          { phrase: "M ai chiak gam jit", meaning: "Don't want to eat today", correct: false },
+          { phrase: "Zin gau lo", meaning: "So full lah", correct: false }
+        ]},
+        { context: "At work, your boss asks about the project. It's almost done!", dialogues: [
+          { phrase: "Eh sai! Kong pua liao, beh ghua!", meaning: "Can! Almost finished, don't worry!", correct: true },
+          { phrase: "Wa m bat, gao guan", meaning: "I don't know, very difficult", correct: false },
+          { phrase: "Boh eng gam jit", meaning: "No time today", correct: false }
+        ]},
+        { context: "Afternoon slump. You're tired. Your friend offers to get you a drink.", dialogues: [
+          { phrase: "Oi! Ka ngho teh, wa suay gua!", meaning: "Yes! Get me tea, I'm so tired!", correct: true },
+          { phrase: "M sai, m sai", meaning: "Don't need, don't need", correct: false },
+          { phrase: "Boh eng", meaning: "No time", correct: false }
+        ]},
+        { context: "Dinner time. Your mother asks if you can help cook. You're happy to!", dialogues: [
+          { phrase: "Tsia tsia! Wa lai to, ka ngho!", meaning: "Sure, sure! I'll help, let me!", correct: true },
+          { phrase: "Wa m bat zao chui", meaning: "I don't know how to cook", correct: false },
+          { phrase: "Zin gau lo", meaning: "So full lah", correct: false }
+        ]},
+        { context: "Oh no! You spilled some water. Your family says it's all right.", dialogues: [
+          { phrase: "Boh man tai, boh man tai lor! Si ngo tshoi", meaning: "No problem, no problem lah! Just normal", correct: true },
+          { phrase: "Gao guan! Boh lui!", meaning: "Very difficult! No money!", correct: false },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "Before bed. Your grandmother says good night. You want to wish her well warmly.", dialogues: [
+          { phrase: "Am on, ama! Zao sin, siang tin siao!", meaning: "Good night, mother! Rest well, sleep tight!", correct: true },
+          { phrase: "Boh man tai", meaning: "No problem", correct: false },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
         ]}
       ]
     }
@@ -1857,7 +1972,29 @@ const sentenceCompletion = {
     { id: 5, sentence: "Wa ___ bat", options: ["m", "ai", "boh"], correctIndex: 0, meaning: "I don't know." },
     { id: 6, sentence: "Boh ___ lah, wa busy", options: ["eng", "lui", "sai"], correctIndex: 0, meaning: "No time lah, I'm busy." },
     { id: 7, sentence: "Sio sim, ___ an", options: ["peng", "boh", "chin"], correctIndex: 0, meaning: "Be careful, safe journey." },
-    { id: 8, sentence: "Lo li, ___ seh!", options: ["pai", "boh", "m"], correctIndex: 0, meaning: "Thank you, so sorry!" }
+    { id: 8, sentence: "Lo li, ___ seh!", options: ["pai", "boh", "m"], correctIndex: 0, meaning: "Thank you, so sorry!" },
+    { id: 9, sentence: "Khui ___ khi", options: ["bo", "lo", "tsi"], correctIndex: 1, meaning: "Go home." },
+    { id: 10, sentence: "Chin ___ suia", options: ["tsui", "gua", "ho"], correctIndex: 0, meaning: "Very beautiful." },
+    { id: 11, sentence: "Beh ___ bo", options: ["sai", "tsi", "ai"], correctIndex: 0, meaning: "Cannot / not allowed." },
+    { id: 12, sentence: "Ua ai ___", options: ["lua", "khi", "tsi"], correctIndex: 0, meaning: "I love." },
+    { id: 13, sentence: "Ho ___ tsia", options: ["chiah", "khi", "ai"], correctIndex: 0, meaning: "Delicious." },
+    { id: 14, sentence: "Boh ___, boh lui", options: ["eng", "sai", "ai"], correctIndex: 0, meaning: "No time, no money." },
+    { id: 15, sentence: "Tua ___, sio nang", options: ["nang", "chiah", "ai"], correctIndex: 0, meaning: "Big person, small person." },
+    { id: 16, sentence: "Gao ___, gao lat", options: ["lat", "khi", "tsia"], correctIndex: 0, meaning: "Very impressive, very powerful." },
+    { id: 17, sentence: "Si ___ ?", options: ["boh", "hia", "khi"], correctIndex: 0, meaning: "Is it true?" },
+    { id: 18, sentence: "Wa lau ___!", options: ["eh", "boh", "ho"], correctIndex: 0, meaning: "Oh my goodness!" },
+    { id: 19, sentence: "Ka li ___", options: ["kong", "khi", "ai"], correctIndex: 0, meaning: "Let me tell you." },
+    { id: 20, sentence: "___ lai tsi!", options: ["Kin", "Ho", "Wa"], correctIndex: 0, meaning: "Come quickly!" },
+    { id: 21, sentence: "Wa ___ khi", options: ["ai", "bo", "lo"], correctIndex: 0, meaning: "I want to go." },
+    { id: 22, sentence: "Bung ___ tsia", options: ["bo", "ai", "hia"], correctIndex: 1, meaning: "Don't want to eat." },
+    { id: 23, sentence: "Chin ___ sian", options: ["sian", "gua", "khi"], correctIndex: 0, meaning: "Very bored." },
+    { id: 24, sentence: "Tio ___ liao", options: ["liao", "boh", "ai"], correctIndex: 0, meaning: "Got it, that's right." },
+    { id: 25, sentence: "Hia ___", options: ["di", "nang", "boh"], correctIndex: 0, meaning: "Brothers, buddies." },
+    { id: 26, sentence: "Hor ___?", options: ["bo", "ai", "khi"], correctIndex: 0, meaning: "Is it good?" },
+    { id: 27, sentence: "Eh ___, eh sai", options: ["sai", "bo", "lo"], correctIndex: 0, meaning: "Can, OK, possible." },
+    { id: 28, sentence: "Chin gao ___, gao lat", options: ["lat", "boh", "ai"], correctIndex: 0, meaning: "Very impressive." },
+    { id: 29, sentence: "Jip ___, chut khi", options: ["lai", "boh", "lo"], correctIndex: 0, meaning: "Come in, go out." },
+    { id: 30, sentence: "Peng ___, peng an", options: ["an", "lai", "bo"], correctIndex: 0, meaning: "Peace, safe journey." }
   ],
   cantonese: [
     { id: 1, sentence: "Néih ___! Sihk jó faahn meih a?", options: ["hóu", "hoi", "gei"], correctIndex: 0, meaning: "Hello! Have you eaten?" },
@@ -1867,7 +2004,29 @@ const sentenceCompletion = {
     { id: 5, sentence: "Deui mh ___", options: ["jyuh", "jan", "haak"], correctIndex: 0, meaning: "I'm sorry." },
     { id: 6, sentence: "Hóu noi móuh ___!", options: ["gin", "tai", "waan"], correctIndex: 0, meaning: "Long time no see!" },
     { id: 7, sentence: "Síu ___, jau che", options: ["sàm", "si", "boh"], correctIndex: 0, meaning: "Be careful, there's a car." },
-    { id: 8, sentence: "Maan ___", options: ["on", "jau", "tai"], correctIndex: 0, meaning: "Good night." }
+    { id: 8, sentence: "Maan ___", options: ["on", "jau", "tai"], correctIndex: 0, meaning: "Good night." },
+    { id: 9, sentence: "Faan uk ___", options: ["kéi", "tai", "waan"], correctIndex: 0, meaning: "Go home." },
+    { id: 10, sentence: "Hóu ___", options: ["leng", "waan", "sihk"], correctIndex: 0, meaning: "Very beautiful." },
+    { id: 11, sentence: "Mh̀ ___", options: ["haih", "sai", "gōi"], correctIndex: 0, meaning: "No / not right." },
+    { id: 12, sentence: "Haih ___!", options: ["lā", "maa", "a"], correctIndex: 0, meaning: "Yes, that's right!" },
+    { id: 13, sentence: "Hóu ___", options: ["sihk", "waan", "leng"], correctIndex: 0, meaning: "Delicious." },
+    { id: 14, sentence: "Mh̀ sái, boh ___", options: ["man", "gau", "ti"], correctIndex: 2, meaning: "No need, not enough time." },
+    { id: 15, sentence: "Dáng ___", options: ["háh", "maa", "lā"], correctIndex: 0, meaning: "Wait a moment." },
+    { id: 16, sentence: "Faai ___ lā", options: ["dī", "doh", "maa"], correctIndex: 0, meaning: "Hurry up!" },
+    { id: 17, sentence: "Ngóh hóu ___", options: ["hóu", "leng", "sihk"], correctIndex: 0, meaning: "I am very well." },
+    { id: 18, sentence: "Jóu ___", options: ["san", "on", "tai"], correctIndex: 0, meaning: "Good morning." },
+    { id: 19, sentence: "Géi ___ ngo?", options: ["doh", "saam", "tau"], correctIndex: 0, meaning: "How much, what is it?" },
+    { id: 20, sentence: "___ jan", options: ["Deui", "Mh̀", "Haih"], correctIndex: 0, meaning: "Sorry." },
+    { id: 21, sentence: "Síu ___, héi san la", options: ["sàm", "dī", "maa"], correctIndex: 0, meaning: "Be careful, wake up!" },
+    { id: 22, sentence: "Mh̀ haih ___, haih lā", options: ["laa", "maa", "lā"], correctIndex: 2, meaning: "Not that, but this." },
+    { id: 23, sentence: "Ngóh mh̀ ___", options: ["ji", "gōi", "haih"], correctIndex: 0, meaning: "I don't know." },
+    { id: 24, sentence: "Móuh ___", options: ["man", "gau", "tai"], correctIndex: 0, meaning: "No problem." },
+    { id: 25, sentence: "Taai ___ laa", options: ["maan", "gwai", "noi"], correctIndex: 1, meaning: "Too expensive!" },
+    { id: 26, sentence: "Waih ___?", options: ["a", "maa", "lā"], correctIndex: 0, meaning: "Hello (on phone)?" },
+    { id: 27, sentence: "Yiu ___ faahn", options: ["go", "doh", "saam"], correctIndex: 0, meaning: "Want a bowl of rice." },
+    { id: 28, sentence: "Dō ___", options: ["jeh", "gōi", "haah"], correctIndex: 0, meaning: "Thank you." },
+    { id: 29, sentence: "Gam ___", options: ["yaht", "on", "tai"], correctIndex: 0, meaning: "Today." },
+    { id: 30, sentence: "Tìng ___ gin", options: ["yaht", "maa", "lā"], correctIndex: 0, meaning: "Tomorrow." }
   ],
   teochew: [
     { id: 1, sentence: "Lu ___! Ziah pa boih?", options: ["ho", "ai", "boh"], correctIndex: 0, meaning: "Hello! Have you eaten?" },
@@ -1877,7 +2036,29 @@ const sentenceCompletion = {
     { id: 5, sentence: "Boh ___ lah, busy", options: ["eng", "lui", "sai"], correctIndex: 0, meaning: "No time lah, busy." },
     { id: 6, sentence: "Sio ___, peng an!", options: ["sim", "nang", "lui"], correctIndex: 0, meaning: "Be careful, safe journey!" },
     { id: 7, sentence: "Ho ___ la!", options: ["jia", "lui", "sai"], correctIndex: 0, meaning: "Very delicious!" },
-    { id: 8, sentence: "Eh ___, eh sai!", options: ["sai", "lui", "boh"], correctIndex: 0, meaning: "Can, it's OK!" }
+    { id: 8, sentence: "Eh ___, eh sai!", options: ["sai", "lui", "boh"], correctIndex: 0, meaning: "Can, it's OK!" },
+    { id: 9, sentence: "Tng ___ lor", options: ["khi", "lai", "jia"], correctIndex: 0, meaning: "Return, go back." },
+    { id: 10, sentence: "Hia ___", options: ["di", "nang", "boh"], correctIndex: 0, meaning: "Brothers, buddies." },
+    { id: 11, sentence: "Hor ___?", options: ["bo", "ai", "sai"], correctIndex: 0, meaning: "Is it good?" },
+    { id: 12, sentence: "Wa ai ___", options: ["khi", "bo", "li"], correctIndex: 0, meaning: "I want to go." },
+    { id: 13, sentence: "Kin ___", options: ["lai", "bo", "jia"], correctIndex: 0, meaning: "Come quickly." },
+    { id: 14, sentence: "Si ___?", options: ["boh", "ai", "lo"], correctIndex: 0, meaning: "Is that so?" },
+    { id: 15, sentence: "Ka li ___", options: ["kong", "jia", "ai"], correctIndex: 0, meaning: "Let me tell you." },
+    { id: 16, sentence: "Boh ___", options: ["lui", "eng", "sai"], correctIndex: 0, meaning: "No money." },
+    { id: 17, sentence: "Chin ___", options: ["sian", "ho", "jia"], correctIndex: 0, meaning: "Very bored." },
+    { id: 18, sentence: "Tio ___ liao", options: ["liao", "boh", "bo"], correctIndex: 0, meaning: "Got it, correct." },
+    { id: 19, sentence: "Jip ___, chut khi", options: ["lai", "bo", "jia"], correctIndex: 0, meaning: "Come in, go out." },
+    { id: 20, sentence: "Boh ___, boh lui", options: ["eng", "sai", "ai"], correctIndex: 0, meaning: "No time, no money." },
+    { id: 21, sentence: "Tua ___, sio nang", options: ["nang", "bo", "jia"], correctIndex: 0, meaning: "Big person, small person." },
+    { id: 22, sentence: "M sai ___ ki", options: ["ke", "lo", "boh"], correctIndex: 0, meaning: "You're welcome." },
+    { id: 23, sentence: "Pai ___", options: ["seh", "jia", "bo"], correctIndex: 0, meaning: "Sorry, embarrassing." },
+    { id: 24, sentence: "Ho ___", options: ["un", "jia", "bo"], correctIndex: 0, meaning: "Good luck." },
+    { id: 25, sentence: "Hiam ___ ?", options: ["bo", "sai", "ai"], correctIndex: 0, meaning: "Is it spicy?" },
+    { id: 26, sentence: "Ti ___ ?", options: ["bo", "sai", "ai"], correctIndex: 0, meaning: "Is it sweet?" },
+    { id: 27, sentence: "Gao ___, gao lat", options: ["lat", "bo", "jia"], correctIndex: 0, meaning: "Very impressive." },
+    { id: 28, sentence: "Chin ___ suia", options: ["sui", "jia", "bo"], correctIndex: 0, meaning: "Very beautiful." },
+    { id: 29, sentence: "Zao ___ lor", options: ["khi", "lai", "bo"], correctIndex: 0, meaning: "Walk, go on foot." },
+    { id: 30, sentence: "Lim ___ lah", options: ["jui", "bo", "sai"], correctIndex: 0, meaning: "Drink water." }
   ],
   hakka: [
     { id: 1, sentence: "Ngi ___! Ya fan liaw maa?", options: ["ho", "ai", "si"], correctIndex: 0, meaning: "Hello! Have you eaten?" },
@@ -1887,7 +2068,29 @@ const sentenceCompletion = {
     { id: 5, sentence: "Nga m ___", options: ["sik", "hi", "ai"], correctIndex: 0, meaning: "I don't know." },
     { id: 6, sentence: "Mo ___ lah", options: ["kung", "lui", "het"], correctIndex: 0, meaning: "No time lah." },
     { id: 7, sentence: "Sio ___, piang an!", options: ["sim", "ngin", "gong"], correctIndex: 0, meaning: "Be careful, safe journey!" },
-    { id: 8, sentence: "Am ___, a po!", options: ["on", "san", "hi"], correctIndex: 0, meaning: "Good night, grandma!" }
+    { id: 8, sentence: "Am ___, a po!", options: ["on", "san", "hi"], correctIndex: 0, meaning: "Good night, grandma!" },
+    { id: 9, sentence: "Chut ___ lah", options: ["hi", "on", "san"], correctIndex: 0, meaning: "Go out." },
+    { id: 10, sentence: "Fong ___", options: ["sim", "gong", "ngi"], correctIndex: 0, meaning: "Don't worry, relax." },
+    { id: 11, sentence: "Mo ___", options: ["het", "kung", "lui"], correctIndex: 0, meaning: "Cannot, not possible." },
+    { id: 12, sentence: "Si ___?", options: ["mo", "gong", "hi"], correctIndex: 0, meaning: "Is that so?" },
+    { id: 13, sentence: "Ho ___", options: ["sik", "gong", "hi"], correctIndex: 0, meaning: "Delicious." },
+    { id: 14, sentence: "Chang ___, Chang ngiat", options: ["ngiat", "ho", "sik"], correctIndex: 0, meaning: "Very hungry." },
+    { id: 15, sentence: "Tai ___, sai ngin", options: ["ngin", "kung", "si"], correctIndex: 0, meaning: "Adult, child." },
+    { id: 16, sentence: "Ka ngi ___", options: ["gong", "hi", "mo"], correctIndex: 0, meaning: "Let me tell you." },
+    { id: 17, sentence: "Gim ___", options: ["si", "mo", "gong"], correctIndex: 0, meaning: "Nowadays." },
+    { id: 18, sentence: "Hiung ___", options: ["ti", "gong", "mo"], correctIndex: 0, meaning: "Brothers, buddies." },
+    { id: 19, sentence: "Nga ai ___", options: ["hi", "mo", "gong"], correctIndex: 0, meaning: "I want to go." },
+    { id: 20, sentence: "___ san", options: ["Zo", "Am", "Chut"], correctIndex: 0, meaning: "Good morning." },
+    { id: 21, sentence: "Den ___ lah", options: ["ha", "mo", "gong"], correctIndex: 0, meaning: "Wait a moment." },
+    { id: 22, sentence: "M sai ___ ki", options: ["ke", "mo", "gong"], correctIndex: 0, meaning: "You're welcome." },
+    { id: 23, sentence: "Pai ___", options: ["seh", "gong", "mo"], correctIndex: 0, meaning: "Sorry, embarrassing." },
+    { id: 24, sentence: "Ho ___", options: ["un", "gong", "mo"], correctIndex: 0, meaning: "Good luck." },
+    { id: 25, sentence: "Piang ___, piang an", options: ["an", "sim", "gong"], correctIndex: 0, meaning: "Safe journey." },
+    { id: 26, sentence: "Chang ___ suia", options: ["sui", "gong", "mo"], correctIndex: 0, meaning: "Very beautiful." },
+    { id: 27, sentence: "Gao ___, gao lat", options: ["lat", "gong", "mo"], correctIndex: 0, meaning: "Very impressive." },
+    { id: 28, sentence: "Mo ___, mo het", options: ["het", "gong", "si"], correctIndex: 0, meaning: "Cannot, not possible." },
+    { id: 29, sentence: "Jip ___, chut hi", options: ["lai", "mo", "gong"], correctIndex: 0, meaning: "Come in, go out." },
+    { id: 30, sentence: "Ya ___ maa?", options: ["fan", "gong", "mo"], correctIndex: 0, meaning: "Have you eaten?" }
   ],
   hainanese: [
     { id: 1, sentence: "Nee ___! Chiak boh?", options: ["hoh", "ai", "beh"], correctIndex: 0, meaning: "Hello! Have you eaten?" },
@@ -1897,7 +2100,29 @@ const sentenceCompletion = {
     { id: 5, sentence: "Boh ___ gam jit", options: ["eng", "lui", "sai"], correctIndex: 0, meaning: "No time today." },
     { id: 6, sentence: "Sio ___, ho un!", options: ["sim", "nang", "lui"], correctIndex: 0, meaning: "Be careful, good luck!" },
     { id: 7, sentence: "Ho ___ la!", options: ["jia", "lui", "sai"], correctIndex: 0, meaning: "Very delicious!" },
-    { id: 8, sentence: "Boh man ___, can!", options: ["tai", "eng", "lui"], correctIndex: 0, meaning: "No problem, can!" }
+    { id: 8, sentence: "Boh man ___, can!", options: ["tai", "eng", "lui"], correctIndex: 0, meaning: "No problem, can!" },
+    { id: 9, sentence: "Hi ___ lor", options: ["khi", "lai", "jia"], correctIndex: 0, meaning: "Go back." },
+    { id: 10, sentence: "Zao ___ gam jit", options: ["khi", "lai", "jia"], correctIndex: 0, meaning: "Go today." },
+    { id: 11, sentence: "Ho ___?", options: ["bo", "ai", "sai"], correctIndex: 0, meaning: "Is it good?" },
+    { id: 12, sentence: "Wa ai ___", options: ["hi", "bo", "li"], correctIndex: 0, meaning: "I want to go." },
+    { id: 13, sentence: "Kin ___", options: ["lai", "bo", "jia"], correctIndex: 0, meaning: "Come quickly." },
+    { id: 14, sentence: "Si ___?", options: ["boh", "ai", "lo"], correctIndex: 0, meaning: "Is that so?" },
+    { id: 15, sentence: "Ka li ___", options: ["kong", "jia", "ai"], correctIndex: 0, meaning: "Let me tell you." },
+    { id: 16, sentence: "Boh ___", options: ["lui", "eng", "sai"], correctIndex: 0, meaning: "No money." },
+    { id: 17, sentence: "Chin ___", options: ["sian", "ho", "jia"], correctIndex: 0, meaning: "Very bored." },
+    { id: 18, sentence: "Tio ___ liao", options: ["liao", "boh", "bo"], correctIndex: 0, meaning: "Got it, correct." },
+    { id: 19, sentence: "Jip ___, chut khi", options: ["lai", "bo", "jia"], correctIndex: 0, meaning: "Come in, go out." },
+    { id: 20, sentence: "Boh ___, boh lui", options: ["eng", "sai", "ai"], correctIndex: 0, meaning: "No time, no money." },
+    { id: 21, sentence: "Nang ___ nang", options: ["lua", "bo", "jia"], correctIndex: 0, meaning: "Two people." },
+    { id: 22, sentence: "M sai ___ ki", options: ["ke", "lo", "boh"], correctIndex: 0, meaning: "You're welcome." },
+    { id: 23, sentence: "Pai ___", options: ["seh", "jia", "bo"], correctIndex: 0, meaning: "Sorry, embarrassing." },
+    { id: 24, sentence: "Ho ___", options: ["un", "jia", "bo"], correctIndex: 0, meaning: "Good luck." },
+    { id: 25, sentence: "Hiam ___ ?", options: ["bo", "sai", "ai"], correctIndex: 0, meaning: "Is it spicy?" },
+    { id: 26, sentence: "Ti ___ ?", options: ["bo", "sai", "ai"], correctIndex: 0, meaning: "Is it sweet?" },
+    { id: 27, sentence: "Gao ___, gao lat", options: ["lat", "bo", "jia"], correctIndex: 0, meaning: "Very impressive." },
+    { id: 28, sentence: "Chin ___ suia", options: ["sui", "jia", "bo"], correctIndex: 0, meaning: "Very beautiful." },
+    { id: 29, sentence: "Zao ___ lor", options: ["khi", "lai", "bo"], correctIndex: 0, meaning: "Walk, go on foot." },
+    { id: 30, sentence: "Lim ___ lah", options: ["jui", "bo", "sai"], correctIndex: 0, meaning: "Drink water." }
   ]
 };
 
