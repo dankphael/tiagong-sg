@@ -1688,13 +1688,282 @@ const categories = [
   { id: "food", label: "Food", icon: "🍜" },
 ];
 
+// Situational Quiz Scenarios
+const situationalScenarios = {
+  hokkien: [
+    {
+      id: 1,
+      title: "At the Kopitiam",
+      story: "You're at the coffee shop with your grandfather. The uncle comes to take your order. Your grandfather asks you what you want to drink. What do you say?",
+      context: "Ordering coffee at a kopitiam",
+      correctAnswer: "Kopi O",
+      options: ["Kopi O", "Nasi Lemak", "Terima Kasih", "Lí hó"],
+      explanation: "'Kopi O' is black coffee in Hokkien/Malaysian coffee shop lingo. Perfect for ordering at a kopitiam!"
+    },
+    {
+      id: 2,
+      title: "Meeting Elderly Neighbour",
+      story: "You see your elderly Chinese neighbour Auntie Lim carrying heavy groceries. You want to greet her politely and offer help. What do you say first?",
+      context: "Greeting an elder respectfully",
+      correctAnswer: "Lí hó",
+      options: ["Lí hó", "Chin sian", "Buay tahan", "Pai seh"],
+      explanation: "'Lí hó' (你好) is the standard polite greeting meaning 'Hello' or 'How are you?' - perfect for greeting elders."
+    },
+    {
+      id: 3,
+      title: "Declining Food Politely",
+      story: "Your auntie keeps offering you more food at Chinese New Year, but you're already full. How do you politely decline?",
+      context: "Polite refusal at family gathering",
+      correctAnswer: "Jia pa liao",
+      options: ["Jia pa liao", "Boh lui", "Gao lat", "Kin lai"],
+      explanation: "'Jia pa liao' means 'Already eaten/full' - a polite way to decline more food without offending the host."
+    },
+    {
+      id: 4,
+      title: "Asking for Directions",
+      story: "You're lost near Chinatown and need to ask an elderly uncle where the MRT station is. How do you start?",
+      context: "Asking for directions politely",
+      correctAnswer: "Excuse me, li toh khi?",
+      options: ["Excuse me, li toh khi?", "Wa lau eh!", "Gong xi!", "Chin sui!"],
+      explanation: "'Li toh khi?' means 'Where are you going?' - but when asking for directions, you'd say 'Excuse me' first then ask about the location."
+    },
+    {
+      id: 5,
+      title: "Complimenting Friend's Outfit",
+      story: "Your friend shows up wearing a beautiful cheongsam for CNY. You want to compliment them. What do you say?",
+      context: "Giving compliments",
+      correctAnswer: "Chin sui!",
+      options: ["Chin sui!", "Pai seh", "Beh sai", "Sio sim"],
+      explanation: "'Chin sui' (真水) means 'Very beautiful' - the perfect compliment for someone's appearance or outfit!"
+    }
+  ],
+  cantonese: [
+    {
+      id: 1,
+      title: "Dim Sum Restaurant",
+      story: "You're at a dim sum restaurant with your family. The server asks if you want tea. How do you politely accept?",
+      context: "Ordering tea at dim sum",
+      correctAnswer: "M̀h̄ gòi cha",
+      options: ["M̀h gòi cha", "Ngóh oi fan", "Dò jeh", "Bát hou yi"],
+      explanation: "'M̀h gòi cha' means 'Tea please' - a polite way to request tea at a Cantonese restaurant."
+    },
+    {
+      id: 2,
+      title: "Thanking Someone",
+      story: "Someone holds the door open for you at the MTR station. What do you say to thank them?",
+      context: "Expressing gratitude",
+      correctAnswer: "Dò jeh",
+      options: ["Dò jeh", "M̀h hái", "Jói gin", "Fāi dī"],
+      explanation: "'Dò jeh' (多謝) is the standard way to say 'Thank you' in Cantonese."
+    },
+    {
+      id: 3,
+      title: "Running Late",
+      story: "You're running late to meet your friends. They call and ask where you are. What do you say?",
+      context: "Explaining you'll be late",
+      correctAnswer: "Ngóh faai daau la",
+      options: ["Ngóh faai daau la", "Ngóh m̀h ji", "Kéuih hóu leng", "Jēk hai"],
+      explanation: "'Ngóh faai daau la' means 'I'll be late' - useful for letting people know you're delayed."
+    },
+    {
+      id: 4,
+      title: "Complimenting Food",
+      story: "Your grandmother cooked an amazing meal. How do you tell her it's delicious?",
+      context: "Complimenting cooking",
+      correctAnswer: "Hóu sihk!",
+      options: ["Hóu sihk!", "M̀h hòu sihk", "Ngóh mh yiu", "Bát gwo"],
+      explanation: "'Hóu sihk' (好食) means 'Delicious' - the perfect compliment for homemade Cantonese cooking!"
+    },
+    {
+      id: 5,
+      title: "Saying Goodbye",
+      story: "You're leaving your cousin's house after dinner. What do you say as you leave?",
+      context: "Saying goodbye",
+      correctAnswer: "Jói gin",
+      options: ["Jói gin", "Léih hó", "M̀h gòi", "Hóu lah"],
+      explanation: "'Jói gin' (再見) means 'Goodbye' or 'See you again' - the standard farewell in Cantonese."
+    }
+  ],
+  teochew: [
+    {
+      id: 1,
+      title: "Tea Ceremony",
+      story: "Your grandfather is performing a traditional Teochew tea ceremony. He offers you tea. How do you accept gracefully?",
+      context: "Traditional tea ceremony",
+      correctAnswer: "Dio siōng",
+      options: ["Dio siōng", "M̄ bián", "Lâi oh", "Ho̍k"],
+      explanation: "Showing appreciation during tea ceremony is important in Teochew culture."
+    },
+    {
+      id: 2,
+      title: "Family Reunion",
+      story: "It's Qing Ming festival and you're meeting extended family at the ancestral hall. How do you greet your elders?",
+      context: "Family gathering",
+      correctAnswer: "Lí hó",
+      options: ["Lí hó", "M̄ tsai", "Tōa kè", "Sió kè"],
+      explanation: "'Lí hó' is the standard greeting across many dialects including Teochew."
+    }
+  ],
+  hakka: [
+    {
+      id: 1,
+      title: "Hakka Restaurant",
+      story: "You're at a Hakka restaurant with your parents. The waiter asks what rice dish you want. What do you order?",
+      context: "Ordering Hakka food",
+      correctAnswer: "Yam tong",
+      options: ["Yam tong", "Fan tuan", "Mien", "Cha"],
+      explanation: "Salted fish and pork belly with yam is a classic Hakka dish."
+    }
+  ],
+  hainanese: [
+    {
+      id: 1,
+      title: "Chicken Rice Stall",
+      story: "You're at a famous Hainanese chicken rice stall. The uncle asks how you want your chicken. What do you say?",
+      context: "Ordering chicken rice",
+      correctAnswer: "Orh torr",
+      options: ["Orh torr", "Bah kut", "Mee", "Kopi"],
+      explanation: "'Orr torr' means dark soy sauce chicken - a popular way to order Hainanese chicken rice."
+    }
+  ]
+};
+
+// Sentence Completion Exercises
+const sentenceExercises = {
+  hokkien: [
+    {
+      id: 1,
+      fullSentence: "Lí hó, _____ chia̍h-pá-buē?",
+      translation: "Hello, have you eaten yet?",
+      missingWord: "lí ū",
+      options: ["lí ū", "goá beh", "i m̄", "lán ho"],
+      explanation: "'Lí ū' completes the common greeting asking if someone has eaten."
+    },
+    {
+      id: 2,
+      fullSentence: "Goá beh lim _____, to-siā.",
+      translation: "I want to drink coffee, thank you.",
+      missingWord: "ko-pi",
+      options: ["ko-pi", "tê-á", "chúi", "mī"],
+      explanation: "'Ko-pi' (coffee) is what you'd order at a kopitiam."
+    },
+    {
+      id: 3,
+      fullSentence: "Chin _____, goá su lí!",
+      translation: "Very good, I love you!",
+      missingWord: "hó",
+      options: ["hó", "pháiⁿ", "toā", "sió"],
+      explanation: "'Chin hó' means 'very good' - expressing positive feelings."
+    },
+    {
+      id: 4,
+      fullSentence: "_____ tó-lo̍h? Goá beh khì MRT.",
+      translation: "Where is it? I want to go to MRT.",
+      missingWord: "Tó-lo̍h",
+      options: ["Tó-lo̍h", "Siáⁿ-mih", "Án-chóaⁿ", "Tang-kóa"],
+      explanation: "'Tó-lo̍h' means 'where' - used when asking for directions."
+    },
+    {
+      id: 5,
+      fullSentence: "In ta-ke chin _____, sī bô?",
+      translation: "His wife is very beautiful, isn't she?",
+      missingWord: "súi",
+      options: ["súi", "pháiⁿ", "gâu", "bân"],
+      explanation: "'Súi' means beautiful - commonly used to compliment appearance."
+    }
+  ],
+  cantonese: [
+    {
+      id: 1,
+      fullSentence: "Nei _____, m̀h gòi?",
+      translation: "How are you, please?",
+      missingWord: "hou maa",
+      options: ["hou maa", "fan laa", "heoi bin", "zo gam mat"],
+      explanation: "'Hou maa' is the standard way to ask 'How are you?' in Cantonese."
+    },
+    {
+      id: 2,
+      fullSentence: "Ngóh soeng sik _____, dò jeh.",
+      translation: "I want to eat dim sum, thank you.",
+      missingWord: "dim sum",
+      options: ["dim sum", "faan", "mein", "cha"],
+      explanation: "'Dim sum' is the beloved Cantonese brunch tradition."
+    },
+    {
+      id: 3,
+      fullSentence: "Gám jat tin hei hou _____ a!",
+      translation: "The weather is very nice today!",
+      missingWord: "hou",
+      options: ["hou", "m hou", "daai", "si"],
+      explanation: "'Hou' means good/nice - used to describe pleasant weather."
+    },
+    {
+      id: 4,
+      fullSentence: "_____ hai bin dou? Ngóh m gou lei.",
+      translation: "Where is this place? I don't know the way.",
+      missingWord: "Ni dou",
+      options: ["Ni dou", "Go dou", "Bin dou", "Do siu"],
+      explanation: "'Ni dou' means 'this place' - used when asking about locations."
+    },
+    {
+      id: 5,
+      fullSentence: "Keoi _____ leng a, hai m hai?",
+      translation: "She is very pretty, isn't she?",
+      missingWord: "hou",
+      options: ["hou", "m hou", "gei", "zau"],
+      explanation: "'Hou' intensifies the adjective 'leng' (pretty) to mean 'very pretty'."
+    }
+  ],
+  teochew: [
+    {
+      id: 1,
+      fullSentence: "Lí _____ ziah pà bué?",
+      translation: "Have you eaten yet?",
+      missingWord: "u",
+      options: ["u", "m", "beh", "ho"],
+      explanation: "'U' indicates possession or completion in this greeting."
+    },
+    {
+      id: 2,
+      fullSentence: "Goá beh lim _____, to sia.",
+      translation: "I want to drink tea, thank you.",
+      missingWord: "de",
+      options: ["de", "ko pi", "zui", "mi"],
+      explanation: "'De' is tea in Teochew - essential for the famous Teochew tea ceremony."
+    }
+  ],
+  hakka: [
+    {
+      id: 1,
+      fullSentence: "Ngài _____ ngi ho!",
+      translation: "I wish you well!",
+      missingWord: "chuk",
+      options: ["chuk", "m", "poi", "loi"],
+      explanation: "'Chuk' means to bless or wish well in Hakka."
+    }
+  ],
+  hainanese: [
+    {
+      id: 1,
+      fullSentence: "Lu _____ jia ba bue?",
+      translation: "Have you eaten yet?",
+      missingWord: "ga",
+      options: ["ga", "m", "beh", "ho"],
+      explanation: "This is the Hainanese version of the common Chinese greeting."
+    }
+  ]
+};
+
 export default function DialectPlatform() {
-  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz
+  const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz | situational | sentence
   const [selectedDialect, setSelectedDialect] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("greetings");
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [quizState, setQuizState] = useState({ q: 0, score: 0, answered: null, done: false });
+  const [situationalState, setSituationalState] = useState({ q: 0, score: 0, answered: null, done: false, questions: [] });
+  const [sentenceState, setSentenceState] = useState({ q: 0, score: 0, answered: null, done: false, questions: [] });
+  const [learnMode, setLearnMode] = useState("flashcards"); // flashcards | situational | sentence
   const [progress, setProgress] = useState({});
   const [networkTab, setNetworkTab] = useState("community");
   const [sinSehTab, setSinSehTab] = useState("mentors");
@@ -1765,6 +2034,50 @@ export default function DialectPlatform() {
     const allMeanings = Object.values(lessons[selectedDialect]).flat().map(p => p.meaning);
     const wrong = allMeanings.filter(m => m !== q.meaning).sort(() => Math.random() - 0.5).slice(0, 3);
     return [...wrong, q.meaning].sort(() => Math.random() - 0.5);
+  }
+
+  // Situational Quiz Functions
+  function startSituationalQuiz() {
+    const scenarios = situationalScenarios[selectedDialect] || [];
+    const shuffled = scenarios.sort(() => Math.random() - 0.5).slice(0, 5);
+    setSituationalState({ questions: shuffled, q: 0, score: 0, answered: null, done: false });
+    setLearnMode("situational");
+  }
+
+  function answerSituational(choice) {
+    const scenario = situationalState.questions[situationalState.q];
+    const correct = choice === scenario.correctAnswer;
+    const newScore = correct ? situationalState.score + 1 : situationalState.score;
+    setSituationalState(s => ({ ...s, answered: choice, score: newScore }));
+    setTimeout(() => {
+      if (situationalState.q + 1 >= situationalState.questions.length) {
+        setSituationalState(s => ({ ...s, done: true, score: newScore }));
+      } else {
+        setSituationalState(s => ({ ...s, q: s.q + 1, answered: null }));
+      }
+    }, 1200);
+  }
+
+  // Sentence Completion Functions
+  function startSentenceExercise() {
+    const exercises = sentenceExercises[selectedDialect] || [];
+    const shuffled = exercises.sort(() => Math.random() - 0.5).slice(0, 5);
+    setSentenceState({ questions: shuffled, q: 0, score: 0, answered: null, done: false });
+    setLearnMode("sentence");
+  }
+
+  function answerSentence(choice) {
+    const exercise = sentenceState.questions[sentenceState.q];
+    const correct = choice === exercise.missingWord;
+    const newScore = correct ? sentenceState.score + 1 : sentenceState.score;
+    setSentenceState(s => ({ ...s, answered: choice, score: newScore }));
+    setTimeout(() => {
+      if (sentenceState.q + 1 >= sentenceState.questions.length) {
+        setSentenceState(s => ({ ...s, done: true, score: newScore }));
+      } else {
+        setSentenceState(s => ({ ...s, q: s.q + 1, answered: null }));
+      }
+    }, 1200);
   }
 
   const totalProgress = Object.keys(progress).filter(k => k.startsWith(selectedDialect || "")).length;
@@ -1900,7 +2213,7 @@ export default function DialectPlatform() {
 
       {/* LESSON */}
       {screen === "lesson" && dialect && (
-        <div style={{ maxWidth: 720, margin: "0 auto", padding: "40px 24px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
           {/* Dialect Header */}
           <div style={{ background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "32px", marginBottom: 32, display: "flex", alignItems: "center", gap: 24 }}>
             <div style={{ fontSize: 56 }}>{dialect.icon}</div>
@@ -1911,79 +2224,250 @@ export default function DialectPlatform() {
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
-            {categories.map(cat => {
-              const key = `${selectedDialect}-${cat.id}`;
-              const done = progress[key];
-              return (
-                <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
-                  style={{ flex: 1, padding: "12px 8px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 13, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, position: "relative" }}>
-                  {cat.icon} {cat.label} {done && <span style={{ marginLeft: 4 }}>✓</span>}
+          {/* Mode Selection Tabs */}
+          <div style={{ display: "flex", gap: 12, marginBottom: 32, flexWrap: "wrap" }}>
+            <button className="btn-hover" onClick={() => setLearnMode("flashcards")}
+              style={{ flex: 1, minWidth: 140, padding: "16px 20px", borderRadius: 14, background: learnMode === "flashcards" ? dialect.color : "white", color: learnMode === "flashcards" ? "white" : "#1A1208", border: `2px solid ${learnMode === "flashcards" ? dialect.color : "#E8DDD0"}`, fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: 20 }}>🃏</span>
+              <span>Flashcards</span>
+              <span style={{ fontSize: 11, opacity: 0.7 }}>Classic learning</span>
+            </button>
+            <button className="btn-hover" onClick={startSituationalQuiz}
+              style={{ flex: 1, minWidth: 140, padding: "16px 20px", borderRadius: 14, background: learnMode === "situational" ? dialect.color : "white", color: learnMode === "situational" ? "white" : "#1A1208", border: `2px solid ${learnMode === "situational" ? dialect.color : "#E8DDD0"}`, fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: 20 }}>🎭</span>
+              <span>Situational Quiz</span>
+              <span style={{ fontSize: 11, opacity: 0.7 }}>Real-life scenarios</span>
+            </button>
+            <button className="btn-hover" onClick={startSentenceExercise}
+              style={{ flex: 1, minWidth: 140, padding: "16px 20px", borderRadius: 14, background: learnMode === "sentence" ? dialect.color : "white", color: learnMode === "sentence" ? "white" : "#1A1208", border: `2px solid ${learnMode === "sentence" ? dialect.color : "#E8DDD0"}`, fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: 20 }}>📝</span>
+              <span>Complete Sentence</span>
+              <span style={{ fontSize: 11, opacity: 0.7 }}>Fill in the blanks</span>
+            </button>
+          </div>
+
+          {/* FLASHCARDS MODE */}
+          {learnMode === "flashcards" && (
+            <>
+              {/* Category Tabs */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+                {categories.map(cat => {
+                  const key = `${selectedDialect}-${cat.id}`;
+                  const done = progress[key];
+                  return (
+                    <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
+                      style={{ flex: 1, padding: "12px 8px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 13, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, position: "relative" }}>
+                      {cat.icon} {cat.label} {done && <span style={{ marginLeft: 4 }}>✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Progress */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 13, color: "#8B7355" }}>
+                <span>Card {cardIndex + 1} of {cards.length}</span>
+                <span style={{ color: dialect.color }}>{Math.round(((cardIndex + 1) / cards.length) * 100)}%</span>
+              </div>
+              <div className="progress-bar" style={{ marginBottom: 32 }}>
+                <div className="progress-fill" style={{ width: `${((cardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
+              </div>
+
+              {/* Flashcard */}
+              <div className="card-3d" style={{ height: 280, marginBottom: 24 }} onClick={() => setFlipped(!flipped)}>
+                <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
+                  {/* Front */}
+                  <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                    <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", marginBottom: 16 }}>Tap to reveal</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
+                      {cards[cardIndex]?.phrase}
+                    </div>
+                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 28, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
+                      {cards[cardIndex]?.chinese}
+                    </div>
+                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>
+                      /{cards[cardIndex]?.romanisation}/
+                    </div>
+                  </div>
+                  {/* Back */}
+                  <div className="card-face card-back" style={{ background: "#F5E6C8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}` }}>
+                    <div style={{ fontSize: 11, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 16 }}>Meaning</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 42, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 24px" }}>
+                      {cards[cardIndex]?.meaning}
+                    </div>
+                    <div style={{ fontSize: 13, color: "#8B7355", marginTop: 16, fontStyle: "italic", textAlign: "center", padding: "0 32px" }}>
+                      Romanisation: <strong>{cards[cardIndex]?.romanisation}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Nav Buttons */}
+              <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
+                <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
+                  style={{ flex: 1, padding: "14px", background: cardIndex === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 16, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208" }}>
+                  ← Prev
                 </button>
-              );
-            })}
-          </div>
-
-          {/* Progress */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 13, color: "#8B7355" }}>
-            <span>Card {cardIndex + 1} of {cards.length}</span>
-            <span style={{ color: dialect.color }}>{Math.round(((cardIndex + 1) / cards.length) * 100)}%</span>
-          </div>
-          <div className="progress-bar" style={{ marginBottom: 32 }}>
-            <div className="progress-fill" style={{ width: `${((cardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
-          </div>
-
-          {/* Flashcard */}
-          <div className="card-3d" style={{ height: 280, marginBottom: 24 }} onClick={() => setFlipped(!flipped)}>
-            <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
-              {/* Front */}
-              <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", marginBottom: 16 }}>Tap to reveal</div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
-                  {cards[cardIndex]?.phrase}
-                </div>
-                <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 28, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
-                  {cards[cardIndex]?.chinese}
-                </div>
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>
-                  /{cards[cardIndex]?.romanisation}/
-                </div>
+                <button className="btn-hover" onClick={nextCard}
+                  style={{ flex: 1, padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer" }}>
+                  {cardIndex < cards.length - 1 ? "Next →" : "✓ Complete!"}
+                </button>
               </div>
-              {/* Back */}
-              <div className="card-face card-back" style={{ background: "#F5E6C8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}` }}>
-                <div style={{ fontSize: 11, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 16 }}>Meaning</div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 42, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 24px" }}>
-                  {cards[cardIndex]?.meaning}
-                </div>
-                <div style={{ fontSize: 13, color: "#8B7355", marginTop: 16, fontStyle: "italic", textAlign: "center", padding: "0 32px" }}>
-                  Romanisation: <strong>{cards[cardIndex]?.romanisation}</strong>
-                </div>
+
+              {/* Quiz CTA */}
+              <div style={{ background: "#1A1208", borderRadius: 16, padding: 24, textAlign: "center" }}>
+                <div style={{ color: "#F5E6C8", fontSize: 16, marginBottom: 8, fontFamily: "'Cormorant Garamond', serif" }}>Ready to test yourself?</div>
+                <div style={{ color: "#8B7355", fontSize: 13, marginBottom: 16 }}>Take a quick quiz across all categories</div>
+                <button className="btn-hover" onClick={startQuiz}
+                  style={{ background: dialect.color, color: "white", border: "none", padding: "12px 32px", borderRadius: 8, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                  Start Quiz 🎯
+                </button>
               </div>
+            </>
+          )}
+
+          {/* SITUATIONAL QUIZ MODE */}
+          {learnMode === "situational" && (
+            <div>
+              {!situationalState.done ? (
+                <div className="fade-up">
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, fontSize: 14, color: "#8B7355" }}>
+                    <span>Scenario {situationalState.q + 1} / {situationalState.questions.length}</span>
+                    <span style={{ color: dialect.color, fontWeight: 600 }}>Score: {situationalState.score}</span>
+                  </div>
+                  <div className="progress-bar" style={{ marginBottom: 32 }}>
+                    <div className="progress-fill" style={{ width: `${((situationalState.q + 1) / situationalState.questions.length) * 100}%`, background: dialect.color }} />
+                  </div>
+
+                  <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: 32, marginBottom: 24 }}>
+                    <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", marginBottom: 8 }}>{situationalState.questions[situationalState.q]?.title}</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginBottom: 16, fontStyle: "italic" }}>{situationalState.questions[situationalState.q]?.context}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18, fontWeight: 400, color: "white", lineHeight: 1.7 }}>
+                      {situationalState.questions[situationalState.q]?.story}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    {situationalState.questions[situationalState.q]?.options.map((opt, i) => {
+                      const isCorrect = opt === situationalState.questions[situationalState.q].correctAnswer;
+                      const isSelected = opt === situationalState.answered;
+                      let bg = "white", border = "#E8DDD0", color = "#1A1208";
+                      if (situationalState.answered) {
+                        if (isCorrect) { bg = "#EAFAF1"; border = "#27AE60"; color = "#1A6B3C"; }
+                        else if (isSelected) { bg = "#FDEDEC"; border = "#E74C3C"; color = "#C0392B"; }
+                      }
+                      return (
+                        <button key={i} className="btn-hover" onClick={() => !situationalState.answered && answerSituational(opt)}
+                          style={{ padding: "18px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 15, cursor: situationalState.answered ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
+                          {isCorrect && situationalState.answered ? "✓ " : isSelected && !isCorrect ? "✗ " : ""}{opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {situationalState.answered && (
+                    <div className="fade-up" style={{ marginTop: 24, background: "#F5E6C8", borderRadius: 16, padding: 20, borderLeft: `4px solid ${dialect.color}` }}>
+                      <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.7 }}>
+                        <strong>Explanation:</strong> {situationalState.questions[situationalState.q]?.explanation}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ textAlign: "center" }} className="fade-up">
+                  <div style={{ fontSize: 72, marginBottom: 16 }}>{situationalState.score >= 4 ? "🎉" : situationalState.score >= 2 ? "👍" : "📚"}</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>
+                    {situationalState.score} / {situationalState.questions.length}
+                  </div>
+                  <div style={{ fontSize: 18, color: "#8B7355", marginBottom: 8, fontStyle: "italic" }}>
+                    {situationalState.score >= 4 ? "Excellent! 做得好！" : situationalState.score >= 2 ? "Good effort! Keep practising!" : "Keep learning! 继续加油！"}
+                  </div>
+                  <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 24 }}>
+                    <button className="btn-hover" onClick={startSituationalQuiz}
+                      style={{ background: dialect.color, color: "white", border: "none", padding: "14px 28px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                      Try Again
+                    </button>
+                    <button className="btn-hover" onClick={() => setLearnMode("flashcards")}
+                      style={{ background: "white", color: "#1A1208", border: "2px solid #E8DDD0", padding: "14px 28px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                      Back to Flashcards
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
-          {/* Nav Buttons */}
-          <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
-            <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
-              style={{ flex: 1, padding: "14px", background: cardIndex === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 16, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208" }}>
-              ← Prev
-            </button>
-            <button className="btn-hover" onClick={nextCard}
-              style={{ flex: 1, padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer" }}>
-              {cardIndex < cards.length - 1 ? "Next →" : "✓ Complete!"}
-            </button>
-          </div>
+          {/* SENTENCE COMPLETION MODE */}
+          {learnMode === "sentence" && (
+            <div>
+              {!sentenceState.done ? (
+                <div className="fade-up">
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, fontSize: 14, color: "#8B7355" }}>
+                    <span>Question {sentenceState.q + 1} / {sentenceState.questions.length}</span>
+                    <span style={{ color: dialect.color, fontWeight: 600 }}>Score: {sentenceState.score}</span>
+                  </div>
+                  <div className="progress-bar" style={{ marginBottom: 32 }}>
+                    <div className="progress-fill" style={{ width: `${((sentenceState.q + 1) / sentenceState.questions.length) * 100}%`, background: dialect.color }} />
+                  </div>
 
-          {/* Quiz CTA */}
-          <div style={{ background: "#1A1208", borderRadius: 16, padding: 24, textAlign: "center" }}>
-            <div style={{ color: "#F5E6C8", fontSize: 16, marginBottom: 8, fontFamily: "'Cormorant Garamond', serif" }}>Ready to test yourself?</div>
-            <div style={{ color: "#8B7355", fontSize: 13, marginBottom: 16 }}>Take a quick quiz across all categories</div>
-            <button className="btn-hover" onClick={startQuiz}
-              style={{ background: dialect.color, color: "white", border: "none", padding: "12px 32px", borderRadius: 8, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
-              Start Quiz 🎯
-            </button>
-          </div>
+                  <div style={{ background: "#F5E6C8", borderRadius: 20, padding: 32, marginBottom: 24, border: `2px solid ${dialect.color}` }}>
+                    <div style={{ fontSize: 11, letterSpacing: 3, color: dialect.color, marginBottom: 12, textTransform: "uppercase" }}>Complete the sentence</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, fontWeight: 600, color: "#1A1208", lineHeight: 1.7, marginBottom: 16 }}>
+                      {sentenceState.questions[sentenceState.q]?.fullSentence}
+                    </div>
+                    <div style={{ fontSize: 15, color: "#6B5B45", fontStyle: "italic" }}>
+                      Translation: {sentenceState.questions[sentenceState.q]?.translation}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    {sentenceState.questions[sentenceState.q]?.options.map((opt, i) => {
+                      const isCorrect = opt === sentenceState.questions[sentenceState.q].missingWord;
+                      const isSelected = opt === sentenceState.answered;
+                      let bg = "white", border = "#E8DDD0", color = "#1A1208";
+                      if (sentenceState.answered) {
+                        if (isCorrect) { bg = "#EAFAF1"; border = "#27AE60"; color = "#1A6B3C"; }
+                        else if (isSelected) { bg = "#FDEDEC"; border = "#E74C3C"; color = "#C0392B"; }
+                      }
+                      return (
+                        <button key={i} className="btn-hover" onClick={() => !sentenceState.answered && answerSentence(opt)}
+                          style={{ padding: "18px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 16, fontWeight: 500, cursor: sentenceState.answered ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                          {isCorrect && sentenceState.answered ? "✓ " : isSelected && !isCorrect ? "✗ " : ""}{opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {sentenceState.answered && (
+                    <div className="fade-up" style={{ marginTop: 24, background: "#F5E6C8", borderRadius: 16, padding: 20, borderLeft: `4px solid ${dialect.color}` }}>
+                      <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.7 }}>
+                        <strong>Explanation:</strong> {sentenceState.questions[sentenceState.q]?.explanation}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ textAlign: "center" }} className="fade-up">
+                  <div style={{ fontSize: 72, marginBottom: 16 }}>{sentenceState.score >= 4 ? "🎉" : sentenceState.score >= 2 ? "👍" : "📚"}</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>
+                    {sentenceState.score} / {sentenceState.questions.length}
+                  </div>
+                  <div style={{ fontSize: 18, color: "#8B7355", marginBottom: 8, fontStyle: "italic" }}>
+                    {sentenceState.score >= 4 ? "Excellent! 做得好！" : sentenceState.score >= 2 ? "Good effort! Keep practising!" : "Keep learning! 继续加油！"}
+                  </div>
+                  <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 24 }}>
+                    <button className="btn-hover" onClick={startSentenceExercise}
+                      style={{ background: dialect.color, color: "white", border: "none", padding: "14px 28px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                      Try Again
+                    </button>
+                    <button className="btn-hover" onClick={() => setLearnMode("flashcards")}
+                      style={{ background: "white", color: "#1A1208", border: "2px solid #E8DDD0", padding: "14px 28px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
+                      Back to Flashcards
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
