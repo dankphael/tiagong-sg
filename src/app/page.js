@@ -1663,24 +1663,6 @@ const singlishPhrases = [
 ];
 
 
-const networkMembers = [
-  { id: 1, name: "Mdm Tan Ah Lian", age: 68, dialects: ["Hokkien", "Teochew"], level: "Native Speaker", location: "Bedok", bio: "Grew up speaking Hokkien at home, want to share with younger folks!", avatar: "👵", interests: ["cooking", "gardening", "mahjong"] },
-  { id: 2, name: "Kevin Lim", age: 24, dialects: ["Cantonese"], level: "Beginner", location: "Tampines", bio: "My grandma speaks Cantonese but I never learnt it. Hoping to connect with her better.", avatar: "👦", interests: ["gaming", "food", "music"] },
-  { id: 3, name: "Priya Shankar", age: 31, dialects: ["Hokkien", "Hakka"], level: "Intermediate", location: "Jurong", bio: "Married into a Hokkien family — learning the dialect to feel closer to my in-laws!", avatar: "👩", interests: ["reading", "travel", "photography"] },
-  { id: 4, name: "Uncle Henry Ong", age: 72, dialects: ["Teochew"], level: "Native Speaker", location: "Toa Payoh", bio: "Retired hawker, Teochew kway teow seller for 40 years. Happy to teach dialect and share stories.", avatar: "👴", interests: ["hawker food", "tai chi", "Chinese opera"] },
-  { id: 5, name: "Samantha Goh", age: 19, dialects: ["Hainanese"], level: "Beginner", location: "Yishun", bio: "Poly student studying heritage and culture — learning Hainanese as part of my roots project.", avatar: "👧", interests: ["art", "history", "baking"] },
-  { id: 6, name: "Desmond Chua", age: 45, dialects: ["Hokkien", "Cantonese"], level: "Intermediate", location: "Clementi", bio: "Can understand bits of Hokkien from my parents but never spoke it fluently. Time to change that!", avatar: "🧑", interests: ["cycling", "coffee", "family"] },
-  { id: 7, name: "Auntie Rose Chan", age: 60, dialects: ["Cantonese", "Hakka"], level: "Native Speaker", location: "Geylang", bio: "Cantonese opera enthusiast. Would love to find others who appreciate the dialect arts.", avatar: "👩‍🦳", interests: ["opera", "calligraphy", "dim sum"] },
-  { id: 8, name: "Marcus Ng", age: 28, dialects: ["Teochew", "Hokkien"], level: "Beginner", location: "Punggol", bio: "Both my parents speak different dialects — trying to learn both to bridge the family gap.", avatar: "🧑", interests: ["tech", "sports", "travel"] },
-];
-
-const sinSehMentors = [
-  { id: 1, name: "Mdm Wong Siew Lin", age: 70, dialects: ["Hokkien", "Teochew"], experience: "50+ years", location: "Ang Mo Kio", bio: "Born in Fujian, I have spoken Hokkien my whole life. I want to ensure the younger generation can keep this dialect alive.", avatar: "👵", availability: "Weekday mornings", slots: 3, style: "Conversational, story-based learning", badge: "Top Rated" },
-  { id: 2, name: "Mr Lau Ah Kow", age: 65, dialects: ["Cantonese"], experience: "40+ years", location: "Chinatown", bio: "Former Cantonese opera performer. I teach dialect through songs, stories and culture — not just vocabulary.", avatar: "👴", availability: "Weekend afternoons", slots: 2, style: "Arts & culture approach", badge: "Cultural Expert" },
-  { id: 3, name: "Auntie Mei Fong", age: 58, dialects: ["Hainanese", "Hokkien"], experience: "30+ years", location: "Telok Blangah", bio: "Hainanese chicken rice recipe passed down five generations. I teach dialect alongside food culture.", avatar: "👩‍🦳", availability: "Flexible", slots: 5, style: "Food & daily life vocabulary", badge: "Community Favourite" },
-  { id: 4, name: "Mr Tan Bak Chye", age: 74, dialects: ["Teochew", "Hakka"], experience: "60+ years", location: "Geylang", bio: "Retired school principal. Patient, structured teacher. I adapt my lessons to your pace and learning goals.", avatar: "👴", availability: "Tuesday & Thursday evenings", slots: 4, style: "Structured, beginner-friendly", badge: "Most Patient" },
-  { id: 5, name: "Mdm Koh Geok Eng", age: 62, dialects: ["Hakka"], experience: "35+ years", location: "Bukit Timah", bio: "Hakka is a minority dialect even among dialects — I am passionate about preserving it before it truly disappears.", avatar: "👵", availability: "Weekend mornings", slots: 2, style: "Immersive conversation", badge: "Rare Dialect" },
-];
 
 const categories = [
   { id: "greetings", label: "Greetings", icon: "👋" },
@@ -1705,15 +1687,65 @@ export default function DialectPlatform() {
   const [disFlipped, setDisFlipped] = useState(false);
   const [disExpanded, setDisExpanded] = useState(null);
   const [networkFilter, setNetworkFilter] = useState("All");
-  const [connectModal, setConnectModal] = useState(null);
   const [applyModal, setApplyModal] = useState(null);
   const [applyForm, setApplyForm] = useState({ name: "", age: "", dialect: "Hokkien", location: "", message: "" });
   const [mentorForm, setMentorForm] = useState({ name: "", age: "", dialect: "Hokkien", location: "", experience: "", bio: "" });
   const [submitted, setSubmitted] = useState(false);
   const [mentorSubmitted, setMentorSubmitted] = useState(false);
-  const [connectedMembers, setConnectedMembers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [connectRequests, setConnectRequests] = useState([]);
+  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" });
+  const [profileEditMode, setProfileEditMode] = useState(false);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
+
+  function registerUser() {
+    if (!profileForm.firstName || !profileForm.email) return;
+    const existing = registeredUsers.find(u => u.email === profileForm.email);
+    if (existing) {
+      setCurrentUser(existing);
+      setProfileEditMode(false);
+      return;
+    }
+    const newUser = {
+      id: Date.now(),
+      ...profileForm,
+      avatar: profileForm.role === "mentor" ? "👨‍🏫" : "🧑‍🎓",
+      sinSehApplied: false,
+    };
+    setRegisteredUsers(prev => [...prev, newUser]);
+    setCurrentUser(newUser);
+    setProfileEditMode(false);
+  }
+
+  function switchUser(user) {
+    setCurrentUser(user);
+  }
+
+  function applySinSeh() {
+    if (!currentUser) return;
+    const updated = { ...currentUser, sinSehApplied: true };
+    setCurrentUser(updated);
+    setRegisteredUsers(prev => prev.map(u => u.id === currentUser.id ? updated : u));
+  }
+
+  function sendConnectRequest(targetUserId) {
+    if (!currentUser || currentUser.id === targetUserId) return;
+    setConnectRequests(prev => {
+      if (prev.some(r => r.from === currentUser.id && r.to === targetUserId)) return prev;
+      return [...prev, { from: currentUser.id, to: targetUserId }];
+    });
+  }
+
+  function hasSentRequest(targetUserId) {
+    return connectRequests.some(r => r.from === currentUser?.id && r.to === targetUserId);
+  }
+
+  function isMutualMatch(targetUserId) {
+    return hasSentRequest(targetUserId) &&
+      connectRequests.some(r => r.from === targetUserId && r.to === currentUser?.id);
+  }
   const cards = selectedDialect && lessons[selectedDialect]?.[selectedCategory] || [];
 
   function selectDialect(id) {
@@ -1803,9 +1835,9 @@ export default function DialectPlatform() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          {[["home","Learn"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"]].map(([s,label]) => (
+          {[["home","Learn"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"],["profile","Profile"]].map(([s,label]) => (
             <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
-              {label}
+              {label}{s === "profile" && currentUser ? ` (${currentUser.firstName})` : ""}
             </span>
           ))}
           {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
@@ -2281,59 +2313,89 @@ export default function DialectPlatform() {
           {networkTab === "community" && (
             <div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 32 }}>
-                {["All","Hokkien","Cantonese","Teochew","Hakka","Hainanese","Beginner","Intermediate","Native Speaker"].map(f => (
+                {["All", "Mentor", "Mentee"].map(f => (
                   <button key={f} className="tab-btn" onClick={() => setNetworkFilter(f)}
                     style={{ padding: "8px 16px", borderRadius: 20, background: networkFilter === f ? "#C0392B" : "white", color: networkFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (networkFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: networkFilter === f ? 600 : 400 }}>
                     {f}
                   </button>
                 ))}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-                {networkMembers.filter(m => networkFilter === "All" || m.dialects.includes(networkFilter) || m.level === networkFilter).map(m => {
-                  const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
-                  const isConnected = connectedMembers.includes(m.id);
-                  return (
-                    <div key={m.id} style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: "1px solid #F0E8DA", display: "flex", flexDirection: "column", gap: 12 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                          <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{m.name}</div>
-                            <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} - {m.location}</div>
+
+              {registeredUsers.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>🌱</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
+                  <p style={{ fontSize: 14, marginBottom: 24 }}>Be the first to join the community and connect with dialect learners across Singapore.</p>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+                  {registeredUsers
+                    .filter(m => networkFilter === "All" || m.role === networkFilter.toLowerCase())
+                    .map(m => {
+                      const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+                      const isCurrentUser = currentUser?.id === m.id;
+                      const mutual = isMutualMatch(m.id);
+                      const pending = hasSentRequest(m.id);
+                      const dialectColor = dColors[m.languageInterest] || "#8B7355";
+                      return (
+                        <div key={m.id} style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: "1px solid " + (mutual ? "#1A6B3C40" : "#F0E8DA"), display: "flex", flexDirection: "column", gap: 12 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                              <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                              <div>
+                                <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
+                                <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 11, background: m.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: m.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                              {m.role}
+                            </div>
                           </div>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
+                          </div>
+                          {mutual ? (
+                            <div style={{ marginTop: 4, padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
+                              Connected · <span style={{ fontWeight: 400 }}>{m.email}</span>
+                            </div>
+                          ) : isCurrentUser ? (
+                            <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#9B8B75", fontSize: 13, textAlign: "center" }}>
+                              This is you
+                            </div>
+                          ) : !currentUser ? (
+                            <button className="btn-hover" onClick={() => setScreen("profile")}
+                              style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                              Register to Connect
+                            </button>
+                          ) : pending ? (
+                            <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
+                              Request Sent ✓
+                            </div>
+                          ) : (
+                            <button className="btn-hover" onClick={() => sendConnectRequest(m.id)}
+                              style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                              Send Connect Request
+                            </button>
+                          )}
                         </div>
-                        <div style={{ fontSize: 11, background: m.level === "Native Speaker" ? "#FEF3E2" : m.level === "Intermediate" ? "#EAF6EC" : "#EEF2FF", color: m.level === "Native Speaker" ? "#D4860B" : m.level === "Intermediate" ? "#1A6B3C" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 600 }}>
-                          {m.level}
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.6, margin: 0 }}>{m.bio}</p>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {m.dialects.map(d => <span key={d} style={{ fontSize: 11, background: dColors[d] + "18", color: dColors[d], padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{d}</span>)}
-                      </div>
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {m.interests.map(i => <span key={i} style={{ fontSize: 11, color: "#9B8B75", background: "#F5F0EA", padding: "3px 8px", borderRadius: 8 }}>#{i}</span>)}
-                      </div>
-                      <button className="btn-hover" onClick={() => !isConnected && setConnectModal(m)}
-                        style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: isConnected ? "#EAFAF1" : "#1A1208", color: isConnected ? "#1A6B3C" : "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: isConnected ? "default" : "pointer" }}>
-                        {isConnected ? "Connected!" : "Connect"}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                </div>
+              )}
+
               <div style={{ marginTop: 48, background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "40px 32px", textAlign: "center" }}>
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#F5E6C8", marginBottom: 8 }}>Add yourself to the community</div>
-                <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Let others find you as a practice partner across Singapore.</p>
-                <button className="btn-hover" onClick={() => setConnectModal({ join: true })}
+                <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Register your profile to appear as a member and connect with learners across Singapore.</p>
+                <button className="btn-hover" onClick={() => setScreen("profile")}
                   style={{ background: "#C0392B", color: "white", border: "none", padding: "14px 36px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
-                  Join the Network
+                  {currentUser ? "View Your Profile" : "Join the Network"}
                 </button>
               </div>
             </div>
           )}
           {networkTab === "sinseh" && (
             <div>
-              <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 36, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+              <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 24, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
                 <div style={{ fontSize: 56 }}>🎓</div>
                 <div>
                   <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
@@ -2341,6 +2403,37 @@ export default function DialectPlatform() {
                   <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.7, maxWidth: 560 }}>Our volunteer mentors are native speakers who give their time freely. Apply as a mentee, or volunteer as a sin seh yourself.</p>
                 </div>
               </div>
+
+              {currentUser ? (
+                <div style={{ background: currentUser.role === "mentor" ? "#FEF3E2" : "#EEF2FF", borderRadius: 14, padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", border: "1px solid " + (currentUser.role === "mentor" ? "#D4860B40" : "#5B21B640") }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", marginBottom: 4 }}>
+                      {currentUser.role === "mentor" ? "You are registered as a Mentor" : "You are registered as a Mentee"}
+                    </div>
+                    <div style={{ fontSize: 13, color: "#6B5B45" }}>
+                      {currentUser.role === "mentor" ? "Share your dialect knowledge by volunteering as a Sin Seh." : "Find a native speaker to guide your dialect learning journey."}
+                    </div>
+                    {currentUser.sinSehApplied && <div style={{ fontSize: 12, color: "#1A6B3C", fontWeight: 600, marginTop: 4 }}>Application submitted ✓</div>}
+                  </div>
+                  {!currentUser.sinSehApplied ? (
+                    <button className="btn-hover" onClick={() => { applySinSeh(); setSinSehTab(currentUser.role === "mentor" ? "apply-mentor" : "apply-mentee"); }}
+                      style={{ padding: "12px 24px", borderRadius: 10, background: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>
+                      {currentUser.role === "mentor" ? "Apply to Mentor Others" : "Apply for Mentor"}
+                    </button>
+                  ) : (
+                    <div style={{ padding: "12px 24px", borderRadius: 10, background: "#EAFAF1", color: "#1A6B3C", fontSize: 14, fontWeight: 600, border: "1px solid #1A6B3C40" }}>Applied ✓</div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ background: "#FAF6F0", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, border: "1px dashed #D4C9B8" }}>
+                  <div style={{ fontSize: 13, color: "#8B7355" }}>Register your profile to access role-based mentorship features.</div>
+                  <button className="btn-hover" onClick={() => setScreen("profile")}
+                    style={{ padding: "10px 20px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    Register Profile
+                  </button>
+                </div>
+              )}
+
               <div style={{ display: "flex", gap: 8, marginBottom: 32, flexWrap: "wrap" }}>
                 {[["mentors","Find a Sin Seh"],["apply-mentee","Apply as Mentee"],["apply-mentor","Volunteer as Sin Seh"]].map(([tab, label]) => (
                   <button key={tab} className="tab-btn" onClick={() => { setSinSehTab(tab); setSubmitted(false); setMentorSubmitted(false); }}
@@ -2349,42 +2442,46 @@ export default function DialectPlatform() {
                   </button>
                 ))}
               </div>
-              {sinSehTab === "mentors" && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 24 }}>
-                  {sinSehMentors.map(m => {
-                    const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
-                    const bColors = { "Top Rated": "#D4860B", "Cultural Expert": "#8E44AD", "Community Favourite": "#C0392B", "Most Patient": "#1A6B3C", "Rare Dialect": "#1A7EA6" };
-                    return (
-                      <div key={m.id} style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", display: "flex", flexDirection: "column", gap: 14 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+              {sinSehTab === "mentors" && (() => {
+                const mentors = registeredUsers.filter(u => u.role === "mentor");
+                const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+                return mentors.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>👨‍🏫</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No mentors yet</div>
+                    <p style={{ fontSize: 14, marginBottom: 24 }}>Be the first to volunteer as a Sin Seh and help preserve Singapore's dialect heritage.</p>
+                    <button className="btn-hover" onClick={() => setSinSehTab("apply-mentor")}
+                      style={{ background: "#C0392B", color: "white", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
+                      Volunteer as Sin Seh
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+                    {mentors.map(m => {
+                      const dialectColor = dColors[m.languageInterest] || "#8B7355";
+                      return (
+                        <div key={m.id} style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", display: "flex", flexDirection: "column", gap: 14 }}>
                           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
                             <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
                             <div>
-                              <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208" }}>{m.name}</div>
-                              <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} - {m.location}</div>
+                              <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
+                              <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
                             </div>
                           </div>
-                          <div style={{ fontSize: 11, background: (bColors[m.badge] || "#C0392B") + "18", color: bColors[m.badge] || "#C0392B", padding: "4px 10px", borderRadius: 8, fontWeight: 700, height: "fit-content" }}>{m.badge}</div>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <span style={{ fontSize: 12, background: dialectColor + "18", color: dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
+                            {m.sinSehApplied && <span style={{ fontSize: 11, background: "#EAFAF1", color: "#1A6B3C", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Sin Seh Volunteer</span>}
+                          </div>
+                          <button className="btn-hover" onClick={() => { setSinSehTab("apply-mentee"); setApplyModal(m); }}
+                            style={{ padding: "12px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                            Apply to learn from {m.firstName}
+                          </button>
                         </div>
-                        <p style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.6, margin: 0 }}>{m.bio}</p>
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                          {m.dialects.map(d => <span key={d} style={{ fontSize: 12, background: dColors[d] + "18", color: dColors[d], padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{d}</span>)}
-                        </div>
-                        <div style={{ background: "#FAF6F0", borderRadius: 12, padding: "12px 16px", fontSize: 13, display: "flex", flexDirection: "column", gap: 6 }}>
-                          <div style={{ color: "#6B5B45" }}><strong>Availability:</strong> {m.availability}</div>
-                          <div style={{ color: "#6B5B45" }}><strong>Style:</strong> {m.style}</div>
-                          <div style={{ color: "#6B5B45" }}><strong>Experience:</strong> {m.experience}</div>
-                          <div style={{ color: m.slots > 0 ? "#1A6B3C" : "#C0392B", fontWeight: 600 }}>{m.slots > 0 ? m.slots + " mentee slot" + (m.slots > 1 ? "s" : "") + " available" : "Fully booked"}</div>
-                        </div>
-                        <button className="btn-hover" onClick={() => { setSinSehTab("apply-mentee"); setApplyModal(m); }}
-                          style={{ padding: "12px", borderRadius: 10, background: m.slots > 0 ? "#1A1208" : "#E8DDD0", color: m.slots > 0 ? "#F5E6C8" : "#9B8B75", border: "none", fontSize: 14, fontWeight: 600, cursor: m.slots > 0 ? "pointer" : "default" }}>
-                          {m.slots > 0 ? "Apply to learn from " + m.name.split(" ")[0] : "Fully Booked"}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                );
+              })()}
               {sinSehTab === "apply-mentee" && (
                 <div style={{ maxWidth: 600, margin: "0 auto" }}>
                   {applyModal && (
@@ -2392,8 +2489,8 @@ export default function DialectPlatform() {
                       <div style={{ fontSize: 32 }}>{applyModal.avatar}</div>
                       <div>
                         <div style={{ fontSize: 13, color: "#8B6020", fontWeight: 600 }}>Applying to learn from:</div>
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#1A1208" }}>{applyModal.name}</div>
-                        <div style={{ fontSize: 12, color: "#9B8B75" }}>{applyModal.dialects.join(", ")} - {applyModal.location}</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#1A1208" }}>{applyModal.firstName} {applyModal.lastName}</div>
+                        <div style={{ fontSize: 12, color: "#9B8B75" }}>{applyModal.languageInterest}</div>
                       </div>
                       <button onClick={() => setApplyModal(null)} style={{ marginLeft: "auto", background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#9B8B75" }}>x</button>
                     </div>
@@ -2495,43 +2592,128 @@ export default function DialectPlatform() {
         </div>
       )}
 
-      {connectModal && !connectModal.join && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 24 }} onClick={e => { if(e.target===e.currentTarget) setConnectModal(null); }}>
-          <div style={{ background: "white", borderRadius: 24, padding: 36, maxWidth: 440, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }} className="fade-up">
-            <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ fontSize: 56, marginBottom: 8 }}>{connectModal.avatar}</div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>Connect with {connectModal.name.split(" ")[0]}?</div>
-              <p style={{ color: "#8B7355", fontSize: 14, marginTop: 8 }}>A connection request will be sent so you can arrange a practice session.</p>
-            </div>
-            <div style={{ background: "#FAF6F0", borderRadius: 12, padding: 16, marginBottom: 24, fontSize: 14, color: "#6B5B45", lineHeight: 2 }}>
-              <div>{connectModal.name}, Age {connectModal.age}</div>
-              <div>{connectModal.location}</div>
-              <div>{connectModal.dialects.join(", ")} - {connectModal.level}</div>
-            </div>
-            <div style={{ display: "flex", gap: 12 }}>
-              <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
-              <button className="btn-hover" onClick={() => { setConnectedMembers(prev => [...prev, connectModal.id]); setConnectModal(null); }} style={{ flex: 1, padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Send Request</button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {connectModal && connectModal.join && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 24 }} onClick={e => { if(e.target===e.currentTarget) setConnectModal(null); }}>
-          <div style={{ background: "white", borderRadius: 24, padding: 36, maxWidth: 440, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.3)" }} className="fade-up">
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Join the Network</div>
-            <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Create your learner profile so others can find and connect with you.</p>
-            {[["Your Name","text"],["Age","number"],["Town / Estate","text"]].map(([ph, type]) => (
-              <input key={ph} type={type} placeholder={ph} style={{ display: "block", width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", marginBottom: 12, background: "#FAF6F0" }} />
-            ))}
-            <select style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", marginBottom: 20, background: "#FAF6F0" }}>
-              {["Hokkien","Cantonese","Teochew","Hakka","Hainanese"].map(d => <option key={d}>{d}</option>)}
-            </select>
-            <div style={{ display: "flex", gap: 12 }}>
-              <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button>
-              <button className="btn-hover" onClick={() => setConnectModal(null)} style={{ flex: 1, padding: "12px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Join!</button>
-            </div>
+      {screen === "profile" && (
+        <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 24px" }} className="fade-up">
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
+            <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Your Account</div>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, color: "#1A1208", marginBottom: 12 }}>Profile</h1>
           </div>
+
+          {currentUser && !profileEditMode ? (
+            <div className="fade-up">
+              <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                  <div style={{ fontSize: 56, background: "#FAF6F0", borderRadius: "50%", width: 72, height: 72, display: "flex", alignItems: "center", justifyContent: "center" }}>{currentUser.avatar}</div>
+                  <div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>{currentUser.firstName} {currentUser.lastName}</div>
+                    <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 2 }}>{currentUser.occupation} · Age {currentUser.age}</div>
+                    <div style={{ display: "inline-block", marginTop: 6, fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "3px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 14, color: "#6B5B45" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
+                    <span style={{ fontWeight: 600 }}>Email</span><span>{currentUser.email}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
+                    <span style={{ fontWeight: 600 }}>Language Interest</span><span>{currentUser.languageInterest}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0" }}>
+                    <span style={{ fontWeight: 600 }}>SinSeh Programme</span>
+                    <span style={{ color: currentUser.sinSehApplied ? "#1A6B3C" : "#9B8B75" }}>{currentUser.sinSehApplied ? "Applied ✓" : "Not applied"}</span>
+                  </div>
+                </div>
+                <button className="btn-hover" onClick={() => { setProfileForm({ firstName: currentUser.firstName, lastName: currentUser.lastName, age: currentUser.age, occupation: currentUser.occupation, email: currentUser.email, languageInterest: currentUser.languageInterest, role: currentUser.role }); setProfileEditMode(true); }}
+                  style={{ marginTop: 24, width: "100%", padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Edit Profile
+                </button>
+              </div>
+
+              {registeredUsers.length > 1 && (
+                <div style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.05)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#6B5B45", marginBottom: 12 }}>Switch User (Demo)</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {registeredUsers.map(u => (
+                      <button key={u.id} className="btn-hover" onClick={() => switchUser(u)}
+                        style={{ padding: "10px 16px", borderRadius: 10, background: u.id === currentUser.id ? "#1A1208" : "#FAF6F0", color: u.id === currentUser.id ? "#F5E6C8" : "#6B5B45", border: "1px solid " + (u.id === currentUser.id ? "#1A1208" : "#E8DDD0"), fontSize: 13, fontFamily: "inherit", textAlign: "left", cursor: "pointer" }}>
+                        {u.avatar} {u.firstName} {u.lastName} · {u.role}
+                        {u.id === currentUser.id && <span style={{ float: "right", fontSize: 11, color: "#C0392B" }}>Current</span>}
+                      </button>
+                    ))}
+                  </div>
+                  <button className="btn-hover" onClick={() => { setProfileForm({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" }); setProfileEditMode(true); setCurrentUser(null); }}
+                    style={{ marginTop: 12, width: "100%", padding: "10px", background: "white", border: "2px dashed #E8DDD0", borderRadius: 10, fontSize: 13, color: "#8B7355", cursor: "pointer", fontFamily: "inherit" }}>
+                    + Register a new user
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 6 }}>
+                {profileEditMode ? "Edit Your Profile" : "Create Your Profile"}
+              </div>
+              <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 28 }}>
+                {profileEditMode ? "Update your details below." : "Register to join the community and connect with dialect learners and native speakers across Singapore."}
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
+                  ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
+                  <div key={label}>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label} *</label>
+                    <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
+                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                  </div>
+                ))}
+              </div>
+
+              {[["Age", "number", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
+                ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))],
+                ["Email", "email", profileForm.email, v => setProfileForm(f => ({ ...f, email: v }))]].map(([label, type, val, setter]) => (
+                <div key={label} style={{ marginBottom: 16 }}>
+                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}{label === "First Name" || label === "Email" ? " *" : ""}</label>
+                  <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
+                    style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                </div>
+              ))}
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Language to Learn / Speak</label>
+                <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
+                  style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                  {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese", "Hokkien & Teochew", "Cantonese & Hakka", "All Dialects"].map(d => <option key={d}>{d}</option>)}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 28 }}>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I want to join as a</label>
+                <div style={{ display: "flex", gap: 12 }}>
+                  {[["mentee", "🧑‍🎓", "Mentee", "I want to learn dialects"], ["mentor", "👨‍🏫", "Mentor", "I can teach others"]].map(([val, icon, label, sub]) => (
+                    <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
+                      style={{ flex: 1, padding: "16px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                      <div style={{ fontSize: 28, marginBottom: 4 }}>{icon}</div>
+                      <div style={{ fontWeight: 700, fontSize: 15, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
+                      <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 12 }}>
+                {profileEditMode && (
+                  <button className="btn-hover" onClick={() => setProfileEditMode(false)}
+                    style={{ flex: 1, padding: "14px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
+                    Cancel
+                  </button>
+                )}
+                <button className="btn-hover" onClick={registerUser}
+                  style={{ flex: 2, padding: "14px", background: profileForm.firstName && profileForm.email ? "#C0392B" : "#E8DDD0", color: profileForm.firstName && profileForm.email ? "white" : "#9B8B75", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: profileForm.firstName && profileForm.email ? "pointer" : "default", fontFamily: "inherit" }}>
+                  {profileEditMode ? "Save Changes" : "Create Profile"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
