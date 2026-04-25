@@ -1770,45 +1770,53 @@ export default function DialectPlatform() {
   const totalProgress = Object.keys(progress).filter(k => k.startsWith(selectedDialect || "")).length;
 
   return (
-    <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
+    <div style={{ fontFamily: "'Noto Serif SC', 'Cormorant Garamond', Georgia, serif", minHeight: "100vh", background: "linear-gradient(180deg, #FDFBF7 0%, #F5F0E8 100%)", color: "#2D1F1A" }}>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        .card-3d { perspective: 1000px; }
-        .card-inner { transition: transform 0.6s cubic-bezier(.4,2,.6,1); transform-style: preserve-3d; position: relative; }
+        .card-3d { perspective: 1200px; }
+        .card-inner { transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; position: relative; }
         .card-inner.flipped { transform: rotateY(180deg); }
-        .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 20px; }
+        .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
         .card-back { transform: rotateY(180deg); }
-        .btn-hover { transition: all 0.2s; cursor: pointer; }
-        .btn-hover:hover { transform: translateY(-2px); }
-        .dialect-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important; }
-        .dialect-card { transition: all 0.3s cubic-bezier(.4,2,.6,1); cursor: pointer; }
-        .tab-btn { transition: all 0.2s; cursor: pointer; border: none; font-family: inherit; }
-        .nav-link { cursor: pointer; transition: opacity 0.2s; }
-        .nav-link:hover { opacity: 0.7; }
+        .btn-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .btn-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .dialect-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 48px rgba(192,57,43,0.15) !important; }
+        .dialect-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: none; font-family: inherit; }
+        .nav-link { cursor: pointer; transition: all 0.3s ease; position: relative; }
+        .nav-link:hover { opacity: 1; color: #F5E6C8 !important; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #C0392B; transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
         .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; background-size: 200% 100%; }
         @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
-        .fade-up { animation: fadeUp 0.5s ease forwards; }
-        .progress-bar { height: 6px; border-radius: 3px; background: #E8DDD0; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:none} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .float { animation: float 3s ease-in-out infinite; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .progress-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #E8DDD0, #F5E6C8); overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .glow-text { text-shadow: 0 0 20px rgba(245,230,200,0.5); }
+        .gradient-text { background: linear-gradient(135deg, #C0392B, #E74C3C, #F39C12); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
       `}</style>
 
       {/* NAVBAR */}
-      <nav style={{ background: "#1A1208", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid #C0392B" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => setScreen("home")}>
-          <span style={{ fontSize: 28 }}>🏮</span>
+      <nav style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 100%)", padding: "0 40px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 4px 20px rgba(0,0,0,0.3)", borderBottom: "2px solid #C0392B" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, cursor: "pointer" }} onClick={() => setScreen("home")}>
+          <span style={{ fontSize: 36, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }} className="float">🏮</span>
           <div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#F5E6C8", letterSpacing: 1 }}>tiagong.sg</div>
-            <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
+            <div style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', serif", fontSize: 24, fontWeight: 700, color: "#F5E6C8", letterSpacing: 1.5, textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>tiagong.sg</div>
+            <div style={{ fontSize: 9, color: "#E74C3C", letterSpacing: 4, textTransform: "uppercase", fontWeight: 600 }}>Dialect Heritage Singapore</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          {[["home","Learn"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"]].map(([s,label]) => (
-            <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
+        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+          {[["home","Learn"],["singlish","Dialects in Singlish"],["network","Community"],["about","About"]].map(([s,label]) => (
+            <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#B8A692", fontSize: 14, letterSpacing: 1.5, fontWeight: screen === s ? 600 : 400, textTransform: "uppercase" }}>
               {label}
             </span>
           ))}
-          {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
+          {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: dialect?.color, fontSize: 14, fontStyle: "italic", fontWeight: 600 }}>{dialect?.name} ›</span>}
         </div>
       </nav>
 
