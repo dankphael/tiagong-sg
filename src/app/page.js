@@ -2165,6 +2165,10 @@ export default function DialectPlatform() {
   const [connectRequests, setConnectRequests] = useState([]);
   const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" });
   const [profileEditMode, setProfileEditMode] = useState(false);
+  const [situationalScore, setSituationalScore] = useState(0);
+  const [sentenceScore, setSentenceScore] = useState(0);
+  const [knownCards, setKnownCards] = useState({});
+  const [completionData, setCompletionData] = useState(null);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
 
@@ -2392,177 +2396,310 @@ export default function DialectPlatform() {
 
       {/* LESSON */}
       {screen === "lesson" && dialect && (
-        <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
-          {/* Dialect Header */}
-          <div style={{ background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "32px", marginBottom: 32, display: "flex", alignItems: "center", gap: 24 }}>
-            <div style={{ fontSize: 56 }}>{dialect.icon}</div>
-            <div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>{dialect.name}</div>
-              <div style={{ fontSize: 24, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
-              <div style={{ fontSize: 12, color: "#8B7355", marginTop: 4 }}>📍 {dialect.origin}</div>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px" }} className="fade-up">
+
+          {/* Dialect Header — compact */}
+          <div style={{ background: `linear-gradient(135deg, ${dialect.color}18, ${dialect.color}08)`, border: `1.5px solid ${dialect.color}30`, borderRadius: 16, padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ fontSize: 40 }}>{dialect.icon}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208" }}>{dialect.name}</div>
+              <div style={{ fontSize: 18, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
             </div>
+            <button className="btn-hover" onClick={() => setScreen("dialect")}
+              style={{ background: "white", border: "1.5px solid #E8DDD0", borderRadius: 10, padding: "8px 14px", fontSize: 12, color: "#6B5B45", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+              ← Back
+            </button>
           </div>
 
-          {/* Learning Mode Tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 32, flexWrap: "wrap", justifyContent: "center" }}>
-            {[["flashcards", "📇 Flashcards"], ["situational-quiz", "🎭 Situational Quiz"], ["completing-sentence", "✏️ Completing Sentence"]].map(([mode, label]) => (
-              <button key={mode} className="tab-btn" onClick={() => { setLessonMode(mode); setCardIndex(0); setSituationalQuizIndex(0); setSituationalCueIndex(0); setSentenceIndex(0); setSelectedAnswer(null); setQuizShowResult(false); }}
-                style={{ padding: "11px 18px", borderRadius: 10, background: lessonMode === mode ? dialect.color : "white", color: lessonMode === mode ? "white" : "#6B5B45", fontSize: 13, fontWeight: 600, border: `2px solid ${lessonMode === mode ? dialect.color : "#E8DDD0"}` }}>
-                {label}
+          {/* Mode Selector — card grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 32 }}>
+            {[
+              { mode: "flashcards", icon: "📇", label: "Flashcards", desc: "Tap to flip & learn" },
+              { mode: "situational-quiz", icon: "🎭", label: "Story Quiz", desc: "Real-life scenarios" },
+              { mode: "completing-sentence", icon: "✏️", label: "Fill in Blank", desc: "Complete sentences" }
+            ].map(({ mode, icon, label, desc }) => (
+              <button key={mode} className="tab-btn" onClick={() => {
+                setLessonMode(mode);
+                setCardIndex(0); setSituationalQuizIndex(0); setSituationalCueIndex(0); setSentenceIndex(0);
+                setSelectedAnswer(null); setQuizShowResult(false);
+                setSituationalScore(0); setSentenceScore(0); setCompletionData(null);
+              }} style={{
+                padding: "14px 10px", borderRadius: 14,
+                background: lessonMode === mode ? dialect.color : "white",
+                color: lessonMode === mode ? "white" : "#6B5B45",
+                border: `2px solid ${lessonMode === mode ? dialect.color : "#E8DDD0"}`,
+                textAlign: "center", boxShadow: lessonMode === mode ? `0 4px 16px ${dialect.color}40` : "none"
+              }}>
+                <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 13 }}>{label}</div>
+                <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{desc}</div>
               </button>
             ))}
           </div>
 
-          {/* FLASHCARDS MODE */}
+          {/* ─── FLASHCARDS ─── */}
           {lessonMode === "flashcards" && (
             <div>
-              {/* Category Tabs */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
+              {/* Category tabs */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
                 {categories.map(cat => {
                   const key = `${selectedDialect}-${cat.id}`;
                   const done = progress[key];
+                  const knownCount = Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${cat.id}-`)).length;
+                  const total = lessons[selectedDialect]?.[cat.id]?.length || 0;
                   return (
                     <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
-                      style={{ flex: 1, padding: "12px 8px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 13, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, position: "relative" }}>
-                      {cat.icon} {cat.label} {done && <span style={{ marginLeft: 4 }}>✓</span>}
+                      style={{ flex: 1, padding: "10px 6px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}` }}>
+                      <div>{cat.icon} {cat.label}</div>
+                      <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{knownCount}/{total} known {done ? "✓" : ""}</div>
                     </button>
                   );
                 })}
               </div>
 
-              {/* Progress */}
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontSize: 13, color: "#8B7355" }}>
-                <span>Card {cardIndex + 1} of {cards.length}</span>
-                <span style={{ color: dialect.color }}>{Math.round(((cardIndex + 1) / cards.length) * 100)}%</span>
+              {/* Progress bar */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12, color: "#8B7355" }}>
+                <span>Card {cardIndex + 1} / {cards.length}</span>
+                <span style={{ color: dialect.color, fontWeight: 600 }}>
+                  {Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${selectedCategory}-`)).length} known
+                </span>
               </div>
-              <div className="progress-bar" style={{ marginBottom: 32 }}>
+              <div className="progress-bar" style={{ marginBottom: 24 }}>
                 <div className="progress-fill" style={{ width: `${((cardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
               </div>
 
               {/* Flashcard */}
-              <div className="card-3d" style={{ height: 280, marginBottom: 24 }} onClick={() => setFlipped(!flipped)}>
+              <div className="card-3d" style={{ height: 260, marginBottom: 20 }} onClick={() => setFlipped(!flipped)}>
                 <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
-                  {/* Front */}
-                  <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                    <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", marginBottom: 16 }}>Tap to reveal</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
+                  <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
+                    <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
                       {cards[cardIndex]?.phrase}
                     </div>
-                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 28, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
+                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
                       {cards[cardIndex]?.chinese}
                     </div>
-                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 8, fontStyle: "italic" }}>
                       /{cards[cardIndex]?.romanisation}/
                     </div>
                   </div>
-                  {/* Back */}
-                  <div className="card-face card-back" style={{ background: "#F5E6C8", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}` }}>
-                    <div style={{ fontSize: 11, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 16 }}>Meaning</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 42, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 24px" }}>
+                  <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20 }}>
+                    <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 14 }}>Meaning</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 24px" }}>
                       {cards[cardIndex]?.meaning}
                     </div>
-                    <div style={{ fontSize: 13, color: "#8B7355", marginTop: 16, fontStyle: "italic", textAlign: "center", padding: "0 32px" }}>
-                      Romanisation: <strong>{cards[cardIndex]?.romanisation}</strong>
+                    <div style={{ fontSize: 13, color: dialect.color, marginTop: 12, fontWeight: 600 }}>
+                      {cards[cardIndex]?.romanisation}
+                    </div>
+                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 20, color: "#8B7355", marginTop: 6 }}>
+                      {cards[cardIndex]?.chinese}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Nav Buttons */}
-              <div style={{ display: "flex", gap: 12, marginBottom: 32 }}>
-                <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
-                  style={{ flex: 1, padding: "14px", background: cardIndex === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 16, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208" }}>
-                  ← Prev
-                </button>
-                <button className="btn-hover" onClick={nextCard}
-                  style={{ flex: 1, padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer" }}>
-                  {cardIndex < cards.length - 1 ? "Next →" : "✓ Complete!"}
-                </button>
-              </div>
+              {/* Know it / Still learning + nav */}
+              {flipped ? (
+                <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+                  <button className="btn-hover" onClick={() => {
+                    const key = `${selectedDialect}-${selectedCategory}-${cardIndex}`;
+                    setKnownCards(prev => { const n = { ...prev }; delete n[key]; return n; });
+                    setFlipped(false);
+                    setTimeout(() => setCardIndex(c => Math.max(0, c - 1)), 150);
+                  }} style={{ flex: 1, padding: "13px", background: "#FDEDEC", border: "2px solid #E74C3C", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#C0392B", cursor: "pointer", fontFamily: "inherit" }}>
+                    ↺ Review Again
+                  </button>
+                  <button className="btn-hover" onClick={() => {
+                    const key = `${selectedDialect}-${selectedCategory}-${cardIndex}`;
+                    setKnownCards(prev => ({ ...prev, [key]: true }));
+                    setFlipped(false);
+                    setTimeout(() => {
+                      if (cardIndex < cards.length - 1) {
+                        setCardIndex(c => c + 1);
+                      } else {
+                        setProgress(p => ({ ...p, [`${selectedDialect}-${selectedCategory}`]: true }));
+                        setCardIndex(0);
+                      }
+                    }, 150);
+                  }} style={{ flex: 2, padding: "13px", background: "#EAFAF1", border: "2px solid #27AE60", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#1A6B3C", cursor: "pointer", fontFamily: "inherit" }}>
+                    ✓ Know it!
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+                  <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
+                    style={{ flex: 1, padding: "13px", background: cardIndex === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208", fontFamily: "inherit" }}>
+                    ← Prev
+                  </button>
+                  <button className="btn-hover" onClick={nextCard}
+                    style={{ flex: 2, padding: "13px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    {cardIndex < cards.length - 1 ? "Next →" : "↺ Restart"}
+                  </button>
+                </div>
+              )}
 
-              {/* Mode CTA */}
-              <div style={{ background: "#1A1208", borderRadius: 16, padding: 24, textAlign: "center" }}>
-                <div style={{ color: "#F5E6C8", fontSize: 16, marginBottom: 8, fontFamily: "'Cormorant Garamond', serif" }}>Ready for more advanced learning?</div>
-                <div style={{ color: "#8B7355", fontSize: 13, marginBottom: 16 }}>Try Situational Quizzes or Completing Sentences</div>
-                <button className="btn-hover" onClick={() => setLessonMode("situational-quiz")}
-                  style={{ background: dialect.color, color: "white", border: "none", padding: "12px 32px", borderRadius: 8, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
-                  Try Situational Quiz →
+              {/* Bottom CTA */}
+              <div style={{ background: "#1A1208", borderRadius: 14, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                <div>
+                  <div style={{ color: "#F5E6C8", fontSize: 15, fontFamily: "'Cormorant Garamond', serif" }}>Ready for a challenge?</div>
+                  <div style={{ color: "#6B5B45", fontSize: 12, marginTop: 2 }}>Test yourself with story scenarios</div>
+                </div>
+                <button className="btn-hover" onClick={() => { setLessonMode("situational-quiz"); setSituationalScore(0); setCompletionData(null); }}
+                  style={{ background: dialect.color, color: "white", border: "none", padding: "10px 22px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit", fontWeight: 600, whiteSpace: "nowrap" }}>
+                  Try Story Quiz →
                 </button>
               </div>
             </div>
           )}
 
-          {/* SITUATIONAL QUIZ MODE */}
+          {/* ─── SITUATIONAL QUIZ ─── */}
           {lessonMode === "situational-quiz" && (
             <div>
               {(() => {
                 const quizzes = situationalQuizzes[selectedDialect] || [];
-                if (quizzes.length === 0) return <div style={{ textAlign: "center", padding: "40px", color: "#8B7355" }}>No situational quizzes available for this dialect yet.</div>;
+                if (quizzes.length === 0) return <div style={{ textAlign: "center", padding: "40px", color: "#8B7355" }}>No quizzes available for this dialect yet.</div>;
                 const quiz = quizzes[situationalQuizIndex];
+                const totalScenes = quiz.cues.length;
+
+                // Completion screen
+                if (completionData?.mode === "situational-quiz") {
+                  const pct = Math.round((completionData.score / completionData.total) * 100);
+                  const grade = pct >= 80 ? { label: "Excellent!", color: "#1A6B3C", bg: "#EAFAF1", icon: "🏆" }
+                    : pct >= 60 ? { label: "Good job!", color: "#8E44AD", bg: "#F5EEF8", icon: "⭐" }
+                    : { label: "Keep practising!", color: "#E67E22", bg: "#FEF9E7", icon: "💪" };
+                  return (
+                    <div style={{ textAlign: "center" }} className="fade-up">
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>{grade.icon}</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Story Complete!</h2>
+                      <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32 }}>{quiz.title}</p>
+                      <div style={{ background: grade.bg, border: `2px solid ${grade.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32 }}>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "'Cormorant Garamond', serif" }}>{completionData.score}<span style={{ fontSize: 28 }}>/{completionData.total}</span></div>
+                        <div style={{ fontSize: 20, color: grade.color, fontWeight: 700, marginTop: 4 }}>{grade.label}</div>
+                        <div style={{ fontSize: 14, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                        <button className="btn-hover" onClick={() => {
+                          setSituationalQuizIndex(0); setSituationalCueIndex(0); setSelectedAnswer(null);
+                          setQuizShowResult(false); setSituationalScore(0); setCompletionData(null);
+                        }} style={{ padding: "12px 24px", background: "white", border: `2px solid ${dialect.color}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: dialect.color, cursor: "pointer", fontFamily: "inherit" }}>
+                          ↺ Try Again
+                        </button>
+                        <button className="btn-hover" onClick={() => { setLessonMode("completing-sentence"); setSentenceScore(0); setCompletionData(null); }}
+                          style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          Try Fill in Blank →
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 const cue = quiz.cues[situationalCueIndex];
                 return (
                   <div>
-                    <div style={{ textAlign: "center", marginBottom: 32 }}>
-                      <div style={{ fontSize: 13, color: "#8B7355", marginBottom: 8 }}>Scenario {situationalQuizIndex + 1} of {quizzes.length}</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>{quiz.title}</h2>
-                      <p style={{ color: "#6B5B45", fontSize: 14 }}>{quiz.story}</p>
-                    </div>
-                    <div className="progress-bar" style={{ marginBottom: 32 }}>
-                      <div className="progress-fill" style={{ width: `${((situationalQuizIndex + 1) / quizzes.length) * 100}%`, background: dialect.color }} />
-                    </div>
-
-                    {/* Cue Context */}
-                    <div style={{ background: "#F5ECD8", borderRadius: 14, padding: 20, marginBottom: 24, border: `2px solid ${dialect.color}40` }}>
-                      <div style={{ fontSize: 13, color: "#8B6020", fontWeight: 700, marginBottom: 8 }}>📍 What should you say?</div>
-                      <div style={{ fontSize: 16, color: "#1A1208", fontStyle: "italic" }}>{cue.context}</div>
+                    {/* Header: score + progress */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                      <div style={{ fontSize: 13, color: "#6B5B45" }}>
+                        <span style={{ fontWeight: 700, color: "#1A1208" }}>{quiz.title}</span>
+                      </div>
+                      <div style={{ background: `${dialect.color}18`, border: `1.5px solid ${dialect.color}40`, borderRadius: 20, padding: "4px 14px", fontSize: 13, fontWeight: 700, color: dialect.color }}>
+                        {situationalScore} / {situationalCueIndex} ✓
+                      </div>
                     </div>
 
-                    {/* Dialogue Options */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
+                    {/* Scene progress dots */}
+                    <div style={{ display: "flex", gap: 5, marginBottom: 24, alignItems: "center" }}>
+                      {quiz.cues.map((_, i) => (
+                        <div key={i} style={{
+                          flex: i === situationalCueIndex ? 3 : 1,
+                          height: 8, borderRadius: 4,
+                          background: i < situationalCueIndex ? dialect.color : i === situationalCueIndex ? dialect.color : "#E8DDD0",
+                          opacity: i < situationalCueIndex ? 0.45 : 1,
+                          transition: "all 0.35s ease"
+                        }} />
+                      ))}
+                    </div>
+
+                    {/* Scene badge + context */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `${dialect.color}15`, border: `1.5px solid ${dialect.color}35`, borderRadius: 20, padding: "4px 12px", marginBottom: 12 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: dialect.color, textTransform: "uppercase", letterSpacing: 1 }}>Scene {situationalCueIndex + 1} of {totalScenes}</span>
+                      </div>
+                      <div style={{ background: "#F9F5EE", borderRadius: 14, padding: "18px 20px", border: `2px solid ${dialect.color}25` }}>
+                        <div style={{ fontSize: 12, color: "#9B8B75", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}>💬 WHAT WOULD YOU SAY?</div>
+                        <div style={{ fontSize: 15, color: "#1A1208", lineHeight: 1.6 }}>{cue.context}</div>
+                      </div>
+                    </div>
+
+                    {/* Result feedback banner */}
+                    {quizShowResult && (
+                      <div style={{
+                        background: cue.dialogues[selectedAnswer]?.correct ? "#EAFAF1" : "#FDEDEC",
+                        border: `2px solid ${cue.dialogues[selectedAnswer]?.correct ? "#27AE60" : "#E74C3C"}`,
+                        borderRadius: 12, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10
+                      }}>
+                        <span style={{ fontSize: 22 }}>{cue.dialogues[selectedAnswer]?.correct ? "✅" : "❌"}</span>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: cue.dialogues[selectedAnswer]?.correct ? "#1A6B3C" : "#C0392B" }}>
+                            {cue.dialogues[selectedAnswer]?.correct ? "Correct!" : "Not quite."}
+                          </div>
+                          {!cue.dialogues[selectedAnswer]?.correct && (
+                            <div style={{ fontSize: 12, color: "#6B5B45", marginTop: 2 }}>
+                              Correct: <strong>{cue.dialogues.find(d => d.correct)?.phrase}</strong> — "{cue.dialogues.find(d => d.correct)?.meaning}"
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dialogue options */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
                       {cue.dialogues.map((dialogue, idx) => {
                         const isSelected = selectedAnswer === idx;
                         const isCorrect = dialogue.correct;
-                        let bg = "white", border = "#E8DDD0", color = "#1A1208";
+                        let bg = "white", border = "#E8DDD0", color = "#1A1208", shadow = "none";
+                        if (!quizShowResult && isSelected) { border = dialect.color; bg = `${dialect.color}12`; shadow = `0 2px 8px ${dialect.color}30`; }
                         if (quizShowResult) {
                           if (isCorrect) { bg = "#EAFAF1"; border = "#27AE60"; color = "#1A6B3C"; }
                           else if (isSelected) { bg = "#FDEDEC"; border = "#E74C3C"; color = "#C0392B"; }
                         }
                         return (
                           <button key={idx} className="btn-hover" onClick={() => !quizShowResult && setSelectedAnswer(idx)}
-                            style={{ padding: "14px 16px", background: bg, border: `2px solid ${border}`, borderRadius: 10, fontSize: 14, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
-                            <div style={{ fontWeight: 700 }}>{dialogue.phrase}</div>
-                            <div style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>"{dialogue.meaning}"</div>
-                            {quizShowResult && isCorrect && <span style={{ float: "right", fontSize: 16 }}>✓</span>}
-                            {quizShowResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 16 }}>✗</span>}
+                            style={{ padding: "14px 16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s", boxShadow: shadow }}>
+                            <div style={{ fontWeight: 700, marginBottom: 3 }}>{dialogue.phrase}</div>
+                            <div style={{ fontSize: 12, opacity: 0.65 }}>"{dialogue.meaning}"</div>
+                            {quizShowResult && isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✓</span>}
+                            {quizShowResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✗</span>}
                           </button>
                         );
                       })}
                     </div>
 
-                    {/* Next/Result Button */}
+                    {/* Action button */}
                     {!quizShowResult ? (
-                      <button className="btn-hover" onClick={() => setQuizShowResult(true)} disabled={selectedAnswer === null}
-                        style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "#9B8B75", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
+                      <button className="btn-hover" onClick={() => {
+                        const correct = cue.dialogues[selectedAnswer]?.correct;
+                        if (correct) setSituationalScore(s => s + 1);
+                        setQuizShowResult(true);
+                      }} disabled={selectedAnswer === null}
+                        style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "#9B8B75", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
                         Check Answer
                       </button>
                     ) : (
                       <button className="btn-hover" onClick={() => {
-                        if (situationalCueIndex < quiz.cues.length - 1) {
-                          setSituationalCueIndex(situationalCueIndex + 1);
-                          setSelectedAnswer(null);
-                          setQuizShowResult(false);
-                        } else if (situationalQuizIndex < quizzes.length - 1) {
-                          setSituationalQuizIndex(situationalQuizIndex + 1);
-                          setSituationalCueIndex(0);
-                          setSelectedAnswer(null);
-                          setQuizShowResult(false);
+                        const isLastCue = situationalCueIndex >= quiz.cues.length - 1;
+                        const isLastScenario = situationalQuizIndex >= quizzes.length - 1;
+                        if (!isLastCue) {
+                          setSituationalCueIndex(c => c + 1);
+                          setSelectedAnswer(null); setQuizShowResult(false);
+                        } else if (!isLastScenario) {
+                          setSituationalQuizIndex(i => i + 1);
+                          setSituationalCueIndex(0); setSelectedAnswer(null); setQuizShowResult(false);
                         } else {
-                          alert("🎉 Congratulations! You completed all situational quizzes!");
-                          setLessonMode("flashcards");
+                          setCompletionData({ mode: "situational-quiz", score: situationalScore, total: totalScenes });
                         }
                       }}
-                        style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {situationalCueIndex < quiz.cues.length - 1 ? "Next Dialogue →" : situationalQuizIndex < quizzes.length - 1 ? "Next Scenario →" : "✓ All Complete!"}
+                        style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        {situationalCueIndex < quiz.cues.length - 1 ? "Next Scene →" : situationalQuizIndex < quizzes.length - 1 ? "Next Story →" : "View Results →"}
                       </button>
                     )}
                   </div>
@@ -2571,78 +2708,160 @@ export default function DialectPlatform() {
             </div>
           )}
 
-          {/* COMPLETING SENTENCE MODE */}
+          {/* ─── COMPLETING SENTENCE ─── */}
           {lessonMode === "completing-sentence" && (
             <div>
               {(() => {
                 const exercises = sentenceCompletion[selectedDialect] || [];
                 if (exercises.length === 0) return <div style={{ textAlign: "center", padding: "40px", color: "#8B7355" }}>No exercises available yet.</div>;
+
+                // Completion screen
+                if (completionData?.mode === "completing-sentence") {
+                  const pct = Math.round((completionData.score / completionData.total) * 100);
+                  const grade = pct >= 80 ? { label: "Excellent!", color: "#1A6B3C", bg: "#EAFAF1", icon: "🏆" }
+                    : pct >= 60 ? { label: "Good job!", color: "#8E44AD", bg: "#F5EEF8", icon: "⭐" }
+                    : { label: "Keep practising!", color: "#E67E22", bg: "#FEF9E7", icon: "💪" };
+                  return (
+                    <div style={{ textAlign: "center" }} className="fade-up">
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>{grade.icon}</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>All Done!</h2>
+                      <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32 }}>Fill in the Blank — {dialect.name}</p>
+                      <div style={{ background: grade.bg, border: `2px solid ${grade.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32 }}>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "'Cormorant Garamond', serif" }}>{completionData.score}<span style={{ fontSize: 28 }}>/{completionData.total}</span></div>
+                        <div style={{ fontSize: 20, color: grade.color, fontWeight: 700, marginTop: 4 }}>{grade.label}</div>
+                        <div style={{ fontSize: 14, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                        <button className="btn-hover" onClick={() => {
+                          setSentenceIndex(0); setSelectedAnswer(null); setQuizShowResult(false);
+                          setSentenceScore(0); setCompletionData(null);
+                        }} style={{ padding: "12px 24px", background: "white", border: `2px solid ${dialect.color}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: dialect.color, cursor: "pointer", fontFamily: "inherit" }}>
+                          ↺ Try Again
+                        </button>
+                        <button className="btn-hover" onClick={() => { setLessonMode("flashcards"); setCompletionData(null); }}
+                          style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          Back to Flashcards
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 const exercise = exercises[sentenceIndex];
+                const parts = exercise.sentence.split("___");
+                const selectedWord = selectedAnswer !== null ? exercise.options[selectedAnswer] : null;
+
                 return (
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, fontSize: 13, color: "#8B7355" }}>
-                      <span>Question {sentenceIndex + 1} of {exercises.length}</span>
-                      <span style={{ color: dialect.color, fontWeight: 600 }}>Duolingo Style</span>
-                    </div>
-                    <div className="progress-bar" style={{ marginBottom: 32 }}>
-                      <div className="progress-fill" style={{ width: `${((sentenceIndex + 1) / exercises.length) * 100}%`, background: dialect.color }} />
-                    </div>
-
-                    {/* Sentence with Blank */}
-                    <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: 36, textAlign: "center", marginBottom: 32 }}>
-                      <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", marginBottom: 16, textTransform: "uppercase" }}>Fill in the blank</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 40, fontWeight: 700, color: "white", lineHeight: 1.6 }}>
-                        {exercise.sentence.split("___").map((part, idx) => (
-                          <span key={idx}>
-                            {part}
-                            {idx < exercise.sentence.split("___").length - 1 && <span style={{ background: "rgba(255,255,255,0.3)", borderRadius: 6, padding: "2px 8px", margin: "0 4px", display: "inline-block", width: 40, height: 32, textAlign: "center" }}>?</span>}
-                          </span>
-                        ))}
+                    {/* Header */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                      <div style={{ fontSize: 13, color: "#6B5B45" }}>
+                        <span style={{ fontWeight: 700, color: "#1A1208" }}>Question {sentenceIndex + 1}</span> of {exercises.length}
+                      </div>
+                      <div style={{ background: `${dialect.color}18`, border: `1.5px solid ${dialect.color}40`, borderRadius: 20, padding: "4px 14px", fontSize: 13, fontWeight: 700, color: dialect.color }}>
+                        {sentenceScore} / {sentenceIndex} ✓
                       </div>
                     </div>
 
+                    {/* Progress */}
+                    <div className="progress-bar" style={{ marginBottom: 24 }}>
+                      <div className="progress-fill" style={{ width: `${(sentenceIndex / exercises.length) * 100}%`, background: dialect.color }} />
+                    </div>
+
+                    {/* Sentence card */}
+                    <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
+                      <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Fill in the blank</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.8, flexWrap: "wrap" }}>
+                        {parts.map((part, idx) => (
+                          <span key={idx}>
+                            {part}
+                            {idx < parts.length - 1 && (
+                              <span style={{
+                                display: "inline-block", minWidth: 60, padding: "2px 10px", margin: "0 6px",
+                                background: quizShowResult
+                                  ? (selectedAnswer === exercise.correctIndex ? "rgba(39,174,96,0.6)" : "rgba(231,76,60,0.6)")
+                                  : (selectedWord ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)"),
+                                border: "2px dashed rgba(255,255,255,0.6)",
+                                borderRadius: 8, textAlign: "center",
+                                color: "white", transition: "all 0.2s"
+                              }}>
+                                {selectedWord || "?"}
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                      {quizShowResult && (
+                        <div style={{ marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.8)", fontStyle: "italic" }}>
+                          "{exercise.meaning}"
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Result feedback */}
+                    {quizShowResult && (
+                      <div style={{
+                        background: selectedAnswer === exercise.correctIndex ? "#EAFAF1" : "#FDEDEC",
+                        border: `2px solid ${selectedAnswer === exercise.correctIndex ? "#27AE60" : "#E74C3C"}`,
+                        borderRadius: 12, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10
+                      }}>
+                        <span style={{ fontSize: 22 }}>{selectedAnswer === exercise.correctIndex ? "✅" : "❌"}</span>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: selectedAnswer === exercise.correctIndex ? "#1A6B3C" : "#C0392B" }}>
+                            {selectedAnswer === exercise.correctIndex ? "Correct!" : "Not quite."}
+                          </div>
+                          {selectedAnswer !== exercise.correctIndex && (
+                            <div style={{ fontSize: 12, color: "#6B5B45", marginTop: 2 }}>
+                              Answer: <strong>{exercise.options[exercise.correctIndex]}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Options */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 28 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
                       {exercise.options.map((opt, idx) => {
                         const isSelected = selectedAnswer === idx;
                         const isCorrect = idx === exercise.correctIndex;
-                        let bg = "white", border = "#E8DDD0", color = "#1A1208";
+                        let bg = "white", border = "#E8DDD0", color = "#1A1208", shadow = "none";
+                        if (!quizShowResult && isSelected) { border = dialect.color; bg = `${dialect.color}12`; shadow = `0 2px 8px ${dialect.color}30`; }
                         if (quizShowResult) {
                           if (isCorrect) { bg = "#EAFAF1"; border = "#27AE60"; color = "#1A6B3C"; }
                           else if (isSelected) { bg = "#FDEDEC"; border = "#E74C3C"; color = "#C0392B"; }
                         }
                         return (
                           <button key={idx} className="btn-hover" onClick={() => !quizShowResult && setSelectedAnswer(idx)}
-                            style={{ padding: "16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", transition: "all 0.2s" }}>
+                            style={{ padding: "15px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", transition: "all 0.2s", boxShadow: shadow, position: "relative" }}>
                             {opt}
-                            {quizShowResult && isCorrect && <span style={{ marginLeft: 8 }}>✓</span>}
-                            {quizShowResult && isSelected && !isCorrect && <span style={{ marginLeft: 8 }}>✗</span>}
+                            {quizShowResult && isCorrect && <span style={{ position: "absolute", top: 6, right: 8, fontSize: 14 }}>✓</span>}
+                            {quizShowResult && isSelected && !isCorrect && <span style={{ position: "absolute", top: 6, right: 8, fontSize: 14 }}>✗</span>}
                           </button>
                         );
                       })}
                     </div>
 
-                    {quizShowResult && <div style={{ fontSize: 13, color: "#6B5B45", marginBottom: 20, textAlign: "center", fontStyle: "italic" }}>Meaning: {exercise.meaning}</div>}
-
-                    {/* Next Button */}
+                    {/* Action button */}
                     {!quizShowResult ? (
-                      <button className="btn-hover" onClick={() => setQuizShowResult(true)} disabled={selectedAnswer === null}
-                        style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "#9B8B75", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
-                        Check
+                      <button className="btn-hover" onClick={() => {
+                        const correct = selectedAnswer === exercise.correctIndex;
+                        if (correct) setSentenceScore(s => s + 1);
+                        setQuizShowResult(true);
+                      }} disabled={selectedAnswer === null}
+                        style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "#9B8B75", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
+                        Check Answer
                       </button>
                     ) : (
                       <button className="btn-hover" onClick={() => {
                         if (sentenceIndex < exercises.length - 1) {
-                          setSentenceIndex(sentenceIndex + 1);
-                          setSelectedAnswer(null);
-                          setQuizShowResult(false);
+                          setSentenceIndex(i => i + 1);
+                          setSelectedAnswer(null); setQuizShowResult(false);
                         } else {
-                          alert("🎉 Congratulations! You completed all exercises!");
-                          setLessonMode("flashcards");
+                          setCompletionData({ mode: "completing-sentence", score: sentenceScore, total: exercises.length });
                         }
                       }}
-                        style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {sentenceIndex < exercises.length - 1 ? "Next →" : "✓ All Complete!"}
+                        style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        {sentenceIndex < exercises.length - 1 ? "Next →" : "View Results →"}
                       </button>
                     )}
                   </div>
