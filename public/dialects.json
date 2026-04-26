@@ -1,0 +1,74 @@
+{
+  "dialects": [
+    {
+      "id": "hokkien",
+      "name": "Hokkien",
+      "chinese": "福建话",
+      "region": "Fujian Province",
+      "speakers_sg": "~40%",
+      "romanization_systems": [
+        "poj",
+        "ipa"
+      ],
+      "color": "#C0392B",
+      "iso_639_3": "nan",
+      "notes": null
+    },
+    {
+      "id": "cantonese",
+      "name": "Cantonese",
+      "chinese": "广东话",
+      "region": "Guangdong Province",
+      "speakers_sg": "~17%",
+      "romanization_systems": [
+        "jyutping",
+        "ipa"
+      ],
+      "color": "#8E44AD",
+      "iso_639_3": "yue",
+      "notes": null
+    },
+    {
+      "id": "teochew",
+      "name": "Teochew",
+      "chinese": "潮州话",
+      "region": "Chaozhou, Guangdong",
+      "speakers_sg": "~22%",
+      "romanization_systems": [
+        "poj",
+        "ipa"
+      ],
+      "color": "#1A6B3C",
+      "iso_639_3": "nan",
+      "notes": null
+    },
+    {
+      "id": "hakka",
+      "name": "Hakka",
+      "chinese": "客家话",
+      "region": "Various southern provinces",
+      "speakers_sg": "~7%",
+      "romanization_systems": [
+        "ipa"
+      ],
+      "color": "#D4860B",
+      "iso_639_3": "hak",
+      "notes": null
+    },
+    {
+      "id": "hainanese",
+      "name": "Hainanese",
+      "chinese": "海南话",
+      "region": "Hainan Island",
+      "speakers_sg": "~7%",
+      "romanization_systems": [
+        "ipa"
+      ],
+      "color": "#1A7EA6",
+      "iso_639_3": "nan",
+      "notes": null
+    }
+  ],
+  "version": "1.0",
+  "last_updated": "2026-04-26T04:11:52.321882"
+}

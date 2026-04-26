@@ -2231,9 +2231,9 @@ export default function DialectPlatform() {
   }, [searchQuery]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/v1/words?limit=2000")
-      .then(r => r.ok ? r.json() : [])
-      .then(data => Array.isArray(data) ? setApiWords(data) : setApiWords([]))
+    fetch("/dictionary.json")
+      .then(r => r.json())
+      .then(data => setApiWords(data.words || []))
       .catch(() => {});
   }, []);
 
