@@ -2176,6 +2176,7 @@ export default function DialectPlatform() {
   const [searchDifficulty, setSearchDifficulty] = useState("all");
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
+  const [searchSort, setSearchSort] = useState("relevance");
   const [apiWords, setApiWords] = useState([]);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
@@ -2231,7 +2232,7 @@ export default function DialectPlatform() {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchDifficulty]);
+  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchDifficulty, searchSort]);
 
   useEffect(() => {
     fetch("/dictionary.json")
@@ -2333,7 +2334,7 @@ export default function DialectPlatform() {
     });
   }
   const q = searchDebouncedQuery.toLowerCase().trim();
-  const filteredPhrases = allPhrases.filter(p => {
+  let filteredPhrases = allPhrases.filter(p => {
     if (!searchDialects.includes(p.dialect)) return false;
     if (searchCategory !== "all" && p.category !== searchCategory) return false;
     if (searchDifficulty !== "all" && p.difficulty !== searchDifficulty) return false;
@@ -2345,6 +2346,10 @@ export default function DialectPlatform() {
       p.phrase.toLowerCase().includes(q)
     );
   });
+
+  if (searchSort === "a-z") filteredPhrases.sort((a, b) => a.phrase.localeCompare(b.phrase));
+  else if (searchSort === "z-a") filteredPhrases.sort((a, b) => b.phrase.localeCompare(a.phrase));
+  else if (searchSort === "frequency") filteredPhrases.sort((a, b) => (b.frequency || 0) - (a.frequency || 0));
 
   return (
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
@@ -3004,7 +3009,7 @@ export default function DialectPlatform() {
           </div>
 
           {/* Active filter chips */}
-          {(searchDialects.length < 5 || searchCategory !== "all" || searchDifficulty !== "all") && (
+          {(searchDialects.length < 5 || searchCategory !== "all" || searchDifficulty !== "all" || searchSort !== "relevance") && (
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 16 }}>
               <span style={{ fontSize: 12, color: "#8B7355", fontWeight: 600 }}>Active:</span>
               {searchDialects.length < 5 && searchDialects.map(id => {
@@ -3030,7 +3035,13 @@ export default function DialectPlatform() {
                   <button onClick={() => setSearchDifficulty("all")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
                 </span>
               )}
-              <button onClick={() => { setSearchDialects(["hokkien","cantonese","teochew","hakka","hainanese"]); setSearchCategory("all"); setSearchDifficulty("all"); }}
+              {searchSort !== "relevance" && (
+                <span style={{ background: "#F5EFE6", border: "1.5px solid #D4B896", borderRadius: 20, padding: "3px 10px 3px 10px", fontSize: 12, color: "#6B5B45", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  Sort: {searchSort === "a-z" ? "A – Z" : searchSort === "z-a" ? "Z – A" : "Most Common"}
+                  <button onClick={() => setSearchSort("relevance")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
+                </span>
+              )}
+              <button onClick={() => { setSearchDialects(["hokkien","cantonese","teochew","hakka","hainanese"]); setSearchCategory("all"); setSearchDifficulty("all"); setSearchSort("relevance"); }}
                 style={{ background: "none", border: "1.5px solid #E8DDD0", borderRadius: 20, padding: "3px 12px", fontSize: 12, color: "#8B7355", cursor: "pointer", fontFamily: "inherit" }}>
                 Clear all
               </button>
@@ -3101,7 +3112,7 @@ export default function DialectPlatform() {
               </div>
 
               {/* Difficulty filter */}
-              <div>
+              <div style={{ marginBottom: 22 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Difficulty</div>
                 {[["all","All levels",""],["beginner","Beginner","🟢"],["intermediate","Intermediate","🟡"],["advanced","Advanced","🔴"]].map(([v,label,dot]) => (
                   <button key={v} onClick={() => setSearchDifficulty(v)}
@@ -3112,6 +3123,18 @@ export default function DialectPlatform() {
                     {v === "beginner" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Greetings</span>}
                     {v === "intermediate" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Food</span>}
                     {v === "advanced" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Numbers</span>}
+                  </button>
+                ))}
+              </div>
+
+              {/* Sort */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Sort By</div>
+                {[["relevance","Relevance"],["a-z","A – Z"],["z-a","Z – A"],["frequency","Most Common"]].map(([v,label]) => (
+                  <button key={v} onClick={() => setSearchSort(v)}
+                    role="radio" aria-checked={searchSort === v}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchSort === v ? "#1A1208" : "transparent", color: searchSort === v ? "#F5E6C8" : "#6B5B45", border: searchSort === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchSort === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                    {label}
                   </button>
                 ))}
               </div>
