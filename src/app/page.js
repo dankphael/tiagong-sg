@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const dialects = [
   {
@@ -2169,6 +2169,12 @@ export default function DialectPlatform() {
   const [sentenceScore, setSentenceScore] = useState(0);
   const [knownCards, setKnownCards] = useState({});
   const [completionData, setCompletionData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
+  const [searchDialects, setSearchDialects] = useState(["hokkien","cantonese","teochew","hakka","hainanese"]);
+  const [searchCategory, setSearchCategory] = useState("all");
+  const [searchDifficulty, setSearchDifficulty] = useState("all");
+  const [searchFilterOpen, setSearchFilterOpen] = useState(false);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
 
@@ -2218,6 +2224,11 @@ export default function DialectPlatform() {
     return hasSentRequest(targetUserId) &&
       connectRequests.some(r => r.from === targetUserId && r.to === currentUser?.id);
   }
+  useEffect(() => {
+    const t = setTimeout(() => setSearchDebouncedQuery(searchQuery), 250);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
   const cards = selectedDialect && lessons[selectedDialect]?.[selectedCategory] || [];
 
   function selectDialect(id) {
@@ -2273,6 +2284,39 @@ export default function DialectPlatform() {
 
   const totalProgress = Object.keys(progress).filter(k => k.startsWith(selectedDialect || "")).length;
 
+  // Build flat, searchable phrase database across all dialects
+  const difficultyMap = { greetings: "beginner", food: "intermediate", numbers: "advanced" };
+  const allPhrases = [];
+  for (const [dialectId, dialectData] of Object.entries(lessons)) {
+    const dialectInfo = dialects.find(d => d.id === dialectId);
+    for (const [category, phrases] of Object.entries(dialectData)) {
+      for (const p of phrases) {
+        allPhrases.push({
+          ...p,
+          dialect: dialectId,
+          dialectName: dialectInfo?.name || dialectId,
+          dialectColor: dialectInfo?.color || "#666",
+          dialectIcon: dialectInfo?.icon || "",
+          category,
+          difficulty: difficultyMap[category] || "beginner",
+        });
+      }
+    }
+  }
+  const q = searchDebouncedQuery.toLowerCase().trim();
+  const filteredPhrases = allPhrases.filter(p => {
+    if (!searchDialects.includes(p.dialect)) return false;
+    if (searchCategory !== "all" && p.category !== searchCategory) return false;
+    if (searchDifficulty !== "all" && p.difficulty !== searchDifficulty) return false;
+    if (!q) return true;
+    return (
+      p.meaning.toLowerCase().includes(q) ||
+      p.romanisation.toLowerCase().includes(q) ||
+      p.chinese.includes(q) ||
+      p.phrase.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
       <style>{`
@@ -2295,6 +2339,18 @@ export default function DialectPlatform() {
         .fade-up { animation: fadeUp 0.5s ease forwards; }
         .progress-bar { height: 6px; border-radius: 3px; background: #E8DDD0; overflow: hidden; }
         .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .search-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; }
+        .search-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .search-filter-panel { position: sticky; top: 80px; }
+        .search-input:focus { border-color: #C0392B !important; box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
+        .result-card:hover { border-color: #C0B09A !important; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        @media (max-width: 700px) {
+          .search-layout { grid-template-columns: 1fr; }
+          .search-results-grid { grid-template-columns: 1fr; }
+          .search-filter-panel { position: static; }
+          .search-mobile-toggle { display: flex !important; }
+          .search-filter-hidden { display: none; }
+        }
       `}</style>
 
       {/* NAVBAR */}
@@ -2307,7 +2363,7 @@ export default function DialectPlatform() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          {[["home","Learn"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"],["profile","Profile"]].map(([s,label]) => (
+          {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["about","About"],["profile","Profile"]].map(([s,label]) => (
             <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
               {label}{s === "profile" && currentUser ? ` (${currentUser.firstName})` : ""}
             </span>
@@ -2869,6 +2925,228 @@ export default function DialectPlatform() {
               })()}
             </div>
           )}
+        </div>
+      )}
+
+      {/* SEARCH */}
+      {screen === "search" && (
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px" }} className="fade-up">
+
+          {/* Page header */}
+          <div style={{ marginBottom: 24 }}>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 38, fontWeight: 700, color: "#1A1208", marginBottom: 6 }}>
+              Search All Dialects
+            </h1>
+            <p style={{ color: "#6B5B45", fontSize: 14 }}>
+              Search across Hokkien, Cantonese, Teochew, Hakka and Hainanese simultaneously
+            </p>
+          </div>
+
+          {/* Search bar */}
+          <div style={{ position: "relative", marginBottom: 16 }}>
+            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 18, pointerEvents: "none" }}>🔍</span>
+            <input
+              className="search-input"
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search meanings, romanisation, or Chinese characters in any dialect…"
+              aria-label="Search all dialects"
+              style={{ width: "100%", padding: "15px 48px", borderRadius: 14, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "white", outline: "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
+            />
+            {searchQuery && (
+              <button onClick={() => { setSearchQuery(""); setSearchDebouncedQuery(""); }}
+                aria-label="Clear search"
+                style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "#E8DDD0", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 13, color: "#6B5B45", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Active filter chips */}
+          {(searchDialects.length < 5 || searchCategory !== "all" || searchDifficulty !== "all") && (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 16 }}>
+              <span style={{ fontSize: 12, color: "#8B7355", fontWeight: 600 }}>Active:</span>
+              {searchDialects.length < 5 && searchDialects.map(id => {
+                const info = dialects.find(d => d.id === id);
+                return (
+                  <span key={id} style={{ background: `${info.color}18`, border: `1.5px solid ${info.color}55`, borderRadius: 20, padding: "3px 10px 3px 8px", fontSize: 12, color: info.color, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    {info.icon} {info.name}
+                    <button onClick={() => setSearchDialects(prev => prev.filter(x => x !== id))}
+                      aria-label={`Remove ${info.name} filter`}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: info.color, fontSize: 14, padding: "0 0 0 2px", lineHeight: 1 }}>×</button>
+                  </span>
+                );
+              })}
+              {searchCategory !== "all" && (
+                <span style={{ background: "#F5EFE6", border: "1.5px solid #D4B896", borderRadius: 20, padding: "3px 10px 3px 10px", fontSize: 12, color: "#6B5B45", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  {searchCategory.charAt(0).toUpperCase() + searchCategory.slice(1)}
+                  <button onClick={() => setSearchCategory("all")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
+                </span>
+              )}
+              {searchDifficulty !== "all" && (
+                <span style={{ background: "#F5EFE6", border: "1.5px solid #D4B896", borderRadius: 20, padding: "3px 10px 3px 10px", fontSize: 12, color: "#6B5B45", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  {searchDifficulty.charAt(0).toUpperCase() + searchDifficulty.slice(1)}
+                  <button onClick={() => setSearchDifficulty("all")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
+                </span>
+              )}
+              <button onClick={() => { setSearchDialects(["hokkien","cantonese","teochew","hakka","hainanese"]); setSearchCategory("all"); setSearchDifficulty("all"); }}
+                style={{ background: "none", border: "1.5px solid #E8DDD0", borderRadius: 20, padding: "3px 12px", fontSize: 12, color: "#8B7355", cursor: "pointer", fontFamily: "inherit" }}>
+                Clear all
+              </button>
+            </div>
+          )}
+
+          {/* Mobile filter toggle */}
+          <button onClick={() => setSearchFilterOpen(o => !o)}
+            style={{ display: "none", width: "100%", padding: "12px", background: "white", border: "1.5px solid #E8DDD0", borderRadius: 10, marginBottom: 16, fontSize: 14, fontWeight: 600, color: "#1A1208", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
+            className="search-mobile-toggle">
+            🎛 Filters {searchFilterOpen ? "▲" : "▼"}
+          </button>
+
+          {/* Main layout: sidebar + results */}
+          <div className="search-layout">
+
+            {/* ── Filter sidebar ── */}
+            <div className={`search-filter-panel${searchFilterOpen ? "" : " search-filter-hidden"}`}
+              style={{ background: "white", borderRadius: 16, padding: "20px", border: "1.5px solid #E8DDD0" }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#1A1208", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Filters</div>
+
+              {/* Dialect checkboxes */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Dialect</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {/* Select all / none */}
+                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                    <button onClick={() => setSearchDialects(["hokkien","cantonese","teochew","hakka","hainanese"])}
+                      style={{ fontSize: 11, color: "#C0392B", background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>All</button>
+                    <span style={{ color: "#E8DDD0" }}>|</span>
+                    <button onClick={() => setSearchDialects([])}
+                      style={{ fontSize: 11, color: "#8B7355", background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>None</button>
+                  </div>
+                  {dialects.map(d => (
+                    <label key={d.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 10px", borderRadius: 8, cursor: "pointer", background: searchDialects.includes(d.id) ? `${d.color}0d` : "transparent", transition: "background 0.15s" }}>
+                      <input
+                        type="checkbox"
+                        checked={searchDialects.includes(d.id)}
+                        onChange={() => setSearchDialects(prev => prev.includes(d.id) ? prev.filter(x => x !== d.id) : [...prev, d.id])}
+                        aria-label={`Filter by ${d.name}`}
+                        style={{ accentColor: d.color, width: 15, height: 15, cursor: "pointer" }}
+                      />
+                      <span style={{ fontSize: 16 }}>{d.icon}</span>
+                      <span style={{ fontSize: 13, color: "#1A1208", fontWeight: searchDialects.includes(d.id) ? 600 : 400 }}>{d.name}</span>
+                      {!searchDialects.includes(d.id) && <span style={{ fontSize: 10, color: "#C0B0A0", marginLeft: "auto" }}>off</span>}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category filter */}
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Category</div>
+                {[["all","All categories",""],["greetings","Greetings","👋"],["food","Food & Drink","🍜"],["numbers","Numbers & Time","🔢"]].map(([v,label,icon]) => (
+                  <button key={v} onClick={() => setSearchCategory(v)}
+                    role="radio" aria-checked={searchCategory === v}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchCategory === v ? "#1A1208" : "transparent", color: searchCategory === v ? "#F5E6C8" : "#6B5B45", border: searchCategory === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchCategory === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                    {icon && <span>{icon}</span>}
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Difficulty filter */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Difficulty</div>
+                {[["all","All levels",""],["beginner","Beginner","🟢"],["intermediate","Intermediate","🟡"],["advanced","Advanced","🔴"]].map(([v,label,dot]) => (
+                  <button key={v} onClick={() => setSearchDifficulty(v)}
+                    role="radio" aria-checked={searchDifficulty === v}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchDifficulty === v ? "#1A1208" : "transparent", color: searchDifficulty === v ? "#F5E6C8" : "#6B5B45", border: searchDifficulty === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchDifficulty === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                    {dot && <span style={{ fontSize: 10 }}>{dot}</span>}
+                    {label}
+                    {v === "beginner" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Greetings</span>}
+                    {v === "intermediate" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Food</span>}
+                    {v === "advanced" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Numbers</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Results ── */}
+            <div>
+              {/* Result count */}
+              <div style={{ marginBottom: 14, fontSize: 13, color: "#8B7355", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span>
+                  {filteredPhrases.length === 0
+                    ? "No results found"
+                    : <><strong style={{ color: "#1A1208" }}>{Math.min(filteredPhrases.length, 60)}</strong> of <strong style={{ color: "#1A1208" }}>{filteredPhrases.length}</strong> phrase{filteredPhrases.length !== 1 ? "s" : ""}</>
+                  }
+                  {q && <> for "<em>{q}</em>"</>}
+                </span>
+                {filteredPhrases.length > 0 && !q && !searchCategory && searchDialects.length === 5 && (
+                  <span style={{ fontSize: 12, color: "#C0B0A0" }}>Showing all · use search or filters to narrow</span>
+                )}
+              </div>
+
+              {filteredPhrases.length === 0 ? (
+                /* Empty state */
+                <div style={{ textAlign: "center", padding: "60px 24px", background: "white", borderRadius: 16, border: "1.5px solid #E8DDD0" }}>
+                  <div style={{ fontSize: 52, marginBottom: 16 }}>🔍</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>No matches found</div>
+                  <p style={{ color: "#6B5B45", fontSize: 14, marginBottom: 20 }}>
+                    Try a different word or broaden your dialect and category filters.
+                  </p>
+                  <div style={{ fontSize: 13, color: "#8B7355" }}>
+                    Try: <em>"rice"</em>, <em>"hello"</em>, <em>"thank you"</em>, <em>"morning"</em>, <em>"eat"</em>
+                  </div>
+                  {searchDialects.length === 0 && (
+                    <div style={{ marginTop: 16, fontSize: 13, color: "#C0392B", fontWeight: 600 }}>
+                      ⚠ No dialects selected — check at least one dialect in the filter panel.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="search-results-grid">
+                    {filteredPhrases.slice(0, 60).map((p, i) => (
+                      <div key={i} className="result-card btn-hover"
+                        style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "default", transition: "all 0.2s" }}>
+                        {/* Dialect + category badges */}
+                        <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                          <span style={{ background: `${p.dialectColor}16`, border: `1.5px solid ${p.dialectColor}50`, borderRadius: 20, padding: "3px 10px", fontSize: 11, color: p.dialectColor, fontWeight: 700, letterSpacing: 0.3 }}>
+                            {p.dialectIcon} {p.dialectName}
+                          </span>
+                          <span style={{ background: "#F5EFE6", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#8B7355" }}>
+                            {p.category}
+                          </span>
+                          <span style={{ background: p.difficulty === "beginner" ? "#EAFAF1" : p.difficulty === "intermediate" ? "#FEF9E7" : "#FDEDEC", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: p.difficulty === "beginner" ? "#1A6B3C" : p.difficulty === "intermediate" ? "#8E6000" : "#A93226" }}>
+                            {p.difficulty}
+                          </span>
+                        </div>
+                        {/* Phrase */}
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>
+                          {p.phrase}
+                        </div>
+                        <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 15, color: "#8B7355", marginBottom: 6 }}>
+                          {p.chinese}
+                        </div>
+                        <div style={{ fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 3 }}>
+                          {p.meaning}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic" }}>
+                          /{p.romanisation}/
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {filteredPhrases.length > 60 && (
+                    <div style={{ textAlign: "center", marginTop: 20, padding: "16px", background: "#F5EFE6", borderRadius: 12, fontSize: 13, color: "#6B5B45" }}>
+                      Showing first 60 of <strong>{filteredPhrases.length}</strong> results — refine your search or filters to narrow down.
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
