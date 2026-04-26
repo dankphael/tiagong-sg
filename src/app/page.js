@@ -2550,12 +2550,7 @@ export default function DialectPlatform() {
                 return (
                   <div key={d.id} className="dialect-card" onClick={() => selectDialect(d.id)}
                     style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", border: `1px solid ${d.color}22`, animationDelay: `${i * 0.08}s` }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                      <div style={{ fontSize: 40 }}>{d.icon}</div>
-                      <div style={{ background: d.bg, color: d.color, fontSize: 11, padding: "4px 10px", borderRadius: 20, fontWeight: 600, letterSpacing: 1 }}>
-                        {dialectProgress}/3 done
-                      </div>
-                    </div>
+                    <div style={{ fontSize: 40, marginBottom: 16 }}>{d.icon}</div>
                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>{d.name}</div>
                     <div style={{ fontSize: 22, color: d.color, marginBottom: 12, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
                     <p style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.6, marginBottom: 16 }}>{d.description}</p>
