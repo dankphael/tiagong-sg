@@ -2631,7 +2631,7 @@ export default function DialectPlatform() {
                 const apiOnlyCats = [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.tags?.[0] || "other"))].filter(c => !categories.find(x => x.id === c)).map(c => ({ id: c, label: capitalize(c), icon: apiCatIcons[c] || "📖" }));
                 const allCats = [...categories, ...apiOnlyCats];
                 return (
-                  <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4, justifyContent: "center" }}>
                     {allCats.map(cat => {
                       const key = `${selectedDialect}-${cat.id}`;
                       const done = progress[key];
