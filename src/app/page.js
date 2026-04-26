@@ -2175,6 +2175,7 @@ export default function DialectPlatform() {
   const [searchCategory, setSearchCategory] = useState("all");
   const [searchDifficulty, setSearchDifficulty] = useState("all");
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
+  const [apiWords, setApiWords] = useState([]);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
 
@@ -2229,7 +2230,16 @@ export default function DialectPlatform() {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  const cards = selectedDialect && lessons[selectedDialect]?.[selectedCategory] || [];
+  useEffect(() => {
+    fetch("http://localhost:8000/api/v1/words?limit=2000")
+      .then(r => r.ok ? r.json() : [])
+      .then(data => Array.isArray(data) ? setApiWords(data) : setApiWords([]))
+      .catch(() => {});
+  }, []);
+
+  const toCard = w => ({ phrase: w.headword?.romanized || "", chinese: w.headword?.traditional || "", meaning: w.definitions?.[0]?.english || "", romanisation: w.headword?.romanized || "" });
+  const apiForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === selectedCategory).map(toCard) : [];
+  const cards = [...(selectedDialect && lessons[selectedDialect]?.[selectedCategory] || []), ...apiForCategory];
 
   function selectDialect(id) {
     setSelectedDialect(id);
@@ -2302,6 +2312,22 @@ export default function DialectPlatform() {
         });
       }
     }
+  }
+  for (const word of apiWords) {
+    const dialectInfo = dialects.find(d => d.id === word.dialect);
+    const cat = word.tags?.[0] || "other";
+    allPhrases.push({
+      phrase: word.headword?.romanized || "",
+      chinese: word.headword?.traditional || "",
+      meaning: word.definitions?.[0]?.english || "",
+      romanisation: word.headword?.romanized || "",
+      dialect: word.dialect,
+      dialectName: dialectInfo?.name || word.dialect,
+      dialectColor: dialectInfo?.color || "#666",
+      dialectIcon: dialectInfo?.icon || "",
+      category: cat,
+      difficulty: difficultyMap[cat] || "beginner",
+    });
   }
   const q = searchDebouncedQuery.toLowerCase().trim();
   const filteredPhrases = allPhrases.filter(p => {
@@ -2496,22 +2522,32 @@ export default function DialectPlatform() {
           {/* ─── FLASHCARDS ─── */}
           {lessonMode === "flashcards" && (
             <div>
-              {/* Category tabs */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-                {categories.map(cat => {
-                  const key = `${selectedDialect}-${cat.id}`;
-                  const done = progress[key];
-                  const knownCount = Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${cat.id}-`)).length;
-                  const total = lessons[selectedDialect]?.[cat.id]?.length || 0;
-                  return (
-                    <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
-                      style={{ flex: 1, padding: "10px 6px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}` }}>
-                      <div>{cat.icon} {cat.label}</div>
-                      <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{knownCount}/{total} known {done ? "✓" : ""}</div>
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Category tabs — includes API-sourced categories */}
+              {(() => {
+                const apiCatIcons = { family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋", language:"📖", other:"📖" };
+                const apiOnlyCats = [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.tags?.[0] || "other"))].filter(c => !categories.find(x => x.id === c)).map(c => ({ id: c, label: c.replace(/_/g, " "), icon: apiCatIcons[c] || "📖" }));
+                const allCats = [...categories, ...apiOnlyCats];
+                return (
+                  <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+                    {allCats.map(cat => {
+                      const key = `${selectedDialect}-${cat.id}`;
+                      const done = progress[key];
+                      const knownCount = Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${cat.id}-`)).length;
+                      const staticCount = lessons[selectedDialect]?.[cat.id]?.length || 0;
+                      const apiCount = apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === cat.id).length;
+                      const total = staticCount + apiCount;
+                      return (
+                        <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
+                          style={{ flex: "0 0 auto", padding: "10px 12px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, whiteSpace: "nowrap" }}>
+                          <div>{cat.icon} {cat.label}</div>
+                          <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{knownCount}/{total} known {done ? "✓" : ""}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
 
               {/* Progress bar */}
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12, color: "#8B7355" }}>
@@ -3044,14 +3080,19 @@ export default function DialectPlatform() {
               {/* Category filter */}
               <div style={{ marginBottom: 22 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Category</div>
-                {[["all","All categories",""],["greetings","Greetings","👋"],["food","Food & Drink","🍜"],["numbers","Numbers & Time","🔢"]].map(([v,label,icon]) => (
-                  <button key={v} onClick={() => setSearchCategory(v)}
-                    role="radio" aria-checked={searchCategory === v}
-                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchCategory === v ? "#1A1208" : "transparent", color: searchCategory === v ? "#F5E6C8" : "#6B5B45", border: searchCategory === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchCategory === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
-                    {icon && <span>{icon}</span>}
-                    {label}
-                  </button>
-                ))}
+                {(() => {
+                  const catIcons = { greetings:"👋", food:"🍜", numbers:"🔢", family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋" };
+                  const apiCats = [...new Set(apiWords.map(w => w.tags?.[0] || "other"))].filter(c => !["greetings","food","numbers"].includes(c));
+                  const allSearchCats = [["all","All categories",""], ["greetings","Greetings","👋"], ["food","Food & Drink","🍜"], ["numbers","Numbers","🔢"], ...apiCats.map(c => [c, c.replace(/_/g," "), catIcons[c] || "📖"])];
+                  return allSearchCats.map(([v, label, icon]) => (
+                    <button key={v} onClick={() => setSearchCategory(v)}
+                      role="radio" aria-checked={searchCategory === v}
+                      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchCategory === v ? "#1A1208" : "transparent", color: searchCategory === v ? "#F5E6C8" : "#6B5B45", border: searchCategory === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchCategory === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                      {icon && <span>{icon}</span>}
+                      {label}
+                    </button>
+                  ));
+                })()}
               </div>
 
               {/* Difficulty filter */}
