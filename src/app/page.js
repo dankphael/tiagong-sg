@@ -2524,8 +2524,9 @@ export default function DialectPlatform() {
             <div>
               {/* Category tabs — includes API-sourced categories */}
               {(() => {
+                const capitalize = s => s.split(/[_\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
                 const apiCatIcons = { family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋", language:"📖", other:"📖" };
-                const apiOnlyCats = [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.tags?.[0] || "other"))].filter(c => !categories.find(x => x.id === c)).map(c => ({ id: c, label: c.replace(/_/g, " "), icon: apiCatIcons[c] || "📖" }));
+                const apiOnlyCats = [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.tags?.[0] || "other"))].filter(c => !categories.find(x => x.id === c)).map(c => ({ id: c, label: capitalize(c), icon: apiCatIcons[c] || "📖" }));
                 const allCats = [...categories, ...apiOnlyCats];
                 return (
                   <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
@@ -3016,7 +3017,7 @@ export default function DialectPlatform() {
               })}
               {searchCategory !== "all" && (
                 <span style={{ background: "#F5EFE6", border: "1.5px solid #D4B896", borderRadius: 20, padding: "3px 10px 3px 10px", fontSize: 12, color: "#6B5B45", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  {searchCategory.charAt(0).toUpperCase() + searchCategory.slice(1)}
+                  {searchCategory.split(/[_\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")}
                   <button onClick={() => setSearchCategory("all")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
                 </span>
               )}
@@ -3081,9 +3082,10 @@ export default function DialectPlatform() {
               <div style={{ marginBottom: 22 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Category</div>
                 {(() => {
+                  const capitalize = s => s.split(/[_\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
                   const catIcons = { greetings:"👋", food:"🍜", numbers:"🔢", family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋" };
                   const apiCats = [...new Set(apiWords.map(w => w.tags?.[0] || "other"))].filter(c => !["greetings","food","numbers"].includes(c));
-                  const allSearchCats = [["all","All categories",""], ["greetings","Greetings","👋"], ["food","Food & Drink","🍜"], ["numbers","Numbers","🔢"], ...apiCats.map(c => [c, c.replace(/_/g," "), catIcons[c] || "📖"])];
+                  const allSearchCats = [["all","All categories",""], ["greetings","Greetings","👋"], ["food","Food & Drink","🍜"], ["numbers","Numbers","🔢"], ...apiCats.map(c => [c, capitalize(c), catIcons[c] || "📖"])];
                   return allSearchCats.map(([v, label, icon]) => (
                     <button key={v} onClick={() => setSearchCategory(v)}
                       role="radio" aria-checked={searchCategory === v}
