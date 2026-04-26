@@ -2286,7 +2286,6 @@ export default function DialectPlatform() {
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [searchSort, setSearchSort] = useState("relevance");
-  const [assocPin, setAssocPin] = useState(null);
   const [apiWords, setApiWords] = useState([]);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
@@ -4073,138 +4072,7 @@ export default function DialectPlatform() {
             </div>
           </div>
 
-          {/* MAP SECTION */}
-          <div style={{ background: "white", borderRadius: 20, border: "1.5px solid #E8DDD0", overflow: "hidden", marginBottom: 32, boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
-            <div style={{ padding: "20px 24px 12px", borderBottom: "1px solid #F0E8DA", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#1A1208" }}>📍 Where to Find Them</div>
-                <div style={{ fontSize: 12, color: "#8B7355", marginTop: 2 }}>Click a pin to see details</div>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxWidth: 360, justifyContent: "flex-end" }}>
-                {huayKuan.map(hk => (
-                  <button key={hk.id} onClick={() => setAssocPin(assocPin === hk.id ? null : hk.id)}
-                    style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 20, border: `1.5px solid ${hk.color}`, background: assocPin === hk.id ? hk.color : "white", color: assocPin === hk.id ? "white" : hk.color, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}>
-                    {hk.icon} {hk.shortName}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* SVG Map */}
-            <div style={{ position: "relative", background: "#D6EAF8" }}>
-              <svg viewBox="0 0 580 220" width="100%" style={{ display: "block" }}>
-                <defs>
-                  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#00000020"/>
-                  </filter>
-                  <pattern id="sea-grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#BDD8F0" strokeWidth="0.5"/>
-                  </pattern>
-                </defs>
-
-                {/* Sea background */}
-                <rect width="580" height="220" fill="url(#sea-grid)"/>
-                <rect width="580" height="220" fill="#C5DFF4" opacity="0.3"/>
-
-                {/* Direction labels */}
-                <text x="290" y="12" textAnchor="middle" fontSize="9" fill="#7FB3D8" fontStyle="italic">Straits of Johor · Malaysia</text>
-                <text x="290" y="212" textAnchor="middle" fontSize="9" fill="#7FB3D8" fontStyle="italic">Singapore Strait · Indonesia</text>
-                <text x="12" y="115" textAnchor="middle" fontSize="9" fill="#7FB3D8" fontStyle="italic" transform="rotate(-90, 12, 115)">Tuas</text>
-                <text x="568" y="115" textAnchor="middle" fontSize="9" fill="#7FB3D8" fontStyle="italic" transform="rotate(90, 568, 115)">Changi</text>
-
-                {/* Main island */}
-                <path d="M 52,115 C 58,85 85,52 128,35 L 190,20 L 258,15 L 298,17 L 368,30 L 425,55 L 492,88 L 520,120 C 516,148 504,163 488,170 L 448,176 L 398,181 L 345,183 L 296,178 L 257,168 C 215,156 178,144 142,137 C 110,130 78,121 58,118 Z"
-                  fill="#F5E6C8" stroke="#D4B896" strokeWidth="1.5" filter="url(#shadow)"/>
-
-                {/* Sentosa */}
-                <ellipse cx="268" cy="196" rx="22" ry="7" fill="#F5E6C8" stroke="#D4B896" strokeWidth="1"/>
-                <text x="268" y="199" textAnchor="middle" fontSize="6.5" fill="#A89070">Sentosa</text>
-
-                {/* Major district labels */}
-                <text x="430" y="70" textAnchor="middle" fontSize="7.5" fill="#A89070" fontStyle="italic">Punggol</text>
-                <text x="490" y="108" textAnchor="middle" fontSize="7.5" fill="#A89070" fontStyle="italic">Changi</text>
-                <text x="160" y="52" textAnchor="middle" fontSize="7.5" fill="#A89070" fontStyle="italic">Woodlands</text>
-                <text x="395" y="148" textAnchor="middle" fontSize="7.5" fill="#A89070" fontStyle="italic">Bedok</text>
-                <text x="290" y="110" textAnchor="middle" fontSize="7.5" fill="#A89070" fontStyle="italic">CBD</text>
-
-                {/* Causeway hint */}
-                <rect x="248" y="12" width="20" height="4" fill="#C4A882" opacity="0.7" rx="1"/>
-
-                {/* Pins */}
-                {huayKuan.map(hk => {
-                  const active = assocPin === hk.id;
-                  return (
-                    <g key={hk.id} onClick={() => setAssocPin(active ? null : hk.id)} style={{ cursor: "pointer" }}>
-                      {active && (
-                        <>
-                          <circle cx={hk.pin.x} cy={hk.pin.y} r="24" fill={hk.color} opacity="0.12"/>
-                          <circle cx={hk.pin.x} cy={hk.pin.y} r="18" fill={hk.color} opacity="0.2"/>
-                        </>
-                      )}
-                      {/* Pin drop shape */}
-                      <path
-                        d={`M ${hk.pin.x},${hk.pin.y + 14} C ${hk.pin.x - 8},${hk.pin.y + 6} ${hk.pin.x - 12},${hk.pin.y} ${hk.pin.x - 12},${hk.pin.y - 5} A 12,12 0 1,1 ${hk.pin.x + 12},${hk.pin.y - 5} C ${hk.pin.x + 12},${hk.pin.y} ${hk.pin.x + 8},${hk.pin.y + 6} ${hk.pin.x},${hk.pin.y + 14} Z`}
-                        fill={hk.color}
-                        stroke="white"
-                        strokeWidth={active ? "2" : "1.5"}
-                        opacity={active ? 1 : 0.85}
-                        filter={active ? "url(#shadow)" : "none"}
-                      />
-                      <text x={hk.pin.x} y={hk.pin.y - 2} textAnchor="middle" dominantBaseline="middle" fontSize="9">{hk.icon}</text>
-                    </g>
-                  );
-                })}
-
-                {/* Compass */}
-                <g transform="translate(540, 40)">
-                  <circle cx="0" cy="0" r="14" fill="white" opacity="0.85" stroke="#D4B896" strokeWidth="1"/>
-                  <text x="0" y="-6" textAnchor="middle" fontSize="8" fontWeight="700" fill="#1A1208">N</text>
-                  <text x="0" y="10" textAnchor="middle" fontSize="6.5" fill="#8B7355">S</text>
-                  <text x="-9" y="2" textAnchor="middle" fontSize="6.5" fill="#8B7355">W</text>
-                  <text x="9" y="2" textAnchor="middle" fontSize="6.5" fill="#8B7355">E</text>
-                  <line x1="0" y1="-11" x2="0" y2="11" stroke="#C0392B" strokeWidth="1" opacity="0.5"/>
-                  <line x1="-11" y1="0" x2="11" y2="0" stroke="#8B7355" strokeWidth="0.8" opacity="0.5"/>
-                </g>
-              </svg>
-            </div>
-
-            {/* Detail panel — shown when a pin is selected */}
-            {assocPin ? (() => {
-              const hk = huayKuan.find(h => h.id === assocPin);
-              return (
-                <div style={{ padding: "20px 24px", borderTop: "1px solid #F0E8DA", background: `${hk.color}08`, animation: "fadeUp 0.3s ease" }}>
-                  <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
-                    <div style={{ fontSize: 36 }}>{hk.icon}</div>
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-                        <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#1A1208" }}>{hk.name}</span>
-                        <span style={{ background: `${hk.color}20`, border: `1.5px solid ${hk.color}55`, borderRadius: 20, padding: "2px 10px", fontSize: 11, color: hk.color, fontWeight: 700 }}>{hk.dialectLabel}</span>
-                        {hk.founded && <span style={{ fontSize: 11, color: "#8B7355" }}>est. {hk.founded}</span>}
-                      </div>
-                      <p style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.6, marginBottom: 10 }}>{hk.description}</p>
-                      <div style={{ display: "flex", gap: 20, flexWrap: "wrap", fontSize: 12, color: "#6B5B45" }}>
-                        <span>📍 {hk.address}</span>
-                        {hk.tel && <span>📞 {hk.tel[0]}</span>}
-                        {hk.email && <span>✉️ {hk.email}</span>}
-                        {hk.website && <span>🌐 {hk.website}</span>}
-                        {hk.hours && <span>🕐 {hk.hours}</span>}
-                      </div>
-                    </div>
-                    <button onClick={() => setAssocPin(null)}
-                      style={{ background: "none", border: "1.5px solid #E8DDD0", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", fontSize: 16, color: "#8B7355", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      ×
-                    </button>
-                  </div>
-                </div>
-              );
-            })() : (
-              <div style={{ padding: "14px 24px", borderTop: "1px solid #F0E8DA", textAlign: "center", fontSize: 13, color: "#8B7355", fontStyle: "italic" }}>
-                Select a pin on the map or use the buttons above to explore each association
-              </div>
-            )}
-          </div>
-
-          {/* FULL CARDS LIST */}
+          {/* DIRECTORY */}
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>Directory</h2>
             <p style={{ fontSize: 13, color: "#8B7355" }}>Full contact and background information for each huay kuan</p>
@@ -4212,8 +4080,7 @@ export default function DialectPlatform() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
             {huayKuan.map(hk => (
               <div key={hk.id}
-                onClick={() => { setAssocPin(hk.id); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                style={{ background: "white", borderRadius: 18, border: `2px solid ${assocPin === hk.id ? hk.color : "#E8DDD0"}`, padding: "22px 24px", cursor: "pointer", transition: "all 0.2s", boxShadow: assocPin === hk.id ? `0 4px 20px ${hk.color}30` : "0 2px 8px rgba(0,0,0,0.04)" }}
+                style={{ background: "white", borderRadius: 18, border: "1.5px solid #E8DDD0", padding: "22px 24px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 0.2s" }}
                 className="btn-hover">
                 {/* Card header */}
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
