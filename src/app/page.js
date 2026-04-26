@@ -2175,6 +2175,7 @@ export default function DialectPlatform() {
   const [searchCategory, setSearchCategory] = useState("all");
   const [searchDifficulty, setSearchDifficulty] = useState("all");
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
+  const [searchPage, setSearchPage] = useState(1);
   const [apiWords, setApiWords] = useState([]);
 
   const dialect = dialects.find(d => d.id === selectedDialect);
@@ -2229,6 +2230,8 @@ export default function DialectPlatform() {
     const t = setTimeout(() => setSearchDebouncedQuery(searchQuery), 250);
     return () => clearTimeout(t);
   }, [searchQuery]);
+
+  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchDifficulty]);
 
   useEffect(() => {
     fetch("/dictionary.json")
@@ -2367,7 +2370,7 @@ export default function DialectPlatform() {
         .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
         .search-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; }
         .search-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .search-filter-panel { position: sticky; top: 80px; }
+        .search-filter-panel { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
         .search-input:focus { border-color: #C0392B !important; box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
         .result-card:hover { border-color: #C0B09A !important; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
         @media (max-width: 700px) {
@@ -3117,15 +3120,22 @@ export default function DialectPlatform() {
             {/* ── Results ── */}
             <div>
               {/* Result count */}
+              {(() => {
+                const PAGE_SIZE = 60;
+                const totalPages = Math.ceil(filteredPhrases.length / PAGE_SIZE);
+                const start = (searchPage - 1) * PAGE_SIZE;
+                const end = Math.min(start + PAGE_SIZE, filteredPhrases.length);
+                const pageResults = filteredPhrases.slice(start, end);
+                return (<>
               <div style={{ marginBottom: 14, fontSize: 13, color: "#8B7355", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <span>
                   {filteredPhrases.length === 0
                     ? "No results found"
-                    : <><strong style={{ color: "#1A1208" }}>{Math.min(filteredPhrases.length, 60)}</strong> of <strong style={{ color: "#1A1208" }}>{filteredPhrases.length}</strong> phrase{filteredPhrases.length !== 1 ? "s" : ""}</>
+                    : <><strong style={{ color: "#1A1208" }}>{start + 1}–{end}</strong> of <strong style={{ color: "#1A1208" }}>{filteredPhrases.length}</strong> phrase{filteredPhrases.length !== 1 ? "s" : ""}</>
                   }
                   {q && <> for "<em>{q}</em>"</>}
                 </span>
-                {filteredPhrases.length > 0 && !q && !searchCategory && searchDialects.length === 5 && (
+                {filteredPhrases.length > 0 && !q && searchCategory === "all" && searchDialects.length === 5 && (
                   <span style={{ fontSize: 12, color: "#C0B0A0" }}>Showing all · use search or filters to narrow</span>
                 )}
               </div>
@@ -3150,8 +3160,8 @@ export default function DialectPlatform() {
               ) : (
                 <>
                   <div className="search-results-grid">
-                    {filteredPhrases.slice(0, 60).map((p, i) => (
-                      <div key={i} className="result-card btn-hover"
+                    {pageResults.map((p, i) => (
+                      <div key={start + i} className="result-card btn-hover"
                         style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "default", transition: "all 0.2s" }}>
                         {/* Dialect + category badges */}
                         <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
@@ -3181,13 +3191,26 @@ export default function DialectPlatform() {
                       </div>
                     ))}
                   </div>
-                  {filteredPhrases.length > 60 && (
-                    <div style={{ textAlign: "center", marginTop: 20, padding: "16px", background: "#F5EFE6", borderRadius: 12, fontSize: 13, color: "#6B5B45" }}>
-                      Showing first 60 of <strong>{filteredPhrases.length}</strong> results — refine your search or filters to narrow down.
+                  {totalPages > 1 && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 24 }}>
+                      <button onClick={() => { setSearchPage(p => p - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                        disabled={searchPage === 1}
+                        style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === 1 ? "#F5EFE6" : "white", color: searchPage === 1 ? "#C0B0A0" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === 1 ? "default" : "pointer", fontFamily: "inherit" }}>
+                        ← Previous
+                      </button>
+                      <span style={{ fontSize: 13, color: "#6B5B45" }}>
+                        Page <strong>{searchPage}</strong> of <strong>{totalPages}</strong>
+                      </span>
+                      <button onClick={() => { setSearchPage(p => p + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                        disabled={searchPage === totalPages}
+                        style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === totalPages ? "#F5EFE6" : "white", color: searchPage === totalPages ? "#C0B0A0" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === totalPages ? "default" : "pointer", fontFamily: "inherit" }}>
+                        Next →
+                      </button>
                     </div>
                   )}
                 </>
               )}
+              </>);})()}
             </div>
           </div>
         </div>
