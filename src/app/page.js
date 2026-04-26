@@ -2538,16 +2538,6 @@ export default function DialectPlatform() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div style={{ background: "#F0E8DA", padding: "32px", display: "flex", justifyContent: "center", gap: 64, flexWrap: "wrap" }}>
-            {[["5", "Dialects"], ["50+", "Phrases"], ["3", "Categories"], ["Free", "Forever"]].map(([n, l]) => (
-              <div key={l} style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#C0392B" }}>{n}</div>
-                <div style={{ fontSize: 12, color: "#8B7355", letterSpacing: 2, textTransform: "uppercase" }}>{l}</div>
-              </div>
-            ))}
-          </div>
-
           {/* Dialect Cards */}
           <div id="dialects" style={{ padding: "64px 32px", maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
