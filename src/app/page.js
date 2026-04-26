@@ -2405,7 +2405,7 @@ export default function DialectPlatform() {
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208" }}>{dialect.name}</div>
               <div style={{ fontSize: 18, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
             </div>
-            <button className="btn-hover" onClick={() => setScreen("dialect")}
+            <button className="btn-hover" onClick={() => setScreen("home")}
               style={{ background: "white", border: "1.5px solid #E8DDD0", borderRadius: 10, padding: "8px 14px", fontSize: 12, color: "#6B5B45", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
               ← Back
             </button>
