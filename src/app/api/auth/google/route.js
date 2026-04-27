@@ -33,7 +33,7 @@ function userResponse(row, picture) {
     occupation: row.occupation,
     role: row.role || 'mentee',
     languageInterest: row.dialect_group || 'Hokkien',
-    avatar: picture || (row.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓'),
+    avatar: row.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
   };
 }
 
