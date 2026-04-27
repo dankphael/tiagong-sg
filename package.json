@@ -20,5 +20,10 @@
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "16"
+  },
+  "overrides": {
+    "eslint-config-next": {
+      "eslint": "^8"
+    }
   }
 }
