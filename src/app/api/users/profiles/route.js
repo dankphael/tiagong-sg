@@ -81,6 +81,6 @@ export async function GET(req) {
     return Response.json(users, { status: 200 });
   } catch (error) {
     console.error('Error fetching profiles:', error);
-    return Response.json({ error: 'Failed to fetch profiles' }, { status: 500 });
+    return Response.json({ error: 'Failed to fetch profiles', detail: error.message }, { status: 500 });
   }
 }
