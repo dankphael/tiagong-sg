@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const dialects = [
   {
@@ -2274,6 +2275,8 @@ export default function DialectPlatform() {
   const [connectRequests, setConnectRequests] = useState([]);
   const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" });
   const [profileEditMode, setProfileEditMode] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // "login" or "signup"
   const [situationalScore, setSituationalScore] = useState(0);
   const [sentenceScore, setSentenceScore] = useState(0);
   const [knownCards, setKnownCards] = useState({});
@@ -2342,6 +2345,44 @@ export default function DialectPlatform() {
     return hasSentRequest(targetUserId) &&
       connectRequests.some(r => r.from === targetUserId && r.to === currentUser?.id);
   }
+
+  function handleGoogleSuccess(credentialResponse) {
+    // Decode the JWT token from Google (without verification for now)
+    const token = credentialResponse.credential;
+    const parts = token.split('.');
+    const payload = JSON.parse(atob(parts[1]));
+
+    // Send to backend to verify and create/login user
+    fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        googleToken: token,
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          // Store JWT in localStorage
+          localStorage.setItem('auth_token', data.token);
+          setCurrentUser(data.user);
+          setShowAuthModal(false);
+          setProfileEditMode(false);
+        }
+      })
+      .catch(err => console.error('Google auth failed:', err));
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('auth_token');
+    setCurrentUser(null);
+    setProfileEditMode(false);
+    setShowAuthModal(false);
+  }
+
   useEffect(() => {
     const t = setTimeout(() => setSearchDebouncedQuery(searchQuery), 250);
     return () => clearTimeout(t);
@@ -2473,6 +2514,7 @@ export default function DialectPlatform() {
   else if (searchSort === "frequency") filteredPhrases.sort((a, b) => (b.frequency || 0) - (a.frequency || 0));
 
   return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
       <style>{`
         .card-3d { perspective: 1000px; }
@@ -2507,9 +2549,23 @@ export default function DialectPlatform() {
             <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
           </div>
         </div>
-        <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Toggle menu">
-          {mobileMenuOpen ? "✕" : "☰"}
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {currentUser ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#F5E6C8", fontSize: 13 }}>
+              <span>{currentUser.firstName}</span>
+              <button onClick={handleLogout} className="btn-secondary" style={{ padding: "7px 14px", fontSize: 12 }}>
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => { setShowAuthModal(true); setMobileMenuOpen(false); }} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12 }}>
+              Sign In
+            </button>
+          )}
+          <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Toggle menu">
+            {mobileMenuOpen ? "✕" : "☰"}
+          </button>
+        </div>
         <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
           {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"],["profile","Profile"]].map(([s,label]) => (
             <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
@@ -2519,6 +2575,31 @@ export default function DialectPlatform() {
           {selectedDialect && <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
         </div>
       </nav>
+
+      {/* AUTH MODAL */}
+      {showAuthModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }} onClick={() => setShowAuthModal(false)}>
+          <div style={{ background: "white", borderRadius: 20, padding: 40, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", maxWidth: 400, width: "90%", animation: "fadeUp 0.3s ease" }} onClick={e => e.stopPropagation()}>
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>🏮</div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Sign In</h2>
+              <p style={{ color: "#6B5B45", fontSize: 14 }}>
+                {authMode === "login" ? "Sign in with your Google account to access your profile and connect with other learners." : "Create your profile and join our community of dialect learners."}
+              </p>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.log("Login failed")}
+                text="signin_with"
+              />
+            </div>
+            <button onClick={() => setShowAuthModal(false)} className="btn-ghost" style={{ width: "100%", textAlign: "center" }}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* HOME */}
       {screen === "home" && (
@@ -4201,5 +4282,6 @@ export default function DialectPlatform() {
         </div>
       </div>
     </div>
+    </GoogleOAuthProvider>
   );
 }
