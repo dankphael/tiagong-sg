@@ -1,9 +1,17 @@
-import { db } from '@vercel/postgres';
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 1,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 30000,
+});
 
 export async function query(text, params) {
   const start = Date.now();
   try {
-    const result = await db.query(text, params);
+    const result = await pool.query(text, params);
     const duration = Date.now() - start;
     console.log('Executed query', { text, duration, rows: result.rowCount });
     return result;
@@ -13,4 +21,4 @@ export async function query(text, params) {
   }
 }
 
-export default db;
+export default pool;
