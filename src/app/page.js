@@ -2284,6 +2284,7 @@ export default function DialectPlatform() {
   const [searchCategory, setSearchCategory] = useState("all");
   const [searchDifficulty, setSearchDifficulty] = useState("all");
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [searchSort, setSearchSort] = useState("relevance");
   const [apiWords, setApiWords] = useState([]);
@@ -2463,7 +2464,6 @@ export default function DialectPlatform() {
   return (
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
       <style>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         .card-3d { perspective: 1000px; }
         .card-inner { transition: transform 0.6s cubic-bezier(.4,2,.6,1); transform-style: preserve-3d; position: relative; }
         .card-inner.flipped { transform: rotateY(180deg); }
@@ -2474,8 +2474,6 @@ export default function DialectPlatform() {
         .dialect-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important; }
         .dialect-card { transition: all 0.3s cubic-bezier(.4,2,.6,1); cursor: pointer; }
         .tab-btn { transition: all 0.2s; cursor: pointer; border: none; font-family: inherit; }
-        .nav-link { cursor: pointer; transition: opacity 0.2s; }
-        .nav-link:hover { opacity: 0.7; }
         .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; background-size: 200% 100%; }
         @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
@@ -2487,13 +2485,6 @@ export default function DialectPlatform() {
         .search-filter-panel { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
         .search-input:focus { border-color: #C0392B !important; box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
         .result-card:hover { border-color: #C0B09A !important; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
-        @media (max-width: 700px) {
-          .search-layout { grid-template-columns: 1fr; }
-          .search-results-grid { grid-template-columns: 1fr; }
-          .search-filter-panel { position: static; }
-          .search-mobile-toggle { display: flex !important; }
-          .search-filter-hidden { display: none; }
-        }
       `}</style>
 
       {/* NAVBAR */}
@@ -2505,13 +2496,16 @@ export default function DialectPlatform() {
             <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+        <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Toggle menu">
+          {mobileMenuOpen ? "✕" : "☰"}
+        </button>
+        <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
           {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"],["profile","Profile"]].map(([s,label]) => (
-            <span key={s} className="nav-link" onClick={() => setScreen(s)} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
+            <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
               {label}{s === "profile" && currentUser ? ` (${currentUser.firstName})` : ""}
             </span>
           ))}
-          {selectedDialect && <span onClick={() => setScreen("lesson")} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
+          {selectedDialect && <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
         </div>
       </nav>
 
@@ -2523,16 +2517,16 @@ export default function DialectPlatform() {
             <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(192,57,43,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(212,134,11,0.1) 0%, transparent 50%)" }} />
             <div style={{ position: "relative", maxWidth: 680, margin: "0 auto" }} className="fade-up">
               <div style={{ fontSize: 56, marginBottom: 16 }}>🏮 🎋 🍵</div>
-              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 56, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
+              <h1 className="hero-heading" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
                 Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
               </h1>
-              <p style={{ color: "#A08060", fontSize: 18, lineHeight: 1.7, marginBottom: 8 }}>
+              <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.7, marginBottom: 8 }}>
                 Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
               </p>
               <p style={{ color: "#7A6040", fontSize: 14, marginBottom: 40, fontStyle: "italic" }}>
                 每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
               </p>
-              <button className="btn-hover" onClick={() => document.getElementById("dialects").scrollIntoView({ behavior: "smooth" })} style={{ background: "#C0392B", color: "#F5E6C8", border: "none", padding: "16px 40px", fontSize: 16, borderRadius: 8, cursor: "pointer", fontFamily: "inherit", letterSpacing: 1 }}>
+              <button className="btn-primary" onClick={() => document.getElementById("dialects").scrollIntoView({ behavior: "smooth" })} style={{ fontSize: 16, letterSpacing: 1 }}>
                 Start Learning →
               </button>
             </div>
@@ -2544,7 +2538,7 @@ export default function DialectPlatform() {
               <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Choose Your Dialect</div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 40, color: "#1A1208" }}>Which dialect calls to you?</h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+            <div className="dialect-grid">
               {dialects.map((d, i) => {
                 const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
                 return (
@@ -2581,14 +2575,13 @@ export default function DialectPlatform() {
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208" }}>{dialect.name}</div>
               <div style={{ fontSize: 18, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
             </div>
-            <button className="btn-hover" onClick={() => setScreen("home")}
-              style={{ background: "white", border: "1.5px solid #E8DDD0", borderRadius: 10, padding: "8px 14px", fontSize: 12, color: "#6B5B45", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+            <button className="btn-secondary" onClick={() => setScreen("home")} style={{ fontSize: 13, padding: "8px 16px" }}>
               ← Back
             </button>
           </div>
 
           {/* Mode Selector — card grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 32 }}>
+          <div className="mode-grid" style={{ marginBottom: 32 }}>
             {[
               { mode: "flashcards", icon: "📇", label: "Flashcards", desc: "Tap to flip & learn" },
               { mode: "situational-quiz", icon: "🎭", label: "Story Quiz", desc: "Real-life scenarios" },
@@ -2656,7 +2649,7 @@ export default function DialectPlatform() {
               </div>
 
               {/* Flashcard */}
-              <div className="card-3d" style={{ height: 260, marginBottom: 20 }} onClick={() => setFlipped(!flipped)}>
+              <div className="card-3d flashcard" style={{ marginBottom: 20 }} onClick={() => setFlipped(!flipped)}>
                 <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
                   <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
@@ -4150,19 +4143,51 @@ export default function DialectPlatform() {
             </div>
           ))}
           <div style={{ textAlign: "center", marginTop: 48 }}>
-            <button className="btn-hover" onClick={() => setScreen("home")}
-              style={{ background: "#C0392B", color: "white", border: "none", padding: "16px 40px", borderRadius: 10, fontSize: 16, cursor: "pointer", fontFamily: "inherit" }}>
+            <button className="btn-primary" onClick={() => setScreen("home")} style={{ fontSize: 16 }}>
               Start Learning Now
             </button>
           </div>
         </div>
       )}
 
-      <div style={{ background: "#1A1208", padding: "40px 32px", textAlign: "center", borderTop: "3px solid #C0392B" }}>
-        <div style={{ fontSize: 24, marginBottom: 8 }}>🏮</div>
-        <p style={{ color: "#8B7355", fontSize: 14, fontStyle: "italic" }}>
-          "A language lost is a culture lost." — Promote dialect preservation in Singapore.
-        </p>
+      <div style={{ background: "#1A1208", padding: "48px 32px 32px", borderTop: "3px solid #C0392B" }}>
+        <div className="footer-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
+          {/* Brand */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+              <span style={{ fontSize: 28 }}>🏮</span>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagong.sg</div>
+            </div>
+            <p style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.7 }}>
+              Preserving Singapore's Chinese dialect heritage — one phrase at a time.
+            </p>
+          </div>
+          {/* Quick links */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Explore</div>
+            {[["home","Learn Dialects"],["search","Search Phrases"],["singlish","Dialects in Singlish"],["associations","Clan Associations"],["about","About Us"]].map(([s,label]) => (
+              <div key={s} onClick={() => setScreen(s)} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, cursor: "pointer", transition: "color 0.15s" }}
+                onMouseEnter={e => e.target.style.color="#F5E6C8"} onMouseLeave={e => e.target.style.color="#8B7355"}>
+                {label}
+              </div>
+            ))}
+          </div>
+          {/* Dialects */}
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Dialects</div>
+            {dialects.map(d => (
+              <div key={d.id} onClick={() => { selectDialect(d.id); }} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "color 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.color="#F5E6C8"} onMouseLeave={e => e.currentTarget.style.color="#8B7355"}>
+                <span>{d.icon}</span> {d.name}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ maxWidth: 1100, margin: "24px auto 0", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
+          <p style={{ color: "#4A3A28", fontSize: 13, fontStyle: "italic" }}>
+            "A language lost is a culture lost." — Promote dialect preservation in Singapore.
+          </p>
+        </div>
       </div>
     </div>
   );
