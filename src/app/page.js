@@ -2299,15 +2299,20 @@ export default function DialectPlatform() {
       setProfileEditMode(false);
       return;
     }
-    const newUser = {
-      id: Date.now(),
-      ...profileForm,
-      avatar: profileForm.role === "mentor" ? "👨‍🏫" : "🧑‍🎓",
-      sinSehApplied: false,
-    };
-    setRegisteredUsers(prev => [...prev, newUser]);
-    setCurrentUser(newUser);
-    setProfileEditMode(false);
+
+    // Save to database
+    fetch('/api/users/profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profileForm)
+    })
+      .then(res => res.json())
+      .then(newUser => {
+        setRegisteredUsers(prev => [...prev, newUser]);
+        setCurrentUser(newUser);
+        setProfileEditMode(false);
+      })
+      .catch(err => console.error('Failed to register user:', err));
   }
 
   function switchUser(user) {
@@ -2349,6 +2354,12 @@ export default function DialectPlatform() {
       .then(r => r.json())
       .then(data => setApiWords(data.words || []))
       .catch(() => {});
+
+    // Load profiles from database
+    fetch("/api/users/profiles")
+      .then(r => r.json())
+      .then(users => setRegisteredUsers(users))
+      .catch(err => console.error('Failed to load profiles:', err));
   }, []);
 
   const toCard = w => ({ phrase: w.headword?.romanized || "", chinese: w.headword?.traditional || "", meaning: w.definitions?.[0]?.english || "", romanisation: w.headword?.romanized || "" });
