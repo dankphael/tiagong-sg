@@ -2294,6 +2294,15 @@ export default function DialectPlatform() {
 
   const dialect = dialects.find(d => d.id === selectedDialect);
 
+  function restoreProgress(p) {
+    if (!p || typeof p !== 'object') return;
+    if (p.lastDialect) setSelectedDialect(p.lastDialect);
+    if (p.lastCategory) setSelectedCategory(p.lastCategory);
+    if (p.cardIndex != null) setCardIndex(p.cardIndex);
+    if (p.knownCards) setKnownCards(p.knownCards);
+    if (p.completedCategories) setProgress(p.completedCategories);
+  }
+
   function completeProfile() {
     if (!pendingGoogle) return;
     const { age, occupation, languageInterest, role } = profileForm;
@@ -2380,6 +2389,7 @@ export default function DialectPlatform() {
         if (data.user) {
           localStorage.setItem('auth_token', data.token);
           setCurrentUser(data.user);
+          restoreProgress(data.user.progress);
           setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
           setScreen('network');
         }
@@ -2411,12 +2421,48 @@ export default function DialectPlatform() {
       .then(data => setApiWords(data.words || []))
       .catch(() => {});
 
-    // Load profiles from database
     fetch("/api/users/profiles")
       .then(r => r.json())
       .then(users => setRegisteredUsers(users))
       .catch(err => console.error('Failed to load profiles:', err));
+
+    // Restore session from stored token
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.user) {
+            setCurrentUser(data.user);
+            restoreProgress(data.user.progress);
+          } else {
+            localStorage.removeItem('auth_token');
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
+
+  // Debounced save of learning progress to backend
+  useEffect(() => {
+    if (!currentUser) return;
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+    const tid = setTimeout(() => {
+      fetch('/api/users/progress', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          lastDialect: selectedDialect,
+          lastCategory: selectedCategory,
+          cardIndex,
+          knownCards,
+          completedCategories: progress,
+        }),
+      }).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(tid);
+  }, [knownCards, progress, cardIndex, selectedDialect, selectedCategory, currentUser]);
 
   const toCard = w => ({ phrase: w.headword?.romanized || "", chinese: w.headword?.traditional || "", meaning: w.definitions?.[0]?.english || "", romanisation: w.headword?.romanized || "" });
   const apiForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === selectedCategory).map(toCard) : [];
