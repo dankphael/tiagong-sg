@@ -168,12 +168,12 @@ html {
   .flashcard  { height: 220px; }
 
   /* Search */
-  .search-layout { grid-template-columns: 1fr; }
-  .search-results-grid { grid-template-columns: 1fr; }
-  .search-filter-panel { position: static; max-height: none; overflow-y: visible; }
+  .search-layout { grid-template-columns: 1fr !important; }
+  .search-results-grid { grid-template-columns: 1fr !important; }
+  .search-filter-panel { position: static !important; max-height: none !important; overflow-y: visible !important; margin-bottom: 24px; }
   .search-mobile-toggle { display: flex !important; }
-  .search-filter-hidden { display: none; }
-  .search-filter-panel.open { margin-bottom: 24px; }
+  .search-filter-hidden { display: none !important; }
+  .search-filter-panel.open { display: block !important; }
 
   /* Footer */
   .footer-grid { grid-template-columns: 1fr; gap: 24px; }
