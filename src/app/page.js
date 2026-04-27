@@ -2275,8 +2275,8 @@ export default function DialectPlatform() {
   const [connectRequests, setConnectRequests] = useState([]);
   const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" });
   const [profileEditMode, setProfileEditMode] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState("login"); // "login" or "signup"
+  const [pendingGoogle, setPendingGoogle] = useState(null); // { credential, googleData } when new Google user needs to complete profile
+  const [authError, setAuthError] = useState(null);
   const [situationalScore, setSituationalScore] = useState(0);
   const [sentenceScore, setSentenceScore] = useState(0);
   const [knownCards, setKnownCards] = useState({});
@@ -2294,28 +2294,34 @@ export default function DialectPlatform() {
 
   const dialect = dialects.find(d => d.id === selectedDialect);
 
-  function registerUser() {
-    if (!profileForm.firstName || !profileForm.email) return;
-    const existing = registeredUsers.find(u => u.email === profileForm.email);
-    if (existing) {
-      setCurrentUser(existing);
-      setProfileEditMode(false);
-      return;
-    }
-
-    // Save to database
-    fetch('/api/users/profiles', {
+  function completeProfile() {
+    if (!pendingGoogle) return;
+    const { age, occupation, languageInterest, role } = profileForm;
+    setAuthError(null);
+    fetch('/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(profileForm)
+      body: JSON.stringify({
+        credential: pendingGoogle.credential,
+        profileData: { age, occupation, languageInterest, role },
+      }),
     })
-      .then(res => res.json())
-      .then(newUser => {
-        setRegisteredUsers(prev => [...prev, newUser]);
-        setCurrentUser(newUser);
-        setProfileEditMode(false);
+      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok || !data.user) {
+          setAuthError(data.detail || data.error || 'Failed to complete profile');
+          return;
+        }
+        localStorage.setItem('auth_token', data.token);
+        setCurrentUser(data.user);
+        setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
+        setPendingGoogle(null);
+        setScreen('network');
       })
-      .catch(err => console.error('Failed to register user:', err));
+      .catch(err => {
+        console.error('Failed to complete profile:', err);
+        setAuthError('Network error');
+      });
   }
 
   function switchUser(user) {
@@ -2347,40 +2353,49 @@ export default function DialectPlatform() {
   }
 
   function handleGoogleSuccess(credentialResponse) {
-    // Decode the JWT token from Google (without verification for now)
-    const token = credentialResponse.credential;
-    const parts = token.split('.');
-    const payload = JSON.parse(atob(parts[1]));
-
-    // Send to backend to verify and create/login user
+    const credential = credentialResponse.credential;
+    setAuthError(null);
     fetch('/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        googleToken: token,
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture
-      })
+      body: JSON.stringify({ credential }),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) {
+          setAuthError(data.detail || data.error || 'Google sign-in failed');
+          return;
+        }
+        if (data.needsProfile) {
+          setPendingGoogle({ credential, googleData: data.googleData });
+          setProfileForm(f => ({
+            ...f,
+            firstName: data.googleData.firstName || '',
+            lastName: data.googleData.lastName || '',
+            email: data.googleData.email || '',
+          }));
+          setScreen('profile');
+          return;
+        }
         if (data.user) {
-          // Store JWT in localStorage
           localStorage.setItem('auth_token', data.token);
           setCurrentUser(data.user);
-          setShowAuthModal(false);
-          setProfileEditMode(false);
+          setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
+          setScreen('network');
         }
       })
-      .catch(err => console.error('Google auth failed:', err));
+      .catch(err => {
+        console.error('Google auth failed:', err);
+        setAuthError('Google sign-in failed');
+      });
   }
 
   function handleLogout() {
     localStorage.removeItem('auth_token');
     setCurrentUser(null);
     setProfileEditMode(false);
-    setShowAuthModal(false);
+    setPendingGoogle(null);
+    setAuthError(null);
   }
 
   useEffect(() => {
@@ -2558,7 +2573,7 @@ export default function DialectPlatform() {
               </button>
             </div>
           ) : (
-            <button onClick={() => { setShowAuthModal(true); setMobileMenuOpen(false); }} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12 }}>
+            <button onClick={() => { setScreen("profile"); setMobileMenuOpen(false); }} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12 }}>
               Sign In
             </button>
           )}
@@ -2575,31 +2590,6 @@ export default function DialectPlatform() {
           {selectedDialect && <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
         </div>
       </nav>
-
-      {/* AUTH MODAL */}
-      {showAuthModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }} onClick={() => setShowAuthModal(false)}>
-          <div style={{ background: "white", borderRadius: 20, padding: 40, boxShadow: "0 20px 60px rgba(0,0,0,0.3)", maxWidth: 400, width: "90%", animation: "fadeUp 0.3s ease" }} onClick={e => e.stopPropagation()}>
-            <div style={{ textAlign: "center", marginBottom: 32 }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>🏮</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Sign In</h2>
-              <p style={{ color: "#6B5B45", fontSize: 14 }}>
-                {authMode === "login" ? "Sign in with your Google account to access your profile and connect with other learners." : "Create your profile and join our community of dialect learners."}
-              </p>
-            </div>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => console.log("Login failed")}
-                text="signin_with"
-              />
-            </div>
-            <button onClick={() => setShowAuthModal(false)} className="btn-ghost" style={{ width: "100%", textAlign: "center" }}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* HOME */}
       {screen === "home" && (
@@ -3999,7 +3989,7 @@ export default function DialectPlatform() {
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, color: "#1A1208", marginBottom: 12 }}>Profile</h1>
           </div>
 
-          {currentUser && !profileEditMode ? (
+          {currentUser ? (
             <div className="fade-up">
               <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
@@ -4022,56 +4012,34 @@ export default function DialectPlatform() {
                     <span style={{ color: currentUser.sinSehApplied ? "#1A6B3C" : "#9B8B75" }}>{currentUser.sinSehApplied ? "Applied ✓" : "Not applied"}</span>
                   </div>
                 </div>
-                <button className="btn-hover" onClick={() => { setProfileForm({ firstName: currentUser.firstName, lastName: currentUser.lastName, age: currentUser.age, occupation: currentUser.occupation, email: currentUser.email, languageInterest: currentUser.languageInterest, role: currentUser.role }); setProfileEditMode(true); }}
+                <button className="btn-hover" onClick={handleLogout}
                   style={{ marginTop: 24, width: "100%", padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                  Edit Profile
+                  Sign Out
                 </button>
               </div>
-
-              {registeredUsers.length > 1 && (
-                <div style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.05)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#6B5B45", marginBottom: 12 }}>Switch User (Demo)</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {registeredUsers.map(u => (
-                      <button key={u.id} className="btn-hover" onClick={() => switchUser(u)}
-                        style={{ padding: "10px 16px", borderRadius: 10, background: u.id === currentUser.id ? "#1A1208" : "#FAF6F0", color: u.id === currentUser.id ? "#F5E6C8" : "#6B5B45", border: "1px solid " + (u.id === currentUser.id ? "#1A1208" : "#E8DDD0"), fontSize: 13, fontFamily: "inherit", textAlign: "left", cursor: "pointer" }}>
-                        {u.avatar} {u.firstName} {u.lastName} · {u.role}
-                        {u.id === currentUser.id && <span style={{ float: "right", fontSize: 11, color: "#C0392B" }}>Current</span>}
-                      </button>
-                    ))}
-                  </div>
-                  <button className="btn-hover" onClick={() => { setProfileForm({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" }); setProfileEditMode(true); setCurrentUser(null); }}
-                    style={{ marginTop: 12, width: "100%", padding: "10px", background: "white", border: "2px dashed #E8DDD0", borderRadius: 10, fontSize: 13, color: "#8B7355", cursor: "pointer", fontFamily: "inherit" }}>
-                    + Register a new user
-                  </button>
-                </div>
-              )}
             </div>
-          ) : (
+          ) : pendingGoogle ? (
             <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 6 }}>
-                {profileEditMode ? "Edit Your Profile" : "Create Your Profile"}
+                Complete Your Profile
               </div>
               <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 28 }}>
-                {profileEditMode ? "Update your details below." : "Register to join the community and connect with dialect learners and native speakers across Singapore."}
+                Signed in as <strong>{pendingGoogle.googleData.email}</strong>. Tell us a bit more about yourself.
               </p>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
-                  ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
-                  <div key={label}>
-                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label} *</label>
-                    <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
-                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
-                  </div>
-                ))}
+              <div style={{ marginBottom: 20, padding: "16px", background: "#FAF6F0", borderRadius: 10, border: "1px solid #E8DDD0" }}>
+                <div style={{ fontSize: 13, color: "#6B5B45", marginBottom: 8 }}>
+                  <span style={{ fontWeight: 600 }}>Name:</span> {pendingGoogle.googleData.firstName} {pendingGoogle.googleData.lastName}
+                </div>
+                <div style={{ fontSize: 13, color: "#6B5B45" }}>
+                  <span style={{ fontWeight: 600 }}>Email:</span> {pendingGoogle.googleData.email}
+                </div>
               </div>
 
               {[["Age", "number", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
-                ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))],
-                ["Email", "email", profileForm.email, v => setProfileForm(f => ({ ...f, email: v }))]].map(([label, type, val, setter]) => (
+                ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, val, setter]) => (
                 <div key={label} style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}{label === "First Name" || label === "Email" ? " *" : ""}</label>
+                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
                   <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
                     style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
                 </div>
@@ -4099,18 +4067,33 @@ export default function DialectPlatform() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 12 }}>
-                {profileEditMode && (
-                  <button className="btn-hover" onClick={() => setProfileEditMode(false)}
-                    style={{ flex: 1, padding: "14px", background: "white", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
-                    Cancel
-                  </button>
-                )}
-                <button className="btn-hover" onClick={registerUser}
-                  style={{ flex: 2, padding: "14px", background: profileForm.firstName && profileForm.email ? "#C0392B" : "#E8DDD0", color: profileForm.firstName && profileForm.email ? "white" : "#9B8B75", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: profileForm.firstName && profileForm.email ? "pointer" : "default", fontFamily: "inherit" }}>
-                  {profileEditMode ? "Save Changes" : "Create Profile"}
-                </button>
+              <button className="btn-hover" onClick={completeProfile}
+                style={{ width: "100%", padding: "14px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                Complete Profile
+              </button>
+            </div>
+          ) : (
+            <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", textAlign: "center" }}>
+              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>
+                Sign In to Your Account
               </div>
+              <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 32 }}>
+                Use Google to sign in or create your tiagong.sg profile and connect with dialect learners across Singapore.
+              </p>
+
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setAuthError("Google sign-in failed")}
+                  text="signin_with"
+                />
+              </div>
+            </div>
+          )}
+
+          {authError && (
+            <div style={{ marginTop: 16, padding: 12, background: "#FDF0EF", border: "1px solid #C0392B", borderRadius: 10, color: "#C0392B", fontSize: 13 }}>
+              {authError}
             </div>
           )}
         </div>

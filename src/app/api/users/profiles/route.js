@@ -1,45 +1,5 @@
 import { query } from '@/lib/db';
 
-export async function POST(req) {
-  try {
-    const { firstName, lastName, age, occupation, email, languageInterest, role } = await req.json();
-
-    if (!firstName || !email) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Check if user with this email already exists
-    const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
-      return Response.json({ error: 'Email already registered' }, { status: 409 });
-    }
-
-    // Insert user profile (no password required for this simple profile)
-    const result = await query(
-      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, password_hash)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, created_at`,
-      [email, firstName, lastName, age || null, occupation || null, languageInterest, role, 'placeholder']
-    );
-
-    const user = result.rows[0];
-    return Response.json({
-      id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      age: user.age,
-      occupation: user.occupation,
-      email: user.email,
-      languageInterest: user.dialect_group,
-      role: user.role,
-      avatar: role === 'mentor' ? '👨‍🏫' : '🧑‍🎓'
-    }, { status: 201 });
-  } catch (error) {
-    console.error('Profile creation error:', error);
-    return Response.json({ error: 'Failed to create profile' }, { status: 500 });
-  }
-}
-
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
