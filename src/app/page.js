@@ -2567,14 +2567,6 @@ export default function DialectPlatform() {
               })}
             </div>
           </div>
-
-          {/* Footer */}
-          <div style={{ background: "#1A1208", padding: "40px 32px", textAlign: "center", borderTop: "3px solid #C0392B" }}>
-            <div style={{ fontSize: 24, marginBottom: 8 }}>🏮</div>
-            <p style={{ color: "#8B7355", fontSize: 14, fontStyle: "italic" }}>
-              "A language lost is a culture lost." — Promote dialect preservation in Singapore.
-            </p>
-          </div>
         </div>
       )}
 
