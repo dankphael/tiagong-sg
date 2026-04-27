@@ -170,9 +170,10 @@ html {
   /* Search */
   .search-layout { grid-template-columns: 1fr; }
   .search-results-grid { grid-template-columns: 1fr; }
-  .search-filter-panel { position: static; }
+  .search-filter-panel { position: static; max-height: none; overflow-y: visible; }
   .search-mobile-toggle { display: flex !important; }
   .search-filter-hidden { display: none; }
+  .search-filter-panel.open { margin-bottom: 24px; }
 
   /* Footer */
   .footer-grid { grid-template-columns: 1fr; gap: 24px; }

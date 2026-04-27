@@ -3138,7 +3138,7 @@ export default function DialectPlatform() {
           <div className="search-layout">
 
             {/* ── Filter sidebar ── */}
-            <div className={`search-filter-panel${searchFilterOpen ? "" : " search-filter-hidden"}`}
+            <div className={`search-filter-panel${searchFilterOpen ? " open" : " search-filter-hidden"}`}
               style={{ background: "white", borderRadius: 16, padding: "20px", border: "1.5px solid #E8DDD0" }}>
               <div style={{ fontWeight: 700, fontSize: 12, color: "#1A1208", marginBottom: 18, letterSpacing: 1, textTransform: "uppercase" }}>Filters</div>
 
