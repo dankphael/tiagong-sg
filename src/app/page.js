@@ -2277,6 +2277,7 @@ export default function DialectPlatform() {
   const [profileEditMode, setProfileEditMode] = useState(false);
   const [pendingGoogle, setPendingGoogle] = useState(null); // { credential, googleData } when new Google user needs to complete profile
   const [authError, setAuthError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [situationalScore, setSituationalScore] = useState(0);
   const [sentenceScore, setSentenceScore] = useState(0);
   const [knownCards, setKnownCards] = useState({});
@@ -2495,6 +2496,9 @@ export default function DialectPlatform() {
           setCurrentUser(data.user);
           restoreProgress(data.user.progress);
           setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
+          setSuccessMessage(`Successfully signed in. Welcome, ${data.user.firstName}!`);
+          setScreen('home');
+          setTimeout(() => setSuccessMessage(null), 4000);
         }
       })
       .catch(err => {
@@ -4516,6 +4520,11 @@ export default function DialectPlatform() {
           {authError && (
             <div style={{ marginTop: 16, padding: 12, background: "#FDF0EF", border: "1px solid #C0392B", borderRadius: 10, color: "#C0392B", fontSize: 13 }}>
               {authError}
+            </div>
+          )}
+          {successMessage && (
+            <div style={{ marginTop: 16, padding: 12, background: "#EAFAF1", border: "1px solid #1A6B3C", borderRadius: 10, color: "#1A6B3C", fontSize: 13 }}>
+              {successMessage}
             </div>
           )}
         </div>
