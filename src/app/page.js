@@ -2360,6 +2360,11 @@ export default function DialectPlatform() {
           avatar: role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
         }));
         setProfileEditMode(false);
+        // Refetch community profiles to reflect changes
+        fetch("/api/users/profiles")
+          .then(r => r.json())
+          .then(users => setRegisteredUsers(users))
+          .catch(err => console.error('Failed to refresh profiles:', err));
       })
       .catch(() => setAuthError('Network error'));
   }
