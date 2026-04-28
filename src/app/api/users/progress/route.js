@@ -6,9 +6,19 @@ export async function PATCH(req) {
   if (error) return Response.json({ error }, { status });
 
   try {
-    const { lastDialect, lastCategory, cardIndex, knownCards, completedCategories } = await req.json();
+    const {
+      lastDialect, lastCategory, lessonMode,
+      cardIndex, knownCards, completedCategories,
+      situationalQuizIndex, situationalCueIndex, situationalScore,
+      sentenceIndex, sentenceScore,
+    } = await req.json();
 
-    const progress = { lastDialect, lastCategory, cardIndex, knownCards, completedCategories };
+    const progress = {
+      lastDialect, lastCategory, lessonMode,
+      cardIndex, knownCards, completedCategories,
+      situationalQuizIndex, situationalCueIndex, situationalScore,
+      sentenceIndex, sentenceScore,
+    };
 
     await query(
       `UPDATE users SET progress = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,

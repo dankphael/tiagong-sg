@@ -2296,11 +2296,20 @@ export default function DialectPlatform() {
 
   function restoreProgress(p) {
     if (!p || typeof p !== 'object') return;
-    if (p.lastDialect) setSelectedDialect(p.lastDialect);
+    if (p.lastDialect) {
+      setSelectedDialect(p.lastDialect);
+      setScreen("lesson");
+    }
     if (p.lastCategory) setSelectedCategory(p.lastCategory);
+    if (p.lessonMode) setLessonMode(p.lessonMode);
     if (p.cardIndex != null) setCardIndex(p.cardIndex);
     if (p.knownCards) setKnownCards(p.knownCards);
     if (p.completedCategories) setProgress(p.completedCategories);
+    if (p.situationalQuizIndex != null) setSituationalQuizIndex(p.situationalQuizIndex);
+    if (p.situationalCueIndex != null) setSituationalCueIndex(p.situationalCueIndex);
+    if (p.situationalScore != null) setSituationalScore(p.situationalScore);
+    if (p.sentenceIndex != null) setSentenceIndex(p.sentenceIndex);
+    if (p.sentenceScore != null) setSentenceScore(p.sentenceScore);
   }
 
   function completeProfile() {
@@ -2455,23 +2464,33 @@ export default function DialectPlatform() {
         body: JSON.stringify({
           lastDialect: selectedDialect,
           lastCategory: selectedCategory,
+          lessonMode,
           cardIndex,
           knownCards,
           completedCategories: progress,
+          situationalQuizIndex,
+          situationalCueIndex,
+          situationalScore,
+          sentenceIndex,
+          sentenceScore,
         }),
       }).catch(() => {});
     }, 1500);
     return () => clearTimeout(tid);
-  }, [knownCards, progress, cardIndex, selectedDialect, selectedCategory, currentUser]);
+  }, [knownCards, progress, cardIndex, selectedDialect, selectedCategory, lessonMode,
+      situationalQuizIndex, situationalCueIndex, situationalScore,
+      sentenceIndex, sentenceScore, currentUser]);
 
   const toCard = w => ({ phrase: w.headword?.romanized || "", chinese: w.headword?.traditional || "", meaning: w.definitions?.[0]?.english || "", romanisation: w.headword?.romanized || "" });
   const apiForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === selectedCategory).map(toCard) : [];
   const cards = [...(selectedDialect && lessons[selectedDialect]?.[selectedCategory] || []), ...apiForCategory];
 
   function selectDialect(id) {
+    if (id !== selectedDialect) {
+      setSelectedCategory("greetings");
+      setCardIndex(0);
+    }
     setSelectedDialect(id);
-    setSelectedCategory("greetings");
-    setCardIndex(0);
     setFlipped(false);
     setScreen("lesson");
   }
