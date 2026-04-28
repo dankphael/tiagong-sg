@@ -7,7 +7,7 @@ export async function GET(req) {
 
   try {
     const result = await query(
-      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, progress
+      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, progress, dialects_known
        FROM users WHERE id = $1`,
       [decoded.userId]
     );
@@ -29,6 +29,7 @@ export async function GET(req) {
         languageInterest: u.dialect_group || 'Hokkien',
         avatar: u.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
         progress: u.progress || {},
+        dialectsKnown: u.dialects_known || [],
       },
     }, { status: 200 });
   } catch (err) {

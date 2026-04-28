@@ -2273,7 +2273,7 @@ export default function DialectPlatform() {
   const [currentUser, setCurrentUser] = useState(null);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [connectRequests, setConnectRequests] = useState([]);
-  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee" });
+  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", dialectsKnown: [] });
   const [profileEditMode, setProfileEditMode] = useState(false);
   const [pendingGoogle, setPendingGoogle] = useState(null); // { credential, googleData } when new Google user needs to complete profile
   const [authError, setAuthError] = useState(null);
@@ -2314,14 +2314,14 @@ export default function DialectPlatform() {
 
   function completeProfile() {
     if (!pendingGoogle) return;
-    const { age, occupation, languageInterest, role } = profileForm;
+    const { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown } = profileForm;
     setAuthError(null);
     fetch('/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         credential: pendingGoogle.credential,
-        profileData: { age, occupation, languageInterest, role },
+        profileData: { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown },
       }),
     })
       .then(res => res.json().then(data => ({ ok: res.ok, data })))
@@ -2339,6 +2339,29 @@ export default function DialectPlatform() {
         console.error('Failed to complete profile:', err);
         setAuthError('Network error');
       });
+  }
+
+  function saveProfile() {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+    const { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown } = profileForm;
+    setAuthError(null);
+    fetch('/api/users/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ firstName, lastName, age, occupation, languageInterest, role, dialectsKnown }),
+    })
+      .then(res => res.json().then(data => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) { setAuthError(data.error || 'Failed to save profile'); return; }
+        setCurrentUser(prev => ({
+          ...prev, firstName, lastName, age, occupation,
+          languageInterest, role, dialectsKnown,
+          avatar: role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
+        }));
+        setProfileEditMode(false);
+      })
+      .catch(() => setAuthError('Network error'));
   }
 
   function switchUser(user) {
@@ -4052,32 +4075,137 @@ export default function DialectPlatform() {
 
           {currentUser ? (
             <div className="fade-up">
-              <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-                  <div style={{ fontSize: 56, background: "#FAF6F0", borderRadius: "50%", width: 72, height: 72, display: "flex", alignItems: "center", justifyContent: "center" }}>{currentUser.avatar}</div>
-                  <div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>{currentUser.firstName} {currentUser.lastName}</div>
-                    <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 2 }}>{currentUser.occupation} · Age {currentUser.age}</div>
-                    <div style={{ display: "inline-block", marginTop: 6, fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "3px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
+              {profileEditMode ? (
+                <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA" }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                    {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
+                      ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
+                      <div key={label}>
+                        <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                        <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
+                          style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 14, fontFamily: "inherit", outline: "none", background: "#FAF6F0", boxSizing: "border-box" }} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {[["Age", "number", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
+                    ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, val, setter]) => (
+                    <div key={label} style={{ marginBottom: 16 }}>
+                      <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                      <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
+                        style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                    </div>
+                  ))}
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect I want to learn</label>
+                    <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
+                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                      {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
+                    </select>
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => {
+                        const checked = (profileForm.dialectsKnown || []).includes(d);
+                        return (
+                          <button key={d} type="button"
+                            onClick={() => setProfileForm(f => ({
+                              ...f,
+                              dialectsKnown: checked
+                                ? f.dialectsKnown.filter(x => x !== d)
+                                : [...(f.dialectsKnown || []), d],
+                            }))}
+                            style={{ padding: "8px 16px", borderRadius: 20, border: "2px solid " + (checked ? "#C0392B" : "#E8DDD0"), background: checked ? "#FDF0EF" : "white", color: checked ? "#C0392B" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                            {checked ? "✓ " : ""}{d}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: 28 }}>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I am a</label>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      {[["mentee", "🧑‍🎓", "Mentee", "I want to learn dialects"], ["mentor", "👨‍🏫", "Mentor", "I can teach others"]].map(([val, icon, label, sub]) => (
+                        <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
+                          style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                          <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
+                          <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button className="btn-hover" onClick={saveProfile}
+                      style={{ flex: 1, padding: "12px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                      Save Changes
+                    </button>
+                    <button className="btn-hover" onClick={() => { setProfileEditMode(false); setAuthError(null); }}
+                      style={{ padding: "12px 20px", background: "white", color: "#6B5B45", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                      Cancel
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 14, color: "#6B5B45" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
-                    <span style={{ fontWeight: 600 }}>Email</span><span>{currentUser.email}</span>
+              ) : (
+                <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                    <div style={{ fontSize: 56, background: "#FAF6F0", borderRadius: "50%", width: 72, height: 72, display: "flex", alignItems: "center", justifyContent: "center" }}>{currentUser.avatar}</div>
+                    <div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>{currentUser.firstName} {currentUser.lastName}</div>
+                      <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 2 }}>{currentUser.occupation}{currentUser.age ? ` · Age ${currentUser.age}` : ""}</div>
+                      <div style={{ display: "inline-block", marginTop: 6, fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "3px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
-                    <span style={{ fontWeight: 600 }}>Language Interest</span><span>{currentUser.languageInterest}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 0, fontSize: 14, color: "#6B5B45" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
+                      <span style={{ fontWeight: 600 }}>Email</span><span>{currentUser.email}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
+                      <span style={{ fontWeight: 600 }}>Learning</span><span>{currentUser.languageInterest || "—"}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
+                      <span style={{ fontWeight: 600 }}>Dialects known</span>
+                      <span style={{ textAlign: "right" }}>
+                        {(currentUser.dialectsKnown || []).length > 0
+                          ? currentUser.dialectsKnown.join(", ")
+                          : <span style={{ color: "#B8A898" }}>None listed</span>}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0" }}>
+                      <span style={{ fontWeight: 600 }}>SinSeh Programme</span>
+                      <span style={{ color: currentUser.sinSehApplied ? "#1A6B3C" : "#9B8B75" }}>{currentUser.sinSehApplied ? "Applied ✓" : "Not applied"}</span>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0" }}>
-                    <span style={{ fontWeight: 600 }}>SinSeh Programme</span>
-                    <span style={{ color: currentUser.sinSehApplied ? "#1A6B3C" : "#9B8B75" }}>{currentUser.sinSehApplied ? "Applied ✓" : "Not applied"}</span>
-                  </div>
+                  <button className="btn-hover"
+                    onClick={() => {
+                      setProfileForm({
+                        firstName: currentUser.firstName || '',
+                        lastName: currentUser.lastName || '',
+                        age: currentUser.age || '',
+                        occupation: currentUser.occupation || '',
+                        email: currentUser.email || '',
+                        languageInterest: currentUser.languageInterest || 'Hokkien',
+                        role: currentUser.role || 'mentee',
+                        dialectsKnown: currentUser.dialectsKnown || [],
+                      });
+                      setProfileEditMode(true);
+                    }}
+                    style={{ marginTop: 24, width: "100%", padding: "12px", background: "#FAF6F0", color: "#1A1208", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    Edit Profile
+                  </button>
+                  <button className="btn-hover" onClick={handleLogout}
+                    style={{ marginTop: 10, width: "100%", padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    Sign Out
+                  </button>
                 </div>
-                <button className="btn-hover" onClick={handleLogout}
-                  style={{ marginTop: 24, width: "100%", padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                  Sign Out
-                </button>
-              </div>
+              )}
             </div>
           ) : pendingGoogle ? (
             <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
@@ -4088,13 +4216,15 @@ export default function DialectPlatform() {
                 Signed in as <strong>{pendingGoogle.googleData.email}</strong>. Tell us a bit more about yourself.
               </p>
 
-              <div style={{ marginBottom: 20, padding: "16px", background: "#FAF6F0", borderRadius: 10, border: "1px solid #E8DDD0" }}>
-                <div style={{ fontSize: 13, color: "#6B5B45", marginBottom: 8 }}>
-                  <span style={{ fontWeight: 600 }}>Name:</span> {pendingGoogle.googleData.firstName} {pendingGoogle.googleData.lastName}
-                </div>
-                <div style={{ fontSize: 13, color: "#6B5B45" }}>
-                  <span style={{ fontWeight: 600 }}>Email:</span> {pendingGoogle.googleData.email}
-                </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
+                  ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
+                  <div key={label}>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                    <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
+                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 14, fontFamily: "inherit", outline: "none", background: "#FAF6F0", boxSizing: "border-box" }} />
+                  </div>
+                ))}
               </div>
 
               {[["Age", "number", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
@@ -4107,11 +4237,32 @@ export default function DialectPlatform() {
               ))}
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Language to Learn / Speak</label>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect I want to learn</label>
                 <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
                   style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
-                  {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese", "Hokkien & Teochew", "Cantonese & Hakka", "All Dialects"].map(d => <option key={d}>{d}</option>)}
+                  {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
                 </select>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => {
+                    const checked = (profileForm.dialectsKnown || []).includes(d);
+                    return (
+                      <button key={d} type="button"
+                        onClick={() => setProfileForm(f => ({
+                          ...f,
+                          dialectsKnown: checked
+                            ? f.dialectsKnown.filter(x => x !== d)
+                            : [...(f.dialectsKnown || []), d],
+                        }))}
+                        style={{ padding: "8px 16px", borderRadius: 20, border: "2px solid " + (checked ? "#C0392B" : "#E8DDD0"), background: checked ? "#FDF0EF" : "white", color: checked ? "#C0392B" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                        {checked ? "✓ " : ""}{d}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div style={{ marginBottom: 28 }}>

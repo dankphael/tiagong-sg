@@ -34,6 +34,7 @@ function userResponse(row, picture) {
     role: row.role || 'mentee',
     languageInterest: row.dialect_group || 'Hokkien',
     avatar: row.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
+    dialectsKnown: row.dialects_known || [],
   };
 }
 
@@ -49,7 +50,7 @@ export async function POST(req) {
     const googleData = decodeGoogleCredential(credential);
 
     const existing = await query(
-      'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role FROM users WHERE email = $1',
+      'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, dialects_known FROM users WHERE email = $1',
       [googleData.email]
     );
 
@@ -63,19 +64,20 @@ export async function POST(req) {
       return Response.json({ needsProfile: true, googleData }, { status: 200 });
     }
 
-    const { age, occupation, languageInterest, role } = profileData;
+    const { age, occupation, languageInterest, role, firstName, lastName, dialectsKnown } = profileData;
     const result = await query(
-      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, password_hash)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role`,
+      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, dialects_known, password_hash)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, dialects_known`,
       [
         googleData.email,
-        googleData.firstName,
-        googleData.lastName,
+        firstName || googleData.firstName,
+        lastName || googleData.lastName,
         age || null,
         occupation || null,
         languageInterest || 'Hokkien',
         role || 'mentee',
+        JSON.stringify(dialectsKnown || []),
         'google-oauth',
       ]
     );
