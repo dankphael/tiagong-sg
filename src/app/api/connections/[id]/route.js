@@ -8,7 +8,7 @@ export async function PATCH(req, { params }) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { action } = await req.json(); // 'accept' or 'reject'
 
     if (!['accept', 'reject'].includes(action)) {

@@ -2415,22 +2415,44 @@ export default function DialectPlatform() {
 
   async function acceptConnectRequest(connectionId) {
     const token = localStorage.getItem('auth_token');
-    await fetch(`/api/connections/${connectionId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ action: 'accept' }),
-    });
-    await loadConnections();
+    setConnectError(null);
+    try {
+      const res = await fetch(`/api/connections/${connectionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'accept' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setConnectError(data.error || `Accept failed (${res.status})`);
+        return;
+      }
+      await loadConnections();
+    } catch (e) {
+      console.error('Failed to accept request:', e);
+      setConnectError('Network error — please try again');
+    }
   }
 
   async function rejectConnectRequest(connectionId) {
     const token = localStorage.getItem('auth_token');
-    await fetch(`/api/connections/${connectionId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ action: 'reject' }),
-    });
-    await loadConnections();
+    setConnectError(null);
+    try {
+      const res = await fetch(`/api/connections/${connectionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ action: 'reject' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setConnectError(data.error || `Action failed (${res.status})`);
+        return;
+      }
+      await loadConnections();
+    } catch (e) {
+      console.error('Failed to reject request:', e);
+      setConnectError('Network error — please try again');
+    }
   }
 
   function getConnectionStatus(targetId) {
@@ -3882,6 +3904,11 @@ export default function DialectPlatform() {
           </div>
           {networkTab === "community" && (
             <div>
+              {connectError && (
+                <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 10, padding: "12px 16px", fontSize: 13, border: "1px solid #C0392B40", marginBottom: 20 }}>
+                  {connectError}
+                </div>
+              )}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 32 }}>
                 {["All", "Mentor", "Mentee"].map(f => (
                   <button key={f} className="tab-btn" onClick={() => setNetworkFilter(f)}
@@ -4142,6 +4169,11 @@ export default function DialectPlatform() {
                           style={{ fontSize: 12, color: "#8B7355", background: "transparent", border: "1px solid #E8DDD0", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: "inherit" }}>
                           ↻ Refresh
                         </button>
+                      </div>
+                    )}
+                    {connectError && (
+                      <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 10, padding: "12px 16px", fontSize: 13, border: "1px solid #C0392B40" }}>
+                        {connectError}
                       </div>
                     )}
                     {!currentUser ? (
