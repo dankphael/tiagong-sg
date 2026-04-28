@@ -98,8 +98,8 @@ export async function GET(req) {
           ELSE u1.role
         END as connected_user_role,
         CASE
-          WHEN c.requester_id = $1 THEN u2.language_interest
-          ELSE u1.language_interest
+          WHEN c.requester_id = $1 THEN u2.dialect_group
+          ELSE u1.dialect_group
         END as connected_user_dialect
        FROM connections c
        JOIN users u1 ON c.requester_id = u1.id
