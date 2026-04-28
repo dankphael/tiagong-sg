@@ -2736,9 +2736,7 @@ export default function DialectPlatform() {
             ].map(({ mode, icon, label, desc }) => (
               <button key={mode} className="tab-btn" onClick={() => {
                 setLessonMode(mode);
-                setCardIndex(0); setSituationalQuizIndex(0); setSituationalCueIndex(0); setSentenceIndex(0);
-                setSelectedAnswer(null); setQuizShowResult(false);
-                setSituationalScore(0); setSentenceScore(0); setCompletionData(null);
+                setSelectedAnswer(null); setQuizShowResult(false); setCompletionData(null);
               }} style={{
                 padding: "14px 10px", borderRadius: 14,
                 background: lessonMode === mode ? dialect.color : "white",
@@ -2871,7 +2869,7 @@ export default function DialectPlatform() {
                   <div style={{ color: "#F5E6C8", fontSize: 15, fontFamily: "'Cormorant Garamond', serif" }}>Ready for a challenge?</div>
                   <div style={{ color: "#6B5B45", fontSize: 12, marginTop: 2 }}>Test yourself with story scenarios</div>
                 </div>
-                <button className="btn-hover" onClick={() => { setLessonMode("situational-quiz"); setSituationalScore(0); setCompletionData(null); }}
+                <button className="btn-hover" onClick={() => { setLessonMode("situational-quiz"); setCompletionData(null); }}
                   style={{ background: dialect.color, color: "white", border: "none", padding: "10px 22px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit", fontWeight: 600, whiteSpace: "nowrap" }}>
                   Try Story Quiz →
                 </button>
@@ -2911,7 +2909,7 @@ export default function DialectPlatform() {
                         }} style={{ padding: "12px 24px", background: "white", border: `2px solid ${dialect.color}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: dialect.color, cursor: "pointer", fontFamily: "inherit" }}>
                           ↺ Try Again
                         </button>
-                        <button className="btn-hover" onClick={() => { setLessonMode("completing-sentence"); setSentenceScore(0); setCompletionData(null); }}
+                        <button className="btn-hover" onClick={() => { setLessonMode("completing-sentence"); setCompletionData(null); }}
                           style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                           Try Fill in Blank →
                         </button>
