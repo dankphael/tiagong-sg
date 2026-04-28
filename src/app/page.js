@@ -2261,6 +2261,7 @@ export default function DialectPlatform() {
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
   const [requestModal, setRequestModal] = useState(null); // { user } when composing a mentorship request
   const [requestMessage, setRequestMessage] = useState("");
+  const [connectError, setConnectError] = useState(null);
   const [disMode, setDisMode] = useState("cards"); // cards | search
   const [disSearch, setDisSearch] = useState("");
   const [disFilter, setDisFilter] = useState("All");
@@ -2389,17 +2390,26 @@ export default function DialectPlatform() {
   }
 
   async function sendConnectRequest(targetUserId, message = '') {
-    if (!currentUser || currentUser.id === targetUserId) return;
+    if (!currentUser || currentUser.id === targetUserId) return false;
     const token = localStorage.getItem('auth_token');
+    setConnectError(null);
     try {
-      await fetch('/api/connections', {
+      const res = await fetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ requesterId: currentUser.id, receiverId: targetUserId, message }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setConnectError(data.error || `Request failed (${res.status})`);
+        return false;
+      }
       await loadConnections();
+      return true;
     } catch (e) {
       console.error('Failed to send connect request:', e);
+      setConnectError('Network error — please try again');
+      return false;
     }
   }
 
@@ -3979,12 +3989,17 @@ export default function DialectPlatform() {
                       placeholder="Tell this Sin Seh a little about yourself and why you want to learn..."
                       style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 14, fontFamily: "inherit", background: "#FAF6F0", resize: "vertical", marginBottom: 20 }}
                     />
+                    {connectError && (
+                      <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 8, padding: "10px 14px", fontSize: 13, marginBottom: 16, border: "1px solid #C0392B40" }}>
+                        {connectError}
+                      </div>
+                    )}
                     <div style={{ display: "flex", gap: 12 }}>
-                      <button onClick={() => { setRequestModal(null); setRequestMessage(""); }}
+                      <button onClick={() => { setRequestModal(null); setRequestMessage(""); setConnectError(null); }}
                         style={{ flex: 1, padding: "13px", borderRadius: 10, background: "#F5F0EA", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
                         Cancel
                       </button>
-                      <button onClick={async () => { await sendConnectRequest(requestModal.id, requestMessage); setRequestModal(null); setRequestMessage(""); }}
+                      <button onClick={async () => { const ok = await sendConnectRequest(requestModal.id, requestMessage); if (ok) { setRequestModal(null); setRequestMessage(""); } }}
                         style={{ flex: 1, padding: "13px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                         Send Request
                       </button>
@@ -4117,9 +4132,18 @@ export default function DialectPlatform() {
                 const incoming = pendingRequests;
                 const sent = connections.filter(c => c.requester_id === currentUser?.id && c.status === 'pending');
                 const active = connections.filter(c => c.status === 'accepted');
+                const hasPending = incoming.length > 0 || sent.length > 0;
                 const hasAny = incoming.length > 0 || sent.length > 0 || active.length > 0;
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+                    {currentUser && (
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <button onClick={() => loadConnections()} className="btn-hover"
+                          style={{ fontSize: 12, color: "#8B7355", background: "transparent", border: "1px solid #E8DDD0", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: "inherit" }}>
+                          ↻ Refresh
+                        </button>
+                      </div>
+                    )}
                     {!currentUser ? (
                       <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
                         <div style={{ fontSize: 48, marginBottom: 16 }}>🤝</div>

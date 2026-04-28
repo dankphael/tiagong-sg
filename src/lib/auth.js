@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export function verifyToken(token) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
   } catch (error) {
     return null;
   }

@@ -20,7 +20,7 @@ export async function GET(req) {
       `SELECT
         c.id, c.requester_id, c.receiver_id, c.status, c.message, c.created_at,
         u.first_name, u.last_name, u.email, u.role, u.age, u.occupation,
-        u.language_interest,
+        u.dialect_group as language_interest,
         u.first_name || ' ' || u.last_name as requester_name
        FROM connections c
        JOIN users u ON c.requester_id = u.id
