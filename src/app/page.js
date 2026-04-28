@@ -2334,7 +2334,6 @@ export default function DialectPlatform() {
         setCurrentUser(data.user);
         setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
         setPendingGoogle(null);
-        setScreen('network');
       })
       .catch(err => {
         console.error('Failed to complete profile:', err);
@@ -2400,7 +2399,6 @@ export default function DialectPlatform() {
           setCurrentUser(data.user);
           restoreProgress(data.user.progress);
           setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
-          setScreen('network');
         }
       })
       .catch(err => {
