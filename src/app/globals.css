@@ -177,7 +177,7 @@ html {
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  width: 304px;
+  width: 340px;
   z-index: 2;
   pointer-events: none;
   animation: orbital-center-appear 0.7s ease 0.15s both;
