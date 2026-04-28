@@ -9,7 +9,7 @@ export async function POST(req) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { requesterId, receiverId } = await req.json();
+    const { requesterId, receiverId, message } = await req.json();
 
     if (!requesterId || !receiverId) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
@@ -21,8 +21,8 @@ export async function POST(req) {
 
     // Check if connection already exists
     const existingConnection = await query(
-      `SELECT id, status FROM connections 
-       WHERE (requester_id = $1 AND receiver_id = $2) 
+      `SELECT id, status FROM connections
+       WHERE (requester_id = $1 AND receiver_id = $2)
        OR (requester_id = $2 AND receiver_id = $1)`,
       [requesterId, receiverId]
     );
@@ -35,14 +35,24 @@ export async function POST(req) {
       if (existing.status === 'accepted') {
         return Response.json({ error: 'Already connected' }, { status: 409 });
       }
+      // Rejected — flip back to pending so the unique constraint doesn't block resend
+      if (existing.status === 'rejected') {
+        const updated = await query(
+          `UPDATE connections SET status='pending', message=$1, updated_at=CURRENT_TIMESTAMP
+           WHERE id=$2
+           RETURNING id, requester_id, receiver_id, status, message, created_at`,
+          [message || null, existing.id]
+        );
+        return Response.json(updated.rows[0], { status: 200 });
+      }
     }
 
     // Create new connection request
     const result = await query(
-      `INSERT INTO connections (requester_id, receiver_id, status) 
-       VALUES ($1, $2, 'pending') 
-       RETURNING id, requester_id, receiver_id, status, created_at`,
-      [requesterId, receiverId]
+      `INSERT INTO connections (requester_id, receiver_id, status, message)
+       VALUES ($1, $2, 'pending', $3)
+       RETURNING id, requester_id, receiver_id, status, message, created_at`,
+      [requesterId, receiverId, message || null]
     );
 
     return Response.json(result.rows[0], { status: 201 });
@@ -69,20 +79,28 @@ export async function GET(req) {
 
     // Get all connections for this user (both as requester and receiver)
     const result = await query(
-      `SELECT 
-        c.id, c.requester_id, c.receiver_id, c.status, c.created_at,
-        CASE 
+      `SELECT
+        c.id, c.requester_id, c.receiver_id, c.status, c.message, c.created_at,
+        CASE
           WHEN c.requester_id = $1 THEN u2.first_name || ' ' || u2.last_name
           ELSE u1.first_name || ' ' || u1.last_name
         END as connected_user_name,
-        CASE 
+        CASE
           WHEN c.requester_id = $1 THEN u2.email
           ELSE u1.email
         END as connected_user_email,
-        CASE 
+        CASE
           WHEN c.requester_id = $1 THEN u2.id
           ELSE u1.id
-        END as connected_user_id
+        END as connected_user_id,
+        CASE
+          WHEN c.requester_id = $1 THEN u2.role
+          ELSE u1.role
+        END as connected_user_role,
+        CASE
+          WHEN c.requester_id = $1 THEN u2.language_interest
+          ELSE u1.language_interest
+        END as connected_user_dialect
        FROM connections c
        JOIN users u1 ON c.requester_id = u1.id
        JOIN users u2 ON c.receiver_id = u2.id

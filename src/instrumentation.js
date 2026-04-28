@@ -7,6 +7,7 @@ export async function register() {
     // Add missing columns if they don't exist
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS dialects_known JSONB DEFAULT '[]'`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS progress JSONB DEFAULT '{}'`);
+    await query(`ALTER TABLE connections ADD COLUMN IF NOT EXISTS message TEXT`);
 
     console.log('Database migrations completed successfully');
   } catch (error) {

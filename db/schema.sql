@@ -20,6 +20,7 @@ CREATE TABLE connections (
   requester_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   receiver_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+  message TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(requester_id, receiver_id)

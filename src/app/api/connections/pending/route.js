@@ -17,9 +17,10 @@ export async function GET(req) {
 
     // Get pending requests where current user is the receiver
     const result = await query(
-      `SELECT 
-        c.id, c.requester_id, c.receiver_id, c.status, c.created_at,
-        u.first_name, u.last_name, u.email, u.dialect_group, u.age, u.occupation,
+      `SELECT
+        c.id, c.requester_id, c.receiver_id, c.status, c.message, c.created_at,
+        u.first_name, u.last_name, u.email, u.role, u.age, u.occupation,
+        u.language_interest,
         u.first_name || ' ' || u.last_name as requester_name
        FROM connections c
        JOIN users u ON c.requester_id = u.id
