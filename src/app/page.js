@@ -2655,10 +2655,18 @@ export default function DialectPlatform() {
             <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
           </div>
         </div>
+        <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
+          {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"]].map(([s,label]) => (
+            <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
+              {label}
+            </span>
+          ))}
+          {selectedDialect && <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {currentUser ? (
             <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#F5E6C8", fontSize: 13 }}>
-              <span>{currentUser.firstName}</span>
+              <span onClick={() => { setScreen("profile"); setMobileMenuOpen(false); }} style={{ cursor: "pointer", color: "#F5E6C8", fontSize: 13, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color = "#C0392B"} onMouseLeave={e => e.target.style.color = "#F5E6C8"}>{currentUser.firstName}</span>
               <button onClick={handleLogout} className="btn-secondary" style={{ padding: "7px 14px", fontSize: 12 }}>
                 Sign Out
               </button>
@@ -2671,14 +2679,6 @@ export default function DialectPlatform() {
           <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Toggle menu">
             {mobileMenuOpen ? "✕" : "☰"}
           </button>
-        </div>
-        <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
-          {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"],["profile","Profile"]].map(([s,label]) => (
-            <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
-              {label}{s === "profile" && currentUser ? ` (${currentUser.firstName})` : ""}
-            </span>
-          ))}
-          {selectedDialect && <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
         </div>
       </nav>
 
