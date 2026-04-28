@@ -129,6 +129,122 @@ html {
 .hero-subtext  { font-size: 18px; }
 .dialect-grid  { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
 
+/* ── Orbital home layout ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes orbital-center-appear {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 18px)); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes card-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.fade-up { animation: fade-up 0.6s ease both; }
+
+.orbital-wrapper {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  padding: 60px 32px;
+}
+
+.orbital-stage {
+  position: relative;
+  width: 700px;
+  height: 700px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.orbital-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 590px; height: 590px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(245, 230, 200, 0.18);
+  pointer-events: none;
+}
+
+.orbital-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 272px;
+  z-index: 2;
+  pointer-events: none;
+  animation: orbital-center-appear 0.7s ease 0.15s both;
+}
+
+.orbital-card {
+  position: absolute;
+  width: 156px; height: 156px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(245, 230, 200, 0.14);
+  transform: translate(-50%, -50%);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-align: center;
+  padding: 14px;
+  z-index: 3;
+  animation: card-appear 0.5s ease both;
+  overflow: visible;
+}
+.orbital-card:hover {
+  transform: translate(-50%, -50%) scale(1.11);
+  box-shadow: 0 0 36px var(--dialect-glow, rgba(192,57,43,0.35));
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(245, 230, 200, 0.38);
+  z-index: 10;
+}
+
+.orbital-tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 8, 2, 0.97);
+  border: 1px solid rgba(245, 230, 200, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  width: 210px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 30;
+  text-align: left;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+}
+.orbital-card:hover .orbital-tooltip { opacity: 1; }
+.orbital-tooltip-above { bottom: calc(100% + 12px); top: auto; }
+.orbital-tooltip-below { top: calc(100% + 12px); bottom: auto; }
+
+.orbital-mobile { display: none; }
+
+.orbital-mobile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.orbital-mobile-card:hover { background: rgba(255, 255, 255, 0.08); }
+
 /* ── Responsive: Lesson ── */
 .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .flashcard  { height: 260px; }
@@ -162,6 +278,11 @@ html {
   .hero-heading { font-size: 36px; }
   .hero-subtext  { font-size: 15px; }
   .dialect-grid  { grid-template-columns: 1fr; gap: 16px; }
+
+  /* Orbital home — mobile fallback */
+  .orbital-stage { display: none; }
+  .orbital-mobile { display: block; width: 100%; }
+  .orbital-wrapper { align-items: flex-start; padding: 48px 24px; }
 
   /* Lesson */
   .mode-grid { grid-template-columns: 1fr; gap: 8px; }

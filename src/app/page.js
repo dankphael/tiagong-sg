@@ -2685,53 +2685,94 @@ export default function DialectPlatform() {
       {/* HOME */}
       {screen === "home" && (
         <div>
-          {/* Hero */}
-          <div style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 50%, #3D1F10 100%)", padding: "80px 32px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(192,57,43,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(212,134,11,0.1) 0%, transparent 50%)" }} />
-            <div style={{ position: "relative", maxWidth: 680, margin: "0 auto" }} className="fade-up">
-              <div style={{ fontSize: 56, marginBottom: 16 }}>🏮 🎋 🍵</div>
-              <h1 className="hero-heading" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
-                Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
-              </h1>
-              <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.7, marginBottom: 8 }}>
-                Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
-              </p>
-              <p style={{ color: "#7A6040", fontSize: 14, marginBottom: 40, fontStyle: "italic" }}>
-                每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
-              </p>
-              <button className="btn-primary" onClick={() => document.getElementById("dialects").scrollIntoView({ behavior: "smooth" })} style={{ fontSize: 16, letterSpacing: 1 }}>
-                Start Learning →
-              </button>
-            </div>
-          </div>
+          <div className="orbital-wrapper" style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 50%, #3D1F10 100%)" }}>
+            {/* Background radial overlays */}
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(192,57,43,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(212,134,11,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
 
-          {/* Dialect Cards */}
-          <div id="dialects" style={{ padding: "64px 32px", maxWidth: 1100, margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: 48 }}>
-              <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Choose Your Dialect</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 40, color: "#1A1208" }}>Which dialect calls to you?</h2>
-            </div>
-            <div className="dialect-grid">
+            {/* Desktop: orbital stage */}
+            <div className="orbital-stage">
+              <div className="orbital-ring" />
+              <div className="orbital-center">
+                <div style={{ fontSize: 34, marginBottom: 10 }}>🏮 🎋 🍵</div>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 12, fontSize: 28 }}>
+                  Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
+                </h1>
+                <p style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 12 }}>
+                  Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
+                </p>
+                <p style={{ color: "#5A4025", fontSize: 11, fontStyle: "italic", lineHeight: 1.6 }}>
+                  每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
+                </p>
+              </div>
               {dialects.map((d, i) => {
+                const angle = (-90 + i * 72) * (Math.PI / 180);
+                const R = 285;
+                const x = Math.round(R * Math.cos(angle));
+                const y = Math.round(R * Math.sin(angle));
+                const tooltipBelow = y < -150;
                 const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
                 return (
-                  <div key={d.id} className="dialect-card" onClick={() => selectDialect(d.id)}
-                    style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", border: `1px solid ${d.color}22`, animationDelay: `${i * 0.08}s`, textAlign: "center" }}>
-                    <div style={{ fontSize: 40, marginBottom: 16, display: "flex", justifyContent: "center" }}>{d.icon}</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>{d.name}</div>
-                    <div style={{ fontSize: 22, color: d.color, marginBottom: 12, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
-                    <p style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.6, marginBottom: 16 }}>{d.description}</p>
-                    <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 8 }}>📍 {d.origin}</div>
-                    <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 16 }}>👥 {d.speakers}</div>
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${(dialectProgress / 3) * 100}%`, background: d.color }} />
+                  <div
+                    key={d.id}
+                    className="orbital-card"
+                    onClick={() => selectDialect(d.id)}
+                    style={{
+                      left: `calc(50% + ${x}px)`,
+                      top: `calc(50% + ${y}px)`,
+                      animationDelay: `${0.1 + i * 0.1}s`,
+                      "--dialect-glow": `${d.color}99`,
+                    }}
+                  >
+                    <div className={`orbital-tooltip ${tooltipBelow ? "orbital-tooltip-below" : "orbital-tooltip-above"}`}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: d.color, marginBottom: 5 }}>{d.name}</div>
+                      <div style={{ fontSize: 12, color: "#9B8B75", lineHeight: 1.5 }}>{d.description}</div>
+                      <div style={{ fontSize: 11, color: "#6A5035", marginTop: 8 }}>📍 {d.origin}</div>
+                      <div style={{ fontSize: 11, color: "#6A5035", marginTop: 2 }}>👥 {d.speakers}</div>
                     </div>
-                    <div style={{ marginTop: 16 }}>
-                      <span style={{ color: d.color, fontSize: 14, fontStyle: "italic" }}>Begin learning →</span>
-                    </div>
+                    <div style={{ fontSize: 30 }}>{d.icon}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2 }}>{d.name}</div>
+                    <div style={{ fontSize: 14, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
+                    {dialectProgress > 0 && (
+                      <div style={{ width: 36, height: 2, background: "rgba(255,255,255,0.12)", borderRadius: 1, marginTop: 3 }}>
+                        <div style={{ width: `${(dialectProgress / 3) * 100}%`, height: "100%", background: d.color, borderRadius: 1 }} />
+                      </div>
+                    )}
                   </div>
                 );
               })}
+            </div>
+
+            {/* Mobile: stacked layout */}
+            <div className="orbital-mobile">
+              <div style={{ textAlign: "center", marginBottom: 40 }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>🏮 🎋 🍵</div>
+                <h1 className="hero-heading" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
+                  Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
+                </h1>
+                <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.7, marginBottom: 8 }}>
+                  Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
+                </p>
+                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 36 }}>
+                  每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
+                </p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {dialects.map((d, i) => {
+                  const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
+                  return (
+                    <div key={d.id} className="orbital-mobile-card" onClick={() => selectDialect(d.id)}
+                      style={{ border: `1px solid ${d.color}44`, animationDelay: `${i * 0.08}s` }}>
+                      <div style={{ fontSize: 32 }}>{d.icon}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>{d.name}</div>
+                        <div style={{ fontSize: 16, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
+                        <p style={{ fontSize: 13, color: "#8B7355", marginTop: 4, lineHeight: 1.5 }}>{d.description}</p>
+                      </div>
+                      <div style={{ color: d.color, fontSize: 22, fontWeight: 300 }}>›</div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
