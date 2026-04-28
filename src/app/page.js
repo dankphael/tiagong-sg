@@ -2297,10 +2297,7 @@ export default function DialectPlatform() {
 
   function restoreProgress(p) {
     if (!p || typeof p !== 'object') return;
-    if (p.lastDialect) {
-      setSelectedDialect(p.lastDialect);
-      setScreen("lesson");
-    }
+    if (p.lastDialect) setSelectedDialect(p.lastDialect);
     if (p.lastCategory) setSelectedCategory(p.lastCategory);
     if (p.lessonMode) setLessonMode(p.lessonMode);
     if (p.cardIndex != null) setCardIndex(p.cardIndex);
