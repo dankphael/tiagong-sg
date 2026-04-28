@@ -168,7 +168,7 @@ html {
   width: 590px; height: 590px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 1px dashed rgba(245, 230, 200, 0.18);
+  border: 1px dashed rgba(245, 230, 200, 0.25);
   pointer-events: none;
 }
 
@@ -177,7 +177,7 @@ html {
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  width: 272px;
+  width: 304px;
   z-index: 2;
   pointer-events: none;
   animation: orbital-center-appear 0.7s ease 0.15s both;

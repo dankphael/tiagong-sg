@@ -2692,15 +2692,15 @@ export default function DialectPlatform() {
             {/* Desktop: orbital stage */}
             <div className="orbital-stage">
               <div className="orbital-ring" />
-              <div className="orbital-center">
-                <div style={{ fontSize: 34, marginBottom: 10 }}>🏮 🎋 🍵</div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 12, fontSize: 28 }}>
-                  Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
+              <div className="orbital-center" style={{ width: 304 }}>
+                <div style={{ fontSize: 38, marginBottom: 12 }}>🏮 🎋 🍵</div>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 14, fontSize: 32 }}>
+                  Preserve Our<br /><em style={{ color: "#D6453C" }}>Dialect Heritage</em>
                 </h1>
-                <p style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 12 }}>
+                <p style={{ color: "#D4B896", lineHeight: 1.6, marginBottom: 10, fontSize: 14 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#5A4025", fontSize: 11, fontStyle: "italic", lineHeight: 1.6 }}>
+                <p style={{ color: "#C0A370", fontSize: 13, fontStyle: "italic", lineHeight: 1.6 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
                 </p>
               </div>
@@ -2725,13 +2725,13 @@ export default function DialectPlatform() {
                   >
                     <div className={`orbital-tooltip ${tooltipBelow ? "orbital-tooltip-below" : "orbital-tooltip-above"}`}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: d.color, marginBottom: 5 }}>{d.name}</div>
-                      <div style={{ fontSize: 12, color: "#9B8B75", lineHeight: 1.5 }}>{d.description}</div>
-                      <div style={{ fontSize: 11, color: "#6A5035", marginTop: 8 }}>📍 {d.origin}</div>
-                      <div style={{ fontSize: 11, color: "#6A5035", marginTop: 2 }}>👥 {d.speakers}</div>
+                      <div style={{ fontSize: 13, color: "#B0A088", lineHeight: 1.5 }}>{d.description}</div>
+                      <div style={{ fontSize: 12, color: "#B89870", marginTop: 8 }}>📍 {d.origin}</div>
+                      <div style={{ fontSize: 12, color: "#B89870", marginTop: 2 }}>👥 {d.speakers}</div>
                     </div>
                     <div style={{ fontSize: 30 }}>{d.icon}</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2 }}>{d.name}</div>
-                    <div style={{ fontSize: 14, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 19, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2 }}>{d.name}</div>
+                    <div style={{ fontSize: 16, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
                     {dialectProgress > 0 && (
                       <div style={{ width: 36, height: 2, background: "rgba(255,255,255,0.12)", borderRadius: 1, marginTop: 3 }}>
                         <div style={{ width: `${(dialectProgress / 3) * 100}%`, height: "100%", background: d.color, borderRadius: 1 }} />
