@@ -14,7 +14,7 @@ const dialects = [
     bg: "#FDF0EF",
     origin: "Fujian Province",
     speakers: "~40% of Chinese Singaporeans",
-    icon: "seal",
+    icon: "🏮",
     description: "The most widely spoken dialect in Singapore, brought by immigrants from Fujian province.",
   },
   {
@@ -77,7 +77,7 @@ const huayKuan = [
     founded: 1840,
     members: "5,000+",
     color: "#C0392B",
-    icon: "seal",
+    icon: "🏮",
     pin: { x: 367, y: 132 },
     address: "5 Sennett Road, Singapore 466781",
     tel: ["+65 6222 8212 (Main)", "+65 6589 9500 (Cultural Academy)"],
@@ -2769,7 +2769,7 @@ export default function DialectPlatform() {
               <div className="orbital-ring" />
               <div className="orbital-center" style={{ width: 340 }}>
                 <div style={{ marginBottom: 14 }}>
-                  <Image src="/logo/01-vertical-dark-bg.png" alt="tiagong.sg" width={220} height={180} priority style={{ width: "100%", height: "auto", maxWidth: 220 }} />
+                  <Image src="/logo/01-vertical-transparent.png" alt="tiagong.sg" width={220} height={180} priority style={{ width: "100%", height: "auto", maxWidth: 220 }} />
                 </div>
                 <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16, fontSize: 38 }}>
                   Preserve Our<br /><em style={{ color: "#E8D4A8" }}>Dialect Heritage</em>
@@ -2806,9 +2806,7 @@ export default function DialectPlatform() {
                       <div style={{ fontSize: 13, color: "#E8D4A8", marginTop: 8 }}>📍 {d.origin}</div>
                       <div style={{ fontSize: 13, color: "#E8D4A8", marginTop: 2 }}>👥 {d.speakers}</div>
                     </div>
-                    <div style={{ fontSize: 34, height: 38, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {d.icon === "seal" ? <Image src="/logo/06-seal-only-dark-bg.png" alt={d.name} width={32} height={32} /> : d.icon}
-                    </div>
+                    <div style={{ fontSize: 34 }}>{d.icon}</div>
                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2 }}>{d.name}</div>
                     <div style={{ fontSize: 18, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
                     {dialectProgress > 0 && (
@@ -2825,7 +2823,7 @@ export default function DialectPlatform() {
             <div className="orbital-mobile">
               <div style={{ textAlign: "center", marginBottom: 40 }}>
                 <div style={{ marginBottom: 16 }}>
-                  <Image src="/logo/01-vertical-dark-bg.png" alt="tiagong.sg" width={160} height={140} priority style={{ width: "100%", height: "auto", maxWidth: 160, margin: "0 auto" }} />
+                  <Image src="/logo/01-vertical-transparent.png" alt="tiagong.sg" width={160} height={140} priority style={{ width: "100%", height: "auto", maxWidth: 160, margin: "0 auto" }} />
                 </div>
                 <h1 className="hero-heading" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
                   Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
@@ -2843,9 +2841,7 @@ export default function DialectPlatform() {
                   return (
                     <div key={d.id} className="orbital-mobile-card" onClick={() => selectDialect(d.id)}
                       style={{ border: `1px solid ${d.color}44`, animationDelay: `${i * 0.08}s` }}>
-                      <div style={{ fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40 }}>
-                        {d.icon === "seal" ? <Image src="/logo/06-seal-only-dark-bg.png" alt={d.name} width={28} height={28} /> : d.icon}
-                      </div>
+                      <div style={{ fontSize: 32 }}>{d.icon}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>{d.name}</div>
                         <div style={{ fontSize: 16, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
@@ -2867,9 +2863,7 @@ export default function DialectPlatform() {
 
           {/* Dialect Header — compact */}
           <div style={{ background: `linear-gradient(135deg, ${dialect.color}18, ${dialect.color}08)`, border: `1.5px solid ${dialect.color}30`, borderRadius: 16, padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center", width: 48, height: 48 }}>
-              {dialect.icon === "seal" ? <Image src="/logo/06-seal-only-dark-bg.png" alt={dialect.name} width={36} height={36} /> : dialect.icon}
-            </div>
+            <div style={{ fontSize: 40 }}>{dialect.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208" }}>{dialect.name}</div>
               <div style={{ fontSize: 18, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
@@ -4568,9 +4562,7 @@ export default function DialectPlatform() {
                 className="btn-hover">
                 {/* Card header */}
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: `${hk.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>
-                    {hk.icon === "seal" ? <Image src="/logo/06-seal-only-dark-bg.png" alt={hk.name} width={28} height={28} /> : hk.icon}
-                  </div>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: `${hk.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{hk.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#1A1208", lineHeight: 1.3, marginBottom: 4 }}>{hk.name}</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -4696,7 +4688,7 @@ export default function DialectPlatform() {
             {dialects.map(d => (
               <div key={d.id} onClick={() => { selectDialect(d.id); }} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "color 0.15s" }}
                 onMouseEnter={e => e.currentTarget.style.color="#F5E6C8"} onMouseLeave={e => e.currentTarget.style.color="#8B7355"}>
-                {d.icon === "seal" ? <Image src="/logo/06-seal-only-dark-bg.png" alt={d.name} width={16} height={16} /> : <span style={{ fontSize: 13 }}>{d.icon}</span>} {d.name}
+                <span>{d.icon}</span> {d.name}
               </div>
             ))}
           </div>
