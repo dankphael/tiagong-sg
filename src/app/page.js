@@ -2725,10 +2725,7 @@ export default function DialectPlatform() {
       <nav style={{ background: "#1A1208", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid #C0392B" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => setScreen("home")}>
           <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={44} height={44} priority style={{ width: "auto", height: 44 }} />
-          <div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#F5E6C8", letterSpacing: 1 }}>tiagong.sg</div>
-            <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
-          </div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#F5E6C8", letterSpacing: 1 }}>tiagong.sg</div>
         </div>
         <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
           {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"]].map(([s,label]) => (
@@ -2767,17 +2764,17 @@ export default function DialectPlatform() {
             {/* Desktop: orbital stage */}
             <div className="orbital-stage">
               <div className="orbital-ring" />
-              <div className="orbital-center" style={{ width: 340 }}>
-                <div style={{ marginBottom: 14 }}>
-                  <Image src="/logo/01-vertical-transparent.png" alt="tiagong.sg" width={220} height={180} priority style={{ width: "100%", height: "auto", maxWidth: 220 }} />
+              <div className="orbital-center" style={{ width: 360 }}>
+                <div style={{ marginBottom: 20 }}>
+                  <Image src="/logo/01-vertical-transparent.png" alt="tiagong.sg" width={260} height={200} priority style={{ width: "100%", height: "auto", maxWidth: 260 }} />
                 </div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16, fontSize: 38 }}>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 24, fontSize: 48 }}>
                   Preserve Our<br /><em style={{ color: "#E8D4A8" }}>Dialect Heritage</em>
                 </h1>
-                <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 12, fontSize: 16 }}>
+                <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 16, fontSize: 17 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#E8D4A8", fontSize: 15, fontStyle: "italic", lineHeight: 1.6 }}>
+                <p style={{ color: "#E8D4A8", fontSize: 16, fontStyle: "italic", lineHeight: 1.6 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
                 </p>
               </div>
@@ -2821,17 +2818,17 @@ export default function DialectPlatform() {
 
             {/* Mobile: stacked layout */}
             <div className="orbital-mobile">
-              <div style={{ textAlign: "center", marginBottom: 40 }}>
-                <div style={{ marginBottom: 16 }}>
-                  <Image src="/logo/01-vertical-transparent.png" alt="tiagong.sg" width={160} height={140} priority style={{ width: "100%", height: "auto", maxWidth: 160, margin: "0 auto" }} />
+              <div style={{ textAlign: "center", marginBottom: 48 }}>
+                <div style={{ marginBottom: 20 }}>
+                  <Image src="/logo/01-vertical-transparent.png" alt="tiagong.sg" width={180} height={150} priority style={{ width: "100%", height: "auto", maxWidth: 180, margin: "0 auto" }} />
                 </div>
-                <h1 className="hero-heading" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 16 }}>
+                <h1 className="hero-heading" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 20, fontSize: 40 }}>
                   Preserve Our<br /><em style={{ color: "#C0392B" }}>Dialect Heritage</em>
                 </h1>
-                <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.7, marginBottom: 8 }}>
+                <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.7, marginBottom: 12, fontSize: 16 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 36 }}>
+                <p style={{ color: "#7A6040", fontSize: 14, fontStyle: "italic", marginBottom: 40 }}>
                   每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
                 </p>
               </div>
