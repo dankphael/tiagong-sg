@@ -1,4 +1,5 @@
 import { query } from '@/lib/db';
+import { getAvatar } from '@/lib/avatar';
 
 export async function GET(req) {
   try {
@@ -6,7 +7,7 @@ export async function GET(req) {
     const role = searchParams.get('role');
     const dialectGroup = searchParams.get('dialect');
 
-    let sql = 'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, created_at FROM users WHERE 1=1';
+    let sql = 'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, created_at FROM users WHERE 1=1';
     const params = [];
     let paramCount = 1;
 
@@ -35,7 +36,8 @@ export async function GET(req) {
       email: u.email,
       languageInterest: u.dialect_group,
       role: u.role,
-      avatar: u.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓'
+      gender: u.gender,
+      avatar: getAvatar(u.gender, u.role)
     }));
 
     return Response.json(users, { status: 200 });

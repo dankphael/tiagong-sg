@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import { getAvatar } from '@/lib/avatar';
 
 function decodeGoogleCredential(credential) {
   const parts = credential.split('.');
@@ -32,8 +33,9 @@ function userResponse(row, picture) {
     age: row.age,
     occupation: row.occupation,
     role: row.role || 'mentee',
+    gender: row.gender,
     languageInterest: row.dialect_group || 'Hokkien',
-    avatar: row.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
+    avatar: getAvatar(row.gender, row.role || 'mentee'),
     dialectsKnown: row.dialects_known || [],
   };
 }
@@ -50,7 +52,7 @@ export async function POST(req) {
     const googleData = decodeGoogleCredential(credential);
 
     const existing = await query(
-      'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, dialects_known FROM users WHERE email = $1',
+      'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known FROM users WHERE email = $1',
       [googleData.email]
     );
 
@@ -64,11 +66,11 @@ export async function POST(req) {
       return Response.json({ needsProfile: true, googleData }, { status: 200 });
     }
 
-    const { age, occupation, languageInterest, role, firstName, lastName, dialectsKnown } = profileData;
+    const { age, occupation, languageInterest, role, gender, firstName, lastName, dialectsKnown } = profileData;
     const result = await query(
-      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, dialects_known, password_hash)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, dialects_known`,
+      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known, password_hash)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known`,
       [
         googleData.email,
         firstName || googleData.firstName,
@@ -77,6 +79,7 @@ export async function POST(req) {
         occupation || null,
         languageInterest || 'Hokkien',
         role || 'mentee',
+        gender || null,
         JSON.stringify(dialectsKnown || []),
         'google-oauth',
       ]

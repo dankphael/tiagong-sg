@@ -12,6 +12,7 @@ export default function Auth({ onAuthSuccess }) {
   const [occupation, setOccupation] = useState('');
   const [dialectGroup, setDialectGroup] = useState('Hokkien');
   const [role, setRole] = useState('both');
+  const [gender, setGender] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -32,6 +33,7 @@ export default function Auth({ onAuthSuccess }) {
           occupation,
           dialect_group: dialectGroup,
           role,
+          gender,
         }),
       };
 
@@ -167,6 +169,34 @@ export default function Auth({ onAuthSuccess }) {
                   <option key={d} value={d}>{d}</option>
                 ))}
               </select>
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B5B45', marginBottom: 6 }}>Gender *</label>
+              <div style={{ display: 'flex', gap: 12 }}>
+                {[['male', 'Male'], ['female', 'Female']].map(([val, label]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setGender(val)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      borderRadius: 8,
+                      border: '2px solid ' + (gender === val ? '#C0392B' : '#E8DDD0'),
+                      background: gender === val ? '#FDF0EF' : 'white',
+                      color: gender === val ? '#C0392B' : '#6B5B45',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div style={{ marginBottom: 20 }}>

@@ -6,12 +6,16 @@ export async function PATCH(req) {
   if (error) return Response.json({ error }, { status });
 
   try {
-    const { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown } = await req.json();
+    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = await req.json();
+
+    if (!gender || !['male', 'female'].includes(gender)) {
+      return Response.json({ error: 'Gender is required and must be male or female' }, { status: 400 });
+    }
 
     await query(
       `UPDATE users SET first_name=$1, last_name=$2, age=$3, occupation=$4,
-       dialect_group=$5, role=$6, dialects_known=$7,
-       updated_at=CURRENT_TIMESTAMP WHERE id=$8`,
+       dialect_group=$5, role=$6, gender=$7, dialects_known=$8,
+       updated_at=CURRENT_TIMESTAMP WHERE id=$9`,
       [
         firstName || null,
         lastName || null,
@@ -19,6 +23,7 @@ export async function PATCH(req) {
         occupation || null,
         languageInterest || null,
         role || 'mentee',
+        gender,
         JSON.stringify(dialectsKnown || []),
         decoded.userId,
       ]

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getAvatar } from '@/lib/avatar';
 
 export default function Network({ currentUser }) {
   const [tab, setTab] = useState('community');
@@ -211,7 +212,7 @@ export default function Network({ currentUser }) {
                   {user.first_name} {user.last_name}
                 </h3>
                 <p style={{ fontSize: 14, color: '#C0392B', fontWeight: 600, marginBottom: 12 }}>
-                  {currentUser.role === 'mentee' ? '🎓 Mentor' : '👤 Mentee'}
+                  {getAvatar(user.gender, user.role)} {user.role === 'mentor' ? 'Mentor' : 'Mentee'}
                 </p>
                 <button
                   onClick={() => sendConnectionRequest(user.id)}

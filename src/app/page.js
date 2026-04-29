@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { getAvatar } from "@/lib/avatar";
 
 function CountUp({ value, active, duration = 1200 }) {
   const [display, setDisplay] = useState(0);
@@ -2292,7 +2293,7 @@ export default function DialectPlatform() {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [connections, setConnections] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
-  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", dialectsKnown: [] });
+  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", gender: "", dialectsKnown: [] });
   const [profileEditMode, setProfileEditMode] = useState(false);
   const [pendingGoogle, setPendingGoogle] = useState(null); // { credential, googleData } when new Google user needs to complete profile
   const [authError, setAuthError] = useState(null);
@@ -2334,14 +2335,14 @@ export default function DialectPlatform() {
 
   function completeProfile() {
     if (!pendingGoogle) return;
-    const { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown } = profileForm;
+    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = profileForm;
     setAuthError(null);
     fetch('/api/auth/google', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         credential: pendingGoogle.credential,
-        profileData: { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown },
+        profileData: { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown },
       }),
     })
       .then(res => res.json().then(data => ({ ok: res.ok, data })))
@@ -2364,20 +2365,24 @@ export default function DialectPlatform() {
   function saveProfile() {
     const token = localStorage.getItem('auth_token');
     if (!token) return;
-    const { firstName, lastName, age, occupation, languageInterest, role, dialectsKnown } = profileForm;
+    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = profileForm;
+    if (!gender) {
+      setAuthError('Please select your gender');
+      return;
+    }
     setAuthError(null);
     fetch('/api/users/profile', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ firstName, lastName, age, occupation, languageInterest, role, dialectsKnown }),
+      body: JSON.stringify({ firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown }),
     })
       .then(res => res.json().then(data => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
         if (!ok) { setAuthError(data.error || 'Failed to save profile'); return; }
         setCurrentUser(prev => ({
           ...prev, firstName, lastName, age, occupation,
-          languageInterest, role, dialectsKnown,
-          avatar: role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
+          languageInterest, role, gender, dialectsKnown,
+          avatar: getAvatar(gender, role),
         }));
         setProfileEditMode(false);
         // Refetch community profiles to reflect changes
@@ -4378,16 +4383,32 @@ export default function DialectPlatform() {
                   </div>
 
                   <div style={{ marginBottom: 28 }}>
-                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I am a</label>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
                     <div style={{ display: "flex", gap: 12 }}>
-                      {[["mentee", "🧑‍🎓", "Mentee", "I want to learn dialects"], ["mentor", "👨‍🏫", "Mentor", "I can teach others"]].map(([val, icon, label, sub]) => (
-                        <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
-                          style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                      {[["male", "👨", "Male"], ["female", "👩", "Female"]].map(([val, icon, label]) => (
+                        <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
+                          style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
                           <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
-                          <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.gender === val ? "#C0392B" : "#1A1208" }}>{label}</div>
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: 28 }}>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I am a</label>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      {[["mentee", "Mentee", "I want to learn dialects"], ["mentor", "Mentor", "I can teach others"]].map(([val, label, sub]) => {
+                        const emoji = getAvatar(profileForm.gender, val);
+                        return (
+                          <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
+                            style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                            <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
+                            <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -4511,16 +4532,32 @@ export default function DialectPlatform() {
               </div>
 
               <div style={{ marginBottom: 28 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I want to join as a</label>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
                 <div style={{ display: "flex", gap: 12 }}>
-                  {[["mentee", "🧑‍🎓", "Mentee", "I want to learn dialects"], ["mentor", "👨‍🏫", "Mentor", "I can teach others"]].map(([val, icon, label, sub]) => (
-                    <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
-                      style={{ flex: 1, padding: "16px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
-                      <div style={{ fontSize: 28, marginBottom: 4 }}>{icon}</div>
-                      <div style={{ fontWeight: 700, fontSize: 15, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
-                      <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                  {[["male", "👨", "Male"], ["female", "👩", "Female"]].map(([val, icon, label]) => (
+                    <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
+                      style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                      <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.gender === val ? "#C0392B" : "#1A1208" }}>{label}</div>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 28 }}>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I want to join as a</label>
+                <div style={{ display: "flex", gap: 12 }}>
+                  {[["mentee", "Mentee", "I want to learn dialects"], ["mentor", "Mentor", "I can teach others"]].map(([val, label, sub]) => {
+                    const emoji = getAvatar(profileForm.gender, val);
+                    return (
+                      <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
+                        style={{ flex: 1, padding: "16px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                        <div style={{ fontSize: 28, marginBottom: 4 }}>{emoji}</div>
+                        <div style={{ fontWeight: 700, fontSize: 15, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
+                        <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

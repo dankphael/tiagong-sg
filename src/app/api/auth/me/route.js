@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
+import { getAvatar } from '@/lib/avatar';
 
 export async function GET(req) {
   const { error, status, decoded } = requireAuth(req);
@@ -7,7 +8,7 @@ export async function GET(req) {
 
   try {
     const result = await query(
-      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, progress, dialects_known
+      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, progress, dialects_known
        FROM users WHERE id = $1`,
       [decoded.userId]
     );
@@ -26,8 +27,9 @@ export async function GET(req) {
         age: u.age,
         occupation: u.occupation,
         role: u.role || 'mentee',
+        gender: u.gender,
         languageInterest: u.dialect_group || 'Hokkien',
-        avatar: u.role === 'mentor' ? '👨‍🏫' : '🧑‍🎓',
+        avatar: getAvatar(u.gender, u.role || 'mentee'),
         progress: u.progress || {},
         dialectsKnown: u.dialects_known || [],
       },
