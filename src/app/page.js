@@ -2973,7 +2973,7 @@ export default function DialectPlatform() {
                 <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
                   <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
+                    <div className="romanized" style={{ fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
                       {cards[cardIndex]?.phrase}
                     </div>
                     <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
@@ -3598,7 +3598,7 @@ export default function DialectPlatform() {
                           </span>
                         </div>
                         {/* Phrase */}
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>
+                        <div className="romanized" style={{ fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>
                           {p.phrase}
                         </div>
                         <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 15, color: "#8B7355", marginBottom: 6 }}>
@@ -3777,7 +3777,7 @@ export default function DialectPlatform() {
                     {/* Front */}
                     <div className="card-face" style={{ background: "linear-gradient(135deg, #1A1208 0%, #3D1F10 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center" }}>
                       <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 20 }}>Tap to reveal meaning</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 52, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 10 }}>{cardPhrase.phrase}</div>
+                      <div className="romanized" style={{ fontSize: 52, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 10 }}>{cardPhrase.phrase}</div>
                       <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(245,230,200,0.6)", marginBottom: 16 }}>{cardPhrase.chinese}</div>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
                         <span style={{ fontSize: 12, background: cardPhrase.dialectColor + "40", color: cardPhrase.dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{cardPhrase.dialect}</span>
@@ -3878,7 +3878,7 @@ export default function DialectPlatform() {
                         className="dialect-card" onClick={() => setDisExpanded(disExpanded === p.id ? null : p.id)}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                           <div>
-                            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: "#1A1208", lineHeight: 1 }}>{p.phrase}</div>
+                            <div className="romanized" style={{ fontSize: 26, fontWeight: 700, color: "#1A1208", lineHeight: 1 }}>{p.phrase}</div>
                             <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 14, color: "#9B8B75", marginTop: 2 }}>{p.chinese}</div>
                           </div>
                           <span style={{ fontSize: 11, background: p.dialectColor + "18", color: p.dialectColor, padding: "4px 10px", borderRadius: 10, fontWeight: 700, whiteSpace: "nowrap", marginLeft: 8 }}>{p.dialect}</span>

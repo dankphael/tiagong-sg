@@ -47,7 +47,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'DejaVu Sans', 'Liberation Sans', 'Noto Sans', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -58,6 +58,11 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* ── Romanization support (POJ, Jyutping, etc. with combining marks) ── */
+.romanized {
+  font-family: 'DejaVu Sans Mono', 'DejaVu Sans', 'Liberation Mono', 'Liberation Sans', 'Noto Sans Mono', 'Noto Sans', monospace, sans-serif;
 }
 
 /* ── Button system ── */
