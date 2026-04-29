@@ -2303,6 +2303,7 @@ export default function DialectPlatform() {
   const [completionData, setCompletionData] = useState(null);
   const [aboutFaqOpen, setAboutFaqOpen] = useState(null);
   const [aboutStatsVisible, setAboutStatsVisible] = useState(false);
+  const [aboutCopied, setAboutCopied] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien","cantonese","teochew","hakka","hainanese"]);
@@ -4849,15 +4850,30 @@ export default function DialectPlatform() {
                   ["Report a translation error", "Translation error report"],
                   ["Partnership inquiry", "Partnership inquiry"],
                   ["Dialect Curator application", "Dialect Curator — Application"],
-                ].map(([label, subject]) => (
-                  <a
-                    key={label}
-                    href={`mailto:raphaeleeingwi@gmail.com?subject=${encodeURIComponent(subject)}`}
-                    style={{ display: "inline-block", padding: "8px 14px", borderRadius: 999, background: "#FDF6EE", border: "1px solid #EDE0CC", color: "#6B5B45", fontSize: 13, textDecoration: "none", fontWeight: 600 }}
-                  >
-                    {label}
-                  </a>
-                ))}
+                ].map(([label, subject]) => {
+                  const isCopied = aboutCopied === label;
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        const mailto = `mailto:raphaeleeingwi@gmail.com?subject=${encodeURIComponent(subject)}`;
+                        const clipboardText = `raphaeleeingwi@gmail.com\nSubject: ${subject}`;
+                        if (typeof navigator !== "undefined" && navigator.clipboard) {
+                          navigator.clipboard.writeText(clipboardText).catch(() => {});
+                        }
+                        setAboutCopied(label);
+                        setTimeout(() => setAboutCopied(c => (c === label ? null : c)), 2000);
+                        try { window.location.href = mailto; } catch (e) {}
+                      }}
+                      style={{ display: "inline-block", padding: "8px 14px", borderRadius: 999, background: isCopied ? "#C0392B" : "#FDF6EE", border: `1px solid ${isCopied ? "#C0392B" : "#EDE0CC"}`, color: isCopied ? "#F5E6C8" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "background 0.2s, color 0.2s, border-color 0.2s" }}
+                    >
+                      {isCopied ? "Email & subject copied!" : label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 12, color: "#9B8B75", fontSize: 12, fontStyle: "italic" }}>
+                Tip: clicking a pill copies the email + subject to your clipboard and tries to open your mail client.
               </div>
             </div>
           </div>
