@@ -4626,9 +4626,9 @@ export default function DialectPlatform() {
 
       {screen === "about" && (
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px" }} className="fade-up">
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
-            <div style={{ marginBottom: 16 }}>
-              <Image src="/logo/02-vertical-cream-bg.png" alt="tiagong.sg" width={140} height={120} priority style={{ width: "100%", height: "auto", maxWidth: 140, margin: "0 auto" }} />
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ marginBottom: 32 }}>
+              <Image src="/logo/02-vertical-transparent.png" alt="tiagong.sg" width={280} height={224} priority style={{ width: "100%", height: "auto", maxWidth: 280, margin: "0 auto" }} />
             </div>
             <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: "#1A1208", marginBottom: 16 }}>Why tiagong.sg?</h1>
           </div>
