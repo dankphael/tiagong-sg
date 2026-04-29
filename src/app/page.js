@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getAvatar } from "@/lib/avatar";
+import { buildIntroEmailUrl } from "@/lib/emailTemplate";
 
 function CountUp({ value, active, duration = 1200 }) {
   const [display, setDisplay] = useState(0);
@@ -3992,7 +3993,7 @@ export default function DialectPlatform() {
                           </div>
                           {connStatus === 'accepted' ? (
                             <div style={{ marginTop: 4, padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
-                              Connected · <span style={{ fontWeight: 400 }}>{m.email}</span>
+                              Connected · <a href={buildIntroEmailUrl(currentUser, m)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 400, color: "#1A6B3C", textDecoration: "underline" }}>{m.email}</a>
                             </div>
                           ) : isCurrentUser ? (
                             <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#9B8B75", fontSize: 13, textAlign: "center" }}>
@@ -4162,7 +4163,7 @@ export default function DialectPlatform() {
                               </div>
                               {status === 'accepted' ? (
                                 <div style={{ padding: "12px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
-                                  Connected · <span style={{ fontWeight: 400 }}>{m.email}</span>
+                                  Connected · <a href={buildIntroEmailUrl(currentUser, m)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 400, color: "#1A6B3C", textDecoration: "underline" }}>{m.email}</a>
                                 </div>
                               ) : status === 'sent' ? (
                                 <div style={{ padding: "12px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>

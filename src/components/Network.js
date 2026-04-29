@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getAvatar } from '@/lib/avatar';
+import { buildIntroEmailUrl } from '@/lib/emailTemplate';
 
 export default function Network({ currentUser }) {
   const [tab, setTab] = useState('community');
@@ -174,7 +175,9 @@ export default function Network({ currentUser }) {
 
                     {/* Email Privacy Rule */}
                     {shouldShowEmail(user.id) && (
-                      <p style={{ fontSize: 12, color: '#C0392B', marginBottom: 12 }}>📧 {user.email}</p>
+                      <p style={{ fontSize: 12, color: '#C0392B', marginBottom: 12 }}>
+                        📧 <a href={buildIntroEmailUrl(currentUser, { ...user, firstName: user.first_name, languageInterest: user.dialect_group })} target="_blank" rel="noopener noreferrer" style={{ color: '#C0392B', textDecoration: 'underline' }}>{user.email}</a>
+                      </p>
                     )}
 
                     <button
