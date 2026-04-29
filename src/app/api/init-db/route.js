@@ -29,6 +29,7 @@ export async function GET(req) {
     // Add columns to existing tables that predate these migrations
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS progress JSONB DEFAULT '{}'`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS dialects_known JSONB DEFAULT '[]'`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(50)`);
 
     await query(`
       CREATE TABLE IF NOT EXISTS connections (
