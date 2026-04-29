@@ -1248,7 +1248,7 @@ const singlishPhrases = [
   {
     id: 17,
     phrase: "Lanjiao",
-    chinese: "𪚩鳥",
+    chinese: "膦鳥",
     dialect: "hokkien",
     dialectColor: "#C0392B",
     meaning: "Vulgar expletive (male anatomy); used broadly as an intensifier",
@@ -1264,7 +1264,7 @@ const singlishPhrases = [
   {
     id: 18,
     phrase: "Chao Keng",
-    chinese: "臭𝙸",
+    chinese: "臭羹",
     dialect: "hokkien",
     dialectColor: "#C0392B",
     meaning: "To fake illness or injury; to skive by pretending to be sick",
