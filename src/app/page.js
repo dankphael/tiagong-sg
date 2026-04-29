@@ -4769,7 +4769,9 @@ export default function DialectPlatform() {
                   style={{ borderColor: `${d.color}66`, background: `${d.color}11` }}
                 >
                   <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, fontWeight: 700, color: d.color, marginBottom: 4 }}>{d.chinese}</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#F5E6C8", marginBottom: 8 }}>{d.name} Curator</div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#F5E6C8", marginBottom: 8 }}>
+                    {d.name}<br />Curator
+                  </div>
                   <div style={{ fontSize: 12, color: d.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>Volunteer &rarr;</div>
                 </a>
               ))}
