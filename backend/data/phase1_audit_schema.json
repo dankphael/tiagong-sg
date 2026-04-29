@@ -1,0 +1,200 @@
+{
+  "phase": "1 - Data Audit & Schema Definition",
+  "generated_at": "2026-04-29",
+  
+  "1_1_golden_standard_schema": {
+    "description": "Target romanization standards for each dialect - the 'Ground Truth' rules",
+    "dialects": {
+      "hokkien": {
+        "primary_standard": "Tâi-lô (Taiwanese Romanization)",
+        "alternative_standard": "Pe̍h-ōe-jī (POJ)",
+        "rationale": "Most widely taught, learner-friendly, compatible with POJ",
+        "target_field_mapping": {
+          "tl": "tâi-lô",
+          "poj": "pe̍h-ōe-jī",
+          "orm": "other romanizations"
+        },
+        "action": "Map all tl, poj, orm fields to Tâi-lô as primary standard",
+        "tone_marking": "Uses diacritical marks on vowels",
+        "example": {
+          "traditional": "你好",
+          "tâi-lô": "lí-hó",
+          "ipa": "[li˧˥ ho˧˥]"
+        }
+      },
+      "teochew": {
+        "primary_standard": "Peng'im",
+        "authority": "Standardized by the Teochew Association",
+        "rationale": "Official standard, widely accepted in Teochew communities",
+        "tone_marking": "Uses superscript numbers (1-8) after syllable",
+        "example": {
+          "traditional": "你好",
+          "peng'im": "le5 hou2",
+          "ipa": "[le³⁵ hou⁵³]"
+        }
+      },
+      "cantonese": {
+        "primary_standard": "Jyutping",
+        "alternative_standard": "Yale (deprecated for new entries)",
+        "rationale": "Modern, logical, easy for beginners, uses Arabic numerals for tones",
+        "tone_marking": "Uses numbers 1-6 after syllable",
+        "example": {
+          "traditional": "你好",
+          "jyutping": "nei5 hou2",
+          "ipa": "[nei̬˩˧ hou̬˩˧]"
+        }
+      },
+      "hakka": {
+        "primary_standard": "Phak-fa-sṳ",
+        "alternative_standard": "Moore Hakka Dictionary standard",
+        "rationale": "Widely used in Hakka education and dictionaries",
+        "tone_marking": "Uses superscript numbers or diacritics",
+        "example": {
+          "traditional": "你好",
+          "phak-fa-sṳ": "ngi2 ho3",
+          "ipa": "[ŋi˧˩ ho˧˩]"
+        }
+      },
+      "hainanese": {
+        "primary_standard": "Hainanese Romanization",
+        "note": "Less standardized; will use phonetic approximation based on Hokkien Tâi-lô principles",
+        "tone_marking": "Uses numbers or diacritics",
+        "example": {
+          "traditional": "你好",
+          "romanization": "li3 hao2",
+          "ipa": "[li˨˩ hau˨˩]"
+        }
+      }
+    },
+    "schema_enforcement_rules": {
+      "rule_1": "All new entries must use the primary standard for their dialect",
+      "rule_2": "Existing non-standard romanizations should be migrated to primary standard",
+      "rule_3": "IPA should be provided where possible for pronunciation reference",
+      "rule_4": "Tone marks must follow the specified system for each dialect"
+    }
+  },
+
+  "1_2_coverage_audit": {
+    "description": "Analysis of current dictionary coverage and identification of gaps",
+    
+    "current_state": {
+      "total_entries": 1049,
+      "entries_by_dialect": {
+        "hokkien": 249,
+        "cantonese": 200,
+        "teochew": 200,
+        "hakka": 200,
+        "hainanese": 200
+      },
+      "entries_with_pronunciations_array": 92,
+      "entries_without_pronunciations_array": 957,
+      "romanization_systems_found": {
+        "poj": 92
+      },
+      "note": "Only Hokkien entries have pronunciations array populated; other dialects store romanization in headword.romanized field only"
+    },
+
+    "concept_analysis": {
+      "total_unique_concepts": 496,
+      "methodology": "Grouped entries by English definition (case-insensitive) to identify concept clusters"
+    },
+
+    "coverage_gaps": {
+      "hokkien_present_but_missing_teochew": {
+        "count": 197,
+        "percentage_of_hokkien_concepts": "39.7%",
+        "sample_concepts": [
+          {
+            "concept": "have you eaten yet?",
+            "hokkien": {
+              "traditional": "食飽未",
+              "romanized": "chiah-pá-buē"
+            },
+            "missing": ["teochew", "cantonese", "hakka"]
+          },
+          {
+            "concept": "good afternoon",
+            "hokkien": {
+              "traditional": "晡時好",
+              "romanized": "poo-sî-hó"
+            },
+            "missing": ["teochew", "cantonese", "hakka"]
+          },
+          {
+            "concept": "you're welcome (don't be polite)",
+            "hokkien": {
+              "traditional": "免客氣",
+              "romanized": "bián-kheh-khì"
+            },
+            "missing": ["teochew", "cantonese", "hakka"]
+          },
+          {
+            "concept": "what's your name?",
+            "hokkien": {
+              "traditional": "你叫啥名",
+              "romanized": "lí kiò siánn-miâ"
+            },
+            "missing": ["teochew", "cantonese", "hakka"]
+          },
+          {
+            "concept": "my name is",
+            "hokkien": {
+              "traditional": "我叫",
+              "romanized": "guá kiò"
+            },
+            "missing": ["teochew", "cantonese", "hakka"]
+          }
+        ]
+      },
+      "hokkien_present_but_missing_cantonese": {
+        "count": 132,
+        "percentage_of_hokkien_concepts": "26.6%"
+      },
+      "hokkien_present_but_missing_hakka": {
+        "count": 217,
+        "percentage_of_hokkien_concepts": "43.7%"
+      }
+    },
+
+    "priority_expansion_list": {
+      "high_priority": [
+        {
+          "concept": "to eat",
+          "hokkien": "chia̍h / chiah",
+          "teochew_needed": "ziah8",
+          "cantonese_needed": "sik6",
+          "hakka_needed": "ngien/ngiap"
+        },
+        {
+          "concept": "hello",
+          "hokkien": "lí-hó",
+          "teochew_needed": "le5 hou2",
+          "cantonese_needed": "nei5 hou2",
+          "hakka_needed": "ngi2 ho3"
+        },
+        {
+          "concept": "thank you",
+          "hokkien": "to-siā",
+          "teochew_needed": "do6 zia7",
+          "cantonese_needed": "m4 goi1 / do1 ze6",
+          "hakka_needed": "do1 lia"
+        }
+      ]
+    },
+
+    "recommendations": {
+      "immediate_actions": [
+        "Populate pronunciations array for all non-Hokkien entries using target standards",
+        "Add missing dialect equivalents for the 197 concepts that have Hokkien but no Teochew",
+        "Add missing dialect equivalents for the 132 concepts that have Hokkien but no Cantonese",
+        "Add missing dialect equivalents for the 217 concepts that have Hokkien but no Hakka"
+      ],
+      "data_quality_improvements": [
+        "Migrate all Hokkien POJ romanizations to Tâi-lô standard",
+        "Validate Jyutping tone numbers for all Cantonese entries",
+        "Verify Peng'im romanizations against Teochew Association standards",
+        "Add IPA transcriptions for all entries"
+      ]
+    }
+  }
+}
