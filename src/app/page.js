@@ -2768,13 +2768,13 @@ export default function DialectPlatform() {
             <div className="orbital-stage">
               <div className="orbital-ring" />
               <div className="orbital-center" style={{ width: 420 }}>
-                <div style={{ marginBottom: 20 }}>
-                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={260} height={212} priority style={{ width: "100%", height: "auto", maxWidth: 260 }} />
+                <div style={{ marginBottom: 12 }}>
+                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={200} height={164} priority style={{ width: "100%", height: "auto", maxWidth: 200 }} />
                 </div>
-                <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 16, fontSize: 17 }}>
+                <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 12, fontSize: 15 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#E8D4A8", fontSize: 16, fontStyle: "italic", lineHeight: 1.6 }}>
+                <p style={{ color: "#E8D4A8", fontSize: 14, fontStyle: "italic", lineHeight: 1.6 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
                 </p>
               </div>
@@ -2818,14 +2818,14 @@ export default function DialectPlatform() {
 
             {/* Mobile: stacked layout */}
             <div className="orbital-mobile">
-              <div style={{ textAlign: "center", marginBottom: 40 }}>
-                <div style={{ marginBottom: 16 }}>
-                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={180} height={147} priority style={{ width: "100%", height: "auto", maxWidth: 180, margin: "0 auto" }} />
+              <div style={{ textAlign: "center", marginBottom: 32 }}>
+                <div style={{ marginBottom: 12 }}>
+                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={140} height={114} priority style={{ width: "100%", height: "auto", maxWidth: 140, margin: "0 auto" }} />
                 </div>
-                <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.7, marginBottom: 12, fontSize: 16 }}>
+                <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 14 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#7A6040", fontSize: 14, fontStyle: "italic", marginBottom: 40 }}>
+                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 32 }}>
                   每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
                 </p>
               </div>
