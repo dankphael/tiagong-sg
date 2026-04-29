@@ -304,3 +304,71 @@ html {
   .hero-heading { font-size: 30px; }
   .search-results-grid { grid-template-columns: 1fr; }
 }
+
+/* ========== About page ========== */
+.about-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.about-stat-card {
+  background: white;
+  border: 1px solid #F0E8DA;
+  border-radius: 14px;
+  padding: 24px 16px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.about-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.about-step-card {
+  background: white;
+  border: 1px solid #F0E8DA;
+  border-top: 4px solid #C0392B;
+  border-radius: 14px;
+  padding: 22px 20px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.about-step-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.about-curator-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.about-curator-card {
+  display: block;
+  border: 1.5px solid;
+  border-radius: 14px;
+  padding: 20px 14px;
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.2s, background 0.2s;
+}
+.about-curator-card:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.15);
+}
+.about-cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .about-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-steps-grid { grid-template-columns: 1fr; }
+  .about-curator-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .about-cta-buttons { flex-direction: column; }
+  .about-cta-buttons button { width: 100%; }
+}
