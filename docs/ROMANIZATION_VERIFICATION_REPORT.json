@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-04-26",
+  "total_words": 1049,
+  "total_issues": 0,
+  "all_correct": true,
+  "by_dialect": {
+    "hokkien": {
+      "total": 249,
+      "system": "poj",
+      "compliant": true
+    },
+    "cantonese": {
+      "total": 200,
+      "system": "jyutping",
+      "compliant": true
+    },
+    "teochew": {
+      "total": 200,
+      "system": "pengim",
+      "compliant": true
+    },
+    "hakka": {
+      "total": 200,
+      "system": "phak_fat_su",
+      "compliant": true
+    },
+    "hainanese": {
+      "total": 200,
+      "system": "hainan_romanized",
+      "compliant": true
+    }
+  }
+}
