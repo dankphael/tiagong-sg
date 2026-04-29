@@ -4846,34 +4846,100 @@ export default function DialectPlatform() {
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {[
-                  ["General feedback", "General feedback on tiagong.sg"],
-                  ["Report a translation error", "Translation error report"],
-                  ["Partnership inquiry", "Partnership inquiry"],
-                  ["Dialect Curator application", "Dialect Curator — Application"],
-                ].map(([label, subject]) => {
+                  {
+                    label: "General feedback",
+                    template: `Subject: General feedback on tiagong.sg
+
+Hi Raphael,
+
+I wanted to share some feedback about tiagong.sg:
+
+[Share your thoughts here — what's working well, what could be better, features you'd like to see, etc.]
+
+Thanks for building this platform!
+
+Best regards,
+[Your name]`
+                  },
+                  {
+                    label: "Report a translation error",
+                    template: `Subject: Translation error report
+
+Hi Raphael,
+
+I found a translation issue on tiagong.sg that I wanted to flag:
+
+Dialect: [e.g., Hokkien]
+Phrase: [The phrase with the error]
+Issue: [Explain what's wrong — incorrect tone, romanization, meaning, etc.]
+Suggested correction: [What it should be]
+
+Thanks for keeping the dictionary accurate!
+
+Best regards,
+[Your name]`
+                  },
+                  {
+                    label: "Partnership inquiry",
+                    template: `Subject: Partnership inquiry — tiagong.sg
+
+Hi Raphael,
+
+I'm reaching out to explore a potential partnership with tiagong.sg.
+
+Organization/Background: [Tell us about yourself/your organization]
+Partnership idea: [What kind of collaboration are you interested in?]
+Why now: [Why does this partnership matter to you?]
+
+I'd love to discuss this further.
+
+Best regards,
+[Your name]
+[Title/Role]
+[Contact info]`
+                  },
+                  {
+                    label: "Dialect Curator application",
+                    template: `Subject: Dialect Curator application — [Dialect name]
+
+Hi Raphael,
+
+I'd like to help validate [Dialect name] entries on tiagong.sg as a Dialect Curator.
+
+Dialect(s): [Which dialects are you fluent in?]
+Background: [How did you learn this dialect? Where are you from? How long have you spoken it?]
+Why curator: [What motivated you to volunteer?]
+Availability: [How much time could you commit?]
+
+Looking forward to helping preserve our dialect heritage!
+
+Best regards,
+[Your name]
+[Contact email]`
+                  }
+                ].map(({ label, template }) => {
                   const isCopied = aboutCopied === label;
                   return (
                     <button
                       key={label}
                       onClick={() => {
-                        const mailto = `mailto:raphaeleeingwi@gmail.com?subject=${encodeURIComponent(subject)}`;
-                        const clipboardText = `raphaeleeingwi@gmail.com\nSubject: ${subject}`;
+                        const clipboardText = `To: raphaeleeingwi@gmail.com\n\n${template}`;
                         if (typeof navigator !== "undefined" && navigator.clipboard) {
-                          navigator.clipboard.writeText(clipboardText).catch(() => {});
+                          navigator.clipboard.writeText(clipboardText).then(() => {
+                            setAboutCopied(label);
+                            setTimeout(() => setAboutCopied(c => (c === label ? null : c)), 2000);
+                          }).catch(() => {});
                         }
-                        setAboutCopied(label);
-                        setTimeout(() => setAboutCopied(c => (c === label ? null : c)), 2000);
-                        try { window.location.href = mailto; } catch (e) {}
                       }}
                       style={{ display: "inline-block", padding: "8px 14px", borderRadius: 999, background: isCopied ? "#C0392B" : "#FDF6EE", border: `1px solid ${isCopied ? "#C0392B" : "#EDE0CC"}`, color: isCopied ? "#F5E6C8" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "background 0.2s, color 0.2s, border-color 0.2s" }}
                     >
-                      {isCopied ? "Email & subject copied!" : label}
+                      {isCopied ? "Template copied!" : label}
                     </button>
                   );
                 })}
               </div>
               <div style={{ marginTop: 12, color: "#9B8B75", fontSize: 12, fontStyle: "italic" }}>
-                Tip: clicking a pill copies the email + subject to your clipboard and tries to open your mail client.
+                Tip: clicking a button copies the full email template to your clipboard. Fill in the bracketed fields and send to raphaeleeingwi@gmail.com
               </div>
             </div>
           </div>
