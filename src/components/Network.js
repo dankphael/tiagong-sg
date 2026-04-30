@@ -12,6 +12,7 @@ export default function Network({ currentUser }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [removeConfirm, setRemoveConfirm] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -89,6 +90,22 @@ export default function Network({ currentUser }) {
   // Privacy: Show email only if connection is accepted
   function shouldShowEmail(userId) {
     return connections.some((c) => c.status === 'accepted' && (c.requester_id === userId || c.receiver_id === userId));
+  }
+
+  async function removeConnection(connectionId) {
+    const token = localStorage.getItem('auth_token');
+    try {
+      const res = await fetch(`/api/connections/${connectionId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setRemoveConfirm(null);
+        fetchConnections();
+      }
+    } catch (error) {
+      console.error('Error removing connection:', error);
+    }
   }
 
   const filteredUsers = users.filter((u) => {
@@ -180,23 +197,66 @@ export default function Network({ currentUser }) {
                       </p>
                     )}
 
-                    <button
-                      onClick={() => sendConnectionRequest(user.id)}
-                      disabled={isConnected || hasPendingRequest}
-                      style={{
-                        width: '100%',
-                        padding: '10px',
-                        borderRadius: 10,
-                        background: isConnected ? '#EAFAF1' : hasPendingRequest ? '#F0E8DA' : '#1A1208',
-                        color: isConnected ? '#1A6B3C' : hasPendingRequest ? '#8B7355' : '#F5E6C8',
-                        border: 'none',
-                        fontSize: 14,
-                        fontFamily: 'inherit',
-                        cursor: isConnected || hasPendingRequest ? 'default' : 'pointer',
-                      }}
-                    >
-                      {isConnected ? 'Connected ✓' : hasPendingRequest ? 'Request Sent' : 'Connect'}
-                    </button>
+                    {isConnected ? (
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          disabled
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            borderRadius: 10,
+                            background: '#EAFAF1',
+                            color: '#1A6B3C',
+                            border: 'none',
+                            fontSize: 14,
+                            fontFamily: 'inherit',
+                            cursor: 'default',
+                            fontWeight: 600,
+                          }}
+                        >
+                          Connected ✓
+                        </button>
+                        <button
+                          onClick={() => {
+                            const connection = connections.find((c) => (c.requester_id === user.id || c.receiver_id === user.id) && c.status === 'accepted');
+                            if (connection) {
+                              setRemoveConfirm({ id: connection.id, name: `${user.first_name} ${user.last_name}` });
+                            }
+                          }}
+                          style={{
+                            padding: '10px 14px',
+                            borderRadius: 10,
+                            background: '#FDEDEC',
+                            color: '#C0392B',
+                            border: '1px solid #C0392B40',
+                            fontSize: 12,
+                            fontFamily: 'inherit',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                          }}
+                        >
+                          Disconnect
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => sendConnectionRequest(user.id)}
+                        disabled={hasPendingRequest}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          borderRadius: 10,
+                          background: hasPendingRequest ? '#F0E8DA' : '#1A1208',
+                          color: hasPendingRequest ? '#8B7355' : '#F5E6C8',
+                          border: 'none',
+                          fontSize: 14,
+                          fontFamily: 'inherit',
+                          cursor: hasPendingRequest ? 'default' : 'pointer',
+                        }}
+                      >
+                        {hasPendingRequest ? 'Request Sent' : 'Connect'}
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -288,6 +348,27 @@ export default function Network({ currentUser }) {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {removeConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 36, maxWidth: 420, width: '100%', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: '#1A1208', marginBottom: 12 }}>Disconnect?</div>
+            <p style={{ fontSize: 14, color: '#6B5B45', marginBottom: 24, lineHeight: 1.6 }}>
+              This will disconnect you from <strong>{removeConfirm.name}</strong>. You can always send a new connection request later.
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button onClick={() => setRemoveConfirm(null)}
+                style={{ flex: 1, padding: '12px', borderRadius: 10, background: '#F5F0EA', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', color: '#6B5B45' }}>
+                Cancel
+              </button>
+              <button onClick={() => removeConnection(removeConfirm.id)}
+                style={{ flex: 1, padding: '12px', borderRadius: 10, background: '#C0392B', color: 'white', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Disconnect
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

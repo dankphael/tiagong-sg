@@ -2283,6 +2283,7 @@ export default function DialectPlatform() {
   const [requestModal, setRequestModal] = useState(null); // { user } when composing a mentorship request
   const [requestMessage, setRequestMessage] = useState("");
   const [connectError, setConnectError] = useState(null);
+  const [removeConfirm, setRemoveConfirm] = useState(null); // { id, name } when confirming connection removal
   const [disMode, setDisMode] = useState("cards"); // cards | search
   const [disSearch, setDisSearch] = useState("");
   const [disFilter, setDisFilter] = useState("All");
@@ -2477,6 +2478,27 @@ export default function DialectPlatform() {
       await loadConnections();
     } catch (e) {
       console.error('Failed to reject request:', e);
+      setConnectError('Network error — please try again');
+    }
+  }
+
+  async function removeConnection(connectionId) {
+    const token = localStorage.getItem('auth_token');
+    setConnectError(null);
+    try {
+      const res = await fetch(`/api/connections/${connectionId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setConnectError(data.error || `Remove failed (${res.status})`);
+        return;
+      }
+      setRemoveConfirm(null);
+      await loadConnections();
+    } catch (e) {
+      console.error('Failed to remove connection:', e);
       setConnectError('Network error — please try again');
     }
   }
@@ -4076,6 +4098,32 @@ export default function DialectPlatform() {
                 </div>
               )}
 
+              {removeConfirm && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+                  <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 420, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
+                    <p style={{ fontSize: 14, color: "#6B5B45", marginBottom: 24, lineHeight: 1.6 }}>
+                      This will disconnect you from <strong>{removeConfirm.name}</strong>. You can always send a new connection request later.
+                    </p>
+                    {connectError && (
+                      <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 8, padding: "10px 14px", fontSize: 13, marginBottom: 16, border: "1px solid #C0392B40" }}>
+                        {connectError}
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <button onClick={() => setRemoveConfirm(null)}
+                        style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#F5F0EA", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
+                        Cancel
+                      </button>
+                      <button onClick={() => removeConnection(removeConfirm.id)}
+                        style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Hero banner */}
               <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 24, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
                 <div style={{ fontSize: 56 }}>🎓</div>
@@ -4284,32 +4332,83 @@ export default function DialectPlatform() {
                             </div>
                           </div>
                         )}
-                        {active.length > 0 && (
-                          <div>
-                            <div style={{ fontSize: 11, letterSpacing: 3, color: "#1A6B3C", textTransform: "uppercase", marginBottom: 16, fontWeight: 700 }}>Active Mentorships ({active.length})</div>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
-                              {active.map(c => {
-                                const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
-                                return (
-                                  <div key={c.id} style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid #1A6B3C30", display: "flex", flexDirection: "column", gap: 10 }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                      <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
-                                      <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
-                                        {c.connected_user_role}
-                                      </span>
-                                    </div>
-                                    {c.connected_user_dialect && (
-                                      <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, alignSelf: "flex-start" }}>{c.connected_user_dialect}</span>
-                                    )}
-                                    <div style={{ padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
-                                      {c.connected_user_email}
-                                    </div>
+                        {active.length > 0 && (() => {
+                          const isValidMentorship = (c) => {
+                            if (currentUser.role === 'mentor') return c.connected_user_role !== 'mentor';
+                            if (currentUser.role === 'mentee') return c.connected_user_role !== 'mentee';
+                            if (currentUser.role === 'both') return c.connected_user_role !== 'none';
+                            return false;
+                          };
+                          const validMentorships = active.filter(isValidMentorship);
+                          const lapsedMentorships = active.filter(c => !isValidMentorship(c));
+                          return (
+                            <>
+                              {validMentorships.length > 0 && (
+                                <div>
+                                  <div style={{ fontSize: 11, letterSpacing: 3, color: "#1A6B3C", textTransform: "uppercase", marginBottom: 16, fontWeight: 700 }}>Active Mentorships ({validMentorships.length})</div>
+                                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                                    {validMentorships.map(c => {
+                                      const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
+                                      return (
+                                        <div key={c.id} style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid #1A6B3C30", display: "flex", flexDirection: "column", gap: 10 }}>
+                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                            <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
+                                            <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                                              {c.connected_user_role}
+                                            </span>
+                                          </div>
+                                          {c.connected_user_dialect && (
+                                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, alignSelf: "flex-start" }}>{c.connected_user_dialect}</span>
+                                          )}
+                                          <div style={{ padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
+                                            {c.connected_user_email}
+                                          </div>
+                                          <button onClick={() => setRemoveConfirm({ id: c.id, name: c.connected_user_name })} className="btn-hover"
+                                            style={{ marginTop: 8, padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                                            Remove Connection
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
+                                </div>
+                              )}
+                              {lapsedMentorships.length > 0 && (
+                                <div>
+                                  <div style={{ fontSize: 11, letterSpacing: 3, color: "#8B7355", textTransform: "uppercase", marginBottom: 8, fontWeight: 700 }}>Lapsed Mentorships ({lapsedMentorships.length})</div>
+                                  <div style={{ background: "#FEF9F0", borderRadius: 12, padding: 12, marginBottom: 20, fontSize: 12, color: "#8B7355", border: "1px solid #D4860B30" }}>
+                                    These connections no longer match your current role — both of you may now have the same role. You can remove them below.
+                                  </div>
+                                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                                    {lapsedMentorships.map(c => {
+                                      const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
+                                      return (
+                                        <div key={c.id} style={{ background: "#FAFAF9", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.03)", border: "1px solid #E8DDD0", display: "flex", flexDirection: "column", gap: 10, opacity: 0.7 }}>
+                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                            <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
+                                            <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                                              {c.connected_user_role}
+                                            </span>
+                                          </div>
+                                          {c.connected_user_dialect && (
+                                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, alignSelf: "flex-start" }}>{c.connected_user_dialect}</span>
+                                          )}
+                                          <div style={{ padding: "10px 14px", borderRadius: 10, background: "#F5F0EA", border: "1px solid #E8DDD0", fontSize: 13, color: "#6B5B45", fontWeight: 600 }}>
+                                            {c.connected_user_email}
+                                          </div>
+                                          <button onClick={() => setRemoveConfirm({ id: c.id, name: c.connected_user_name })} className="btn-hover"
+                                            style={{ marginTop: 8, padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                                            Remove Connection
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </>
                     )}
                   </div>
