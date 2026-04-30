@@ -3312,7 +3312,7 @@ function DialectPlatformContent() {
                           </div>
                           {!cue.dialogues[selectedAnswer]?.correct && (
                             <div style={{ fontSize: 12, color: "#6B5B45", marginTop: 2 }}>
-                              Correct: <strong>{cue.dialogues.find(d => d.correct)?.phrase}</strong> — "{cue.dialogues.find(d => d.correct)?.meaning}"
+                              Correct: <strong><DialectTooltip phrase={cue.dialogues.find(d => d.correct)?.phrase || ""} meaning={cue.dialogues.find(d => d.correct)?.meaning || ""} color={dialect.color} /></strong> — "{cue.dialogues.find(d => d.correct)?.meaning}"
                             </div>
                           )}
                         </div>
@@ -3333,7 +3333,9 @@ function DialectPlatformContent() {
                         return (
                           <button key={idx} className="btn-hover" onClick={() => !quizShowResult && setSelectedAnswer(idx)}
                             style={{ padding: "14px 16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s", boxShadow: shadow }}>
-                            <div style={{ fontWeight: 700, marginBottom: 3 }}>{dialogue.phrase}</div>
+                            <div style={{ fontWeight: 700, marginBottom: 3 }}>
+                              <DialectTooltip phrase={dialogue.phrase} meaning={dialogue.meaning} color={dialect.color} />
+                            </div>
                             <div style={{ fontSize: 12, opacity: 0.65 }}>"{dialogue.meaning}"</div>
                             {quizShowResult && isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✓</span>}
                             {quizShowResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✗</span>}
