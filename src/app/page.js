@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getAvatar } from "@/lib/avatar";
@@ -2264,6 +2265,9 @@ const categories = [
 ];
 
 export default function DialectPlatform() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz
   const [selectedDialect, setSelectedDialect] = useState(null);
   const [lessonMode, setLessonMode] = useState("flashcards"); // flashcards | situational-quiz | completing-sentence
@@ -2561,6 +2565,40 @@ export default function DialectPlatform() {
     setPendingGoogle(null);
     setAuthError(null);
   }
+
+  // Restore screen and dialect from URL on component mount
+  useEffect(() => {
+    const screenParam = searchParams.get('screen');
+    const dialectParam = searchParams.get('dialect');
+
+    if (screenParam && ['home', 'dialect', 'lesson', 'quiz', 'search', 'singlish', 'network', 'profile', 'associations', 'about'].includes(screenParam)) {
+      setScreen(screenParam);
+    }
+
+    if (dialectParam) {
+      const dialect = dialects.find(d => d.id === dialectParam);
+      if (dialect) {
+        setSelectedDialect(dialect);
+      }
+    }
+  }, []);
+
+  // Sync screen and dialect changes to URL
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (screen !== 'home') {
+      params.set('screen', screen);
+    }
+
+    if (selectedDialect) {
+      params.set('dialect', selectedDialect.id);
+    }
+
+    const query = params.toString();
+    const newUrl = query ? `/?${query}` : '/';
+    router.push(newUrl);
+  }, [screen, selectedDialect, router]);
 
   useEffect(() => {
     const t = setTimeout(() => setSearchDebouncedQuery(searchQuery), 250);
