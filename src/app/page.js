@@ -2581,7 +2581,7 @@ export default function DialectPlatform() {
         setSelectedDialect(dialect);
       }
     }
-  }, []);
+  }, [searchParams]);
 
   // Sync screen and dialect changes to URL
   useEffect(() => {
@@ -2597,8 +2597,16 @@ export default function DialectPlatform() {
 
     const query = params.toString();
     const newUrl = query ? `/?${query}` : '/';
-    router.push(newUrl);
-  }, [screen, selectedDialect, router]);
+
+    // Only push if URL actually changed
+    if (typeof window !== 'undefined') {
+      const currentSearch = window.location.search;
+      const expectedSearch = query ? `?${query}` : '';
+      if (currentSearch !== expectedSearch) {
+        router.push(newUrl);
+      }
+    }
+  }, [screen, selectedDialect]);
 
   useEffect(() => {
     const t = setTimeout(() => setSearchDebouncedQuery(searchQuery), 250);
