@@ -4604,6 +4604,7 @@ function DialectPlatformContent() {
                         occupation: currentUser.occupation || '',
                         email: currentUser.email || '',
                         languageInterest: currentUser.languageInterest || 'Hokkien',
+                        gender: currentUser.gender || '',
                         role: currentUser.role || 'mentee',
                         dialectsKnown: currentUser.dialectsKnown || [],
                       });
