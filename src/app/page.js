@@ -4861,12 +4861,15 @@ function DialectPlatformContent() {
 
           {/* 2. LIVE IMPACT STATS */}
           <div id="about-stats" className="about-stats-grid" style={{ marginBottom: 64 }}>
-            {[
-              { label: "Learners", value: registeredUsers.length },
-              { label: "Phrases", value: apiWords.length },
-              { label: "Dialects", value: dialects.length },
-              { label: "Associations", value: huayKuan.length },
-            ].map(s => (
+            {(() => {
+              const lessonEntries = Object.values(lessons).reduce((sum, dialectData) => sum + Object.values(dialectData).reduce((s, arr) => s + arr.length, 0), 0);
+              return [
+                { label: "Learners", value: registeredUsers.length },
+                { label: "Phrases", value: lessonEntries + apiWords.length },
+                { label: "Dialects", value: dialects.length },
+                { label: "Associations", value: huayKuan.length },
+              ];
+            })().map(s => (
               <div key={s.label} className="about-stat-card">
                 <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "#C0392B", lineHeight: 1 }}>
                   {s.value > 0 ? <CountUp value={s.value} active={aboutStatsVisible} /> : "—"}
