@@ -42,10 +42,6 @@ function DialectTooltip({ phrase, meaning, romanization, color = "#C0392B" }) {
     <span
       ref={ref}
       style={{
-        textDecoration: "underline dotted",
-        textDecorationColor: color,
-        textDecorationThickness: "2px",
-        textUnderlineOffset: "4px",
         cursor: "help",
         color: color,
         fontWeight: 500
