@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
@@ -2264,7 +2264,7 @@ const categories = [
   { id: "food", label: "Food", icon: "🍜" },
 ];
 
-export default function DialectPlatform() {
+function DialectPlatformContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -5185,5 +5185,13 @@ Best regards,
       </div>
     </div>
     </GoogleOAuthProvider>
+  );
+}
+
+export default function DialectPlatform() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#FEF8F3', fontSize: 14, color: '#8B7355' }}>Loading...</div>}>
+      <DialectPlatformContent />
+    </Suspense>
   );
 }
