@@ -774,7 +774,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -827,7 +826,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -880,7 +878,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -933,7 +930,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -986,7 +982,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "vegetables"
       ],
       "frequency": "very_common",
@@ -1039,7 +1034,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -1092,7 +1086,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -1145,7 +1138,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -1198,7 +1190,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "very_common",
@@ -1251,7 +1242,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "common",
@@ -1356,7 +1346,6 @@
       ],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "very_common",
@@ -1409,7 +1398,6 @@
       ],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "common",
@@ -1828,7 +1816,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "noodle"
       ],
       "frequency": "common",
@@ -1881,7 +1868,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -1934,7 +1920,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -1987,7 +1972,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "bread"
       ],
       "frequency": "common",
@@ -2093,7 +2077,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -2146,7 +2129,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -2199,7 +2181,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -2252,7 +2233,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -2305,7 +2285,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -5194,7 +5173,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -5238,7 +5216,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -5282,7 +5259,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -5326,7 +5302,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -5370,7 +5345,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "vegetables"
       ],
       "frequency": "very_common",
@@ -5414,7 +5388,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -5458,7 +5431,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -5502,7 +5474,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -5546,7 +5517,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "very_common",
@@ -5590,7 +5560,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "common",
@@ -5677,7 +5646,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "very_common",
@@ -5721,7 +5689,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "common",
@@ -6068,7 +6035,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "noodle"
       ],
       "frequency": "common",
@@ -6112,7 +6078,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -6156,7 +6121,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -6200,7 +6164,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "bread"
       ],
       "frequency": "common",
@@ -8910,7 +8873,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "very_common",
@@ -8954,7 +8916,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "very_common",
@@ -8998,7 +8959,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -9042,7 +9002,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -10258,7 +10217,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -10302,7 +10260,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -10346,7 +10303,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -10390,7 +10346,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -10434,7 +10389,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "vegetables"
       ],
       "frequency": "very_common",
@@ -10478,7 +10432,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -10522,7 +10475,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -10566,7 +10518,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -10610,7 +10561,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "very_common",
@@ -10654,7 +10604,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "common",
@@ -10741,7 +10690,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "very_common",
@@ -13064,7 +13012,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "very_common",
@@ -13108,7 +13055,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "very_common",
@@ -13152,7 +13098,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -13196,7 +13141,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -13891,7 +13835,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -13935,7 +13878,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -13979,7 +13921,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -14023,7 +13964,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -14067,7 +14007,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "vegetables"
       ],
       "frequency": "very_common",
@@ -14111,7 +14050,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -14155,7 +14093,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -14199,7 +14136,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -14243,7 +14179,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "seafood"
       ],
       "frequency": "very_common",
@@ -14330,7 +14265,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "very_common",
@@ -15492,7 +15426,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "very_common",
@@ -15882,7 +15815,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -15926,7 +15858,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "staple"
       ],
       "frequency": "very_common",
@@ -15970,7 +15901,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -16014,7 +15944,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -16058,7 +15987,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "vegetables"
       ],
       "frequency": "very_common",
@@ -16102,7 +16030,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -16146,7 +16073,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "very_common",
@@ -16190,7 +16116,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "food",
         "protein"
       ],
       "frequency": "common",
@@ -16277,7 +16202,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "beverage",
         "beverage"
       ],
       "frequency": "very_common",
@@ -17224,7 +17148,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "very_common",
@@ -18859,7 +18782,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -18903,7 +18825,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -19249,8 +19170,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19293,8 +19213,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19337,8 +19256,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19381,8 +19299,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19425,8 +19342,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19469,8 +19385,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19513,8 +19428,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19557,8 +19471,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "season"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19601,8 +19514,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "season"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19645,8 +19557,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "season"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19689,8 +19600,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "season"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19733,8 +19643,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -19777,8 +19686,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -20603,7 +20511,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -20647,7 +20554,6 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "travel",
         "transport"
       ],
       "frequency": "common",
@@ -20864,8 +20770,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -20908,8 +20813,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "day"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -20952,8 +20856,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -20996,8 +20899,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26340,8 +26242,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26384,8 +26285,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26428,8 +26328,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26472,8 +26371,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26516,8 +26414,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26560,8 +26457,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26604,8 +26500,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26648,8 +26543,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26692,8 +26586,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -26736,8 +26629,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28292,8 +28184,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28336,8 +28227,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28380,8 +28270,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28424,8 +28313,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28468,8 +28356,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28512,8 +28399,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28556,8 +28442,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28600,8 +28485,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28644,8 +28528,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28688,8 +28571,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28732,8 +28614,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -28776,8 +28657,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31063,8 +30943,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31107,8 +30986,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31151,8 +31029,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31195,8 +31072,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31239,8 +31115,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31283,8 +31158,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31327,8 +31201,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31371,8 +31244,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31415,8 +31287,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31459,8 +31330,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31503,8 +31373,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -31547,8 +31416,7 @@
       "pronunciations": [],
       "etymology": null,
       "tags": [
-        "time",
-        "month"
+        "time"
       ],
       "frequency": "common",
       "register": "informal",
@@ -33844,7 +33712,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -33898,7 +33765,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -33952,7 +33818,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -34006,7 +33871,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -34060,7 +33924,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -34114,7 +33977,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -34168,7 +34030,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -34222,7 +34083,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "spice"
       ],
       "frequency": "common",
@@ -34276,7 +34136,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34330,7 +34189,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34384,7 +34242,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34438,7 +34295,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34492,7 +34348,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34546,7 +34401,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34600,7 +34454,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34654,7 +34507,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34708,7 +34560,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34762,7 +34613,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34816,7 +34666,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
@@ -34870,7 +34719,6 @@
       ],
       "etymology": null,
       "tags": [
-        "food",
         "seasoning"
       ],
       "frequency": "common",
