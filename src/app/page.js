@@ -4500,9 +4500,10 @@ function DialectPlatformContent() {
                   ))}
 
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect I want to learn</label>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
                     <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
                       style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                      <option value="">—  Not interested in learning</option>
                       {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
                     </select>
                   </div>
@@ -4603,7 +4604,7 @@ function DialectPlatformContent() {
                         age: currentUser.age || '',
                         occupation: currentUser.occupation || '',
                         email: currentUser.email || '',
-                        languageInterest: currentUser.languageInterest || 'Hokkien',
+                        languageInterest: currentUser.languageInterest || '',
                         gender: currentUser.gender || '',
                         role: currentUser.role || 'mentee',
                         dialectsKnown: currentUser.dialectsKnown || [],
@@ -4650,9 +4651,10 @@ function DialectPlatformContent() {
               ))}
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect I want to learn</label>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
                 <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
                   style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                  <option value="">—  Not interested in learning</option>
                   {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
                 </select>
               </div>
