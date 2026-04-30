@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
@@ -23,6 +23,98 @@ function CountUp({ value, active, duration = 1200 }) {
     return () => cancelAnimationFrame(raf);
   }, [value, active, duration]);
   return <>{display.toLocaleString()}</>;
+}
+
+function DialectTooltip({ phrase, meaning, romanization, color = "#C0392B" }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
+  const ref = useRef(null);
+
+  const handleShow = () => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setTooltipPos({ top: rect.top - 100, left: rect.left });
+      setShowTooltip(true);
+    }
+  };
+
+  return (
+    <span
+      ref={ref}
+      style={{
+        textDecoration: "underline dotted",
+        textDecorationColor: color,
+        textDecorationThickness: "2px",
+        textUnderlineOffset: "4px",
+        cursor: "help",
+        color: color,
+        fontWeight: 500
+      }}
+      onMouseEnter={handleShow}
+      onMouseLeave={() => setShowTooltip(false)}
+      onClick={handleShow}
+    >
+      {phrase}
+      {showTooltip && (
+        <div style={{
+          position: "fixed",
+          top: tooltipPos.top,
+          left: tooltipPos.left,
+          zIndex: 1000,
+          background: "white",
+          borderRadius: 12,
+          padding: "14px 16px",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+          border: `2px solid ${color}30`,
+          minWidth: 200,
+          fontSize: 13,
+          fontFamily: "inherit"
+        }}>
+          <div style={{ fontWeight: 700, color: color, marginBottom: 6, fontSize: 14 }}>
+            {phrase}
+          </div>
+          <div style={{ color: "#6B5B45", marginBottom: romanization ? 8 : 0 }}>
+            {meaning}
+          </div>
+          {romanization && (
+            <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic" }}>
+              {romanization}
+            </div>
+          )}
+        </div>
+      )}
+    </span>
+  );
+}
+
+function AnnotatedText({ text, dialectColor = "#C0392B" }) {
+  const parts = [];
+  const regex = /\[\[([^\|]+)\|([^\|]+)(?:\|([^\]]+))?\]\]/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={`text-${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>);
+    }
+    const [, phrase, meaning, romanization] = match;
+    parts.push(
+      <DialectTooltip
+        key={`tooltip-${match.index}`}
+        phrase={phrase}
+        meaning={meaning}
+        romanization={romanization}
+        color={dialectColor}
+      />
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(<span key={`text-${lastIndex}`}>{text.slice(lastIndex)}</span>);
+  }
+
+  return <>{parts}</>;
 }
 
 const dialects = [
@@ -1804,12 +1896,12 @@ const situationalQuizzes = {
       title: "A Day in Singapore - Hokkien Community",
       story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "Early morning at home. Your grandmother asks 'Chiah pa buay?' (Have you eaten?). You just woke up.", dialogues: [
+        { context: "Early morning at home. Your grandmother asks [[Chiah pa buay?|Have you eaten?|chiah pa buay]]. You just woke up.", dialogues: [
           { phrase: "Wa ai chiah tua png loo", meaning: "I want to eat a big plate of rice", correct: true },
           { phrase: "Wa ai khui liao", meaning: "I want to go already", correct: false },
           { phrase: "Boh lui lah", meaning: "No money lah", correct: false }
         ]},
-        { context: "At the hawker center. The uncle is serving char kuay teow. You want it.", dialogues: [
+        { context: "At the hawker center. The uncle is serving [[char kuay teow|stir-fried rice cakes|chee kuay teow]]. You want it.", dialogues: [
           { phrase: "Beh hiam, beh hiam!", meaning: "Not spicy, not spicy!", correct: true },
           { phrase: "Wa ai pua liao", meaning: "I'm too full already", correct: false },
           { phrase: "Chin sian lor", meaning: "So bored lah", correct: false }
@@ -1819,7 +1911,7 @@ const situationalQuizzes = {
           { phrase: "Wa boh eng gam jit", meaning: "I don't have time today", correct: false },
           { phrase: "Taai gwai lah", meaning: "Too expensive lah", correct: false }
         ]},
-        { context: "You bump into an old friend at the MRT station. Long time no see!", dialogues: [
+        { context: "You bump into an old friend at the MRT station. [[Hóu noi buay khua lo!|Long time never meet lah!|ho noi buay khua lo]]", dialogues: [
           { phrase: "Hóu noi buay khua lo!", meaning: "Long time never meet lah!", correct: true },
           { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false },
           { phrase: "Boh su, boh su", meaning: "Nothing, nothing", correct: false }
@@ -1849,7 +1941,7 @@ const situationalQuizzes = {
           { phrase: "Chiah liao beh ho!", meaning: "Eaten already not good!", correct: false },
           { phrase: "Wa ai khui liao", meaning: "I want to go already", correct: false }
         ]},
-        { context: "Before bed. Your grandmother says 'Peh an hoo lo' (Sleep well). You want to wish her good night warmly.", dialogues: [
+        { context: "Before bed. Your grandmother says [[Peh an hoo lo|Sleep well|peh an hoo lo]]. You want to wish her good night warmly.", dialogues: [
           { phrase: "Guan bo, lo bo, khuann tin tshio!", meaning: "Goodnight, parents, sleep well!", correct: true },
           { phrase: "Boh eng lah, beh tsiann", meaning: "No time lah, no need to talk", correct: false },
           { phrase: "Wa ai khui khi a", meaning: "I want to go", correct: false }
@@ -1863,12 +1955,12 @@ const situationalQuizzes = {
       title: "A Day in Singapore - Cantonese Community",
       story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "Early morning at home. Your grandmother asks 'Sihk jó faahn meih a?' (Have you eaten rice?). You just woke up.", dialogues: [
+        { context: "Early morning at home. Your grandmother asks [[Sihk jó faahn meih a?|Have you eaten rice?|sik jo faan mei a]]. You just woke up.", dialogues: [
           { phrase: "Meih, ngóh yiu sihk fan", meaning: "Not yet, I want to eat rice", correct: true },
           { phrase: "Sihk jó lā", meaning: "Already eaten lā", correct: false },
           { phrase: "Ngóh m̀ gau", meaning: "I'm not hungry", correct: false }
         ]},
-        { context: "At the dim sum restaurant. The auntie is pushing the trolley. You see char siu bao!", dialogues: [
+        { context: "At the dim sum restaurant. The auntie is pushing the trolley. You see [[char siu bao|pork bun|cha siu bao]]!", dialogues: [
           { phrase: "Yiu ni go char siu bao!", meaning: "I want this char siu bao!", correct: true },
           { phrase: "taai3 gwai3 laa1", meaning: "Too expensive laa", correct: false },
           { phrase: "Ngóh boh jin yan", meaning: "I have no appetite", correct: false }
@@ -1878,7 +1970,7 @@ const situationalQuizzes = {
           { phrase: "Gam gwai, gam gwai laa", meaning: "So expensive, so expensive laa", correct: false },
           { phrase: "Mo man tai, mo yiu", meaning: "No problem, don't need", correct: false }
         ]},
-        { context: "You run into an old friend at MTR. Long time no see!", dialogues: [
+        { context: "You run into an old friend at MTR. [[Hóu noi móuh gin!|Long time no see!|hou noi mou gin]]", dialogues: [
           { phrase: "Hóu noi móuh gin! Nee gam doh?", meaning: "Long time no see! How have you been?", correct: true },
           { phrase: "Wa ai heoi lie gak", meaning: "I want to go home", correct: false },
           { phrase: "Ngóh m̀ ji", meaning: "I don't know", correct: false }
@@ -1922,12 +2014,12 @@ const situationalQuizzes = {
       title: "A Day in Singapore - Teochew Community",
       story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "Early morning at home. Your grandmother asks 'Ziah pa boih?' (Have you eaten?). You just woke up.", dialogues: [
+        { context: "Early morning at home. Your grandmother asks [[Ziah pa boih?|Have you eaten?|jiah pa boih]]. You just woke up.", dialogues: [
           { phrase: "Bo pa, wa ai ziah kway teow!", meaning: "Not yet, I want to eat rice noodles!", correct: true },
           { phrase: "Ziah liao", meaning: "Already eaten", correct: false },
           { phrase: "Boh lui, boh lui", meaning: "No money, no money", correct: false }
         ]},
-        { context: "At the teochew porridge stall. The auntie is serving hot muay (porridge). You're tempted!", dialogues: [
+        { context: "At the teochew porridge stall. The auntie is serving hot [[muay|porridge|muay]]. You're tempted!", dialogues: [
           { phrase: "Oi ka bui muay, siang tng!", meaning: "Give me a bowl of porridge, with soup!", correct: true },
           { phrase: "Zing gau la", meaning: "Very full already", correct: false },
           { phrase: "Boh lui gam jit", meaning: "No money today", correct: false }
@@ -1937,7 +2029,7 @@ const situationalQuizzes = {
           { phrase: "Taai gwai, taai gwai lah", meaning: "Too expensive, too expensive lah", correct: false },
           { phrase: "Boh eng gam jit", meaning: "No time today", correct: false }
         ]},
-        { context: "You run into an old friend at the market. Long time since you last met!", dialogues: [
+        { context: "You run into an old friend at the market. [[Hao noi bo khuann!|Long time no meet!|hao noi bo khuann]]", dialogues: [
           { phrase: "Hao noi bo khuann! Nee gam doh?", meaning: "Long time no meet! How have you been?", correct: true },
           { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false },
           { phrase: "guán m tsia̍t", meaning: "I don't know", correct: false }
@@ -1981,12 +2073,12 @@ const situationalQuizzes = {
       title: "A Day in Singapore - Hakka Community",
       story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "Early morning at home. Your grandmother asks 'Nia ho maan, ya pan un maa?' (Good morning, did you sleep well?). You just woke up.", dialogues: [
+        { context: "Early morning at home. Your grandmother asks [[Nia ho maan, ya pan un maa?|Good morning, did you sleep well?|nia ho maan ya pan un maa]]. You just woke up.", dialogues: [
           { phrase: "Zo san, a po! Wa ai ya fan", meaning: "Good morning, grandma! I want to eat", correct: true },
           { phrase: "Ya fan liaw maa", meaning: "Already eaten", correct: false },
           { phrase: "mo5 lui2", meaning: "No money", correct: false }
         ]},
-        { context: "At the hawker center. A seller is making fresh fried noodles. You're hungry!", dialogues: [
+        { context: "At the hawker center. A seller is making fresh [[fried noodles|chau mian]]. You're hungry!", dialogues: [
           { phrase: "Ngi ho! Ka wa chau mian, m ho la!", meaning: "Hello! Give me fried noodles, not too spicy!", correct: true },
           { phrase: "Taai gwai la", meaning: "Too expensive lah", correct: false },
           { phrase: "Mo kung, mo kung", meaning: "No time, no time", correct: false }
@@ -1996,7 +2088,7 @@ const situationalQuizzes = {
           { phrase: "Taai gwai, boh lui", meaning: "Too expensive, no money", correct: false },
           { phrase: "Mo kung gam zit", meaning: "No time today", correct: false }
         ]},
-        { context: "You meet an old friend at the MRT. It's been a while!", dialogues: [
+        { context: "You meet an old friend at the MRT. [[Hao noi bho gin!|Long time no see!|hao noi bho gin]]", dialogues: [
           { phrase: "Hao noi bho gin! Nee gam doh ngi?", meaning: "Long time no see! How are you?", correct: true },
           { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false },
           { phrase: "Wa m sik", meaning: "I don't know", correct: false }
@@ -2040,12 +2132,12 @@ const situationalQuizzes = {
       title: "A Day in Singapore - Hainanese Community",
       story: "Follow a day in the life of someone navigating Singapore's diverse dialect communities",
       cues: [
-        { context: "Early morning at home. Your grandmother asks 'Zao san, chiak bo?' (Good morning, have you eaten?). You just woke up.", dialogues: [
+        { context: "Early morning at home. Your grandmother asks [[Zao san, chiak bo?|Good morning, have you eaten?|zao san chiak bo]]. You just woke up.", dialogues: [
           { phrase: "Zao san! Wa ai chiak ke fan", meaning: "Good morning! I want to eat chicken rice", correct: true },
           { phrase: "tsia̍h-lioo", meaning: "Already eaten", correct: false },
           { phrase: "Boh lui gam jit", meaning: "No money today", correct: false }
         ]},
-        { context: "At the hainanese chicken rice stall. The uncle is preparing fresh chicken. You want some!", dialogues: [
+        { context: "At the hainanese [[chicken rice|ke fan]] stall. The uncle is preparing fresh chicken. You want some!", dialogues: [
           { phrase: "Uncle! Ka ngho ke fan, zin ho!", meaning: "Uncle! Give me chicken rice, very good!", correct: true },
           { phrase: "Taai gwai", meaning: "Too expensive", correct: false },
           { phrase: "Boh eng gam jit", meaning: "No time today", correct: false }
@@ -2055,7 +2147,7 @@ const situationalQuizzes = {
           { phrase: "Taai gwai, boh lui", meaning: "Too expensive, no money", correct: false },
           { phrase: "buē khong", meaning: "No time", correct: false }
         ]},
-        { context: "You run into an old friend at the hawker center. Long time no see!", dialogues: [
+        { context: "You run into an old friend at the hawker center. [[Hao noi bo gin!|Long time no see!|hao noi bo gin]]", dialogues: [
           { phrase: "Hao noi bo gin! Nee gam doh?", meaning: "Long time no see! How have you been?", correct: true },
           { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false },
           { phrase: "guán m tsia̍t", meaning: "I don't know", correct: false }
@@ -3200,7 +3292,9 @@ function DialectPlatformContent() {
                       </div>
                       <div style={{ background: "#F9F5EE", borderRadius: 14, padding: "18px 20px", border: `2px solid ${dialect.color}25` }}>
                         <div style={{ fontSize: 12, color: "#9B8B75", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}>💬 WHAT WOULD YOU SAY?</div>
-                        <div style={{ fontSize: 15, color: "#1A1208", lineHeight: 1.6 }}>{cue.context}</div>
+                        <div style={{ fontSize: 15, color: "#1A1208", lineHeight: 1.6 }}>
+                          <AnnotatedText text={cue.context} dialectColor={dialect.color} />
+                        </div>
                       </div>
                     </div>
 
