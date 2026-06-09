@@ -2760,6 +2760,12 @@ function DialectPlatformContent() {
           localStorage.setItem('auth_token', data.token);
           setCurrentUser(data.user);
           restoreProgress(data.user.progress);
+          if (data.user.xp != null) setXp(data.user.xp);
+          if (data.user.streak != null) setStreak(data.user.streak);
+          if (data.user.lastDailyDate) {
+            const today = new Date().toISOString().split('T')[0];
+            setDailyCompleted(data.user.lastDailyDate === today);
+          }
           setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
           setSuccessMessage(`Successfully signed in. Welcome, ${data.user.firstName}!`);
           setScreen('home');
@@ -2778,6 +2784,9 @@ function DialectPlatformContent() {
     setProfileEditMode(false);
     setPendingGoogle(null);
     setAuthError(null);
+    setXp(0);
+    setStreak(0);
+    setDailyCompleted(false);
   }
 
   // Restore screen and dialect from URL on component mount
@@ -2863,6 +2872,13 @@ function DialectPlatformContent() {
           if (data?.user) {
             setCurrentUser(data.user);
             restoreProgress(data.user.progress);
+            if (data.user.xp != null) setXp(data.user.xp);
+            if (data.user.streak != null) setStreak(data.user.streak);
+            // Check if daily was already completed today
+            if (data.user.lastDailyDate) {
+              const today = new Date().toISOString().split('T')[0];
+              setDailyCompleted(data.user.lastDailyDate === today);
+            }
           } else {
             localStorage.removeItem('auth_token');
           }
@@ -2904,6 +2920,23 @@ function DialectPlatformContent() {
   }, [knownCards, progress, cardIndex, selectedDialect, selectedCategory, lessonMode,
       situationalQuizIndex, situationalCueIndex, situationalScore,
       sentenceIndex, sentenceScore, currentUser]);
+
+  // Debounced save of XP and streak to backend
+  useEffect(() => {
+    if (!currentUser) return;
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+    const tid = setTimeout(() => {
+      fetch('/api/users/xp', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ xp, streak }),
+      }).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(tid);
+  }, [xp, streak, currentUser]);
+
+  // Save daily completion date when daily challenge is completed
 
   const toCard = w => ({ phrase: w.headword?.romanized || "", chinese: w.headword?.traditional || "", meaning: w.definitions?.[0]?.english || "", romanisation: w.headword?.romanized || "" });
   const apiForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === selectedCategory).map(toCard) : [];
@@ -3858,6 +3891,25 @@ function DialectPlatformContent() {
                           setQuizShowResult(false);
                         } else {
                           setXp(x => x + XP_REWARDS.dailyComplete);
+                          // Calculate new streak
+                          const today = new Date().toISOString().split('T')[0];
+                          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+                          setStreak(prev => {
+                            // If last daily was yesterday, increment streak; otherwise reset to 1
+                            const lastDate = currentUser?.lastDailyDate;
+                            if (lastDate === yesterday || lastDate === today) return prev + 1;
+                            return 1;
+                          });
+                          setDailyCompleted(true);
+                          // Save lastDailyDate to backend
+                          const token = localStorage.getItem('auth_token');
+                          if (token) {
+                            fetch('/api/users/xp', {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                              body: JSON.stringify({ lastDailyDate: today }),
+                            }).catch(() => {});
+                          }
                           setDailyDone(true);
                         }
                       }}

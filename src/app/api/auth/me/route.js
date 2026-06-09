@@ -8,7 +8,7 @@ export async function GET(req) {
 
   try {
     const result = await query(
-      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, progress, dialects_known
+      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, progress, dialects_known, xp, streak, last_daily_date
        FROM users WHERE id = $1`,
       [decoded.userId]
     );
@@ -32,6 +32,9 @@ export async function GET(req) {
         avatar: getAvatar(u.gender, u.role || 'mentee'),
         progress: u.progress || {},
         dialectsKnown: u.dialects_known || [],
+        xp: u.xp || 0,
+        streak: u.streak || 0,
+        lastDailyDate: u.last_daily_date || null,
       },
     }, { status: 200 });
   } catch (err) {
