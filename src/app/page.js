@@ -2459,7 +2459,7 @@ function DialectPlatformContent() {
     if (p.sentenceScore != null) setSentenceScore(p.sentenceScore);
   }
 
-  // Speed Round: generate questions from all lesson data for selected dialect
+  // Speed Round: generate questions from lessons + expanded data + dictionary
   const startSpeedRound = useCallback(() => {
     const allCards = [];
     const cats = ["greetings", "numbers", "food", "verbs", "family", "emotions", "hawker", "travel", "body", "time", "daily_life"];
@@ -2467,13 +2467,31 @@ function DialectPlatformContent() {
       const cards = lessons[selectedDialect]?.[cat] || [];
       for (const card of cards) allCards.push(card);
     }
-    // Also include expanded flashcard data if available
+    // Also include expanded flashcard data
     const extraCardsMap = { hokkien: hokkienFlashcards, cantonese: cantoneseFlashcards, teochew: teochewFlashcards, hakka: hakkaFlashcards, hainanese: hainaneseFlashcards };
     const extraCards = extraCardsMap[selectedDialect];
     if (extraCards) {
       for (const cat of cats) {
         const cards = extraCards[cat] || [];
         for (const card of cards) allCards.push(card);
+      }
+    }
+    // Also include dictionary words for this dialect
+    if (apiWords.length > 0) {
+      const dictWords = apiWords.filter(w => w.dialect === selectedDialect);
+      for (const w of dictWords) {
+        const phrase = w.headword?.romanized || '';
+        if (phrase && !allCards.find(c => c.phrase === phrase)) {
+          allCards.push({
+            phrase,
+            chinese: w.headword?.traditional || '',
+            meaning: w.definitions?.[0]?.english || '',
+            romanisation: phrase,
+            ipa: w.pronunciations?.[0]?.ipa || '',
+            pos: w.part_of_speech || '',
+            examples: w.definitions?.[0]?.examples || [],
+          });
+        }
       }
     }
     // Shuffle and pick 20
@@ -2484,8 +2502,11 @@ function DialectPlatformContent() {
       return {
         english: card.meaning,
         chinese: card.chinese,
+        ipa: card.ipa || '',
+        pos: card.pos || '',
         options,
         correctIndex: options.indexOf(card.phrase),
+        answerPhrase: card.phrase,
       };
     });
     setSpeedQuestions(questions);
@@ -2510,16 +2531,43 @@ function DialectPlatformContent() {
     return () => clearInterval(timer);
   }, [speedActive, speedTimeLeft]);
 
-  // Daily Challenge: 10 questions across all dialects
+  // Daily Challenge: 10 questions across all dialects using dictionary as primary source
   const startDailyChallenge = useCallback(() => {
     const allDialects = ["hokkien", "cantonese", "teochew", "hakka", "hainanese"];
     const dialectColors = { hokkien: "#C0392B", cantonese: "#8E44AD", teochew: "#1A6B3C", hakka: "#D4860B", hainanese: "#1A7EA6" };
-    const cats = ["greetings", "numbers", "food", "verbs", "family", "emotions", "hawker", "travel", "body", "time", "daily_life"];
     const allCards = [];
+    // Primary source: dictionary words (rich data with IPA, POS, examples)
     for (const d of allDialects) {
-      for (const cat of cats) {
-        const cards = lessons[d]?.[cat] || [];
-        for (const card of cards) allCards.push({ ...card, dialect: d, dialectColor: dialectColors[d] });
+      const dictWords = apiWords.filter(w => w.dialect === d);
+      for (const w of dictWords) {
+        const phrase = w.headword?.romanized || '';
+        if (phrase) {
+          allCards.push({
+            phrase,
+            chinese: w.headword?.traditional || '',
+            meaning: w.definitions?.[0]?.english || '',
+            romanisation: phrase,
+            ipa: w.pronunciations?.[0]?.ipa || '',
+            pos: w.part_of_speech || '',
+            examples: w.definitions?.[0]?.examples || [],
+            dialect: d,
+            dialectColor: dialectColors[d],
+          });
+        }
+      }
+    }
+    // Fallback: hardcoded lessons if dictionary is empty
+    if (allCards.length < 10) {
+      const cats = ["greetings", "numbers", "food", "verbs", "family", "emotions", "hawker", "travel", "body", "time", "daily_life"];
+      for (const d of allDialects) {
+        for (const cat of cats) {
+          const cards = lessons[d]?.[cat] || [];
+          for (const card of cards) {
+            if (!allCards.find(c => c.phrase === card.phrase)) {
+              allCards.push({ ...card, dialect: d, dialectColor: dialectColors[d], ipa: '', pos: '', examples: [] });
+            }
+          }
+        }
       }
     }
     const seed = getDailyChallengeSeed();
@@ -2531,6 +2579,8 @@ function DialectPlatformContent() {
       return {
         english: card.meaning,
         chinese: card.chinese,
+        ipa: card.ipa || '',
+        pos: card.pos || '',
         dialect: card.dialect,
         dialectColor: card.dialectColor,
         options,
@@ -2545,11 +2595,31 @@ function DialectPlatformContent() {
     setQuizShowResult(false);
   }, []);
 
-  // Reverse Flashcards: load cards for current dialect + category
+  // Reverse Flashcards: load cards from dictionary + hardcoded for current dialect + category
   const startReverseCards = useCallback(() => {
-    const cards = lessons[selectedDialect]?.[selectedCategory] || [];
-    const cardsWithIndex = cards.map((card, idx) => ({ ...card, cardIndex: idx }));
-    setReverseCards(cardsWithIndex.sort(() => Math.random() - 0.5));
+    const cards = [];
+    // Primary: dictionary words matching dialect and category
+    const dictMatches = apiWords.filter(w => w.dialect === selectedDialect && (w.tags || []).includes(selectedCategory));
+    for (const w of dictMatches) {
+      cards.push({
+        phrase: w.headword?.romanized || '',
+        chinese: w.headword?.traditional || '',
+        meaning: w.definitions?.[0]?.english || '',
+        romanisation: w.headword?.romanized || '',
+        ipa: w.pronunciations?.[0]?.ipa || '',
+        pos: w.part_of_speech || '',
+        examples: w.definitions?.[0]?.examples || [],
+        cardIndex: cards.length,
+      });
+    }
+    // Fallback: hardcoded lessons
+    const staticCards = lessons[selectedDialect]?.[selectedCategory] || [];
+    for (const sc of staticCards) {
+      if (!cards.find(c => c.phrase === sc.phrase)) {
+        cards.push({ ...sc, ipa: '', pos: '', examples: [], cardIndex: cards.length });
+      }
+    }
+    setReverseCards(cards.sort(() => Math.random() - 0.5));
     setReverseIndex(0);
     setReverseFlipped(false);
   }, [selectedDialect, selectedCategory]);
@@ -2939,9 +3009,42 @@ function DialectPlatformContent() {
 
   // Save daily completion date when daily challenge is completed
 
-  const toCard = w => ({ phrase: w.headword?.romanized || "", chinese: w.headword?.traditional || "", meaning: w.definitions?.[0]?.english || "", romanisation: w.headword?.romanized || "" });
-  const apiForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === selectedCategory).map(toCard) : [];
-  const cards = [...(selectedDialect && lessons[selectedDialect]?.[selectedCategory] || []), ...apiForCategory];
+  // Build flashcard deck: hardcoded lessons + dictionary words with full rich data
+  const dictForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags || []).includes(selectedCategory)) : [];
+  const staticCards = (selectedDialect && lessons[selectedDialect]?.[selectedCategory] || []);
+  // Convert static cards to rich format (add ipa/examples/pos from dictionary if available)
+  const richStatic = staticCards.map(sc => {
+    const dictMatch = dictForCategory.find(d => d.headword?.romanized === sc.phrase);
+    if (dictMatch) {
+      return {
+        phrase: sc.phrase,
+        chinese: sc.chinese,
+        meaning: sc.meaning,
+        romanisation: sc.romanisation,
+        ipa: dictMatch.pronunciations?.[0]?.ipa || '',
+        pos: dictMatch.part_of_speech || '',
+        examples: dictMatch.definitions?.[0]?.examples || [],
+        frequency: dictMatch.frequency || 'common',
+        register: dictMatch.register || 'informal',
+        fromDictionary: true,
+      };
+    }
+    return { ...sc, ipa: '', pos: '', examples: [], frequency: 'common', register: 'informal', fromDictionary: false };
+  });
+  // Convert dictionary words to card format with all rich data
+  const dictCards = dictForCategory.filter(d => !staticCards.find(s => s.phrase === d.headword?.romanized)).map(d => ({
+    phrase: d.headword?.romanized || '',
+    chinese: d.headword?.traditional || '',
+    meaning: d.definitions?.[0]?.english || '',
+    romanisation: d.headword?.romanized || '',
+    ipa: d.pronunciations?.[0]?.ipa || '',
+    pos: d.part_of_speech || '',
+    examples: d.definitions?.[0]?.examples || [],
+    frequency: d.frequency || 'common',
+    register: d.register || 'informal',
+    fromDictionary: true,
+  }));
+  const cards = [...richStatic, ...dictCards];
 
   function selectDialect(id) {
     if (id !== selectedDialect) {
@@ -3257,21 +3360,37 @@ function DialectPlatformContent() {
           {/* ─── FLASHCARDS ─── */}
           {lessonMode === "flashcards" && (
             <div>
-              {/* Category tabs — includes API-sourced categories */}
+              {/* Category tabs — includes dictionary tags + part_of_speech */}
               {(() => {
                 const capitalize = s => s.split(/[_\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-                const apiCatIcons = { family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋", language:"📖", other:"📖" };
-                const apiOnlyCats = [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.tags?.[0] || "other"))].filter(c => !categories.find(x => x.id === c)).map(c => ({ id: c, label: capitalize(c), icon: apiCatIcons[c] || "📖" }));
-                const allCats = [...categories, ...apiOnlyCats];
+                const apiCatIcons = { family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋", language:"📖", other:"📖", person:"👤", drink:"🧃", politeness:"🙏", food:"🍜", numbers:"🔢", greetings:"👋", transport:"🚗", color:"🎨", size:"📏", singapore:"🇸🇬", verb:"🏃", noun:"📦", adjective:"✨", adverb:"🔄", interjection:"💬" };
+                // Get all unique tags from dictionary for this dialect
+                const dictTags = selectedDialect ? [...new Set(apiWords.filter(w => w.dialect === selectedDialect).flatMap(w => w.tags || []))] : [];
+                // Get all unique POS from dictionary for this dialect
+                const dictPOS = selectedDialect ? [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.part_of_speech).filter(Boolean))] : [];
+                // Build category list: static + dictionary tags + POS
+                const staticCats = categories.map(c => c.id);
+                const dictOnlyTags = dictTags.filter(t => !staticCats.includes(t)).map(t => ({ id: t, label: capitalize(t), icon: apiCatIcons[t] || "📖" }));
+                const posCats = dictOnlyTags.filter(c => ['verb','noun','adjective','adverb','interjection','expression','numeral','conjunction'].includes(c.id));
+                const tagCats = dictOnlyTags.filter(c => !['verb','noun','adjective','adverb','interjection','expression','numeral','conjunction'].includes(c.id));
+                const posCategory = { id: 'by_pos', label: 'By Part of Speech', icon: '📝' };
+                const allCats = [...categories, ...tagCats];
+                
+                // Count cards per category
+                const getCardCount = (catId) => {
+                  if (catId === 'by_pos') return dictPOS.length;
+                  const staticCount = lessons[selectedDialect]?.[catId]?.length || 0;
+                  const dictCount = apiWords.filter(w => w.dialect === selectedDialect && (w.tags || []).includes(catId)).length;
+                  return staticCount + dictCount;
+                };
+                
                 return (
                   <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
                     {allCats.map(cat => {
                       const key = `${selectedDialect}-${cat.id}`;
                       const done = progress[key];
                       const knownCount = Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${cat.id}-`)).length;
-                      const staticCount = lessons[selectedDialect]?.[cat.id]?.length || 0;
-                      const apiCount = apiWords.filter(w => w.dialect === selectedDialect && (w.tags?.[0] || "other") === cat.id).length;
-                      const total = staticCount + apiCount;
+                      const total = getCardCount(cat.id);
                       return (
                         <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
                           style={{ flex: "0 0 auto", padding: "10px 12px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, whiteSpace: "nowrap" }}>
@@ -3316,20 +3435,44 @@ function DialectPlatformContent() {
                       🔊 Hear it
                     </button>
                   </div>
-                  <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20 }}>
-                    <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 14 }}>Meaning</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 24px" }}>
+                  <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px", overflowY: "auto" }}>
+                    <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 10 }}>Meaning</div>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>
                       {cards[cardIndex]?.meaning}
                     </div>
-                    <div style={{ fontSize: 13, color: dialect.color, marginTop: 12, fontWeight: 600 }}>
+                    <div style={{ fontSize: 14, color: dialect.color, marginTop: 8, fontWeight: 600 }}>
                       {cards[cardIndex]?.romanisation}
                     </div>
-                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 20, color: "#8B7355", marginTop: 6 }}>
+                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "#8B7355", marginTop: 4 }}>
                       {cards[cardIndex]?.chinese}
                     </div>
+                    {cards[cardIndex]?.ipa && (
+                      <div style={{ fontSize: 13, color: "#9B8B75", marginTop: 8, fontStyle: "italic" }}>
+                        {cards[cardIndex]?.ipa}
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginTop: 8 }}>
+                      {cards[cardIndex]?.pos && (
+                        <span style={{ fontSize: 10, background: "#F0E8DA", color: "#8B7355", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{cards[cardIndex]?.pos}</span>
+                      )}
+                      {cards[cardIndex]?.frequency && (
+                        <span style={{ fontSize: 10, background: cards[cardIndex]?.frequency === 'very_common' ? "#EAFAF1" : "#FEF9E7", color: cards[cardIndex]?.frequency === 'very_common' ? "#1A6B3C" : "#D4860B", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{cards[cardIndex]?.frequency}</span>
+                      )}
+                    </div>
+                    {cards[cardIndex]?.examples && cards[cardIndex]?.examples.length > 0 && (
+                      <div style={{ marginTop: 10, width: "100%" }}>
+                        <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Example</div>
+                        {cards[cardIndex].examples.slice(0, 2).map((ex, i) => (
+                          <div key={i} style={{ background: "#FAF6F0", borderRadius: 8, padding: "8px 12px", marginBottom: 4, fontSize: 12, color: "#1A1208", borderLeft: `3px solid ${dialect.color}` }}>
+                            <div style={{ fontStyle: "italic" }}>"{ex.text_source_lang}"</div>
+                            <div style={{ color: "#8B7355", marginTop: 2 }}>{ex.text_target_lang}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
                       className="btn-tts"
-                      style={{ marginTop: 16, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                      style={{ marginTop: 12, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
                       🔊 Hear pronunciation
                     </button>
                   </div>
@@ -3788,6 +3931,12 @@ function DialectPlatformContent() {
                       <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>What is this in {dialect.name}?</div>
                       <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 700, color: "white" }}>{q.english}</div>
                       {q.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 20, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
+                      {(q.ipa || q.pos) && (
+                        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 10 }}>
+                          {q.ipa && <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{q.ipa}</span>}
+                          {q.pos && <span style={{ fontSize: 10, background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", padding: "2px 8px", borderRadius: 8 }}>{q.pos}</span>}
+                        </div>
+                      )}
                     </div>
 
                     {/* Options */}
@@ -4009,9 +4158,12 @@ function DialectPlatformContent() {
                         <>
                           <div className="romanized" style={{ fontSize: 36, fontWeight: 700, color: "white", padding: "0 24px" }}>{card.phrase}</div>
                           <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>
-                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>Tap to go back</div>
+                          {card.ipa && <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>{card.ipa}</div>}
+                          {card.pos && <span style={{ fontSize: 10, background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", padding: "2px 8px", borderRadius: 8, marginTop: 6, display: "inline-block" }}>{card.pos}</span>}
+                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 10 }}>Tap to go back</div>
                           <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, selectedDialect); }}
-                            style={{ marginTop: 12, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            className="btn-tts"
+                            style={{ marginTop: 10, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
                             🔊 Hear pronunciation
                           </button>
                         </>
