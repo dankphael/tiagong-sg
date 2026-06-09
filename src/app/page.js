@@ -1,11 +1,14 @@
 'use client';
 
-import { Suspense, useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getAvatar } from "@/lib/avatar";
 import { buildIntroEmailUrl } from "@/lib/emailTemplate";
+import { hokkienFlashcards } from "@/data/flashcardsHokkien";
+import newStoryQuizzes from "@/data/storyQuizzes";
+import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom } from "@/data/xpSystem";
 
 function CountUp({ value, active, duration = 1200 }) {
   const [display, setDisplay] = useState(0);
@@ -2410,6 +2413,24 @@ function DialectPlatformContent() {
   const [searchSort, setSearchSort] = useState("relevance");
   const [apiWords, setApiWords] = useState([]);
 
+  // XP & Level system
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [dailyCompleted, setDailyCompleted] = useState(false);
+
+  // Speed Round mode
+  const [speedTimeLeft, setSpeedTimeLeft] = useState(60);
+  const [speedScore, setSpeedScore] = useState(0);
+  const [speedQuestion, setSpeedQuestion] = useState(0);
+  const [speedQuestions, setSpeedQuestions] = useState([]);
+  const [speedActive, setSpeedActive] = useState(false);
+
+  // Daily Challenge
+  const [dailyQuestions, setDailyQuestions] = useState([]);
+  const [dailyIndex, setDailyIndex] = useState(0);
+  const [dailyScore, setDailyScore] = useState(0);
+  const [dailyDone, setDailyDone] = useState(false);
+
   const dialect = dialects.find(d => d.id === selectedDialect);
 
   function restoreProgress(p) {
@@ -2426,6 +2447,90 @@ function DialectPlatformContent() {
     if (p.sentenceIndex != null) setSentenceIndex(p.sentenceIndex);
     if (p.sentenceScore != null) setSentenceScore(p.sentenceScore);
   }
+
+  // Speed Round: generate questions from all lesson data for selected dialect
+  const startSpeedRound = useCallback(() => {
+    const allCards = [];
+    const cats = ["greetings", "numbers", "food", "verbs", "family", "emotions", "hawker", "travel", "body", "time", "daily_life"];
+    for (const cat of cats) {
+      const cards = lessons[selectedDialect]?.[cat] || [];
+      for (const card of cards) allCards.push(card);
+    }
+    // Also include hokkienFlashcards if available
+    if (selectedDialect === "hokkien" && hokkienFlashcards) {
+      for (const cat of cats) {
+        const cards = hokkienFlashcards[cat] || [];
+        for (const card of cards) allCards.push(card);
+      }
+    }
+    // Shuffle and pick 20
+    const shuffled = allCards.sort(() => Math.random() - 0.5).slice(0, 20);
+    const questions = shuffled.map(card => {
+      const wrongCards = allCards.filter(c => c.phrase !== card.phrase).sort(() => Math.random() - 0.5).slice(0, 3);
+      const options = [card.phrase, ...wrongCards.map(c => c.phrase)].sort(() => Math.random() - 0.5);
+      return {
+        english: card.meaning,
+        chinese: card.chinese,
+        options,
+        correctIndex: options.indexOf(card.phrase),
+      };
+    });
+    setSpeedQuestions(questions);
+    setSpeedQuestion(0);
+    setSpeedScore(0);
+    setSpeedTimeLeft(60);
+    setSpeedActive(true);
+  }, [selectedDialect]);
+
+  // Speed round timer
+  useEffect(() => {
+    if (!speedActive || speedTimeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setSpeedTimeLeft(t => {
+        if (t <= 1) {
+          setSpeedActive(false);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [speedActive, speedTimeLeft]);
+
+  // Daily Challenge: 10 questions across all dialects
+  const startDailyChallenge = useCallback(() => {
+    const allDialects = ["hokkien", "cantonese", "teochew", "hakka", "hainanese"];
+    const dialectColors = { hokkien: "#C0392B", cantonese: "#8E44AD", teochew: "#1A6B3C", hakka: "#D4860B", hainanese: "#1A7EA6" };
+    const cats = ["greetings", "numbers", "food", "verbs", "family", "emotions", "hawker", "travel", "body", "time", "daily_life"];
+    const allCards = [];
+    for (const d of allDialects) {
+      for (const cat of cats) {
+        const cards = lessons[d]?.[cat] || [];
+        for (const card of cards) allCards.push({ ...card, dialect: d, dialectColor: dialectColors[d] });
+      }
+    }
+    const seed = getDailyChallengeSeed();
+    const rng = seededRandom(seed);
+    const shuffled = allCards.sort(() => rng() - 0.5).slice(0, 10);
+    const questions = shuffled.map(card => {
+      const wrongCards = allCards.filter(c => c.phrase !== card.phrase).sort(() => rng() - 0.5).slice(0, 3);
+      const options = [card.phrase, ...wrongCards.map(c => c.phrase)].sort(() => rng() - 0.5);
+      return {
+        english: card.meaning,
+        chinese: card.chinese,
+        dialect: card.dialect,
+        dialectColor: card.dialectColor,
+        options,
+        correctIndex: options.indexOf(card.phrase),
+      };
+    });
+    setDailyQuestions(questions);
+    setDailyIndex(0);
+    setDailyScore(0);
+    setDailyDone(false);
+    setSelectedAnswer(null);
+    setQuizShowResult(false);
+  }, []);
 
   function completeProfile() {
     if (!pendingGoogle) return;
@@ -3069,11 +3174,15 @@ function DialectPlatformContent() {
             {[
               { mode: "flashcards", icon: "📇", label: "Flashcards", desc: "Tap to flip & learn" },
               { mode: "situational-quiz", icon: "🎭", label: "Story Quiz", desc: "Real-life scenarios" },
-              { mode: "completing-sentence", icon: "✏️", label: "Fill in Blank", desc: "Complete sentences" }
+              { mode: "completing-sentence", icon: "✏️", label: "Fill in Blank", desc: "Complete sentences" },
+              { mode: "speed-round", icon: "⚡", label: "Speed Round", desc: "60s rapid fire" },
+              { mode: "daily-challenge", icon: "🏆", label: "Daily Challenge", desc: "10 mixed questions" },
             ].map(({ mode, icon, label, desc }) => (
               <button key={mode} className="tab-btn" onClick={() => {
                 setLessonMode(mode);
                 setSelectedAnswer(null); setQuizShowResult(false); setCompletionData(null);
+                if (mode === "speed-round") startSpeedRound();
+                if (mode === "daily-challenge") startDailyChallenge();
               }} style={{
                 padding: "14px 10px", borderRadius: 14,
                 background: lessonMode === mode ? dialect.color : "white",
@@ -3535,6 +3644,231 @@ function DialectPlatformContent() {
               })()}
             </div>
           )}
+
+          {/* ─── SPEED ROUND ─── */}
+          {lessonMode === "speed-round" && (
+            <div>
+              {(() => {
+                if (!speedActive && speedQuestions.length === 0) {
+                  return (
+                    <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>⚡</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Speed Round</h2>
+                      <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
+                        Answer as many questions as you can in 60 seconds! +10 XP per correct answer, +15 for speed bonus.
+                      </p>
+                      <button className="btn-hover" onClick={() => startSpeedRound()}
+                        style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Start Speed Round →
+                      </button>
+                    </div>
+                  );
+                }
+
+                if (speedTimeLeft <= 0 || speedQuestion >= speedQuestions.length) {
+                  const pct = speedQuestions.length > 0 ? Math.round((speedScore / speedQuestions.length) * 100) : 0;
+                  return (
+                    <div style={{ textAlign: "center" }} className="fade-up">
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>⏱️</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Time's Up!</h2>
+                      <div style={{ background: `${dialect.color}18`, border: `2px solid ${dialect.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: dialect.color, fontFamily: "'Cormorant Garamond', serif" }}>{speedScore}<span style={{ fontSize: 28 }}>/{speedQuestions.length}</span></div>
+                        <div style={{ fontSize: 16, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
+                        <div style={{ fontSize: 14, color: dialect.color, fontWeight: 600, marginTop: 8 }}>+{speedScore * XP_REWARDS.speedRoundCorrect} XP earned!</div>
+                      </div>
+                      <button className="btn-hover" onClick={() => { setSpeedActive(false); setSpeedQuestions([]); setSpeedScore(0); setSpeedQuestion(0); setSpeedTimeLeft(60); }}
+                        style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        ↺ Try Again
+                      </button>
+                    </div>
+                  );
+                }
+
+                const q = speedQuestions[speedQuestion];
+                return (
+                  <div>
+                    {/* Timer bar */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13, color: "#6B5B45" }}>
+                        <span>Question {speedQuestion + 1} of {speedQuestions.length}</span>
+                        <span style={{ color: speedTimeLeft <= 10 ? "#C0392B" : dialect.color, fontWeight: 700, fontSize: 16 }}>{speedTimeLeft}s</span>
+                      </div>
+                      <div style={{ height: 8, background: "#E8DDD0", borderRadius: 4 }}>
+                        <div style={{ width: `${(speedTimeLeft / 60) * 100}%`, height: "100%", background: speedTimeLeft <= 10 ? "#C0392B" : dialect.color, borderRadius: 4, transition: "width 1s linear" }} />
+                      </div>
+                    </div>
+
+                    {/* Score */}
+                    <div style={{ textAlign: "center", marginBottom: 24 }}>
+                      <span style={{ background: `${dialect.color}18`, border: `1.5px solid ${dialect.color}40`, borderRadius: 20, padding: "6px 16px", fontSize: 14, fontWeight: 700, color: dialect.color }}>
+                        Score: {speedScore}
+                      </span>
+                    </div>
+
+                    {/* Question */}
+                    <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
+                      <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>What is this in {dialect.name}?</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 700, color: "white" }}>{q.english}</div>
+                      {q.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 20, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
+                    </div>
+
+                    {/* Options */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      {q.options.map((opt, idx) => (
+                        <button key={idx} className="btn-hover" onClick={() => {
+                          const correct = idx === q.correctIndex;
+                          if (correct) {
+                            setSpeedScore(s => s + 1);
+                            setXp(x => x + XP_REWARDS.speedRoundCorrect);
+                          }
+                          setSpeedQuestion(i => i + 1);
+                        }}
+                          style={{ padding: "14px 16px", background: "white", border: `2px solid #E8DDD0`, borderRadius: 12, fontSize: 14, cursor: "pointer", color: "#1A1208", fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
+                          <div className="romanized" style={{ fontWeight: 700 }}>{opt}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* ─── DAILY CHALLENGE ─── */}
+          {lessonMode === "daily-challenge" && (
+            <div>
+              {(() => {
+                if (dailyQuestions.length === 0 && !dailyDone) {
+                  return (
+                    <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>🏆</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Daily Challenge</h2>
+                      <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 16, maxWidth: 400, margin: "0 auto 16px" }}>
+                        10 questions across all dialects. Test your knowledge and earn bonus XP!
+                      </p>
+                      <div style={{ background: "#FEF9E2", borderRadius: 12, padding: "12px 20px", marginBottom: 32, display: "inline-block", fontSize: 13, color: "#8B6020" }}>
+                        🔥 {streak} day streak • {xp} XP total
+                      </div>
+                      <br />
+                      <button className="btn-hover" onClick={() => startDailyChallenge()}
+                        style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Start Challenge →
+                      </button>
+                    </div>
+                  );
+                }
+
+                if (dailyDone) {
+                  const pct = Math.round((dailyScore / dailyQuestions.length) * 100);
+                  return (
+                    <div style={{ textAlign: "center" }} className="fade-up">
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Challenge Complete!</h2>
+                      <div style={{ background: "#EAFAF1", border: "2px solid #27AE6040", borderRadius: 20, padding: "32px 24px", marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: "#1A6B3C", fontFamily: "'Cormorant Garamond', serif" }}>{dailyScore}<span style={{ fontSize: 28 }}>/{dailyQuestions.length}</span></div>
+                        <div style={{ fontSize: 16, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
+                        <div style={{ fontSize: 14, color: "#1A6B3C", fontWeight: 600, marginTop: 8 }}>+{dailyScore * XP_REWARDS.correctAnswer + XP_REWARDS.dailyComplete} XP earned!</div>
+                      </div>
+                      <button className="btn-hover" onClick={() => { setDailyDone(false); setDailyQuestions([]); setDailyIndex(0); setDailyScore(0); }}
+                        style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        ↺ Try Again
+                      </button>
+                    </div>
+                  );
+                }
+
+                const q = dailyQuestions[dailyIndex];
+                return (
+                  <div>
+                    {/* Progress */}
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13, color: "#6B5B45" }}>
+                      <span>Question {dailyIndex + 1} of {dailyQuestions.length}</span>
+                      <span style={{ color: dialect.color, fontWeight: 700 }}>Score: {dailyScore}</span>
+                    </div>
+                    <div style={{ height: 8, background: "#E8DDD0", borderRadius: 4, marginBottom: 24 }}>
+                      <div style={{ width: `${((dailyIndex + 1) / dailyQuestions.length) * 100}%`, height: "100%", background: dialect.color, borderRadius: 4, transition: "width 0.3s" }} />
+                    </div>
+
+                    {/* Dialect badge */}
+                    <div style={{ marginBottom: 16 }}>
+                      <span style={{ fontSize: 11, background: q.dialectColor + "18", color: q.dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 700 }}>{q.dialect}</span>
+                    </div>
+
+                    {/* Question */}
+                    <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
+                      <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Translate</div>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "white" }}>{q.english}</div>
+                      {q.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
+                    </div>
+
+                    {/* Options */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+                      {q.options.map((opt, idx) => {
+                        let bg = "white", border = "#E8DDD0", color = "#1A1208";
+                        if (quizShowResult) {
+                          if (idx === q.correctIndex) { bg = "#EAFAF1"; border = "#27AE60"; color = "#1A6B3C"; }
+                          else if (selectedAnswer === idx) { bg = "#FDEDEC"; border = "#E74C3C"; color = "#C0392B"; }
+                        }
+                        return (
+                          <button key={idx} className="btn-hover" onClick={() => {
+                            if (quizShowResult) return;
+                            setSelectedAnswer(idx);
+                            setQuizShowResult(true);
+                            if (idx === q.correctIndex) {
+                              setDailyScore(s => s + 1);
+                              setXp(x => x + XP_REWARDS.correctAnswer);
+                            }
+                          }}
+                            style={{ padding: "14px 16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
+                            <div className="romanized" style={{ fontWeight: 700 }}>{opt}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Next button */}
+                    {quizShowResult && (
+                      <button className="btn-hover" onClick={() => {
+                        if (dailyIndex < dailyQuestions.length - 1) {
+                          setDailyIndex(i => i + 1);
+                          setSelectedAnswer(null);
+                          setQuizShowResult(false);
+                        } else {
+                          setXp(x => x + XP_REWARDS.dailyComplete);
+                          setDailyDone(true);
+                        }
+                      }}
+                        style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        {dailyIndex < dailyQuestions.length - 1 ? "Next →" : "View Results →"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* XP Bar */}
+          <div style={{ marginTop: 32, background: "white", borderRadius: 14, padding: "16px 20px", boxShadow: "0 2px 12px rgba(0,0,0,0.04)", border: "1px solid #F0E8DA" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 20 }}>{getLevel(xp).icon}</span>
+                <span style={{ fontWeight: 700, fontSize: 14, color: "#1A1208" }}>{getLevel(xp).name}</span>
+                <span style={{ fontSize: 12, color: "#8B7355" }}>• {xp} XP</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#8B7355" }}>
+                {getNextLevel(xp) ? `${getNextLevel(xp).minXP - xp} XP to ${getNextLevel(xp).name}` : "Max Level!"}
+              </div>
+            </div>
+            <div style={{ height: 8, background: "#F0E8DA", borderRadius: 4 }}>
+              <div style={{ width: `${getLevelProgress(xp)}%`, height: "100%", background: getLevel(xp).color, borderRadius: 4, transition: "width 0.5s ease" }} />
+            </div>
+            {streak > 0 && (
+              <div style={{ marginTop: 8, fontSize: 12, color: "#D4860B", fontWeight: 600 }}>
+                🔥 {streak} day streak
+              </div>
+            )}
+          </div>
         </div>
       )}
 

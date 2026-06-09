@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    instrumentationHook: true,
+  turbopack: {
+    root: "/home/raphael-lee/tiagong-sg",
   },
   async headers() {
     return [

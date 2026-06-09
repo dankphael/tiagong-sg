@@ -251,7 +251,7 @@ html {
 .orbital-mobile-card:hover { background: rgba(255, 255, 255, 0.08); }
 
 /* ── Responsive: Lesson ── */
-.mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.mode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 .flashcard  { height: 260px; }
 
 /* ── Responsive: Nav ── */
