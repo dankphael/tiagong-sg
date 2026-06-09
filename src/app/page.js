@@ -12,6 +12,7 @@ import { teochewFlashcards } from "@/data/flashcardsTeochew";
 import { hakkaFlashcards } from "@/data/flashcardsHakka";
 import { hainaneseFlashcards } from "@/data/flashcardsHainanese";
 import newStoryQuizzes from "@/data/storyQuizzes";
+import { speak, stopSpeaking, isTTSAvailable } from "@/lib/tts";
 import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom } from "@/data/xpSystem";
 
 function CountUp({ value, active, duration = 1200 }) {
@@ -3309,6 +3310,11 @@ function DialectPlatformContent() {
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 8, fontStyle: "italic" }}>
                       /{cards[cardIndex]?.romanisation}/
                     </div>
+                    <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
+                      className="btn-tts"
+                      style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                      🔊 Hear it
+                    </button>
                   </div>
                   <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20 }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 14 }}>Meaning</div>
@@ -3321,6 +3327,11 @@ function DialectPlatformContent() {
                     <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 20, color: "#8B7355", marginTop: 6 }}>
                       {cards[cardIndex]?.chinese}
                     </div>
+                    <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
+                      className="btn-tts"
+                      style={{ marginTop: 16, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                      🔊 Hear pronunciation
+                    </button>
                   </div>
                 </div>
               </div>
@@ -3498,6 +3509,11 @@ function DialectPlatformContent() {
                               <DialectTooltip phrase={dialogue.phrase} meaning={dialogue.meaning} color={dialect.color} />
                             </div>
                             <div style={{ fontSize: 12, opacity: 0.65 }}>"{dialogue.meaning}"</div>
+                            <button onClick={(e) => { e.stopPropagation(); speak(dialogue.phrase, selectedDialect); }}
+                              className="btn-tts"
+                              style={{ marginTop: 6, padding: "4px 12px", background: `${dialect.color}10`, border: `1px solid ${dialect.color}30`, borderRadius: 12, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                              🔊 Hear
+                            </button>
                             {quizShowResult && isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✓</span>}
                             {quizShowResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✗</span>}
                           </button>
@@ -3627,6 +3643,12 @@ function DialectPlatformContent() {
                           "{exercise.meaning}"
                         </div>
                       )}
+                    </div>
+                    <div style={{ textAlign: "center", marginBottom: 20 }}>
+                      <button onClick={() => speak(exercise.sentence.replace('___', exercise.options[exercise.correctIndex] || ''), selectedDialect)}
+                        style={{ padding: "8px 20px", background: "white", border: `2px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        🔊 Hear full sentence
+                      </button>
                     </div>
 
                     {/* Result feedback */}
@@ -3856,6 +3878,12 @@ function DialectPlatformContent() {
                       <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "white" }}>{q.english}</div>
                       {q.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
                     </div>
+                    <div style={{ textAlign: "center", marginBottom: 16 }}>
+                      <button onClick={() => speak(q.options[q.correctIndex] || '', q.dialect || selectedDialect)}
+                        style={{ padding: "6px 16px", background: "white", border: `2px solid ${dialect.color}30`, borderRadius: 16, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                        🔊 Hear answer
+                      </button>
+                    </div>
 
                     {/* Options */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
@@ -3982,6 +4010,10 @@ function DialectPlatformContent() {
                           <div className="romanized" style={{ fontSize: 36, fontWeight: 700, color: "white", padding: "0 24px" }}>{card.phrase}</div>
                           <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>
                           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>Tap to go back</div>
+                          <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, selectedDialect); }}
+                            style={{ marginTop: 12, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                            🔊 Hear pronunciation
+                          </button>
                         </>
                       )}
                     </div>

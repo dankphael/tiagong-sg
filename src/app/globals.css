@@ -373,6 +373,14 @@ html {
   .about-steps-grid { grid-template-columns: 1fr; }
   .about-curator-grid { grid-template-columns: repeat(2, 1fr); }
 }
+/* ── TTS Button ── */
+@keyframes tts-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.btn-tts:hover { animation: tts-pulse 0.6s ease-in-out infinite; }
+.btn-tts:active { transform: scale(0.95); }
+
 @media (max-width: 480px) {
   .about-cta-buttons { flex-direction: column; }
   .about-cta-buttons button { width: 100%; }
