@@ -7,6 +7,7 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { getAvatar } from "@/lib/avatar";
 import { buildIntroEmailUrl } from "@/lib/emailTemplate";
 import { hokkienFlashcards } from "@/data/flashcardsHokkien";
+import { cantoneseFlashcards } from "@/data/flashcardsCantonese";
 import newStoryQuizzes from "@/data/storyQuizzes";
 import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom } from "@/data/xpSystem";
 
@@ -2431,6 +2432,12 @@ function DialectPlatformContent() {
   const [dailyScore, setDailyScore] = useState(0);
   const [dailyDone, setDailyDone] = useState(false);
 
+  // Reverse Flashcards (English → dialect)
+  const [reverseCards, setReverseCards] = useState([]);
+  const [reverseIndex, setReverseIndex] = useState(0);
+  const [reverseFlipped, setReverseFlipped] = useState(false);
+  const [reverseKnown, setReverseKnown] = useState({});
+
   const dialect = dialects.find(d => d.id === selectedDialect);
 
   function restoreProgress(p) {
@@ -2456,10 +2463,11 @@ function DialectPlatformContent() {
       const cards = lessons[selectedDialect]?.[cat] || [];
       for (const card of cards) allCards.push(card);
     }
-    // Also include hokkienFlashcards if available
-    if (selectedDialect === "hokkien" && hokkienFlashcards) {
+    // Also include expanded flashcard data if available
+    const extraCards = selectedDialect === "hokkien" ? hokkienFlashcards : selectedDialect === "cantonese" ? cantoneseFlashcards : null;
+    if (extraCards) {
       for (const cat of cats) {
-        const cards = hokkienFlashcards[cat] || [];
+        const cards = extraCards[cat] || [];
         for (const card of cards) allCards.push(card);
       }
     }
@@ -2531,6 +2539,15 @@ function DialectPlatformContent() {
     setSelectedAnswer(null);
     setQuizShowResult(false);
   }, []);
+
+  // Reverse Flashcards: load cards for current dialect + category
+  const startReverseCards = useCallback(() => {
+    const cards = lessons[selectedDialect]?.[selectedCategory] || [];
+    const cardsWithIndex = cards.map((card, idx) => ({ ...card, cardIndex: idx }));
+    setReverseCards(cardsWithIndex.sort(() => Math.random() - 0.5));
+    setReverseIndex(0);
+    setReverseFlipped(false);
+  }, [selectedDialect, selectedCategory]);
 
   function completeProfile() {
     if (!pendingGoogle) return;
@@ -3177,12 +3194,14 @@ function DialectPlatformContent() {
               { mode: "completing-sentence", icon: "✏️", label: "Fill in Blank", desc: "Complete sentences" },
               { mode: "speed-round", icon: "⚡", label: "Speed Round", desc: "60s rapid fire" },
               { mode: "daily-challenge", icon: "🏆", label: "Daily Challenge", desc: "10 mixed questions" },
+              { mode: "reverse-cards", icon: "🔄", label: "Reverse Cards", desc: "English → dialect" },
             ].map(({ mode, icon, label, desc }) => (
               <button key={mode} className="tab-btn" onClick={() => {
                 setLessonMode(mode);
                 setSelectedAnswer(null); setQuizShowResult(false); setCompletionData(null);
                 if (mode === "speed-round") startSpeedRound();
                 if (mode === "daily-challenge") startDailyChallenge();
+                if (mode === "reverse-cards") startReverseCards();
               }} style={{
                 padding: "14px 10px", borderRadius: 14,
                 background: lessonMode === mode ? dialect.color : "white",
@@ -3841,6 +3860,120 @@ function DialectPlatformContent() {
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                         {dailyIndex < dailyQuestions.length - 1 ? "Next →" : "View Results →"}
                       </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* ─── REVERSE CARDS ─── */}
+          {lessonMode === "reverse-cards" && (
+            <div>
+              {(() => {
+                if (reverseCards.length === 0) {
+                  return (
+                    <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                      <div style={{ fontSize: 64, marginBottom: 16 }}>🔄</div>
+                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Reverse Flashcards</h2>
+                      <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
+                        See the English meaning — pick the correct {dialect.name} phrase. Harder mode!
+                      </p>
+                      <button className="btn-hover" onClick={() => startReverseCards()}
+                        style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Start Reverse Cards →
+                      </button>
+                    </div>
+                  );
+                }
+
+                const card = reverseCards[reverseIndex];
+                const knowCount = Object.keys(reverseKnown).filter(k => k.startsWith(`${selectedDialect}-reverse-`)).length;
+
+                return (
+                  <div>
+                    {/* Progress */}
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13, color: "#8B7355" }}>
+                      <span>Card {reverseIndex + 1} of {reverseCards.length}</span>
+                      <span style={{ color: dialect.color, fontWeight: 600 }}>{knowCount} known</span>
+                    </div>
+                    <div style={{ height: 4, background: "#E8DDD0", borderRadius: 2, marginBottom: 24 }}>
+                      <div style={{ width: `${((reverseIndex + 1) / reverseCards.length) * 100}%`, height: "100%", background: dialect.color, borderRadius: 2, transition: "width 0.3s" }} />
+                    </div>
+
+                    {/* Category tabs */}
+                    <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+                      {categories.map(cat => (
+                        <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setReverseIndex(0); setReverseFlipped(false); startReverseCards(); }}
+                          style={{ flex: "0 0 auto", padding: "8px 12px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, whiteSpace: "nowrap" }}>
+                          {cat.icon} {cat.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Card */}
+                    <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, cursor: "pointer" }}
+                      onClick={() => setReverseFlipped(!reverseFlipped)}>
+                      <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Tap to {reverseFlipped ? "see question" : "reveal answer"}</div>
+                      {!reverseFlipped ? (
+                        <>
+                          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "white" }}>{card.english}</div>
+                          {card.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>}
+                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>Tap to reveal {dialect.name} phrase</div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="romanized" style={{ fontSize: 36, fontWeight: 700, color: "white", padding: "0 24px" }}>{card.phrase}</div>
+                          <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>
+                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>Tap to go back</div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Know it / Still learning + nav */}
+                    {reverseFlipped ? (
+                      <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+                        <button className="btn-hover" onClick={() => {
+                          const key = `${selectedDialect}-reverse-${card.cardIndex}`;
+                          setReverseKnown(prev => { const n = { ...prev }; delete n[key]; return n; });
+                          setReverseFlipped(false);
+                          setTimeout(() => setReverseIndex(c => Math.max(0, c - 1)), 150);
+                        }} style={{ flex: 1, padding: "13px", background: "#FDEDEC", border: "2px solid #E74C3C", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#C0392B", cursor: "pointer", fontFamily: "inherit" }}>
+                          ↺ Review Again
+                        </button>
+                        <button className="btn-hover" onClick={() => {
+                          const key = `${selectedDialect}-reverse-${card.cardIndex}`;
+                          setReverseKnown(prev => ({ ...prev, [key]: true }));
+                          setXp(x => x + XP_REWARDS.correctAnswer);
+                          setReverseFlipped(false);
+                          setTimeout(() => {
+                            if (reverseIndex < reverseCards.length - 1) {
+                              setReverseIndex(c => c + 1);
+                            } else {
+                              setCompletionData({ mode: "reverse-cards", score: Object.keys(reverseKnown).length, total: reverseCards.length });
+                              setReverseCards([]);
+                            }
+                          }, 150);
+                        }} style={{ flex: 2, padding: "13px", background: "#EAFAF1", border: "2px solid #27AE60", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#1A6B3C", cursor: "pointer", fontFamily: "inherit" }}>
+                          ✓ Know it!
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+                        <button className="btn-hover" onClick={() => setReverseIndex(i => Math.max(0, i - 1))} disabled={reverseIndex === 0}
+                          style={{ flex: 1, padding: "13px", background: reverseIndex === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: reverseIndex === 0 ? "default" : "pointer", color: reverseIndex === 0 ? "#C0B0A0" : "#1A1208", fontFamily: "inherit" }}>
+                          ← Prev
+                        </button>
+                        <button className="btn-hover" onClick={() => {
+                          if (reverseIndex < reverseCards.length - 1) {
+                            setReverseIndex(i => i + 1);
+                          } else {
+                            setReverseIndex(0);
+                          }
+                        }} style={{ flex: 2, padding: "13px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          {reverseIndex < reverseCards.length - 1 ? "Next →" : "↺ Restart"}
+                        </button>
+                      </div>
                     )}
                   </div>
                 );
