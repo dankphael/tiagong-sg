@@ -8,6 +8,9 @@ import { getAvatar } from "@/lib/avatar";
 import { buildIntroEmailUrl } from "@/lib/emailTemplate";
 import { hokkienFlashcards } from "@/data/flashcardsHokkien";
 import { cantoneseFlashcards } from "@/data/flashcardsCantonese";
+import { teochewFlashcards } from "@/data/flashcardsTeochew";
+import { hakkaFlashcards } from "@/data/flashcardsHakka";
+import { hainaneseFlashcards } from "@/data/flashcardsHainanese";
 import newStoryQuizzes from "@/data/storyQuizzes";
 import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom } from "@/data/xpSystem";
 
@@ -2464,7 +2467,8 @@ function DialectPlatformContent() {
       for (const card of cards) allCards.push(card);
     }
     // Also include expanded flashcard data if available
-    const extraCards = selectedDialect === "hokkien" ? hokkienFlashcards : selectedDialect === "cantonese" ? cantoneseFlashcards : null;
+    const extraCardsMap = { hokkien: hokkienFlashcards, cantonese: cantoneseFlashcards, teochew: teochewFlashcards, hakka: hakkaFlashcards, hainanese: hainaneseFlashcards };
+    const extraCards = extraCardsMap[selectedDialect];
     if (extraCards) {
       for (const cat of cats) {
         const cards = extraCards[cat] || [];
