@@ -15,8 +15,31 @@ import newStoryQuizzes from "@/data/storyQuizzes";
 import { speak, stopSpeaking, isTTSAvailable } from "@/lib/tts";
 import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom } from "@/data/xpSystem";
 
-import { CountUp, DialectTooltip, AnnotatedText } from "@/components/ui";
+import { CountUp, DialectTooltip, AnnotatedText, SealChip, Badge, Chip, SectionHeader, Card, IconButton } from "@/components/ui";
+import {
+  Menu, X, Search, MapPin, Users, Volume2, ArrowLeft, BookOpen, Clapperboard,
+  PenLine, Zap, Trophy, Repeat, GraduationCap, ChevronDown, ChevronUp, Check,
+  Plus, Sparkles, FolderOpen, User, Languages, ScrollText, Info, LayoutGrid,
+  Heart, Mic, Star, Clock, Compass, MessageCircle, Globe, Flame, CalendarDays,
+  ArrowRight, Filter, BookMarked, Handshake, Map, UserCheck, Home, Smile,
+  Plane, Utensils, Briefcase, PawPrint, Coffee, CupSoda, Hash, Waves, Car,
+  Palette, Ruler, Flag, PersonStanding, Package, Phone, Mail, Printer,
+  ThumbsUp, Sprout, Landmark, Building2, Mars, Venus,
+} from "lucide-react";
 import { dialects, huayKuan, lessons, singlishPhrases, situationalQuizzes, sentenceCompletion, categories } from "@/data/staticData";
+
+// Lucide icon per category id — replaces the old emoji map for a consistent,
+// intentional look. Falls back to Languages for unknown tags.
+const CATEGORY_ICONS = {
+  family: Users, body: Heart, daily_life: Home, emotions: Smile, travel: Plane,
+  time: Clock, hawker: Utensils, hawker_culture: Utensils, profession: Briefcase,
+  place: MapPin, animal: PawPrint, beverage: Coffee, language: Languages,
+  other: BookOpen, person: User, drink: CupSoda, politeness: Handshake,
+  food: Utensils, numbers: Hash, greetings: Waves, transport: Car, color: Palette,
+  size: Ruler, singapore: Flag, verb: PersonStanding, noun: Package,
+  adjective: Sparkles, adverb: Repeat, interjection: MessageCircle,
+  by_pos: ScrollText,
+};
 
 function DialectPlatformContent() {
   const router = useRouter();
@@ -814,52 +837,35 @@ function DialectPlatformContent() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-    <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#FAF6F0", color: "#1A1208" }}>
-      <style>{`
-        .card-3d { perspective: 1000px; }
-        .card-inner { transition: transform 0.6s cubic-bezier(.4,2,.6,1); transform-style: preserve-3d; position: relative; }
-        .card-inner.flipped { transform: rotateY(180deg); }
-        .card-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; position: absolute; top:0; left:0; width:100%; height:100%; border-radius: 20px; }
-        .card-back { transform: rotateY(180deg); }
-        .btn-hover { transition: all 0.2s; cursor: pointer; }
-        .btn-hover:hover { transform: translateY(-2px); }
-        .dialect-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important; }
-        .dialect-card { transition: all 0.3s cubic-bezier(.4,2,.6,1); cursor: pointer; }
-        .tab-btn { transition: all 0.2s; cursor: pointer; border: none; font-family: inherit; }
-        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; background-size: 200% 100%; }
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
-        .fade-up { animation: fadeUp 0.5s ease forwards; }
-        .progress-bar { height: 6px; border-radius: 3px; background: #E8DDD0; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-        .search-layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; }
-        .search-results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .search-filter-panel { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
-        .search-input:focus { border-color: #C0392B !important; box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
-        .result-card:hover { border-color: #C0B09A !important; box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
-      `}</style>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
       {/* NAVBAR */}
-      <nav style={{ background: "#1A1208", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid #C0392B" }}>
+      <nav style={{ background: "var(--color-dark)", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid var(--color-primary)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => setScreen("home")}>
           <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={44} height={44} priority style={{ width: "auto", height: 44 }} />
           <div>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#F5E6C8", letterSpacing: 1 }}>tiagong.sg</div>
-            <div style={{ fontSize: 10, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: "var(--color-cream)", letterSpacing: 1 }}>tiagong.sg</div>
+            <div style={{ fontSize: 10, color: "var(--color-primary)", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
           </div>
         </div>
         <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
           {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"]].map(([s,label]) => (
-            <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "#F5E6C8" : "#8B7355", fontSize: 14, letterSpacing: 1 }}>
+            <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "var(--color-cream)" : undefined, borderBottomColor: screen === s ? "var(--color-primary)" : undefined }}>
               {label}
             </span>
           ))}
-          {selectedDialect && <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "#C0392B", fontSize: 14, fontStyle: "italic" }}>{dialect?.name} ›</span>}
+          {selectedDialect && (
+            <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "var(--color-primary)", fontStyle: "italic", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              {dialect?.name} <ChevronDown size={14} style={{ marginBottom: -2 }} />
+            </span>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {currentUser ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#F5E6C8", fontSize: 13 }}>
-              <span onClick={() => { setScreen("profile"); setMobileMenuOpen(false); }} style={{ cursor: "pointer", color: "#F5E6C8", fontSize: 13, transition: "color 0.2s" }} onMouseEnter={e => e.target.style.color = "#C0392B"} onMouseLeave={e => e.target.style.color = "#F5E6C8"}>{currentUser.firstName}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button onClick={() => { setScreen("profile"); setMobileMenuOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal" }}>
+                <User size={16} /> {currentUser.firstName}
+              </button>
               <button onClick={handleLogout} className="btn-secondary" style={{ padding: "7px 14px", fontSize: 12 }}>
                 Sign Out
               </button>
@@ -870,7 +876,7 @@ function DialectPlatformContent() {
             </button>
           )}
           <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Toggle menu">
-            {mobileMenuOpen ? "✕" : "☰"}
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </nav>
@@ -878,94 +884,72 @@ function DialectPlatformContent() {
       {/* HOME */}
       {screen === "home" && (
         <div>
-          <div className="orbital-wrapper" style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 50%, #3D1F10 100%)" }}>
-            {/* Background radial overlays */}
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(192,57,43,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(212,134,11,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
-
-            {/* Desktop: orbital stage */}
-            <div className="orbital-stage">
-              <div className="orbital-ring" />
-              <div className="orbital-center" style={{ width: 420, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-                <div style={{ marginBottom: 12, width: "100%", maxWidth: 200 }}>
-                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={200} height={164} priority style={{ width: "100%", height: "auto" }} />
-                </div>
-                <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 12, fontSize: 15, maxWidth: 320 }}>
-                  Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
-                </p>
-                <p style={{ color: "#E8D4A8", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, maxWidth: 320 }}>
-                  每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
-                </p>
+          {/* Editorial heritage hero */}
+          <header className="hero fade-up">
+            <div className="hero-inner">
+              <span className="eyebrow">Dialect Heritage SG</span>
+              <h1 className="hero-title" style={{ marginTop: "var(--space-3)" }}>
+                Keep our mothers&rsquo; tongues alive.
+              </h1>
+              <p className="hero-subtitle" style={{ marginTop: "var(--space-4)" }}>
+                Singapore&rsquo;s Chinese dialects &mdash; Hokkien, Cantonese, Teochew, Hakka, Hainanese &mdash; are living bridges to our ancestors.
+              </p>
+              <p className="hero-subtitle-cn" style={{ marginTop: "var(--space-3)" }}>
+                每一句方言，都是一条连接过去的线。
+              </p>
+              <div style={{ display: "flex", gap: "var(--space-3)", justifyContent: "center", marginTop: "var(--space-6)", flexWrap: "wrap" }}>
+                <button className="btn-primary" style={{ padding: "13px 28px" }} onClick={() => selectDialect("hokkien")}>
+                  Start learning
+                </button>
+                <button className="btn-ghost" style={{ color: "var(--color-cream)", padding: "13px 24px", fontSize: "var(--text-base)" }} onClick={() => setScreen("about")}>
+                  Our story
+                </button>
               </div>
+            </div>
+          </header>
+
+          {/* Dialect grid */}
+          <section className="section container">
+            <div className="section-header">
+              <span className="eyebrow">Choose a dialect</span>
+              <h2 className="heading">Five tongues, one home.</h2>
+            </div>
+            <div className="dialect-grid">
               {dialects.map((d, i) => {
-                const angle = (-90 + i * 72) * (Math.PI / 180);
-                const R = 285;
-                const x = Math.round(R * Math.cos(angle));
-                const y = Math.round(R * Math.sin(angle));
-                const tooltipBelow = y < -150;
                 const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
+                const pct = Math.min(100, Math.round((dialectProgress / 3) * 100));
                 return (
-                  <div
+                  <button
                     key={d.id}
-                    className="orbital-card"
+                    className="dialect-card fade-up"
+                    style={{ animationDelay: `${i * 0.06}s`, ["--dialect-color"]: d.color }}
                     onClick={() => selectDialect(d.id)}
-                    style={{
-                      left: `calc(50% + ${x}px)`,
-                      top: `calc(50% + ${y}px)`,
-                      animationDelay: `${0.1 + i * 0.1}s`,
-                      "--dialect-glow": `${d.color}99`,
-                    }}
                   >
-                    <div className={`orbital-tooltip ${tooltipBelow ? "orbital-tooltip-below" : "orbital-tooltip-above"}`}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: d.color, marginBottom: 6 }}>{d.name}</div>
-                      <div style={{ fontSize: 14, color: "#E8D4A8", lineHeight: 1.5 }}>{d.description}</div>
-                      <div style={{ fontSize: 13, color: "#E8D4A8", marginTop: 8 }}>📍 {d.origin}</div>
-                      <div style={{ fontSize: 13, color: "#E8D4A8", marginTop: 2 }}>👥 {d.speakers}</div>
+                    <div className="dialect-card-top">
+                      <SealChip dialect={d} />
+                      <span className="badge" style={{ background: `${d.color}14`, color: d.color, borderColor: `${d.color}40` }}>
+                        {dialectProgress > 0 ? `${dialectProgress} learned` : "New"}
+                      </span>
                     </div>
-                    <div style={{ fontSize: 34 }}>{d.icon}</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2 }}>{d.name}</div>
-                    <div style={{ fontSize: 18, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
-                    {dialectProgress > 0 && (
-                      <div style={{ width: 36, height: 2, background: "rgba(255,255,255,0.12)", borderRadius: 1, marginTop: 3 }}>
-                        <div style={{ width: `${(dialectProgress / 3) * 100}%`, height: "100%", background: d.color, borderRadius: 1 }} />
-                      </div>
-                    )}
-                  </div>
+                    <div>
+                      <div className="dialect-card-name">{d.name}</div>
+                      <div className="dialect-card-cn">{d.chinese}</div>
+                    </div>
+                    <p className="dialect-card-desc">{d.description}</p>
+                    <div className="dialect-card-meta">
+                      <div className="dialect-card-meta-row"><MapPin size={14} /> {d.origin}</div>
+                      <div className="dialect-card-meta-row"><Users size={14} /> {d.speakers}</div>
+                      {dialectProgress > 0 && (
+                        <div className="progress" style={{ marginTop: 4 }}>
+                          <div className="progress-fill" style={{ width: `${pct}%`, background: d.color }} />
+                        </div>
+                      )}
+                    </div>
+                  </button>
                 );
               })}
             </div>
-
-            {/* Mobile: stacked layout */}
-            <div className="orbital-mobile">
-              <div style={{ textAlign: "center", marginBottom: 32 }}>
-                <div style={{ marginBottom: 12 }}>
-                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={140} height={114} priority style={{ width: "100%", height: "auto", maxWidth: 140, margin: "0 auto" }} />
-                </div>
-                <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 14 }}>
-                  Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
-                </p>
-                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 32 }}>
-                  每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
-                </p>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {dialects.map((d, i) => {
-                  const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
-                  return (
-                    <div key={d.id} className="orbital-mobile-card" onClick={() => selectDialect(d.id)}
-                      style={{ border: `1px solid ${d.color}44`, animationDelay: `${i * 0.08}s` }}>
-                      <div style={{ fontSize: 32 }}>{d.icon}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>{d.name}</div>
-                        <div style={{ fontSize: 16, color: d.color, fontFamily: "'Noto Serif SC', serif" }}>{d.chinese}</div>
-                        <p style={{ fontSize: 13, color: "#8B7355", marginTop: 4, lineHeight: 1.5 }}>{d.description}</p>
-                      </div>
-                      <div style={{ color: d.color, fontSize: 22, fontWeight: 300 }}>›</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       )}
 
@@ -974,27 +958,27 @@ function DialectPlatformContent() {
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px" }} className="fade-up">
 
           {/* Dialect Header — compact */}
-          <div style={{ background: `linear-gradient(135deg, ${dialect.color}18, ${dialect.color}08)`, border: `1.5px solid ${dialect.color}30`, borderRadius: 16, padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ fontSize: 40 }}>{dialect.icon}</div>
+          <div style={{ background: `linear-gradient(135deg, ${dialect.color}18, ${dialect.color}08)`, border: `1.5px solid ${dialect.color}30`, borderRadius: "var(--radius-lg)", padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 16 }}>
+            <SealChip dialect={dialect} size="lg" />
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208" }}>{dialect.name}</div>
-              <div style={{ fontSize: 18, color: dialect.color, fontFamily: "'Noto Serif SC', serif" }}>{dialect.chinese}</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "var(--color-text)" }}>{dialect.name}</div>
+              <div style={{ fontSize: 18, color: dialect.color, fontFamily: "var(--font-chinese)" }}>{dialect.chinese}</div>
             </div>
-            <button className="btn-secondary" onClick={() => setScreen("home")} style={{ fontSize: 13, padding: "8px 16px" }}>
-              ← Back
+            <button className="btn-secondary" onClick={() => setScreen("home")} style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <ArrowLeft size={15} /> Back
             </button>
           </div>
 
           {/* Mode Selector — card grid */}
           <div className="mode-grid" style={{ marginBottom: 32 }}>
             {[
-              { mode: "flashcards", icon: "📇", label: "Flashcards", desc: "Tap to flip & learn" },
-              { mode: "situational-quiz", icon: "🎭", label: "Story Quiz", desc: "Real-life scenarios" },
-              { mode: "completing-sentence", icon: "✏️", label: "Fill in Blank", desc: "Complete sentences" },
-              { mode: "speed-round", icon: "⚡", label: "Speed Round", desc: "60s rapid fire" },
-              { mode: "daily-challenge", icon: "🏆", label: "Daily Challenge", desc: "10 mixed questions" },
-              { mode: "reverse-cards", icon: "🔄", label: "Reverse Cards", desc: "English → dialect" },
-            ].map(({ mode, icon, label, desc }) => (
+              { mode: "flashcards", icon: BookOpen, label: "Flashcards", desc: "Tap to flip & learn" },
+              { mode: "situational-quiz", icon: Clapperboard, label: "Story Quiz", desc: "Real-life scenarios" },
+              { mode: "completing-sentence", icon: PenLine, label: "Fill in Blank", desc: "Complete sentences" },
+              { mode: "speed-round", icon: Zap, label: "Speed Round", desc: "60s rapid fire" },
+              { mode: "daily-challenge", icon: Trophy, label: "Daily Challenge", desc: "10 mixed questions" },
+              { mode: "reverse-cards", icon: Repeat, label: "Reverse Cards", desc: "English → dialect" },
+            ].map(({ mode, icon: Icon, label, desc }) => (
               <button key={mode} className="tab-btn" onClick={() => {
                 setLessonMode(mode);
                 setSelectedAnswer(null); setQuizShowResult(false); setCompletionData(null);
@@ -1002,13 +986,14 @@ function DialectPlatformContent() {
                 if (mode === "daily-challenge") startDailyChallenge();
                 if (mode === "reverse-cards") startReverseCards();
               }} style={{
-                padding: "14px 10px", borderRadius: 14,
-                background: lessonMode === mode ? dialect.color : "white",
-                color: lessonMode === mode ? "white" : "#6B5B45",
-                border: `2px solid ${lessonMode === mode ? dialect.color : "#E8DDD0"}`,
-                textAlign: "center", boxShadow: lessonMode === mode ? `0 4px 16px ${dialect.color}40` : "none"
+                padding: "14px 10px", borderRadius: "var(--radius-md)",
+                background: lessonMode === mode ? dialect.color : "var(--color-surface)",
+                color: lessonMode === mode ? "white" : "var(--color-text-secondary)",
+                border: `2px solid ${lessonMode === mode ? dialect.color : "var(--color-border)"}`,
+                textAlign: "center", boxShadow: lessonMode === mode ? `0 4px 16px ${dialect.color}40` : "none",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
               }}>
-                <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
+                <Icon size={22} style={{ marginBottom: 4 }} />
                 <div style={{ fontWeight: 700, fontSize: 13 }}>{label}</div>
                 <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{desc}</div>
               </button>
@@ -1021,17 +1006,16 @@ function DialectPlatformContent() {
               {/* Category tabs — includes dictionary tags + part_of_speech */}
               {(() => {
                 const capitalize = s => s.split(/[_\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-                const apiCatIcons = { family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋", language:"📖", other:"📖", person:"👤", drink:"🧃", politeness:"🙏", food:"🍜", numbers:"🔢", greetings:"👋", transport:"🚗", color:"🎨", size:"📏", singapore:"🇸🇬", verb:"🏃", noun:"📦", adjective:"✨", adverb:"🔄", interjection:"💬" };
                 // Get all unique tags from dictionary for this dialect
                 const dictTags = selectedDialect ? [...new Set(apiWords.filter(w => w.dialect === selectedDialect).flatMap(w => w.tags || []))] : [];
                 // Get all unique POS from dictionary for this dialect
                 const dictPOS = selectedDialect ? [...new Set(apiWords.filter(w => w.dialect === selectedDialect).map(w => w.part_of_speech).filter(Boolean))] : [];
                 // Build category list: static + dictionary tags + POS
                 const staticCats = categories.map(c => c.id);
-                const dictOnlyTags = dictTags.filter(t => !staticCats.includes(t)).map(t => ({ id: t, label: capitalize(t), icon: apiCatIcons[t] || "📖" }));
+                const dictOnlyTags = dictTags.filter(t => !staticCats.includes(t)).map(t => ({ id: t, label: capitalize(t) }));
                 const posCats = dictOnlyTags.filter(c => ['verb','noun','adjective','adverb','interjection','expression','numeral','conjunction'].includes(c.id));
                 const tagCats = dictOnlyTags.filter(c => !['verb','noun','adjective','adverb','interjection','expression','numeral','conjunction'].includes(c.id));
-                const posCategory = { id: 'by_pos', label: 'By Part of Speech', icon: '📝' };
+                const posCategory = { id: 'by_pos', label: 'By Part of Speech' };
                 const allCats = [...categories, ...tagCats];
                 
                 // Count cards per category
@@ -1049,10 +1033,11 @@ function DialectPlatformContent() {
                       const done = progress[key];
                       const knownCount = Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${cat.id}-`)).length;
                       const total = getCardCount(cat.id);
+                      const CatIcon = CATEGORY_ICONS[cat.id] || Languages;
                       return (
                         <button key={cat.id} className="tab-btn" onClick={() => { setSelectedCategory(cat.id); setCardIndex(0); setFlipped(false); }}
-                          style={{ flex: "0 0 auto", padding: "10px 12px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, whiteSpace: "nowrap" }}>
-                          <div>{cat.icon} {cat.label}</div>
+                          style={{ flex: "0 0 auto", padding: "10px 12px", borderRadius: "var(--radius-md)", background: selectedCategory === cat.id ? dialect.color : "var(--color-surface)", color: selectedCategory === cat.id ? "white" : "var(--color-text)", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "var(--color-border)"}`, whiteSpace: "nowrap", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}><CatIcon size={14} /> {cat.label}</div>
                           <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{knownCount}/{total} known {done ? "✓" : ""}</div>
                         </button>
                       );
@@ -1069,7 +1054,7 @@ function DialectPlatformContent() {
                   {Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${selectedCategory}-`)).length} known
                 </span>
               </div>
-              <div className="progress-bar" style={{ marginBottom: 24 }}>
+              <div className="progress" style={{ marginBottom: 24 }}>
                 <div className="progress-fill" style={{ width: `${((cardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
               </div>
 
@@ -1081,7 +1066,7 @@ function DialectPlatformContent() {
                     <div className="romanized" style={{ fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
                       {cards[cardIndex]?.phrase}
                     </div>
-                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
+                    <div style={{ fontFamily: "var(--font-chinese)", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
                       {cards[cardIndex]?.chinese}
                     </div>
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 8, fontStyle: "italic" }}>
@@ -1089,19 +1074,19 @@ function DialectPlatformContent() {
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
                       className="btn-tts"
-                      style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
-                      🔊 Hear it
+                      style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Volume2 size={15} /> Hear it
                     </button>
                   </div>
                   <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px", overflowY: "auto" }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 10 }}>Meaning</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>
                       {cards[cardIndex]?.meaning}
                     </div>
                     <div style={{ fontSize: 14, color: dialect.color, marginTop: 8, fontWeight: 600 }}>
                       {cards[cardIndex]?.romanisation}
                     </div>
-                    <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "#8B7355", marginTop: 4 }}>
+                    <div style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "#8B7355", marginTop: 4 }}>
                       {cards[cardIndex]?.chinese}
                     </div>
                     {cards[cardIndex]?.ipa && (
@@ -1130,8 +1115,8 @@ function DialectPlatformContent() {
                     )}
                     <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
                       className="btn-tts"
-                      style={{ marginTop: 12, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
-                      🔊 Hear pronunciation
+                      style={{ marginTop: 12, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: "var(--radius-pill)", color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Volume2 size={15} /> Hear pronunciation
                     </button>
                   </div>
                 </div>
@@ -1146,7 +1131,7 @@ function DialectPlatformContent() {
                     setFlipped(false);
                     setTimeout(() => setCardIndex(c => Math.max(0, c - 1)), 150);
                   }} style={{ flex: 1, padding: "13px", background: "#FDEDEC", border: "2px solid #E74C3C", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#C0392B", cursor: "pointer", fontFamily: "inherit" }}>
-                    ↺ Review Again
+                    <Repeat size={15} /> Review Again
                   </button>
                   <button className="btn-hover" onClick={() => {
                     const key = `${selectedDialect}-${selectedCategory}-${cardIndex}`;
@@ -1168,11 +1153,11 @@ function DialectPlatformContent() {
                 <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
                   <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
                     style={{ flex: 1, padding: "13px", background: cardIndex === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208", fontFamily: "inherit" }}>
-                    ← Prev
+                    <ArrowLeft size={15} /> Prev
                   </button>
                   <button className="btn-hover" onClick={nextCard}
                     style={{ flex: 2, padding: "13px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    {cardIndex < cards.length - 1 ? "Next →" : "↺ Restart"}
+                    {cardIndex < cards.length - 1 ? "Next <ArrowRight size={15} />" : "<Repeat size={15} /> Restart"}
                   </button>
                 </div>
               )}
@@ -1180,12 +1165,12 @@ function DialectPlatformContent() {
               {/* Bottom CTA */}
               <div style={{ background: "#1A1208", borderRadius: 14, padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                 <div>
-                  <div style={{ color: "#F5E6C8", fontSize: 15, fontFamily: "'Cormorant Garamond', serif" }}>Ready for a challenge?</div>
+                  <div style={{ color: "#F5E6C8", fontSize: 15, fontFamily: "var(--font-serif)" }}>Ready for a challenge?</div>
                   <div style={{ color: "#6B5B45", fontSize: 12, marginTop: 2 }}>Test yourself with story scenarios</div>
                 </div>
                 <button className="btn-hover" onClick={() => { setLessonMode("situational-quiz"); setCompletionData(null); }}
                   style={{ background: dialect.color, color: "white", border: "none", padding: "10px 22px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit", fontWeight: 600, whiteSpace: "nowrap" }}>
-                  Try Story Quiz →
+                  Try Story Quiz <ArrowRight size={15} />
                 </button>
               </div>
             </div>
@@ -1203,16 +1188,16 @@ function DialectPlatformContent() {
                 // Completion screen
                 if (completionData?.mode === "situational-quiz") {
                   const pct = Math.round((completionData.score / completionData.total) * 100);
-                  const grade = pct >= 80 ? { label: "Excellent!", color: "#1A6B3C", bg: "#EAFAF1", icon: "🏆" }
-                    : pct >= 60 ? { label: "Good job!", color: "#8E44AD", bg: "#F5EEF8", icon: "⭐" }
-                    : { label: "Keep practising!", color: "#E67E22", bg: "#FEF9E7", icon: "💪" };
+                  const grade = pct >= 80 ? { label: "Excellent!", color: "#1A6B3C", bg: "#EAFAF1", icon: "" }
+                    : pct >= 60 ? { label: "Good job!", color: "#8E44AD", bg: "#F5EEF8", icon: "" }
+                    : { label: "Keep practising!", color: "#E67E22", bg: "#FEF9E7", icon: "" };
                   return (
                     <div style={{ textAlign: "center" }} className="fade-up">
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>{grade.icon}</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Story Complete!</h2>
+                      <div style={{ marginBottom: 16 }}><Trophy size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Story Complete!</h2>
                       <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32 }}>{quiz.title}</p>
                       <div style={{ background: grade.bg, border: `2px solid ${grade.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32 }}>
-                        <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "'Cormorant Garamond', serif" }}>{completionData.score}<span style={{ fontSize: 28 }}>/{completionData.total}</span></div>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "var(--font-serif)" }}>{completionData.score}<span style={{ fontSize: 28 }}>/{completionData.total}</span></div>
                         <div style={{ fontSize: 20, color: grade.color, fontWeight: 700, marginTop: 4 }}>{grade.label}</div>
                         <div style={{ fontSize: 14, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
                       </div>
@@ -1221,11 +1206,11 @@ function DialectPlatformContent() {
                           setSituationalQuizIndex(0); setSituationalCueIndex(0); setSelectedAnswer(null);
                           setQuizShowResult(false); setSituationalScore(0); setCompletionData(null);
                         }} style={{ padding: "12px 24px", background: "white", border: `2px solid ${dialect.color}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: dialect.color, cursor: "pointer", fontFamily: "inherit" }}>
-                          ↺ Try Again
+                          <Repeat size={15} /> Try Again
                         </button>
                         <button className="btn-hover" onClick={() => { setLessonMode("completing-sentence"); setCompletionData(null); }}
                           style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                          Try Fill in Blank →
+                          Try Fill in Blank <ArrowRight size={15} />
                         </button>
                       </div>
                     </div>
@@ -1264,7 +1249,7 @@ function DialectPlatformContent() {
                         <span style={{ fontSize: 11, fontWeight: 700, color: dialect.color, textTransform: "uppercase", letterSpacing: 1 }}>Scene {situationalCueIndex + 1} of {totalScenes}</span>
                       </div>
                       <div style={{ background: "#F9F5EE", borderRadius: 14, padding: "18px 20px", border: `2px solid ${dialect.color}25` }}>
-                        <div style={{ fontSize: 12, color: "#9B8B75", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}>💬 WHAT WOULD YOU SAY?</div>
+                        <div style={{ fontSize: 12, color: "#9B8B75", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}><MessageCircle size={13} /> WHAT WOULD YOU SAY?</div>
                         <div style={{ fontSize: 15, color: "#1A1208", lineHeight: 1.6 }}>
                           <AnnotatedText text={cue.context} dialectColor={dialect.color} />
                         </div>
@@ -1313,7 +1298,7 @@ function DialectPlatformContent() {
                             <button onClick={(e) => { e.stopPropagation(); speak(dialogue.phrase, selectedDialect); }}
                               className="btn-tts"
                               style={{ marginTop: 6, padding: "4px 12px", background: `${dialect.color}10`, border: `1px solid ${dialect.color}30`, borderRadius: 12, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                              🔊 Hear
+                              <Volume2 size={15} /> Hear
                             </button>
                             {quizShowResult && isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✓</span>}
                             {quizShowResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✗</span>}
@@ -1347,7 +1332,7 @@ function DialectPlatformContent() {
                         }
                       }}
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {situationalCueIndex < quiz.cues.length - 1 ? "Next Scene →" : situationalQuizIndex < quizzes.length - 1 ? "Next Story →" : "View Results →"}
+                        {situationalCueIndex < quiz.cues.length - 1 ? "Next Scene <ArrowRight size={15} />" : situationalQuizIndex < quizzes.length - 1 ? "Next Story <ArrowRight size={15} />" : "View Results <ArrowRight size={15} />"}
                       </button>
                     )}
                   </div>
@@ -1366,16 +1351,16 @@ function DialectPlatformContent() {
                 // Completion screen
                 if (completionData?.mode === "completing-sentence") {
                   const pct = Math.round((completionData.score / completionData.total) * 100);
-                  const grade = pct >= 80 ? { label: "Excellent!", color: "#1A6B3C", bg: "#EAFAF1", icon: "🏆" }
-                    : pct >= 60 ? { label: "Good job!", color: "#8E44AD", bg: "#F5EEF8", icon: "⭐" }
-                    : { label: "Keep practising!", color: "#E67E22", bg: "#FEF9E7", icon: "💪" };
+                  const grade = pct >= 80 ? { label: "Excellent!", color: "#1A6B3C", bg: "#EAFAF1", icon: "" }
+                    : pct >= 60 ? { label: "Good job!", color: "#8E44AD", bg: "#F5EEF8", icon: "" }
+                    : { label: "Keep practising!", color: "#E67E22", bg: "#FEF9E7", icon: "" };
                   return (
                     <div style={{ textAlign: "center" }} className="fade-up">
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>{grade.icon}</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>All Done!</h2>
+                      <div style={{ marginBottom: 16 }}><Trophy size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>All Done!</h2>
                       <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32 }}>Fill in the Blank — {dialect.name}</p>
                       <div style={{ background: grade.bg, border: `2px solid ${grade.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32 }}>
-                        <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "'Cormorant Garamond', serif" }}>{completionData.score}<span style={{ fontSize: 28 }}>/{completionData.total}</span></div>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "var(--font-serif)" }}>{completionData.score}<span style={{ fontSize: 28 }}>/{completionData.total}</span></div>
                         <div style={{ fontSize: 20, color: grade.color, fontWeight: 700, marginTop: 4 }}>{grade.label}</div>
                         <div style={{ fontSize: 14, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
                       </div>
@@ -1384,7 +1369,7 @@ function DialectPlatformContent() {
                           setSentenceIndex(0); setSelectedAnswer(null); setQuizShowResult(false);
                           setSentenceScore(0); setCompletionData(null);
                         }} style={{ padding: "12px 24px", background: "white", border: `2px solid ${dialect.color}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: dialect.color, cursor: "pointer", fontFamily: "inherit" }}>
-                          ↺ Try Again
+                          <Repeat size={15} /> Try Again
                         </button>
                         <button className="btn-hover" onClick={() => { setLessonMode("flashcards"); setCompletionData(null); }}
                           style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
@@ -1412,14 +1397,14 @@ function DialectPlatformContent() {
                     </div>
 
                     {/* Progress */}
-                    <div className="progress-bar" style={{ marginBottom: 24 }}>
+                    <div className="progress" style={{ marginBottom: 24 }}>
                       <div className="progress-fill" style={{ width: `${(sentenceIndex / exercises.length) * 100}%`, background: dialect.color }} />
                     </div>
 
                     {/* Sentence card */}
                     <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
                       <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Fill in the blank</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.8, flexWrap: "wrap" }}>
+                      <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.8, flexWrap: "wrap" }}>
                         {parts.map((part, idx) => (
                           <span key={idx}>
                             {part}
@@ -1448,7 +1433,7 @@ function DialectPlatformContent() {
                     <div style={{ textAlign: "center", marginBottom: 20 }}>
                       <button onClick={() => speak(exercise.sentence.replace('___', exercise.options[exercise.correctIndex] || ''), selectedDialect)}
                         style={{ padding: "8px 20px", background: "white", border: `2px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        🔊 Hear full sentence
+                        <Volume2 size={15} /> Hear full sentence
                       </button>
                     </div>
 
@@ -1515,7 +1500,7 @@ function DialectPlatformContent() {
                         }
                       }}
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {sentenceIndex < exercises.length - 1 ? "Next →" : "View Results →"}
+                        {sentenceIndex < exercises.length - 1 ? "Next <ArrowRight size={15} />" : "View Results <ArrowRight size={15} />"}
                       </button>
                     )}
                   </div>
@@ -1531,14 +1516,14 @@ function DialectPlatformContent() {
                 if (!speedActive && speedQuestions.length === 0) {
                   return (
                     <div style={{ textAlign: "center", padding: "60px 24px" }}>
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>⚡</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Speed Round</h2>
+                      <div style={{ marginBottom: 16 }}><Zap size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Speed Round</h2>
                       <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
                         Answer as many questions as you can in 60 seconds! +10 XP per correct answer, +15 for speed bonus.
                       </p>
                       <button className="btn-hover" onClick={() => startSpeedRound()}
                         style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        Start Speed Round →
+                        Start Speed Round <ArrowRight size={15} />
                       </button>
                     </div>
                   );
@@ -1548,16 +1533,16 @@ function DialectPlatformContent() {
                   const pct = speedQuestions.length > 0 ? Math.round((speedScore / speedQuestions.length) * 100) : 0;
                   return (
                     <div style={{ textAlign: "center" }} className="fade-up">
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>⏱️</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Time's Up!</h2>
+                      <div style={{ fontSize: 64, marginBottom: 16 }}><Zap size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Time's Up!</h2>
                       <div style={{ background: `${dialect.color}18`, border: `2px solid ${dialect.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
-                        <div style={{ fontSize: 56, fontWeight: 800, color: dialect.color, fontFamily: "'Cormorant Garamond', serif" }}>{speedScore}<span style={{ fontSize: 28 }}>/{speedQuestions.length}</span></div>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: dialect.color, fontFamily: "var(--font-serif)" }}>{speedScore}<span style={{ fontSize: 28 }}>/{speedQuestions.length}</span></div>
                         <div style={{ fontSize: 16, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
                         <div style={{ fontSize: 14, color: dialect.color, fontWeight: 600, marginTop: 8 }}>+{speedScore * XP_REWARDS.speedRoundCorrect} XP earned!</div>
                       </div>
                       <button className="btn-hover" onClick={() => { setSpeedActive(false); setSpeedQuestions([]); setSpeedScore(0); setSpeedQuestion(0); setSpeedTimeLeft(60); }}
                         style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        ↺ Try Again
+                        <Repeat size={15} /> Try Again
                       </button>
                     </div>
                   );
@@ -1587,8 +1572,8 @@ function DialectPlatformContent() {
                     {/* Question */}
                     <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
                       <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>What is this in {dialect.name}?</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, fontWeight: 700, color: "white" }}>{q.english}</div>
-                      {q.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 20, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
+                      <div style={{ fontFamily: "var(--font-serif)", fontSize: 32, fontWeight: 700, color: "white" }}>{q.english}</div>
+                      {q.chinese && <div style={{ fontFamily: "var(--font-chinese)", fontSize: 20, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
                       {(q.ipa || q.pos) && (
                         <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 10 }}>
                           {q.ipa && <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontStyle: "italic" }}>{q.ipa}</span>}
@@ -1626,18 +1611,18 @@ function DialectPlatformContent() {
                 if (dailyQuestions.length === 0 && !dailyDone) {
                   return (
                     <div style={{ textAlign: "center", padding: "60px 24px" }}>
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>🏆</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Daily Challenge</h2>
+                      <div style={{ marginBottom: 16 }}><Trophy size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Daily Challenge</h2>
                       <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 16, maxWidth: 400, margin: "0 auto 16px" }}>
                         10 questions across all dialects. Test your knowledge and earn bonus XP!
                       </p>
                       <div style={{ background: "#FEF9E2", borderRadius: 12, padding: "12px 20px", marginBottom: 32, display: "inline-block", fontSize: 13, color: "#8B6020" }}>
-                        🔥 {streak} day streak • {xp} XP total
+                        <Flame size={16} /> {streak} day streak • {xp} XP total
                       </div>
                       <br />
                       <button className="btn-hover" onClick={() => startDailyChallenge()}
                         style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        Start Challenge →
+                        Start Challenge <ArrowRight size={15} />
                       </button>
                     </div>
                   );
@@ -1647,16 +1632,16 @@ function DialectPlatformContent() {
                   const pct = Math.round((dailyScore / dailyQuestions.length) * 100);
                   return (
                     <div style={{ textAlign: "center" }} className="fade-up">
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Challenge Complete!</h2>
+                      <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><Trophy size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 8 }}>Challenge Complete!</h2>
                       <div style={{ background: "#EAFAF1", border: "2px solid #27AE6040", borderRadius: 20, padding: "32px 24px", marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
-                        <div style={{ fontSize: 56, fontWeight: 800, color: "#1A6B3C", fontFamily: "'Cormorant Garamond', serif" }}>{dailyScore}<span style={{ fontSize: 28 }}>/{dailyQuestions.length}</span></div>
+                        <div style={{ fontSize: 56, fontWeight: 800, color: "#1A6B3C", fontFamily: "var(--font-serif)" }}>{dailyScore}<span style={{ fontSize: 28 }}>/{dailyQuestions.length}</span></div>
                         <div style={{ fontSize: 16, color: "#6B5B45", marginTop: 8 }}>{pct}% correct</div>
                         <div style={{ fontSize: 14, color: "#1A6B3C", fontWeight: 600, marginTop: 8 }}>+{dailyScore * XP_REWARDS.correctAnswer + XP_REWARDS.dailyComplete} XP earned!</div>
                       </div>
                       <button className="btn-hover" onClick={() => { setDailyDone(false); setDailyQuestions([]); setDailyIndex(0); setDailyScore(0); }}
                         style={{ padding: "12px 24px", background: dialect.color, color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        ↺ Try Again
+                        <Repeat size={15} /> Try Again
                       </button>
                     </div>
                   );
@@ -1682,13 +1667,13 @@ function DialectPlatformContent() {
                     {/* Question */}
                     <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
                       <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Translate</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "white" }}>{q.english}</div>
-                      {q.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
+                      <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "white" }}>{q.english}</div>
+                      {q.chinese && <div style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
                     </div>
                     <div style={{ textAlign: "center", marginBottom: 16 }}>
                       <button onClick={() => speak(q.options[q.correctIndex] || '', q.dialect || selectedDialect)}
                         style={{ padding: "6px 16px", background: "white", border: `2px solid ${dialect.color}30`, borderRadius: 16, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                        🔊 Hear answer
+                        <Volume2 size={15} /> Hear answer
                       </button>
                     </div>
 
@@ -1749,7 +1734,7 @@ function DialectPlatformContent() {
                         }
                       }}
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {dailyIndex < dailyQuestions.length - 1 ? "Next →" : "View Results →"}
+                        {dailyIndex < dailyQuestions.length - 1 ? "Next <ArrowRight size={15} />" : "View Results <ArrowRight size={15} />"}
                       </button>
                     )}
                   </div>
@@ -1765,14 +1750,14 @@ function DialectPlatformContent() {
                 if (reverseCards.length === 0) {
                   return (
                     <div style={{ textAlign: "center", padding: "60px 24px" }}>
-                      <div style={{ fontSize: 64, marginBottom: 16 }}>🔄</div>
-                      <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Reverse Flashcards</h2>
+                      <div style={{ marginBottom: 16 }}><Repeat size={56} /></div>
+                      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>Reverse Flashcards</h2>
                       <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
                         See the English meaning — pick the correct {dialect.name} phrase. Harder mode!
                       </p>
                       <button className="btn-hover" onClick={() => startReverseCards()}
                         style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        Start Reverse Cards →
+                        Start Reverse Cards <ArrowRight size={15} />
                       </button>
                     </div>
                   );
@@ -1808,21 +1793,21 @@ function DialectPlatformContent() {
                       <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Tap to {reverseFlipped ? "see question" : "reveal answer"}</div>
                       {!reverseFlipped ? (
                         <>
-                          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "white" }}>{card.english}</div>
-                          {card.chinese && <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>}
+                          <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "white" }}>{card.english}</div>
+                          {card.chinese && <div style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>}
                           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>Tap to reveal {dialect.name} phrase</div>
                         </>
                       ) : (
                         <>
                           <div className="romanized" style={{ fontSize: 36, fontWeight: 700, color: "white", padding: "0 24px" }}>{card.phrase}</div>
-                          <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>
+                          <div style={{ fontFamily: "var(--font-chinese)", fontSize: 22, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{card.chinese}</div>
                           {card.ipa && <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>{card.ipa}</div>}
                           {card.pos && <span style={{ fontSize: 10, background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", padding: "2px 8px", borderRadius: 8, marginTop: 6, display: "inline-block" }}>{card.pos}</span>}
                           <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 10 }}>Tap to go back</div>
                           <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, selectedDialect); }}
                             className="btn-tts"
                             style={{ marginTop: 10, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            🔊 Hear pronunciation
+                            <Volume2 size={15} /> Hear pronunciation
                           </button>
                         </>
                       )}
@@ -1837,7 +1822,7 @@ function DialectPlatformContent() {
                           setReverseFlipped(false);
                           setTimeout(() => setReverseIndex(c => Math.max(0, c - 1)), 150);
                         }} style={{ flex: 1, padding: "13px", background: "#FDEDEC", border: "2px solid #E74C3C", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#C0392B", cursor: "pointer", fontFamily: "inherit" }}>
-                          ↺ Review Again
+                          <Repeat size={15} /> Review Again
                         </button>
                         <button className="btn-hover" onClick={() => {
                           const key = `${selectedDialect}-reverse-${card.cardIndex}`;
@@ -1860,7 +1845,7 @@ function DialectPlatformContent() {
                       <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
                         <button className="btn-hover" onClick={() => setReverseIndex(i => Math.max(0, i - 1))} disabled={reverseIndex === 0}
                           style={{ flex: 1, padding: "13px", background: reverseIndex === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: reverseIndex === 0 ? "default" : "pointer", color: reverseIndex === 0 ? "#C0B0A0" : "#1A1208", fontFamily: "inherit" }}>
-                          ← Prev
+                          <ArrowLeft size={15} /> Prev
                         </button>
                         <button className="btn-hover" onClick={() => {
                           if (reverseIndex < reverseCards.length - 1) {
@@ -1869,7 +1854,7 @@ function DialectPlatformContent() {
                             setReverseIndex(0);
                           }
                         }} style={{ flex: 2, padding: "13px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                          {reverseIndex < reverseCards.length - 1 ? "Next →" : "↺ Restart"}
+                          {reverseIndex < reverseCards.length - 1 ? "Next <ArrowRight size={15} />" : "<Repeat size={15} /> Restart"}
                         </button>
                       </div>
                     )}
@@ -1896,7 +1881,7 @@ function DialectPlatformContent() {
             </div>
             {streak > 0 && (
               <div style={{ marginTop: 8, fontSize: 12, color: "#D4860B", fontWeight: 600 }}>
-                🔥 {streak} day streak
+                <Flame size={16} /> {streak} day streak
               </div>
             )}
           </div>
@@ -1909,17 +1894,17 @@ function DialectPlatformContent() {
 
           {/* Page header */}
           <div style={{ marginBottom: 24 }}>
-            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 38, fontWeight: 700, color: "#1A1208", marginBottom: 6 }}>
+            <h1 className="heading" style={{ fontSize: 38, marginBottom: 6 }}>
               Search All Dialects
             </h1>
-            <p style={{ color: "#6B5B45", fontSize: 14 }}>
+            <p className="body-text" style={{ fontSize: 14 }}>
               Search across Hokkien, Cantonese, Teochew, Hakka and Hainanese simultaneously
             </p>
           </div>
 
           {/* Search bar */}
           <div style={{ position: "relative", marginBottom: 16 }}>
-            <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 18, pointerEvents: "none" }}>🔍</span>
+            <Search size={18} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--color-text-faint)", pointerEvents: "none" }} />
             <input
               className="search-input"
               type="text"
@@ -1927,13 +1912,13 @@ function DialectPlatformContent() {
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search meanings, romanisation, or Chinese characters in any dialect…"
               aria-label="Search all dialects"
-              style={{ width: "100%", padding: "15px 48px", borderRadius: 14, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "white", outline: "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
+              style={{ width: "100%", padding: "15px 48px", borderRadius: "var(--radius-md)", border: "2px solid var(--color-border)", fontSize: 15, fontFamily: "inherit", background: "var(--color-surface)", outline: "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
             />
             {searchQuery && (
               <button onClick={() => { setSearchQuery(""); setSearchDebouncedQuery(""); }}
                 aria-label="Clear search"
-                style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "#E8DDD0", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 13, color: "#6B5B45", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                ✕
+                style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "var(--color-border)", border: "none", borderRadius: "50%", width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-text-secondary)" }}>
+                <X size={14} />
               </button>
             )}
           </div>
@@ -1945,8 +1930,8 @@ function DialectPlatformContent() {
               {searchDialects.length < 5 && searchDialects.map(id => {
                 const info = dialects.find(d => d.id === id);
                 return (
-                  <span key={id} style={{ background: `${info.color}18`, border: `1.5px solid ${info.color}55`, borderRadius: 20, padding: "3px 10px 3px 8px", fontSize: 12, color: info.color, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    {info.icon} {info.name}
+                  <span key={id} style={{ background: `${info.color}18`, border: `1.5px solid ${info.color}55`, borderRadius: 20, padding: "3px 10px 3px 8px", fontSize: 12, color: info.color, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <SealChip dialect={info} size="sm" /> {info.name}
                     <button onClick={() => setSearchDialects(prev => prev.filter(x => x !== id))}
                       aria-label={`Remove ${info.name} filter`}
                       style={{ background: "none", border: "none", cursor: "pointer", color: info.color, fontSize: 14, padding: "0 0 0 2px", lineHeight: 1 }}>×</button>
@@ -1982,7 +1967,7 @@ function DialectPlatformContent() {
           <button onClick={() => setSearchFilterOpen(o => !o)}
             style={{ display: "none", width: "100%", padding: "12px", background: "white", border: "1.5px solid #E8DDD0", borderRadius: 10, marginBottom: 16, fontSize: 14, fontWeight: 600, color: "#1A1208", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}
             className="search-mobile-toggle">
-            🎛 Filters {searchFilterOpen ? "▲" : "▼"}
+            <><Filter size={16} /> Filters {searchFilterOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</>
           </button>
 
           {/* Main layout: sidebar + results */}
@@ -2014,8 +1999,8 @@ function DialectPlatformContent() {
                         aria-label={`Filter by ${d.name}`}
                         style={{ accentColor: d.color, width: 15, height: 15, cursor: "pointer" }}
                       />
-                      <span style={{ fontSize: 16 }}>{d.icon}</span>
-                      <span style={{ fontSize: 13, color: "#1A1208", fontWeight: searchDialects.includes(d.id) ? 600 : 400 }}>{d.name}</span>
+                      <SealChip dialect={d} size="sm" />
+                      <span style={{ fontSize: 13, color: "var(--color-text)", fontWeight: searchDialects.includes(d.id) ? 600 : 400 }}>{d.name}</span>
                       {!searchDialects.includes(d.id) && <span style={{ fontSize: 10, color: "#C0B0A0", marginLeft: "auto" }}>off</span>}
                     </label>
                   ))}
@@ -2027,28 +2012,30 @@ function DialectPlatformContent() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Category</div>
                 {(() => {
                   const capitalize = s => s.split(/[_\s]+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-                  const catIcons = { greetings:"👋", food:"🍜", numbers:"🔢", family:"👨‍👩‍👧", body:"🫀", daily_life:"🏠", emotions:"😊", travel:"✈️", time:"🕐", hawker:"🍲", hawker_culture:"🍲", profession:"💼", place:"🏙️", animal:"🐾", beverage:"🧋" };
                   const apiCats = [...new Set(apiWords.map(w => w.tags?.[0] || "other"))].filter(c => !["greetings","food","numbers"].includes(c));
-                  const allSearchCats = [["all","All categories",""], ["greetings","Greetings","👋"], ["food","Food & Drink","🍜"], ["numbers","Numbers","🔢"], ...apiCats.map(c => [c, capitalize(c), catIcons[c] || "📖"])];
-                  return allSearchCats.map(([v, label, icon]) => (
+                  const allSearchCats = [["all","All categories"], ["greetings","Greetings"], ["food","Food & Drink"], ["numbers","Numbers"], ...apiCats.map(c => [c, capitalize(c)])];
+                  return allSearchCats.map(([v, label]) => {
+                    const CatIcon = CATEGORY_ICONS[v] || Languages;
+                    return (
                     <button key={v} onClick={() => setSearchCategory(v)}
                       role="radio" aria-checked={searchCategory === v}
-                      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchCategory === v ? "#1A1208" : "transparent", color: searchCategory === v ? "#F5E6C8" : "#6B5B45", border: searchCategory === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchCategory === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
-                      {icon && <span>{icon}</span>}
+                      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchCategory === v ? "var(--color-dark)" : "transparent", color: searchCategory === v ? "var(--color-cream)" : "var(--color-text-secondary)", border: searchCategory === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchCategory === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                      {v !== "all" && <CatIcon size={15} />}
                       {label}
                     </button>
-                  ));
+                    );
+                  });
                 })()}
               </div>
 
               {/* Difficulty filter */}
               <div style={{ marginBottom: 22 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Difficulty</div>
-                {[["all","All levels",""],["beginner","Beginner","🟢"],["intermediate","Intermediate","🟡"],["advanced","Advanced","🔴"]].map(([v,label,dot]) => (
+                {[["all","All levels",""],["beginner","Beginner","#1A6B3C"],["intermediate","Intermediate","#D4860B"],["advanced","Advanced","#C0392B"]].map(([v,label,dot]) => (
                   <button key={v} onClick={() => setSearchDifficulty(v)}
                     role="radio" aria-checked={searchDifficulty === v}
-                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchDifficulty === v ? "#1A1208" : "transparent", color: searchDifficulty === v ? "#F5E6C8" : "#6B5B45", border: searchDifficulty === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchDifficulty === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
-                    {dot && <span style={{ fontSize: 10 }}>{dot}</span>}
+                    style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchDifficulty === v ? "var(--color-dark)" : "transparent", color: searchDifficulty === v ? "var(--color-cream)" : "var(--color-text-secondary)", border: searchDifficulty === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchDifficulty === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
+                    {dot && <span style={{ width: 10, height: 10, borderRadius: "50%", background: dot, flexShrink: 0 }} />}
                     {label}
                     {v === "beginner" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Greetings</span>}
                     {v === "intermediate" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Food</span>}
@@ -2095,9 +2082,9 @@ function DialectPlatformContent() {
 
               {filteredPhrases.length === 0 ? (
                 /* Empty state */
-                <div style={{ textAlign: "center", padding: "60px 24px", background: "white", borderRadius: 16, border: "1.5px solid #E8DDD0" }}>
-                  <div style={{ fontSize: 52, marginBottom: 16 }}>🔍</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>No matches found</div>
+                <div style={{ textAlign: "center", padding: "60px 24px", background: "var(--color-surface)", borderRadius: "var(--radius-lg)", border: "1.5px solid var(--color-border)" }}>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-text-faint)" }}><Search size={48} /></div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>No matches found</div>
                   <p style={{ color: "#6B5B45", fontSize: 14, marginBottom: 20 }}>
                     Try a different word or broaden your dialect and category filters.
                   </p>
@@ -2106,7 +2093,7 @@ function DialectPlatformContent() {
                   </div>
                   {searchDialects.length === 0 && (
                     <div style={{ marginTop: 16, fontSize: 13, color: "#C0392B", fontWeight: 600 }}>
-                      ⚠ No dialects selected — check at least one dialect in the filter panel.
+                       No dialects selected — check at least one dialect in the filter panel.
                     </div>
                   )}
                 </div>
@@ -2119,7 +2106,7 @@ function DialectPlatformContent() {
                         {/* Dialect + category badges */}
                         <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
                           <span style={{ background: `${p.dialectColor}16`, border: `1.5px solid ${p.dialectColor}50`, borderRadius: 20, padding: "3px 10px", fontSize: 11, color: p.dialectColor, fontWeight: 700, letterSpacing: 0.3 }}>
-                            {p.dialectIcon} {p.dialectName}
+                            {p.dialectName}
                           </span>
                           <span style={{ background: "#F5EFE6", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#8B7355" }}>
                             {p.category}
@@ -2132,7 +2119,7 @@ function DialectPlatformContent() {
                         <div className="romanized" style={{ fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>
                           {p.phrase}
                         </div>
-                        <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 15, color: "#8B7355", marginBottom: 6 }}>
+                        <div style={{ fontFamily: "var(--font-chinese)", fontSize: 15, color: "#8B7355", marginBottom: 6 }}>
                           {p.chinese}
                         </div>
                         <div style={{ fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 3 }}>
@@ -2149,7 +2136,7 @@ function DialectPlatformContent() {
                       <button onClick={() => { setSearchPage(p => p - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                         disabled={searchPage === 1}
                         style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === 1 ? "#F5EFE6" : "white", color: searchPage === 1 ? "#C0B0A0" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === 1 ? "default" : "pointer", fontFamily: "inherit" }}>
-                        ← Previous
+                        <ArrowLeft size={15} /> Previous
                       </button>
                       <span style={{ fontSize: 13, color: "#6B5B45" }}>
                         Page <strong>{searchPage}</strong> of <strong>{totalPages}</strong>
@@ -2157,7 +2144,7 @@ function DialectPlatformContent() {
                       <button onClick={() => { setSearchPage(p => p + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                         disabled={searchPage === totalPages}
                         style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === totalPages ? "#F5EFE6" : "white", color: searchPage === totalPages ? "#C0B0A0" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === totalPages ? "default" : "pointer", fontFamily: "inherit" }}>
-                        Next →
+                        Next <ArrowRight size={15} />
                       </button>
                     </div>
                   )}
@@ -2173,7 +2160,7 @@ function DialectPlatformContent() {
       {screen === "quiz" && dialect && quizState.questions && (
         <div style={{ maxWidth: 600, margin: "0 auto", padding: "40px 24px" }}>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#1A1208" }}>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "#1A1208" }}>
               {dialect.icon} {dialect.name} Quiz
             </div>
           </div>
@@ -2184,16 +2171,16 @@ function DialectPlatformContent() {
                 <span>Question {quizState.q + 1} / {quizState.questions.length}</span>
                 <span style={{ color: dialect.color, fontWeight: 600 }}>Score: {quizState.score}</span>
               </div>
-              <div className="progress-bar" style={{ marginBottom: 32 }}>
+              <div className="progress" style={{ marginBottom: 32 }}>
                 <div className="progress-fill" style={{ width: `${((quizState.q + 1) / quizState.questions.length) * 100}%`, background: dialect.color }} />
               </div>
 
               <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: 40, textAlign: "center", marginBottom: 24 }}>
                 <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>WHAT DOES THIS MEAN?</div>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "white" }}>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: 44, fontWeight: 700, color: "white" }}>
                   {quizState.questions[quizState.q]?.phrase}
                 </div>
-                <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 24, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>
+                <div style={{ fontFamily: "var(--font-chinese)", fontSize: 24, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>
                   {quizState.questions[quizState.q]?.chinese}
                 </div>
               </div>
@@ -2218,8 +2205,8 @@ function DialectPlatformContent() {
             </div>
           ) : (
             <div style={{ textAlign: "center" }} className="fade-up">
-              <div style={{ fontSize: 72, marginBottom: 16 }}>{quizState.score >= 4 ? "🎉" : quizState.score >= 2 ? "👍" : "📚"}</div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>
+              <div style={{ fontSize: 72, marginBottom: 16 }}>{quizState.score >= 4 ? <Trophy size={56} /> : quizState.score >= 2 ? <ThumbsUp size={56} /> : <BookOpen size={56} />}</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 48, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>
                 {quizState.score} / {quizState.questions.length}
               </div>
               <div style={{ fontSize: 18, color: "#8B7355", marginBottom: 8, fontStyle: "italic" }}>
@@ -2262,7 +2249,7 @@ function DialectPlatformContent() {
             {/* Header */}
             <div style={{ textAlign: "center", marginBottom: 40 }}>
               <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Singapore Heritage</div>
-              <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: "#1A1208", marginBottom: 8, lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 48, color: "#1A1208", marginBottom: 8, lineHeight: 1.1 }}>
                 Dialects<span style={{ color: "#C0392B", fontStyle: "italic" }}>In</span>Singlish
               </h1>
               <p style={{ color: "#8B7355", fontSize: 15, maxWidth: 640, margin: "0 auto", lineHeight: 1.7 }}>
@@ -2271,11 +2258,11 @@ function DialectPlatformContent() {
             </div>
 
             {/* Mode Toggle */}
-            <div style={{ display: "flex", background: "#F0E8DA", borderRadius: 14, padding: 4, maxWidth: 360, margin: "0 auto 36px" }}>
-              {[["cards","🃏 Flashcards"],["search","🔍 Smart Search"]].map(([mode, label]) => (
-                <button key={mode} className="tab-btn" onClick={() => { setDisMode(mode); setDisCard(0); setDisFlipped(false); setDisExpanded(null); }}
-                  style={{ flex: 1, padding: "12px 16px", borderRadius: 10, background: disMode === mode ? "#1A1208" : "transparent", color: disMode === mode ? "#F5E6C8" : "#8B7355", fontSize: 14, fontWeight: 600 }}>
-                  {label}
+            <div className="pill-toggle" style={{ maxWidth: 360, margin: "0 auto 36px" }}>
+              {[["cards", FolderOpen, "Flashcards"],["search", Search, "Smart Search"]].map(([mode, Icon, label]) => (
+                <button key={mode} className={disMode === mode ? "active" : ""} onClick={() => { setDisMode(mode); setDisCard(0); setDisFlipped(false); setDisExpanded(null); }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <Icon size={16} /> {label}
                 </button>
               ))}
             </div>
@@ -2298,7 +2285,7 @@ function DialectPlatformContent() {
                   <span>{disFilter !== "All" ? disFilter : "All Categories"}</span>
                   <span style={{ color: "#C0392B" }}>{disCard + 1} / {filtered.length}</span>
                 </div>
-                <div className="progress-bar" style={{ marginBottom: 28 }}>
+                <div className="progress" style={{ marginBottom: 28 }}>
                   <div className="progress-fill" style={{ width: filtered.length ? ((disCard + 1) / filtered.length * 100) + "%" : "0%", background: "#C0392B" }} />
                 </div>
 
@@ -2309,7 +2296,7 @@ function DialectPlatformContent() {
                     <div className="card-face" style={{ background: "linear-gradient(135deg, #1A1208 0%, #3D1F10 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center" }}>
                       <div style={{ fontSize: 11, letterSpacing: 3, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", marginBottom: 20 }}>Tap to reveal meaning</div>
                       <div className="romanized" style={{ fontSize: 52, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.1, marginBottom: 10 }}>{cardPhrase.phrase}</div>
-                      <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, color: "rgba(245,230,200,0.6)", marginBottom: 16 }}>{cardPhrase.chinese}</div>
+                      <div style={{ fontFamily: "var(--font-chinese)", fontSize: 22, color: "rgba(245,230,200,0.6)", marginBottom: 16 }}>{cardPhrase.chinese}</div>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
                         <span style={{ fontSize: 12, background: cardPhrase.dialectColor + "40", color: cardPhrase.dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{cardPhrase.dialect}</span>
                         <span style={{ fontSize: 12, background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", padding: "4px 12px", borderRadius: 12 }}>{cardPhrase.category}</span>
@@ -2318,7 +2305,7 @@ function DialectPlatformContent() {
                     {/* Back */}
                     <div className="card-face card-back" style={{ background: "#FAF6F0", border: "3px solid #C0392B", padding: 28, display: "flex", flexDirection: "column", justifyContent: "center", overflowY: "auto" }}>
                       <div style={{ fontSize: 11, letterSpacing: 3, color: "#C0392B", textTransform: "uppercase", marginBottom: 12 }}>Meaning</div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 14, lineHeight: 1.4 }}>{cardPhrase.meaning}</div>
+                      <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 14, lineHeight: 1.4 }}>{cardPhrase.meaning}</div>
                       <div style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.7, marginBottom: 14 }}>{cardPhrase.fullExplanation}</div>
                       <div style={{ fontSize: 12, color: "#C0392B", fontStyle: "italic", fontWeight: 600 }}>"{cardPhrase.examples[0]}"</div>
                     </div>
@@ -2329,15 +2316,15 @@ function DialectPlatformContent() {
                 <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
                   <button className="btn-hover" onClick={() => { setDisFlipped(false); setTimeout(() => setDisCard(Math.max(0, disCard - 1)), 150); }} disabled={disCard === 0}
                     style={{ flex: 1, padding: "13px", background: disCard === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 15, cursor: disCard === 0 ? "default" : "pointer", color: disCard === 0 ? "#C0B0A0" : "#1A1208" }}>
-                    ← Prev
+                    <ArrowLeft size={15} /> Prev
                   </button>
                   <button className="btn-hover" onClick={() => setDisExpanded(disExpanded === cardPhrase.id ? null : cardPhrase.id)}
                     style={{ padding: "13px 20px", background: "#F0E8DA", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 13, cursor: "pointer", color: "#6B5B45", fontFamily: "inherit", whiteSpace: "nowrap" }}>
-                    {disExpanded === cardPhrase.id ? "▲ Less" : "▼ Full Details"}
+                    {disExpanded === cardPhrase.id ? "<ChevronUp size={14} /> Less" : "<ChevronDown size={14} /> Full Details"}
                   </button>
                   <button className="btn-hover" onClick={() => { setDisFlipped(false); setTimeout(() => setDisCard(Math.min(filtered.length - 1, disCard + 1)), 150); }} disabled={disCard >= filtered.length - 1}
                     style={{ flex: 1, padding: "13px", background: disCard >= filtered.length - 1 ? "#E8DDD0" : "#1A1208", color: disCard >= filtered.length - 1 ? "#C0B0A0" : "#F5E6C8", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: disCard >= filtered.length - 1 ? "default" : "pointer" }}>
-                    Next →
+                    Next <ArrowRight size={15} />
                   </button>
                 </div>
 
@@ -2345,10 +2332,10 @@ function DialectPlatformContent() {
                 {disExpanded === cardPhrase.id && (
                   <div style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }} className="fade-up">
                     <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 13, background: cardPhrase.dialectColor + "18", color: cardPhrase.dialectColor, padding: "5px 14px", borderRadius: 20, fontWeight: 700 }}>🗣️ {cardPhrase.dialect}</span>
-                      <span style={{ fontSize: 13, background: "#F0E8DA", color: "#6B5B45", padding: "5px 14px", borderRadius: 20 }}>📂 {cardPhrase.category}</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, background: cardPhrase.dialectColor + "18", color: cardPhrase.dialectColor, padding: "5px 14px", borderRadius: 20, fontWeight: 700 }}><Mic size={13} /> {cardPhrase.dialect}</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, background: "#F0E8DA", color: "#6B5B45", padding: "5px 14px", borderRadius: 20 }}><FolderOpen size={13} /> {cardPhrase.category}</span>
                     </div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{cardPhrase.phrase} <span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 18, color: "#9B8B75" }}>{cardPhrase.chinese}</span></div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{cardPhrase.phrase} <span style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "#9B8B75" }}>{cardPhrase.chinese}</span></div>
                     <div style={{ fontSize: 15, color: "#C0392B", fontWeight: 600, marginBottom: 12 }}>{cardPhrase.meaning}</div>
                     <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.8, marginBottom: 20 }}>{cardPhrase.fullExplanation}</div>
                     <div style={{ fontSize: 13, color: "#8B7355", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Examples in use:</div>
@@ -2377,7 +2364,7 @@ function DialectPlatformContent() {
                     placeholder="Search phrases, meanings, or contexts (e.g. 'NS', 'food', 'sian')..."
                     style={{ width: "100%", padding: "16px 56px 16px 20px", borderRadius: 16, border: "2px solid " + (disSearch ? "#C0392B" : "#E8DDD0"), fontSize: 15, fontFamily: "inherit", background: "white", outline: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", transition: "border 0.2s" }}
                   />
-                  <span style={{ position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)", fontSize: 20, color: "#C0B0A0" }}>🔍</span>
+                  <Search size={20} style={{ position: "absolute", right: 20, top: "50%", transform: "translateY(-50%)", color: "var(--color-text-faint)" }} />
                 </div>
 
                 {/* Category Filter */}
@@ -2398,8 +2385,8 @@ function DialectPlatformContent() {
                 {/* Results Grid */}
                 {filtered.length === 0 ? (
                   <div style={{ textAlign: "center", padding: "60px 24px" }}>
-                    <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>No phrases found</div>
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-text-faint)" }}><Search size={48} /></div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>No phrases found</div>
                     <div style={{ color: "#8B7355", fontSize: 14 }}>Try a different search or clear the filters</div>
                   </div>
                 ) : (
@@ -2410,7 +2397,7 @@ function DialectPlatformContent() {
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                           <div>
                             <div className="romanized" style={{ fontSize: 26, fontWeight: 700, color: "#1A1208", lineHeight: 1 }}>{p.phrase}</div>
-                            <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 14, color: "#9B8B75", marginTop: 2 }}>{p.chinese}</div>
+                            <div style={{ fontFamily: "var(--font-chinese)", fontSize: 14, color: "#9B8B75", marginTop: 2 }}>{p.chinese}</div>
                           </div>
                           <span style={{ fontSize: 11, background: p.dialectColor + "18", color: p.dialectColor, padding: "4px 10px", borderRadius: 10, fontWeight: 700, whiteSpace: "nowrap", marginLeft: 8 }}>{p.dialect}</span>
                         </div>
@@ -2428,12 +2415,12 @@ function DialectPlatformContent() {
                               </div>
                             ))}
                             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
-                              <span style={{ fontSize: 11, background: "#F0E8DA", color: "#8B7355", padding: "3px 10px", borderRadius: 8 }}>📂 {p.category}</span>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, background: "#F0E8DA", color: "#8B7355", padding: "3px 10px", borderRadius: 8 }}><FolderOpen size={11} /> {p.category}</span>
                               {p.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "#9B8B75", padding: "3px 8px", borderRadius: 8 }}>#{t}</span>)}
                             </div>
                           </div>
                         )}
-                        <div style={{ marginTop: 12, fontSize: 12, color: "#C0B0A0", textAlign: "right" }}>{disExpanded === p.id ? "▲ Collapse" : "▼ Expand"}</div>
+                        <div style={{ marginTop: 12, fontSize: 12, color: "var(--color-text-faint)", textAlign: "right", display: "inline-flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>{disExpanded === p.id ? <><ChevronUp size={12} /> Collapse</> : <><ChevronDown size={12} /> Expand</>}</div>
                       </div>
                     ))}
                   </div>
@@ -2443,8 +2430,8 @@ function DialectPlatformContent() {
 
             {/* Context banner at bottom */}
             <div style={{ marginTop: 56, background: "linear-gradient(135deg, #1A1208, #3D1F10)", borderRadius: 20, padding: "36px 32px", textAlign: "center" }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>🗣️</div>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, color: "#F5E6C8", marginBottom: 8 }}>Singlish is dialect in disguise</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 12, color: "var(--color-cream)" }}><Mic size={32} /></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#F5E6C8", marginBottom: 8 }}>Singlish is dialect in disguise</div>
               <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.8, maxWidth: 600, margin: "0 auto" }}>
                 From "bojio" to "jialat", the phrases that make Singlish uniquely ours are rooted in Hokkien, Cantonese, Teochew, Hakka and Hainanese. Every time you say "walao" or "paiseh", you're speaking dialect — and keeping it alive.
               </p>
@@ -2457,7 +2444,7 @@ function DialectPlatformContent() {
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Community</div>
-            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: "#1A1208", marginBottom: 12 }}>Network</h1>
+            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 48, color: "#1A1208", marginBottom: 12 }}>Network</h1>
             <p style={{ color: "#8B7355", fontSize: 16, maxWidth: 560, margin: "0 auto" }}>Connect with fellow learners across Singapore. Find practice partners, share stories, and keep our dialects alive together.</p>
           </div>
           <div style={{ display: "flex", background: "#F0E8DA", borderRadius: 14, padding: 4, maxWidth: 500, margin: "0 auto 40px" }}>
@@ -2486,8 +2473,8 @@ function DialectPlatformContent() {
 
               {registeredUsers.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>🌱</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}><Sprout size={40} /></div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
                   <p style={{ fontSize: 14, marginBottom: 24 }}>Be the first to join the community and connect with dialect learners across Singapore.</p>
                 </div>
               ) : (
@@ -2536,7 +2523,7 @@ function DialectPlatformContent() {
                           ) : connStatus === 'received' ? (
                             <button className="btn-hover" onClick={() => { setNetworkTab("sinseh"); setSinSehTab("mentorships"); }}
                               style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#5B21B6", color: "white", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                              Respond to their request →
+                              Respond to their request <ArrowRight size={15} />
                             </button>
                           ) : (
                             <button className="btn-hover" onClick={() => sendConnectRequest(m.id)}
@@ -2551,7 +2538,7 @@ function DialectPlatformContent() {
               )}
 
               <div style={{ marginTop: 48, background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "40px 32px", textAlign: "center" }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#F5E6C8", marginBottom: 8 }}>Add yourself to the community</div>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#F5E6C8", marginBottom: 8 }}>Add yourself to the community</div>
                 <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Register your profile to appear as a member and connect with learners across Singapore.</p>
                 <button className="btn-hover" onClick={() => setScreen("profile")}
                   style={{ background: "#C0392B", color: "white", border: "none", padding: "14px 36px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
@@ -2569,7 +2556,7 @@ function DialectPlatformContent() {
                     <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 24 }}>
                       <div style={{ fontSize: 36 }}>{requestModal.avatar}</div>
                       <div>
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#1A1208" }}>Request {requestModal.firstName}</div>
+                        <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208" }}>Request {requestModal.firstName}</div>
                         <div style={{ fontSize: 13, color: "#9B8B75" }}>Sin Seh · {requestModal.languageInterest}</div>
                       </div>
                     </div>
@@ -2604,7 +2591,7 @@ function DialectPlatformContent() {
               {removeConfirm && (
                 <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
                   <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 420, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
                     <p style={{ fontSize: 14, color: "#6B5B45", marginBottom: 24, lineHeight: 1.6 }}>
                       This will disconnect you from <strong>{removeConfirm.name}</strong>. You can always send a new connection request later.
                     </p>
@@ -2629,9 +2616,9 @@ function DialectPlatformContent() {
 
               {/* Hero banner */}
               <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 24, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
-                <div style={{ fontSize: 56 }}>🎓</div>
+                <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><GraduationCap size={48} /></div>
                 <div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
                   <div style={{ fontSize: 14, color: "#A08060", marginTop: 4, marginBottom: 8 }}>Mentorship Programme · Completely Free</div>
                   <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.7, maxWidth: 560 }}>Connect with native speakers who give their time freely. Set your role in your Profile, then find a Sin Seh or manage your mentees here.</p>
                 </div>
@@ -2648,12 +2635,12 @@ function DialectPlatformContent() {
                 </div>
               ) : (currentUser.role === "mentor" || currentUser.role === "both") ? (
                 <div style={{ background: "#FEF3E2", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 12, border: "1px solid #D4860B40" }}>
-                  <span style={{ fontSize: 20 }}>👨‍🏫</span>
+                  <span style={{ display:"inline-flex", color:"var(--color-primary)" }}><UserCheck size={20} /></span>
                   <div style={{ fontSize: 14, color: "#8B6020" }}>You are a <strong>Sin Seh</strong>. Mentees can find you in the directory. Check <em>My Mentorships</em> to respond to requests.</div>
                 </div>
               ) : (
                 <div style={{ background: "#EEF2FF", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 12, border: "1px solid #5B21B640" }}>
-                  <span style={{ fontSize: 20 }}>🧑‍🎓</span>
+                  <span style={{ fontSize: 20 }}><GraduationCap size={20} /></span>
                   <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, their contact will be revealed.</div>
                 </div>
               )}
@@ -2690,8 +2677,8 @@ function DialectPlatformContent() {
                     </div>
                     {filtered.length === 0 ? (
                       <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
-                        <div style={{ fontSize: 48, marginBottom: 16 }}>👨‍🏫</div>
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No Sin Sehs yet</div>
+                        <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><UserCheck size={40} /></div>
+                        <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No Sin Sehs yet</div>
                         <p style={{ fontSize: 14 }}>{sinSehDialectFilter !== "All" ? `No mentors available for ${sinSehDialectFilter} yet.` : "Be the first — set your role to Mentor in your Profile."}</p>
                       </div>
                     ) : (
@@ -2723,7 +2710,7 @@ function DialectPlatformContent() {
                               ) : status === 'received' ? (
                                 <button className="btn-hover" onClick={() => setSinSehTab("mentorships")}
                                   style={{ padding: "12px", borderRadius: 10, background: "#5B21B6", color: "white", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                                  Respond to their request →
+                                  Respond to their request <ArrowRight size={15} />
                                 </button>
                               ) : !currentUser ? (
                                 <button className="btn-hover" onClick={() => setScreen("profile")}
@@ -2759,7 +2746,7 @@ function DialectPlatformContent() {
                       <div style={{ display: "flex", justifyContent: "flex-end" }}>
                         <button onClick={() => loadConnections()} className="btn-hover"
                           style={{ fontSize: 12, color: "#8B7355", background: "transparent", border: "1px solid #E8DDD0", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: "inherit" }}>
-                          ↻ Refresh
+                          <Repeat size={14} /> Refresh
                         </button>
                       </div>
                     )}
@@ -2770,13 +2757,13 @@ function DialectPlatformContent() {
                     )}
                     {!currentUser ? (
                       <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
-                        <div style={{ fontSize: 48, marginBottom: 16 }}>🤝</div>
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>Sign in to view your mentorships</div>
+                        <div style={{ fontSize: 48, marginBottom: 16 }}><Handshake size={40} /></div>
+                        <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your mentorships</div>
                       </div>
                     ) : !hasAny ? (
                       <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
-                        <div style={{ fontSize: 48, marginBottom: 16 }}>🌱</div>
-                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No mentorships yet</div>
+                        <div style={{ fontSize: 48, marginBottom: 16 }}><Sprout size={40} /></div>
+                        <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No mentorships yet</div>
                         <p style={{ fontSize: 14, marginBottom: 24 }}>Browse Sin Sehs and send a request to get started.</p>
                         <button onClick={() => setSinSehTab("directory")} className="btn-hover"
                           style={{ background: "#C0392B", color: "white", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
@@ -2927,14 +2914,14 @@ function DialectPlatformContent() {
         <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 24px" }} className="fade-up">
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Your Account</div>
-            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, color: "#1A1208", marginBottom: 12 }}>Profile</h1>
+            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 44, color: "#1A1208", marginBottom: 12 }}>Profile</h1>
           </div>
 
           {currentUser ? (
             <div className="fade-up">
               {profileEditMode ? (
                 <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA" }}>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
                     {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
@@ -2989,7 +2976,7 @@ function DialectPlatformContent() {
                   <div style={{ marginBottom: 28 }}>
                     <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
                     <div style={{ display: "flex", gap: 12 }}>
-                      {[["male", "👨", "Male"], ["female", "👩", "Female"]].map(([val, icon, label]) => (
+                      {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, icon, label]) => (
                         <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
                           style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
                           <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
@@ -3032,7 +3019,7 @@ function DialectPlatformContent() {
                   <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
                     <div style={{ fontSize: 56, background: "#FAF6F0", borderRadius: "50%", width: 72, height: 72, display: "flex", alignItems: "center", justifyContent: "center" }}>{currentUser.avatar}</div>
                     <div>
-                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208" }}>{currentUser.firstName} {currentUser.lastName}</div>
+                      <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>{currentUser.firstName} {currentUser.lastName}</div>
                       <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 2 }}>{currentUser.occupation}{currentUser.age ? ` · Age ${currentUser.age}` : ""}</div>
                       <div style={{ display: "inline-block", marginTop: 6, fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "3px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
                     </div>
@@ -3080,7 +3067,7 @@ function DialectPlatformContent() {
             </div>
           ) : pendingGoogle ? (
             <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 6 }}>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 6 }}>
                 Complete Your Profile
               </div>
               <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 28 }}>
@@ -3140,7 +3127,7 @@ function DialectPlatformContent() {
               <div style={{ marginBottom: 28 }}>
                 <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
                 <div style={{ display: "flex", gap: 12 }}>
-                  {[["male", "👨", "Male"], ["female", "👩", "Female"]].map(([val, icon, label]) => (
+                  {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, icon, label]) => (
                     <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
                       style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
                       <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
@@ -3174,7 +3161,7 @@ function DialectPlatformContent() {
             </div>
           ) : (
             <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", textAlign: "center" }}>
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>
                 Sign In to Your Account
               </div>
               <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 32 }}>
@@ -3210,9 +3197,9 @@ function DialectPlatformContent() {
           {/* Header */}
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
-              <div style={{ fontSize: 40 }}>🏛️</div>
+              <div style={{ fontSize: 40 }}><Landmark size={40} /></div>
               <div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 38, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>
+                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 38, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>
                   Clan Associations
                 </h1>
                 <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.6 }}>
@@ -3224,7 +3211,7 @@ function DialectPlatformContent() {
 
           {/* DIRECTORY */}
           <div style={{ marginBottom: 16 }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>Directory</h2>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>Directory</h2>
             <p style={{ fontSize: 13, color: "#8B7355" }}>Full contact and background information for each huay kuan</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
@@ -3234,9 +3221,9 @@ function DialectPlatformContent() {
                 className="btn-hover">
                 {/* Card header */}
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: `${hk.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{hk.icon}</div>
+                  <div style={{ width: 48, height: 48, borderRadius: "var(--radius-md)", background: `${hk.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: hk.color, flexShrink: 0 }}>{hk.shortName?.[0] || hk.name?.[0]}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#1A1208", lineHeight: 1.3, marginBottom: 4 }}>{hk.name}</div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 17, fontWeight: 700, color: "#1A1208", lineHeight: 1.3, marginBottom: 4 }}>{hk.name}</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       <span style={{ background: `${hk.color}18`, border: `1.5px solid ${hk.color}44`, borderRadius: 20, padding: "2px 9px", fontSize: 11, color: hk.color, fontWeight: 700 }}>{hk.dialectLabel}</span>
                       {hk.founded && <span style={{ fontSize: 11, color: "#8B7355", padding: "2px 0" }}>est. {hk.founded}</span>}
@@ -3250,43 +3237,43 @@ function DialectPlatformContent() {
 
                 {/* Contact grid */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                  <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45", alignItems: "flex-start" }}>
-                    <span style={{ flexShrink: 0 }}>📍</span>
+                  <div style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--color-text-secondary)", alignItems: "flex-start" }}>
+                    <span style={{ flexShrink: 0, color: hk.color, display: "inline-flex" }}><MapPin size={13} /></span>
                     <span>{hk.address}</span>
                   </div>
                   {hk.tel && hk.tel.map((t, i) => (
-                    <div key={i} style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45" }}>
-                      <span>📞</span><span>{t}</span>
+                    <div key={i} style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--color-text-secondary)" }}>
+                      <span style={{ color: hk.color, display: "inline-flex" }}><Phone size={13} /></span><span>{t}</span>
                     </div>
                   ))}
                   {hk.whatsapp && (
-                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45" }}>
-                      <span>💬</span><span>WhatsApp: {hk.whatsapp}</span>
+                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--color-text-secondary)" }}>
+                      <span style={{ color: hk.color, display: "inline-flex" }}><MessageCircle size={13} /></span><span>WhatsApp: {hk.whatsapp}</span>
                     </div>
                   )}
                   {hk.fax && (
-                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#8B7355" }}>
-                      <span>📠</span><span>{hk.fax}</span>
+                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--color-text-muted)" }}>
+                      <span style={{ color: hk.color, display: "inline-flex" }}><Printer size={13} /></span><span>{hk.fax}</span>
                     </div>
                   )}
                   {hk.hours && (
-                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45" }}>
-                      <span>🕐</span><span>{hk.hours}</span>
+                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--color-text-secondary)" }}>
+                      <span style={{ color: hk.color, display: "inline-flex" }}><Clock size={13} /></span><span>{hk.hours}</span>
                     </div>
                   )}
                   {hk.email && (
-                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45" }}>
-                      <span>✉️</span><a href={`mailto:${hk.email}`} style={{ color: hk.color, textDecoration: "none" }} onClick={e => e.stopPropagation()}>{hk.email}</a>
+                    <div style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--color-text-secondary)" }}>
+                      <span style={{ color: hk.color, display: "inline-flex" }}><Mail size={13} /></span><a href={`mailto:${hk.email}`} style={{ color: hk.color, textDecoration: "none" }} onClick={e => e.stopPropagation()}>{hk.email}</a>
                     </div>
                   )}
                   {hk.website && (
                     <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45" }}>
-                      <span>🌐</span><a href={hk.websiteUrl} target="_blank" rel="noopener noreferrer" style={{ color: hk.color, textDecoration: "none" }} onClick={e => e.stopPropagation()}>{hk.website}</a>
+                      <span style={{ display:"inline-flex" }}><Globe size={13} /></span><a href={hk.websiteUrl} target="_blank" rel="noopener noreferrer" style={{ color: hk.color, textDecoration: "none" }} onClick={e => e.stopPropagation()}>{hk.website}</a>
                     </div>
                   )}
                   {hk.hallRental && (
                     <div style={{ display: "flex", gap: 8, fontSize: 12, color: "#6B5B45" }}>
-                      <span>🏢</span><span>Hall rental: {hk.hallRental.join(" / ")}</span>
+                      <span style={{ display:"inline-flex" }}><Building2 size={13} /></span><span>Hall rental: {hk.hallRental.join(" / ")}</span>
                     </div>
                   )}
                 </div>
@@ -3296,7 +3283,7 @@ function DialectPlatformContent() {
 
           {/* SFCCA footnote */}
           <div style={{ marginTop: 36, padding: "18px 22px", background: "#FDF6EE", borderRadius: 14, border: "1px solid #EDE0CC", fontSize: 13, color: "#6B5B45", lineHeight: 1.7 }}>
-            <strong style={{ color: "#1A1208" }}>🏛 Singapore Federation of Chinese Clan Associations (SFCCA)</strong><br/>
+            <strong style={{ color: "#1A1208" }}><Landmark size={16} /> Singapore Federation of Chinese Clan Associations (SFCCA)</strong><br/>
             The umbrella body that unites over 200 Chinese clan associations in Singapore. Most of the huay kuan listed here are founding or key member associations of the SFCCA, which works to preserve Chinese culture, language, and heritage across all dialect groups.
           </div>
         </div>
@@ -3310,7 +3297,7 @@ function DialectPlatformContent() {
             <div style={{ marginBottom: 28 }}>
               <Image src="/logo/02-vertical-cropped.png" alt="tiagong.sg" width={280} height={248} priority style={{ width: "100%", height: "auto", maxWidth: 280, margin: "0 auto" }} />
             </div>
-            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "#1A1208", lineHeight: 1.15, marginBottom: 14 }}>
+            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 44, fontWeight: 700, color: "#1A1208", lineHeight: 1.15, marginBottom: 14 }}>
               A language lost is a <em style={{ color: "#C0392B" }}>worldview lost.</em>
             </h1>
             <p style={{ color: "#6B5B45", fontSize: 17, lineHeight: 1.6, maxWidth: 560, margin: "0 auto" }}>
@@ -3330,7 +3317,7 @@ function DialectPlatformContent() {
               ];
             })().map(s => (
               <div key={s.label} className="about-stat-card">
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 44, fontWeight: 700, color: "#C0392B", lineHeight: 1 }}>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: 44, fontWeight: 700, color: "#C0392B", lineHeight: 1 }}>
                   {s.value > 0 ? <CountUp value={s.value} active={aboutStatsVisible} /> : "—"}
                 </div>
                 <div style={{ fontSize: 12, color: "#8B7355", letterSpacing: 2, textTransform: "uppercase", marginTop: 8, fontWeight: 600 }}>{s.label}</div>
@@ -3340,7 +3327,7 @@ function DialectPlatformContent() {
 
           {/* 3. THE STORY */}
           <div style={{ marginBottom: 64 }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>The Story</h2>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>The Story</h2>
             {[
               {
                 title: "A Heritage at Risk",
@@ -3357,10 +3344,10 @@ function DialectPlatformContent() {
               }
             ].map((s, i) => (
               <div key={s.title} style={{ background: "white", borderRadius: 16, padding: "28px 30px", marginBottom: 18, boxShadow: "0 2px 12px rgba(0,0,0,0.04)", border: "1px solid #F0E8DA" }}>
-                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 12 }}>{s.title}</div>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 12 }}>{s.title}</div>
                 <p style={{ color: "#6B5B45", lineHeight: 1.75, fontSize: 15 }}>{s.body}</p>
                 {s.quote && (
-                  <div style={{ marginTop: 16, paddingLeft: 16, borderLeft: "3px solid #C0392B", fontFamily: "'Noto Serif SC', serif", fontStyle: "italic", color: "#8B7355", fontSize: 14, lineHeight: 1.6 }}>
+                  <div style={{ marginTop: 16, paddingLeft: 16, borderLeft: "3px solid #C0392B", fontFamily: "var(--font-chinese)", fontStyle: "italic", color: "#8B7355", fontSize: 14, lineHeight: 1.6 }}>
                     {s.quote}
                   </div>
                 )}
@@ -3370,7 +3357,7 @@ function DialectPlatformContent() {
 
           {/* 4. HOW IT WORKS */}
           <div style={{ marginBottom: 64 }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>How It Works</h2>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>How It Works</h2>
             <div className="about-steps-grid">
               {[
                 { num: "1", color: "#C0392B", title: "Choose your dialect", desc: "Five Singapore dialects to explore — pick where your roots lie, or where curiosity leads.", target: "home" },
@@ -3379,8 +3366,8 @@ function DialectPlatformContent() {
                 { num: "4", color: "#D4860B", title: "Practice in Singlish", desc: "See how dialect words already live in everyday Singlish — and use them with confidence.", target: "singlish" },
               ].map(s => (
                 <div key={s.num} onClick={() => setScreen(s.target)} className="about-step-card" style={{ borderTopColor: s.color }}>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 38, fontWeight: 700, color: s.color, lineHeight: 1, marginBottom: 12 }}>0{s.num}</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{s.title}</div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 38, fontWeight: 700, color: s.color, lineHeight: 1, marginBottom: 12 }}>0{s.num}</div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{s.title}</div>
                   <p style={{ color: "#6B5B45", lineHeight: 1.6, fontSize: 14 }}>{s.desc}</p>
                   <div style={{ marginTop: 14, color: s.color, fontSize: 13, fontWeight: 600, letterSpacing: 0.5 }}>Go &rarr;</div>
                 </div>
@@ -3390,7 +3377,7 @@ function DialectPlatformContent() {
 
           {/* 5. FOUNDER NOTE */}
           <div style={{ background: "linear-gradient(135deg, #FDF6EE, #F5EFE6)", borderRadius: 16, padding: "32px 36px", marginBottom: 64, border: "1px solid #EDE0CC" }}>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>Founder Note</div>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>Founder Note</div>
             <p style={{ color: "#3D2A18", fontSize: 16, lineHeight: 1.8, fontStyle: "italic", margin: 0 }}>
               Built by <strong style={{ fontStyle: "normal", color: "#1A1208" }}>Raphael</strong>, a Singaporean who spent much of his childhood in his grandparents' Teochew-speaking household. Nostalgic for those days, he is building a platform where the social significance of culture and heritage can still shine in an increasingly monolingual Singapore.
             </p>
@@ -3400,7 +3387,7 @@ function DialectPlatformContent() {
           <div style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 50%, #3D1F10 100%)", borderRadius: 20, padding: "40px 36px", marginBottom: 64, border: "1px solid #3D2A18" }}>
             <div style={{ textAlign: "center", marginBottom: 28 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 14 }}>Join the Team</div>
-              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 34, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2, marginBottom: 14 }}>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 34, fontWeight: 700, color: "#F5E6C8", lineHeight: 1.2, marginBottom: 14 }}>
                 Speak a dialect fluently?<br /><em style={{ color: "#E8D4A8" }}>Help validate our dictionary.</em>
               </h2>
               <p style={{ color: "#C9B58E", fontSize: 15, lineHeight: 1.7, maxWidth: 600, margin: "0 auto" }}>
@@ -3415,8 +3402,8 @@ function DialectPlatformContent() {
                   className="about-curator-card"
                   style={{ borderColor: `${d.color}66`, background: `${d.color}11` }}
                 >
-                  <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 22, fontWeight: 700, color: d.color, marginBottom: 4 }}>{d.chinese}</div>
-                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 17, fontWeight: 700, color: "#F5E6C8", marginBottom: 8 }}>
+                  <div style={{ fontFamily: "var(--font-chinese)", fontSize: 22, fontWeight: 700, color: d.color, marginBottom: 4 }}>{d.chinese}</div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 17, fontWeight: 700, color: "#F5E6C8", marginBottom: 8 }}>
                     {d.name}<br />Curator
                   </div>
                   <div style={{ fontSize: 12, color: d.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>Volunteer &rarr;</div>
@@ -3427,7 +3414,7 @@ function DialectPlatformContent() {
 
           {/* 7. FAQ */}
           <div style={{ marginBottom: 64 }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>Frequently Asked</h2>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>Frequently Asked</h2>
             {[
               { q: "Is tiagong.sg free?", a: "Yes, completely free. This is a non-commercial project for cultural preservation — no paywalls, no ads." },
               { q: "Why these five dialects?", a: "Hokkien, Cantonese, Teochew, Hakka, and Hainanese are the major Chinese dialect groups in Singapore by historical immigration. They shaped the kopitiam, the wet market, and the family table." },
@@ -3460,7 +3447,7 @@ function DialectPlatformContent() {
 
           {/* 8. ROADMAP */}
           <div style={{ marginBottom: 64 }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>What's Next</h2>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>What's Next</h2>
             <div style={{ background: "white", borderRadius: 16, padding: "28px 32px", border: "1px solid #F0E8DA", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
                 {[
@@ -3470,7 +3457,7 @@ function DialectPlatformContent() {
                   ["Community meetups", "In-person practice sessions co-hosted with clan associations (huay kuan)."],
                 ].map(([title, desc]) => (
                   <li key={title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                    <span style={{ color: "#C0392B", fontSize: 20, lineHeight: 1.2, flexShrink: 0 }}>›</span>
+                    <span style={{ color: "#C0392B", fontSize: 20, lineHeight: 1.2, flexShrink: 0 }}><ChevronRight size={16} /></span>
                     <div>
                       <div style={{ fontWeight: 700, color: "#1A1208", marginBottom: 2, fontSize: 15 }}>{title}</div>
                       <div style={{ color: "#6B5B45", lineHeight: 1.6, fontSize: 14 }}>{desc}</div>
@@ -3483,7 +3470,7 @@ function DialectPlatformContent() {
 
           {/* 9. GET IN TOUCH */}
           <div style={{ marginBottom: 64 }}>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>Get In Touch</h2>
+            <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>Get In Touch</h2>
             <div style={{ background: "white", borderRadius: 16, padding: "28px 32px", border: "1px solid #F0E8DA", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
               <p style={{ color: "#6B5B45", fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
                 Email us directly at{" "}
@@ -3592,7 +3579,7 @@ Best regards,
 
           {/* 10. MULTI-CTA FOOTER BANNER */}
           <div style={{ background: "linear-gradient(135deg, #1A1208 0%, #2C1810 50%, #3D1F10 100%)", borderRadius: 20, padding: "40px 32px", textAlign: "center", border: "1px solid #3D2A18" }}>
-            <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 700, color: "#F5E6C8", marginBottom: 10 }}>
+            <h3 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 700, color: "#F5E6C8", marginBottom: 10 }}>
               Ready to <em style={{ color: "#C0392B" }}>tiagong</em>?
             </h3>
             <p style={{ color: "#C9B58E", fontSize: 14, marginBottom: 24 }}>
@@ -3613,7 +3600,7 @@ Best regards,
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={28} height={28} style={{ width: 28, height: 28 }} />
-              <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagong.sg</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagong.sg</div>
             </div>
             <p style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.7 }}>
               Preserving Singapore's Chinese dialect heritage — one phrase at a time.
