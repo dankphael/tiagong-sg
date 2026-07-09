@@ -3,7 +3,8 @@
 import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
+import { useApp } from "@/components/AppProvider";
 import { getAvatar } from "@/lib/avatar";
 import { buildIntroEmailUrl } from "@/lib/emailTemplate";
 import { hokkienFlashcards } from "@/data/flashcardsHokkien";
@@ -21,7 +22,7 @@ import {
   PenLine, Zap, Trophy, Repeat, GraduationCap, ChevronDown, ChevronUp, Check,
   Plus, Sparkles, FolderOpen, User, Languages, ScrollText, Info, LayoutGrid,
   Heart, Mic, Star, Clock, Compass, MessageCircle, Globe, Flame, CalendarDays,
-  ArrowRight, Filter, BookMarked, Handshake, Map, UserCheck, Home, Smile,
+  ArrowRight, ChevronRight, Filter, BookMarked, Handshake, Map, UserCheck, Home, Smile,
   Plane, Utensils, Briefcase, PawPrint, Coffee, CupSoda, Hash, Waves, Car,
   Palette, Ruler, Flag, PersonStanding, Package, Phone, Mail, Printer,
   ThumbsUp, Sprout, Landmark, Building2, Mars, Venus,
@@ -45,8 +46,20 @@ function DialectPlatformContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const {
+    currentUser, setCurrentUser, registeredUsers, setRegisteredUsers,
+    xp, setXp, streak, setStreak, dailyCompleted, setDailyCompleted, markDailyComplete,
+    progress, setProgress, knownCards, setKnownCards,
+    selectedDialect, setSelectedDialect,
+    apiWords, authError, setAuthError, successMessage, setSuccessMessage,
+    pendingGoogle, setPendingGoogle, awardXp,
+    handleGoogleSuccess: ctxHandleGoogleSuccess,
+    completeProfile: ctxCompleteProfile,
+    saveProfile: ctxSaveProfile,
+    handleLogout: ctxHandleLogout,
+  } = useApp();
+
   const [screen, setScreen] = useState("home"); // home | dialect | lesson | quiz
-  const [selectedDialect, setSelectedDialect] = useState(null);
   const [lessonMode, setLessonMode] = useState("flashcards"); // flashcards | situational-quiz | completing-sentence
   const [selectedCategory, setSelectedCategory] = useState("greetings");
   const [cardIndex, setCardIndex] = useState(0);
@@ -57,7 +70,6 @@ function DialectPlatformContent() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [quizShowResult, setQuizShowResult] = useState(false);
   const [quizState, setQuizState] = useState({ q: 0, score: 0, answered: null, done: false });
-  const [progress, setProgress] = useState({});
   const [networkView, setNetworkView] = useState("directory");
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
   const [requestModal, setRequestModal] = useState(null); // { user } when composing a mentorship request
@@ -71,18 +83,12 @@ function DialectPlatformContent() {
   const [disFlipped, setDisFlipped] = useState(false);
   const [disExpanded, setDisExpanded] = useState(null);
   const [networkFilter, setNetworkFilter] = useState("All");
-  const [currentUser, setCurrentUser] = useState(null);
-  const [registeredUsers, setRegisteredUsers] = useState([]);
   const [connections, setConnections] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", gender: "", dialectsKnown: [] });
   const [profileEditMode, setProfileEditMode] = useState(false);
-  const [pendingGoogle, setPendingGoogle] = useState(null); // { credential, googleData } when new Google user needs to complete profile
-  const [authError, setAuthError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
   const [situationalScore, setSituationalScore] = useState(0);
   const [sentenceScore, setSentenceScore] = useState(0);
-  const [knownCards, setKnownCards] = useState({});
   const [completionData, setCompletionData] = useState(null);
   const [aboutFaqOpen, setAboutFaqOpen] = useState(null);
   const [aboutStatsVisible, setAboutStatsVisible] = useState(false);
@@ -93,15 +99,26 @@ function DialectPlatformContent() {
   const [searchCategory, setSearchCategory] = useState("all");
   const [searchDifficulty, setSearchDifficulty] = useState("all");
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [searchSort, setSearchSort] = useState("relevance");
-  const [apiWords, setApiWords] = useState([]);
 
-  // XP & Level system
-  const [xp, setXp] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [dailyCompleted, setDailyCompleted] = useState(false);
+  function completeProfile() { return ctxCompleteProfile(profileForm); }
+  function saveProfile() { return ctxSaveProfile(profileForm).then(ok => { if (ok) setProfileEditMode(false); }); }
+  function handleGoogleSuccess(credentialResponse) {
+    return ctxHandleGoogleSuccess(credentialResponse).then(result => {
+      if (result?.needsProfile) {
+        setProfileForm(f => ({
+          ...f,
+          firstName: result.googleData.firstName || '',
+          lastName: result.googleData.lastName || '',
+          email: result.googleData.email || '',
+        }));
+        setScreen('profile');
+      } else if (result?.signedIn) {
+        setScreen('home');
+      }
+    });
+  }
 
   // Speed Round mode
   const [speedTimeLeft, setSpeedTimeLeft] = useState(60);
@@ -304,71 +321,6 @@ function DialectPlatformContent() {
     setReverseFlipped(false);
   }, [selectedDialect, selectedCategory]);
 
-  function completeProfile() {
-    if (!pendingGoogle) return;
-    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = profileForm;
-    setAuthError(null);
-    fetch('/api/auth/google', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        credential: pendingGoogle.credential,
-        profileData: { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown },
-      }),
-    })
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
-        if (!ok || !data.user) {
-          setAuthError(data.detail || data.error || 'Failed to complete profile');
-          return;
-        }
-        localStorage.setItem('auth_token', data.token);
-        setCurrentUser(data.user);
-        setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
-        setPendingGoogle(null);
-      })
-      .catch(err => {
-        console.error('Failed to complete profile:', err);
-        setAuthError('Network error');
-      });
-  }
-
-  function saveProfile() {
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = profileForm;
-    if (!gender) {
-      setAuthError('Please select your gender');
-      return;
-    }
-    setAuthError(null);
-    fetch('/api/users/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown }),
-    })
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
-        if (!ok) { setAuthError(data.error || 'Failed to save profile'); return; }
-        setCurrentUser(prev => ({
-          ...prev, firstName, lastName, age, occupation,
-          languageInterest, role, gender, dialectsKnown,
-          avatar: getAvatar(gender, role),
-        }));
-        setProfileEditMode(false);
-        // Refetch community profiles to reflect changes
-        fetch("/api/users/profiles")
-          .then(r => r.json())
-          .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
-          .catch(err => console.error('Failed to refresh profiles:', err));
-      })
-      .catch(() => setAuthError('Network error'));
-  }
-
-  function switchUser(user) {
-    setCurrentUser(user);
-  }
-
   async function loadConnections() {
     if (!currentUser) return;
     const token = localStorage.getItem('auth_token');
@@ -482,62 +434,9 @@ function DialectPlatformContent() {
     return 'none';
   }
 
-  function handleGoogleSuccess(credentialResponse) {
-    const credential = credentialResponse.credential;
-    setAuthError(null);
-    fetch('/api/auth/google', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential }),
-    })
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
-        if (!ok) {
-          setAuthError(data.detail || data.error || 'Google sign-in failed');
-          return;
-        }
-        if (data.needsProfile) {
-          setPendingGoogle({ credential, googleData: data.googleData });
-          setProfileForm(f => ({
-            ...f,
-            firstName: data.googleData.firstName || '',
-            lastName: data.googleData.lastName || '',
-            email: data.googleData.email || '',
-          }));
-          setScreen('profile');
-          return;
-        }
-        if (data.user) {
-          localStorage.setItem('auth_token', data.token);
-          setCurrentUser(data.user);
-          restoreProgress(data.user.progress);
-          if (data.user.xp != null) setXp(data.user.xp);
-          if (data.user.streak != null) setStreak(data.user.streak);
-          if (data.user.lastDailyDate) {
-            const today = new Date().toISOString().split('T')[0];
-            setDailyCompleted(data.user.lastDailyDate === today);
-          }
-          setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
-          setSuccessMessage(`Successfully signed in. Welcome, ${data.user.firstName}!`);
-          setScreen('home');
-          setTimeout(() => setSuccessMessage(null), 4000);
-        }
-      })
-      .catch(err => {
-        console.error('Google auth failed:', err);
-        setAuthError('Google sign-in failed');
-      });
-  }
-
   function handleLogout() {
-    localStorage.removeItem('auth_token');
-    setCurrentUser(null);
+    ctxHandleLogout();
     setProfileEditMode(false);
-    setPendingGoogle(null);
-    setAuthError(null);
-    setXp(0);
-    setStreak(0);
-    setDailyCompleted(false);
   }
 
   // Restore screen and dialect from URL on component mount
@@ -550,9 +449,9 @@ function DialectPlatformContent() {
     }
 
     if (dialectParam) {
-      const dialect = dialects.find(d => d.id === dialectParam);
-      if (dialect) {
-        setSelectedDialect(dialect);
+      const found = dialects.find(d => d.id === dialectParam);
+      if (found) {
+        setSelectedDialect(found.id);
       }
     }
   }, [searchParams]);
@@ -566,7 +465,7 @@ function DialectPlatformContent() {
     }
 
     if (selectedDialect) {
-      params.set('dialect', selectedDialect.id);
+      params.set('dialect', selectedDialect);
     }
 
     const query = params.toString();
@@ -603,89 +502,13 @@ function DialectPlatformContent() {
     return () => observer.disconnect();
   }, [screen, aboutStatsVisible]);
 
-  useEffect(() => {
-    fetch("/dictionary.json")
-      .then(r => r.json())
-      .then(data => setApiWords(data.words || []))
-      .catch(() => {});
-
-    fetch("/api/users/profiles")
-      .then(r => r.json())
-      .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
-      .catch(err => console.error('Failed to load profiles:', err));
-
-    // Restore session from stored token
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (data?.user) {
-            setCurrentUser(data.user);
-            restoreProgress(data.user.progress);
-            if (data.user.xp != null) setXp(data.user.xp);
-            if (data.user.streak != null) setStreak(data.user.streak);
-            // Check if daily was already completed today
-            if (data.user.lastDailyDate) {
-              const today = new Date().toISOString().split('T')[0];
-              setDailyCompleted(data.user.lastDailyDate === today);
-            }
-          } else {
-            localStorage.removeItem('auth_token');
-          }
-        })
-        .catch(() => {});
-    }
-  }, []);
+  // Bootstrap (dictionary fetch, community profiles, session restore) and
+  // debounced XP/progress persistence now live in AppProvider (src/components/AppProvider.js).
 
   // Load connections when entering Network screen
   useEffect(() => {
     if (screen === 'network' && currentUser) loadConnections();
   }, [screen, currentUser?.id]);
-
-  // Debounced save of learning progress to backend
-  useEffect(() => {
-    if (!currentUser) return;
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-    const tid = setTimeout(() => {
-      fetch('/api/users/progress', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          lastDialect: selectedDialect,
-          lastCategory: selectedCategory,
-          lessonMode,
-          cardIndex,
-          knownCards,
-          completedCategories: progress,
-          situationalQuizIndex,
-          situationalCueIndex,
-          situationalScore,
-          sentenceIndex,
-          sentenceScore,
-        }),
-      }).catch(() => {});
-    }, 1500);
-    return () => clearTimeout(tid);
-  }, [knownCards, progress, cardIndex, selectedDialect, selectedCategory, lessonMode,
-      situationalQuizIndex, situationalCueIndex, situationalScore,
-      sentenceIndex, sentenceScore, currentUser]);
-
-  // Debounced save of XP and streak to backend
-  useEffect(() => {
-    if (!currentUser) return;
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-    const tid = setTimeout(() => {
-      fetch('/api/users/xp', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ xp, streak }),
-      }).catch(() => {});
-    }, 1500);
-    return () => clearTimeout(tid);
-  }, [xp, streak, currentUser]);
 
   // Save daily completion date when daily challenge is completed
 
@@ -835,51 +658,7 @@ function DialectPlatformContent() {
   else if (searchSort === "frequency") filteredPhrases.sort((a, b) => (b.frequency || 0) - (a.frequency || 0));
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-
-      {/* NAVBAR */}
-      <nav style={{ background: "var(--color-dark)", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid var(--color-primary)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} onClick={() => setScreen("home")}>
-          <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={44} height={44} priority style={{ width: "auto", height: 44 }} />
-          <div>
-            <div style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: "var(--color-cream)", letterSpacing: 1 }}>tiagong.sg</div>
-            <div style={{ fontSize: 10, color: "var(--color-primary)", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
-          </div>
-        </div>
-        <div className={`nav-links${mobileMenuOpen ? " open" : ""}`}>
-          {[["home","Learn"],["search","Search"],["singlish","DialectsInSinglish"],["network","Network"],["associations","Associations"],["about","About"]].map(([s,label]) => (
-            <span key={s} className="nav-link" onClick={() => { setScreen(s); setMobileMenuOpen(false); }} style={{ color: screen === s ? "var(--color-cream)" : undefined, borderBottomColor: screen === s ? "var(--color-primary)" : undefined }}>
-              {label}
-            </span>
-          ))}
-          {selectedDialect && (
-            <span onClick={() => { setScreen("lesson"); setMobileMenuOpen(false); }} className="nav-link" style={{ color: "var(--color-primary)", fontStyle: "italic", display: "inline-flex", alignItems: "center", gap: 4 }}>
-              {dialect?.name} <ChevronDown size={14} style={{ marginBottom: -2 }} />
-            </span>
-          )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          {currentUser ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button onClick={() => { setScreen("profile"); setMobileMenuOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal" }}>
-                <User size={16} /> {currentUser.firstName}
-              </button>
-              <button onClick={handleLogout} className="btn-secondary" style={{ padding: "7px 14px", fontSize: 12 }}>
-                Sign Out
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => { setScreen("profile"); setMobileMenuOpen(false); }} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12 }}>
-              Sign In
-            </button>
-          )}
-          <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Toggle menu">
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </nav>
-
+    <>
       {/* HOME */}
       {screen === "home" && (
         <div>
@@ -1610,7 +1389,7 @@ function DialectPlatformContent() {
                           const correct = idx === q.correctIndex;
                           if (correct) {
                             setSpeedScore(s => s + 1);
-                            setXp(x => x + XP_REWARDS.speedRoundCorrect);
+                            awardXp(XP_REWARDS.speedRoundCorrect, 'speed round');
                           }
                           setSpeedQuestion(i => i + 1);
                         }}
@@ -1713,7 +1492,7 @@ function DialectPlatformContent() {
                             setQuizShowResult(true);
                             if (idx === q.correctIndex) {
                               setDailyScore(s => s + 1);
-                              setXp(x => x + XP_REWARDS.correctAnswer);
+                              awardXp(XP_REWARDS.correctAnswer, 'correct');
                             }
                           }}
                             style={{ padding: "14px 16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, cursor: quizShowResult ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
@@ -1731,7 +1510,7 @@ function DialectPlatformContent() {
                           setSelectedAnswer(null);
                           setQuizShowResult(false);
                         } else {
-                          setXp(x => x + XP_REWARDS.dailyComplete);
+                          awardXp(XP_REWARDS.dailyComplete, 'daily challenge complete');
                           // Calculate new streak
                           const today = new Date().toISOString().split('T')[0];
                           const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -1741,16 +1520,7 @@ function DialectPlatformContent() {
                             if (lastDate === yesterday || lastDate === today) return prev + 1;
                             return 1;
                           });
-                          setDailyCompleted(true);
-                          // Save lastDailyDate to backend
-                          const token = localStorage.getItem('auth_token');
-                          if (token) {
-                            fetch('/api/users/xp', {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                              body: JSON.stringify({ lastDailyDate: today }),
-                            }).catch(() => {});
-                          }
+                          markDailyComplete();
                           setDailyDone(true);
                         }
                       }}
@@ -1848,7 +1618,7 @@ function DialectPlatformContent() {
                         <button className="btn-hover" onClick={() => {
                           const key = `${selectedDialect}-reverse-${card.cardIndex}`;
                           setReverseKnown(prev => ({ ...prev, [key]: true }));
-                          setXp(x => x + XP_REWARDS.correctAnswer);
+                          awardXp(XP_REWARDS.correctAnswer, 'correct');
                           setReverseFlipped(false);
                           setTimeout(() => {
                             if (reverseIndex < reverseCards.length - 1) {
@@ -3802,47 +3572,7 @@ Best regards,
         </div>
       )}
 
-      <div style={{ background: "#1A1208", padding: "48px 32px 32px", borderTop: "3px solid #C0392B" }}>
-        <div className="footer-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
-          {/* Brand */}
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={28} height={28} style={{ width: 28, height: 28 }} />
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagong.sg</div>
-            </div>
-            <p style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.7 }}>
-              Preserving Singapore's Chinese dialect heritage — one phrase at a time.
-            </p>
-          </div>
-          {/* Quick links */}
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Explore</div>
-            {[["home","Learn Dialects"],["search","Search Phrases"],["singlish","Dialects in Singlish"],["associations","Clan Associations"],["about","About Us"]].map(([s,label]) => (
-              <div key={s} onClick={() => setScreen(s)} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, cursor: "pointer", transition: "color 0.15s" }}
-                onMouseEnter={e => e.target.style.color="#F5E6C8"} onMouseLeave={e => e.target.style.color="#8B7355"}>
-                {label}
-              </div>
-            ))}
-          </div>
-          {/* Dialects */}
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Dialects</div>
-            {dialects.map(d => (
-              <div key={d.id} onClick={() => { selectDialect(d.id); }} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, transition: "color 0.15s" }}
-                onMouseEnter={e => e.currentTarget.style.color="#F5E6C8"} onMouseLeave={e => e.currentTarget.style.color="#8B7355"}>
-                <span>{d.icon}</span> {d.name}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ maxWidth: 1100, margin: "24px auto 0", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
-          <p style={{ color: "#4A3A28", fontSize: 13, fontStyle: "italic" }}>
-            "A language lost is a culture lost." — Promote dialect preservation in Singapore.
-          </p>
-        </div>
-      </div>
-    </div>
-    </GoogleOAuthProvider>
+    </>
   );
 }
 

@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import { Geist, Geist_Mono, Cormorant_Garamond, Noto_Serif_SC } from "next/font/google";
 import "./globals.css";
+import { AppProvider } from "@/components/AppProvider";
+import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
+import { XpToastHost } from "@/components/XpToast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +48,16 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${notoSerifSC.variable}`}
     >
-      <body className="app-shell">{children}</body>
+      <body className="app-shell">
+        <AppProvider>
+          <Suspense fallback={null}>
+            <Nav />
+          </Suspense>
+          {children}
+          <Footer />
+          <XpToastHost />
+        </AppProvider>
+      </body>
     </html>
   );
 }
