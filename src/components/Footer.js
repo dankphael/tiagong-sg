@@ -19,7 +19,7 @@ export function Footer() {
         </div>
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Explore</div>
-          {[["/?screen=home", "Learn Dialects"], ["/?screen=search", "Search Phrases"], ["/?screen=singlish", "Dialects in Singlish"], ["/?screen=associations", "Clan Associations"], ["/?screen=about", "About Us"]].map(([href, label]) => (
+          {[["/?screen=home", "Learn Dialects"], ["/?screen=search", "Search Phrases"], ["/?screen=singlish", "Dialects in Singlish"], ["/associations", "Clan Associations"], ["/about", "About Us"]].map(([href, label]) => (
             <Link key={href} href={href} style={{ display: "block", color: "#8B7355", fontSize: 13, marginBottom: 8, textDecoration: "none", transition: "color 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.color = "#F5E6C8"} onMouseLeave={e => e.currentTarget.style.color = "#8B7355"}>
               {label}

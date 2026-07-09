@@ -15,8 +15,8 @@ const LINKS = [
   ["/?screen=search", "Search", "search"],
   ["/?screen=singlish", "Dialects in Singlish", "singlish"],
   ["/?screen=network", "Network", "network"],
-  ["/?screen=associations", "Associations", "associations"],
-  ["/?screen=about", "About", "about"],
+  ["/associations", "Associations", "associations"],
+  ["/about", "About", "about"],
 ];
 
 export function Nav() {
@@ -26,7 +26,7 @@ export function Nav() {
   const router = useRouter();
   const { currentUser, handleLogout, xp, streak, dailyCompleted } = useApp();
   const level = getLevel(xp);
-  const activeScreen = pathname === "/" ? (searchParams.get("screen") || "home") : null;
+  const activeScreen = pathname === "/" ? (searchParams.get("screen") || "home") : pathname.replace(/^\//, "");
 
   return (
     <nav style={{ background: "var(--color-dark)", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid var(--color-primary)" }}>
