@@ -58,8 +58,7 @@ function DialectPlatformContent() {
   const [quizShowResult, setQuizShowResult] = useState(false);
   const [quizState, setQuizState] = useState({ q: 0, score: 0, answered: null, done: false });
   const [progress, setProgress] = useState({});
-  const [networkTab, setNetworkTab] = useState("community");
-  const [sinSehTab, setSinSehTab] = useState("directory");
+  const [networkView, setNetworkView] = useState("directory");
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
   const [requestModal, setRequestModal] = useState(null); // { user } when composing a mentorship request
   const [requestMessage, setRequestMessage] = useState("");
@@ -2467,109 +2466,188 @@ function DialectPlatformContent() {
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Community</div>
             <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 48, color: "#1A1208", marginBottom: 12 }}>Network</h1>
-            <p style={{ color: "#8B7355", fontSize: 16, maxWidth: 560, margin: "0 auto" }}>Connect with fellow learners across Singapore. Find practice partners, share stories, and keep our dialects alive together.</p>
+            <p style={{ color: "#8B7355", fontSize: 16, maxWidth: 560, margin: "0 auto" }}>Connect with fellow learners and Sin Sehs (mentors) across Singapore. Keep our dialects alive together.</p>
           </div>
-          <div style={{ display: "flex", background: "#F0E8DA", borderRadius: 14, padding: 4, maxWidth: 500, margin: "0 auto 40px" }}>
-            {[["community","Community"],["sinseh","Sin Seh (Mentorship)"]].map(([tab, label]) => (
-              <button key={tab} className="tab-btn" onClick={() => setNetworkTab(tab)}
-                style={{ flex: 1, padding: "12px 16px", borderRadius: 10, background: networkTab === tab ? "#1A1208" : "transparent", color: networkTab === tab ? "#F5E6C8" : "#8B7355", fontSize: 14, fontWeight: 600 }}>
+
+          {/* Main view toggle */}
+          <div className="pill-toggle" style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 40, flexWrap: "wrap" }}>
+            {[["directory", "Find a Sin Seh"], ["mentorships", "My Mentorships"], ["everyone", "Everyone"]].map(([view, label]) => (
+              <button key={view} onClick={() => setNetworkView(view)} className={networkView === view ? "active" : ""}
+                style={{ padding: "11px 24px", borderRadius: 10, background: networkView === view ? "#C0392B" : "white", color: networkView === view ? "white" : "#6B5B45", fontSize: 14, border: "2px solid " + (networkView === view ? "#C0392B" : "#E8DDD0"), fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}>
                 {label}
+                {view === "mentorships" && pendingRequests.length > 0 && (
+                  <span style={{ marginLeft: 8, background: networkView === view ? "rgba(255,255,255,0.3)" : "#C0392B", color: "white", borderRadius: "50%", width: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
+                    {pendingRequests.length}
+                  </span>
+                )}
               </button>
             ))}
           </div>
-          {networkTab === "community" && (
+
+          {networkView === "directory" && (
             <div>
-              {connectError && (
-                <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 10, padding: "12px 16px", fontSize: 13, border: "1px solid #C0392B40", marginBottom: 20 }}>
-                  {connectError}
+              {/* Request modal overlay */}
+              {requestModal && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+                  <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 480, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
+                    <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 24 }}>
+                      <div style={{ fontSize: 36 }}>{requestModal.avatar}</div>
+                      <div>
+                        <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208" }}>Request {requestModal.firstName}</div>
+                        <div style={{ fontSize: 13, color: "#9B8B75" }}>Sin Seh · {requestModal.languageInterest}</div>
+                      </div>
+                    </div>
+                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Introduction (optional)</label>
+                    <textarea
+                      value={requestMessage}
+                      onChange={e => setRequestMessage(e.target.value)}
+                      maxLength={500}
+                      rows={4}
+                      placeholder="Tell this Sin Seh a little about yourself and why you want to learn..."
+                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 14, fontFamily: "inherit", background: "#FAF6F0", resize: "vertical", marginBottom: 20 }}
+                    />
+                    {connectError && (
+                      <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 8, padding: "10px 14px", fontSize: 13, marginBottom: 16, border: "1px solid #C0392B40" }}>
+                        {connectError}
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <button onClick={() => { setRequestModal(null); setRequestMessage(""); setConnectError(null); }}
+                        style={{ flex: 1, padding: "13px", borderRadius: 10, background: "#F5F0EA", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
+                        Cancel
+                      </button>
+                      <button onClick={async () => { const ok = await sendConnectRequest(requestModal.id, requestMessage); if (ok) { setRequestModal(null); setRequestMessage(""); } }}
+                        style={{ flex: 1, padding: "13px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Send Request
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 32 }}>
-                {["All", "Mentor", "Mentee"].map(f => (
-                  <button key={f} className="tab-btn" onClick={() => setNetworkFilter(f)}
-                    style={{ padding: "8px 16px", borderRadius: 20, background: networkFilter === f ? "#C0392B" : "white", color: networkFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (networkFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: networkFilter === f ? 600 : 400 }}>
+
+              {/* Hero banner */}
+              <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 24, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><GraduationCap size={48} /></div>
+                <div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
+                  <div style={{ fontSize: 14, color: "#A08060", marginTop: 4, marginBottom: 8 }}>Mentorship Programme · Completely Free</div>
+                  <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.7, maxWidth: 560 }}>Connect with native speakers who give their time freely. Find a mentor for your dialect journey below.</p>
+                </div>
+              </div>
+
+              {/* Role-aware CTA */}
+              {!currentUser ? (
+                <div style={{ background: "#FAF6F0", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, border: "1px dashed #D4C9B8" }}>
+                  <div style={{ fontSize: 14, color: "#8B7355" }}>Register your profile to access mentorship features.</div>
+                  <button onClick={() => setScreen("profile")} className="btn-hover"
+                    style={{ padding: "10px 20px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    Register Profile
+                  </button>
+                </div>
+              ) : (currentUser.role === "mentor" || currentUser.role === "both") ? (
+                <div style={{ background: "#FEF3E2", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 12, border: "1px solid #D4860B40" }}>
+                  <span style={{ display:"inline-flex", color:"var(--color-primary)" }}><UserCheck size={20} /></span>
+                  <div style={{ fontSize: 14, color: "#8B6020" }}>You are a <strong>Sin Seh</strong>. Mentees can find you here. Check <em>My Mentorships</em> to respond to requests.</div>
+                </div>
+              ) : (
+                <div style={{ background: "#EEF2FF", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 12, border: "1px solid #5B21B640" }}>
+                  <span style={{ fontSize: 20 }}><GraduationCap size={20} /></span>
+                  <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, their contact will be revealed.</div>
+                </div>
+              )}
+
+              {/* Dialect filter pills */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
+                {["All", "Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(f => (
+                  <button key={f} onClick={() => setSinSehDialectFilter(f)} className={sinSehDialectFilter === f ? "active" : ""}
+                    style={{ padding: "7px 16px", borderRadius: 20, background: sinSehDialectFilter === f ? "#C0392B" : "white", color: sinSehDialectFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (sinSehDialectFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: sinSehDialectFilter === f ? 600 : 400, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
                     {f}
                   </button>
                 ))}
               </div>
 
-              {registeredUsers.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}><Sprout size={40} /></div>
-                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
-                  <p style={{ fontSize: 14, marginBottom: 24 }}>Be the first to join the community and connect with dialect learners across Singapore.</p>
+              {connectError && (
+                <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 10, padding: "12px 16px", fontSize: 13, border: "1px solid #C0392B40", marginBottom: 20 }}>
+                  {connectError}
                 </div>
-              ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-                  {registeredUsers
-                    .filter(m => networkFilter === "All" || m.role === networkFilter.toLowerCase())
-                    .map(m => {
-                      const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
-                      const isCurrentUser = currentUser?.id === m.id;
-                      const connStatus = currentUser ? getConnectionStatus(m.id) : 'none';
+              )}
+
+              {(() => {
+                const sinSehs = registeredUsers.filter(u => (u.role === "mentor" || u.role === "both") && u.id !== currentUser?.id);
+                const filtered = sinSehDialectFilter === "All" ? sinSehs : sinSehs.filter(u => u.languageInterest === sinSehDialectFilter);
+                const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+
+                // Sort: dialect-match first
+                const sorted = filtered.sort((a, b) => {
+                  const aMatches = currentUser?.languageInterest === a.languageInterest;
+                  const bMatches = currentUser?.languageInterest === b.languageInterest;
+                  return bMatches - aMatches;
+                });
+
+                return filtered.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><UserCheck size={40} /></div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No Sin Sehs yet</div>
+                    <p style={{ fontSize: 14 }}>{sinSehDialectFilter !== "All" ? `No mentors available for ${sinSehDialectFilter} yet.` : "Be the first — set your role to Mentor in your Profile."}</p>
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+                    {sorted.map(m => {
                       const dialectColor = dColors[m.languageInterest] || "#8B7355";
+                      const status = currentUser ? getConnectionStatus(m.id) : 'none';
+                      const isDialectMatch = currentUser?.languageInterest === m.languageInterest;
                       return (
-                        <div key={m.id} style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.06)", border: "1px solid " + (connStatus === 'accepted' ? "#1A6B3C40" : "#F0E8DA"), display: "flex", flexDirection: "column", gap: 12 }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                              <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
-                              <div>
-                                <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
-                                <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
-                              </div>
+                        <div key={m.id} className="card" style={{ padding: 28, position: "relative" }}>
+                          {isDialectMatch && currentUser && (
+                            <div style={{ position: "absolute", top: 12, right: 12, fontSize: 11, background: "#1A6B3C", color: "white", padding: "4px 8px", borderRadius: 6, fontWeight: 700 }}>
+                              Matches your dialect ✓
                             </div>
-                            <div style={{ fontSize: 11, background: m.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: m.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
-                              {m.role}
+                          )}
+                          <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
+                            <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
+                              <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
                             </div>
                           </div>
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
+                          <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+                            <span style={{ fontSize: 12, background: dialectColor + "18", color: dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
+                            <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Sin Seh</span>
                           </div>
-                          {connStatus === 'accepted' ? (
-                            <div style={{ marginTop: 4, padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
+                          {status === 'accepted' ? (
+                            <div style={{ padding: "12px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
                               Connected · <a href={buildIntroEmailUrl(currentUser, m)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 400, color: "#1A6B3C", textDecoration: "underline" }}>{m.email}</a>
                             </div>
-                          ) : isCurrentUser ? (
-                            <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#9B8B75", fontSize: 13, textAlign: "center" }}>
-                              This is you
-                            </div>
-                          ) : !currentUser ? (
-                            <button className="btn-hover" onClick={() => setScreen("profile")}
-                              style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                              Register to Connect
-                            </button>
-                          ) : connStatus === 'sent' ? (
-                            <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
+                          ) : status === 'sent' ? (
+                            <div style={{ padding: "12px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
                               Request Sent ✓
                             </div>
-                          ) : connStatus === 'received' ? (
-                            <button className="btn-hover" onClick={() => { setNetworkTab("sinseh"); setSinSehTab("mentorships"); }}
-                              style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#5B21B6", color: "white", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          ) : status === 'received' ? (
+                            <button className="btn-hover" onClick={() => setNetworkView("mentorships")}
+                              style={{ width: "100%", padding: "12px", borderRadius: 10, background: "#5B21B6", color: "white", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                               Respond to their request <ArrowRight size={15} />
                             </button>
+                          ) : !currentUser ? (
+                            <button className="btn-hover" onClick={() => setScreen("profile")}
+                              style={{ width: "100%", padding: "12px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                              Register to Connect
+                            </button>
                           ) : (
-                            <button className="btn-hover" onClick={() => sendConnectRequest(m.id)}
-                              style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                              Send Connect Request
+                            <button className="btn-hover" onClick={() => { setRequestModal(m); setRequestMessage(""); }}
+                              style={{ width: "100%", padding: "12px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                              Request Mentorship
                             </button>
                           )}
                         </div>
                       );
                     })}
-                </div>
-              )}
-
-              <div style={{ marginTop: 48, background: "linear-gradient(135deg, #1A1208, #2C1810)", borderRadius: 20, padding: "40px 32px", textAlign: "center" }}>
-                <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#F5E6C8", marginBottom: 8 }}>Add yourself to the community</div>
-                <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>Register your profile to appear as a member and connect with learners across Singapore.</p>
-                <button className="btn-hover" onClick={() => setScreen("profile")}
-                  style={{ background: "#C0392B", color: "white", border: "none", padding: "14px 36px", borderRadius: 10, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}>
-                  {currentUser ? "View Your Profile" : "Join the Network"}
-                </button>
-              </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
-          {networkTab === "sinseh" && (
+
+          {networkView === "mentorships" && (
             <div style={{ position: "relative" }}>
               {/* Request modal overlay */}
               {requestModal && (
@@ -2666,101 +2744,43 @@ function DialectPlatformContent() {
                   <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, their contact will be revealed.</div>
                 </div>
               )}
+            </div>
+          )}
 
-              {/* Sub-tab toggles */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 32 }}>
-                {[["directory", "Find a Sin Seh"], ["mentorships", "My Mentorships"]].map(([tab, label]) => (
-                  <button key={tab} className="tab-btn" onClick={() => setSinSehTab(tab)}
-                    style={{ padding: "11px 24px", borderRadius: 10, background: sinSehTab === tab ? "#C0392B" : "white", color: sinSehTab === tab ? "white" : "#6B5B45", fontSize: 14, border: "2px solid " + (sinSehTab === tab ? "#C0392B" : "#E8DDD0"), fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                    {label}
-                    {tab === "mentorships" && pendingRequests.length > 0 && (
-                      <span style={{ background: sinSehTab === tab ? "rgba(255,255,255,0.3)" : "#C0392B", color: "white", borderRadius: "50%", width: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
-                        {pendingRequests.length}
-                      </span>
+          {networkView === "mentorships" && (
+            <div>
+              {/* Remove modal overlay */}
+              {removeConfirm && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+                  <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 420, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
+                    <p style={{ fontSize: 14, color: "#6B5B45", marginBottom: 24, lineHeight: 1.6 }}>
+                      This will disconnect you from <strong>{removeConfirm.name}</strong>. You can always send a new connection request later.
+                    </p>
+                    {connectError && (
+                      <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 8, padding: "10px 14px", fontSize: 13, marginBottom: 16, border: "1px solid #C0392B40" }}>
+                        {connectError}
+                      </div>
                     )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Sub-tab A: Find a Sin Seh */}
-              {sinSehTab === "directory" && (() => {
-                const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
-                const sinSehs = registeredUsers.filter(u => (u.role === "mentor" || u.role === "both") && u.id !== currentUser?.id);
-                const filtered = sinSehDialectFilter === "All" ? sinSehs : sinSehs.filter(u => u.languageInterest === sinSehDialectFilter);
-                return (
-                  <div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
-                      {["All", "Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(f => (
-                        <button key={f} onClick={() => setSinSehDialectFilter(f)}
-                          style={{ padding: "7px 16px", borderRadius: 20, background: sinSehDialectFilter === f ? "#C0392B" : "white", color: sinSehDialectFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (sinSehDialectFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: sinSehDialectFilter === f ? 600 : 400, cursor: "pointer", fontFamily: "inherit" }}>
-                          {f}
-                        </button>
-                      ))}
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <button onClick={() => setRemoveConfirm(null)}
+                        style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#F5F0EA", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
+                        Cancel
+                      </button>
+                      <button onClick={() => removeConnection(removeConfirm.id)}
+                        style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                        Remove
+                      </button>
                     </div>
-                    {filtered.length === 0 ? (
-                      <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
-                        <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><UserCheck size={40} /></div>
-                        <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No Sin Sehs yet</div>
-                        <p style={{ fontSize: 14 }}>{sinSehDialectFilter !== "All" ? `No mentors available for ${sinSehDialectFilter} yet.` : "Be the first — set your role to Mentor in your Profile."}</p>
-                      </div>
-                    ) : (
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
-                        {filtered.map(m => {
-                          const dialectColor = dColors[m.languageInterest] || "#8B7355";
-                          const status = currentUser ? getConnectionStatus(m.id) : 'none';
-                          return (
-                            <div key={m.id} style={{ background: "white", borderRadius: 20, padding: 28, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid " + (status === 'accepted' ? "#1A6B3C40" : "#F0E8DA"), display: "flex", flexDirection: "column", gap: 14 }}>
-                              <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                                <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
-                                <div>
-                                  <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
-                                  <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
-                                </div>
-                              </div>
-                              <div style={{ display: "flex", gap: 6 }}>
-                                <span style={{ fontSize: 12, background: dialectColor + "18", color: dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
-                                <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Sin Seh</span>
-                              </div>
-                              {status === 'accepted' ? (
-                                <div style={{ padding: "12px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
-                                  Connected · <a href={buildIntroEmailUrl(currentUser, m)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 400, color: "#1A6B3C", textDecoration: "underline" }}>{m.email}</a>
-                                </div>
-                              ) : status === 'sent' ? (
-                                <div style={{ padding: "12px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
-                                  Request Sent ✓
-                                </div>
-                              ) : status === 'received' ? (
-                                <button className="btn-hover" onClick={() => setSinSehTab("mentorships")}
-                                  style={{ padding: "12px", borderRadius: 10, background: "#5B21B6", color: "white", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                                  Respond to their request <ArrowRight size={15} />
-                                </button>
-                              ) : !currentUser ? (
-                                <button className="btn-hover" onClick={() => setScreen("profile")}
-                                  style={{ padding: "12px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                                  Register to Connect
-                                </button>
-                              ) : (
-                                <button className="btn-hover" onClick={() => { setRequestModal(m); setRequestMessage(""); }}
-                                  style={{ padding: "12px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                                  Request Mentorship
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
-              {/* Sub-tab B: My Mentorships */}
-              {sinSehTab === "mentorships" && (() => {
+              {(() => {
                 const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
                 const incoming = pendingRequests;
                 const sent = connections.filter(c => c.requester_id === currentUser?.id && c.status === 'pending');
                 const active = connections.filter(c => c.status === 'accepted');
-                const hasPending = incoming.length > 0 || sent.length > 0;
                 const hasAny = incoming.length > 0 || sent.length > 0 || active.length > 0;
                 return (
                   <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
@@ -2787,7 +2807,7 @@ function DialectPlatformContent() {
                         <div style={{ fontSize: 48, marginBottom: 16 }}><Sprout size={40} /></div>
                         <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No mentorships yet</div>
                         <p style={{ fontSize: 14, marginBottom: 24 }}>Browse Sin Sehs and send a request to get started.</p>
-                        <button onClick={() => setSinSehTab("directory")} className="btn-hover"
+                        <button onClick={() => setNetworkView("directory")} className="btn-hover"
                           style={{ background: "#C0392B", color: "white", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
                           Find a Sin Seh
                         </button>
@@ -2801,7 +2821,7 @@ function DialectPlatformContent() {
                               {incoming.map(r => {
                                 const dialectColor = dColors[r.language_interest] || "#8B7355";
                                 return (
-                                  <div key={r.id} style={{ background: "white", borderRadius: 16, padding: "20px 24px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "2px solid #E8DDD0", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                                  <div key={r.id} className="card" style={{ padding: "20px 24px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
                                     <div style={{ flex: 1, minWidth: 200 }}>
                                       <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{r.first_name} {r.last_name}</div>
                                       <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 8 }}>Age {r.age} · {r.occupation}</div>
@@ -2832,7 +2852,7 @@ function DialectPlatformContent() {
                             <div style={{ fontSize: 11, letterSpacing: 3, color: "#8B7355", textTransform: "uppercase", marginBottom: 16, fontWeight: 700 }}>Sent Requests ({sent.length})</div>
                             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                               {sent.map(c => (
-                                <div key={c.id} style={{ background: "#FEF9F0", borderRadius: 16, padding: "20px 24px", border: "1px solid #D4860B30", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                                <div key={c.id} className="card" style={{ padding: "20px 24px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", background: "#FEF9F0", borderColor: "#D4860B30" }}>
                                   <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
                                     <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "3px 8px", borderRadius: 8, fontWeight: 700 }}>Sin Seh · {c.connected_user_dialect}</span>
@@ -2862,21 +2882,21 @@ function DialectPlatformContent() {
                                     {validMentorships.map(c => {
                                       const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
                                       return (
-                                        <div key={c.id} style={{ background: "white", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "1px solid #1A6B3C30", display: "flex", flexDirection: "column", gap: 10 }}>
-                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                        <div key={c.id} className="card" style={{ padding: 24 }}>
+                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                                             <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
                                             <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
                                               {c.connected_user_role}
                                             </span>
                                           </div>
                                           {c.connected_user_dialect && (
-                                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, alignSelf: "flex-start" }}>{c.connected_user_dialect}</span>
+                                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, display: "block", marginBottom: 10 }}>{c.connected_user_dialect}</span>
                                           )}
-                                          <div style={{ padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
+                                          <div style={{ padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 8 }}>
                                             {c.connected_user_email}
                                           </div>
                                           <button onClick={() => setRemoveConfirm({ id: c.id, name: c.connected_user_name })} className="btn-hover"
-                                            style={{ marginTop: 8, padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                                            style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                                             Remove Connection
                                           </button>
                                         </div>
@@ -2895,21 +2915,21 @@ function DialectPlatformContent() {
                                     {lapsedMentorships.map(c => {
                                       const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
                                       return (
-                                        <div key={c.id} style={{ background: "#FAFAF9", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.03)", border: "1px solid #E8DDD0", display: "flex", flexDirection: "column", gap: 10, opacity: 0.7 }}>
-                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                        <div key={c.id} className="card" style={{ padding: 24, opacity: 0.7 }}>
+                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                                             <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
                                             <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
                                               {c.connected_user_role}
                                             </span>
                                           </div>
                                           {c.connected_user_dialect && (
-                                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, alignSelf: "flex-start" }}>{c.connected_user_dialect}</span>
+                                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, display: "block", marginBottom: 10 }}>{c.connected_user_dialect}</span>
                                           )}
-                                          <div style={{ padding: "10px 14px", borderRadius: 10, background: "#F5F0EA", border: "1px solid #E8DDD0", fontSize: 13, color: "#6B5B45", fontWeight: 600 }}>
+                                          <div style={{ padding: "10px 14px", borderRadius: 10, background: "#F5F0EA", border: "1px solid #E8DDD0", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>
                                             {c.connected_user_email}
                                           </div>
                                           <button onClick={() => setRemoveConfirm({ id: c.id, name: c.connected_user_name })} className="btn-hover"
-                                            style={{ marginTop: 8, padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                                            style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                                             Remove Connection
                                           </button>
                                         </div>
@@ -2928,21 +2948,99 @@ function DialectPlatformContent() {
               })()}
             </div>
           )}
+
+          {networkView === "everyone" && (
+            <div>
+              {connectError && (
+                <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 10, padding: "12px 16px", fontSize: 13, border: "1px solid #C0392B40", marginBottom: 20 }}>
+                  {connectError}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginBottom: 32 }}>
+                {["All", "Mentor", "Mentee"].map(f => (
+                  <button key={f} className="pill-toggle" onClick={() => setNetworkFilter(f)}
+                    style={{ padding: "8px 16px", borderRadius: 20, background: networkFilter === f ? "#C0392B" : "white", color: networkFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (networkFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: networkFilter === f ? 600 : 400, cursor: "pointer" }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+
+              {registeredUsers.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                  <div style={{ display:"flex", justifyContent:"center", marginBottom:16, color:"var(--color-primary)" }}><Sprout size={40} /></div>
+                  <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
+                  <p style={{ fontSize: 14 }}>Be the first to join the community and connect with fellow dialect learners.</p>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+                  {registeredUsers
+                    .filter(m => networkFilter === "All" || m.role === networkFilter.toLowerCase())
+                    .map(m => {
+                      const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+                      const isCurrentUser = currentUser?.id === m.id;
+                      const connStatus = currentUser ? getConnectionStatus(m.id) : 'none';
+                      const dialectColor = dColors[m.languageInterest] || "#8B7355";
+                      return (
+                        <div key={m.id} className="card" style={{ padding: 24 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                              <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                              <div>
+                                <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
+                                <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 11, background: m.role === "mentor" ? "#FEF3E2" : m.role === "both" ? "#E8D5F2" : m.role === "none" ? "#F0E8DA" : "#EEF2FF", color: m.role === "mentor" ? "#D4860B" : m.role === "both" ? "#6B21A8" : m.role === "none" ? "#6B5B45" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                              {m.role}
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                            <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest || "—"}</span>
+                          </div>
+                          {connStatus === 'accepted' ? (
+                            <div style={{ marginTop: 4, padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
+                              Connected · <a href={buildIntroEmailUrl(currentUser, m)} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 400, color: "#1A6B3C", textDecoration: "underline" }}>{m.email}</a>
+                            </div>
+                          ) : isCurrentUser ? (
+                            <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#9B8B75", fontSize: 13, textAlign: "center" }}>
+                              This is you
+                            </div>
+                          ) : !currentUser ? (
+                            <button className="btn-hover" onClick={() => setScreen("profile")}
+                              style={{ marginTop: 4, width: "100%", padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                              Register to Connect
+                            </button>
+                          ) : connStatus === 'sent' ? (
+                            <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
+                              Request Sent ✓
+                            </div>
+                          ) : connStatus === 'received' ? (
+                            <button className="btn-hover" onClick={() => setNetworkView("mentorships")}
+                              style={{ marginTop: 4, width: "100%", padding: "10px", borderRadius: 10, background: "#5B21B6", color: "white", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                              Respond to their request <ArrowRight size={15} />
+                            </button>
+                          ) : (
+                            <button className="btn-hover" onClick={() => sendConnectRequest(m.id)}
+                              style={{ marginTop: 4, width: "100%", padding: "10px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                              Send Connect Request
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-
       {screen === "profile" && (
-        <div style={{ maxWidth: 640, margin: "0 auto", padding: "48px 24px" }} className="fade-up">
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
-            <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Your Account</div>
-            <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 44, color: "#1A1208", marginBottom: 12 }}>Profile</h1>
-          </div>
-
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px" }} className="fade-up">
           {currentUser ? (
             <div className="fade-up">
               {profileEditMode ? (
-                <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA" }}>
+                <div className="card" style={{ padding: 32 }}>
                   <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
 
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
@@ -2950,8 +3048,7 @@ function DialectPlatformContent() {
                       ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
                       <div key={label}>
                         <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                        <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
-                          style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 14, fontFamily: "inherit", outline: "none", background: "#FAF6F0", boxSizing: "border-box" }} />
+                        <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
                       </div>
                     ))}
                   </div>
@@ -2960,15 +3057,14 @@ function DialectPlatformContent() {
                     ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, val, setter]) => (
                     <div key={label} style={{ marginBottom: 16 }}>
                       <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                      <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
-                        style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                      <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
                     </div>
                   ))}
 
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
-                    <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
-                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                    <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))} className="input"
+                      style={{ height: 44 }}>
                       <option value="">—  Not interested in learning</option>
                       {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
                     </select>
@@ -2976,7 +3072,7 @@ function DialectPlatformContent() {
 
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</label>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    <div className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => {
                         const checked = (profileForm.dialectsKnown || []).includes(d);
                         return (
@@ -2987,6 +3083,7 @@ function DialectPlatformContent() {
                                 ? f.dialectsKnown.filter(x => x !== d)
                                 : [...(f.dialectsKnown || []), d],
                             }))}
+                            className={checked ? "active" : ""}
                             style={{ padding: "8px 16px", borderRadius: 20, border: "2px solid " + (checked ? "#C0392B" : "#E8DDD0"), background: checked ? "#FDF0EF" : "white", color: checked ? "#C0392B" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
                             {checked ? "✓ " : ""}{d}
                           </button>
@@ -3010,12 +3107,12 @@ function DialectPlatformContent() {
 
                   <div style={{ marginBottom: 28 }}>
                     <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I am a</label>
-                    <div style={{ display: "flex", gap: 12 }}>
-                      {[["mentee", "Mentee", "I want to learn dialects"], ["mentor", "Mentor", "I can teach others"]].map(([val, label, sub]) => {
-                        const emoji = getAvatar(profileForm.gender, val);
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                      {[["mentee", "Mentee", "Learn dialects"], ["mentor", "Mentor", "Teach as a Sin Seh"], ["both", "Both", "Learn & teach"], ["none", "Observer", "Just exploring"]].map(([val, label, sub]) => {
+                        const emoji = val === "both" || val === "none" ? "👤" : getAvatar(profileForm.gender, val);
                         return (
                           <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
-                            style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                            style={{ flex: 1, minWidth: 120, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
                             <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
                             <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
                             <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
@@ -3026,74 +3123,165 @@ function DialectPlatformContent() {
                   </div>
 
                   <div style={{ display: "flex", gap: 12 }}>
-                    <button className="btn-hover" onClick={saveProfile}
-                      style={{ flex: 1, padding: "12px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    <button className="btn-primary" onClick={saveProfile} style={{ flex: 1 }}>
                       Save Changes
                     </button>
-                    <button className="btn-hover" onClick={() => { setProfileEditMode(false); setAuthError(null); }}
-                      style={{ padding: "12px 20px", background: "white", color: "#6B5B45", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    <button className="btn-secondary" onClick={() => { setProfileEditMode(false); setAuthError(null); }}>
                       Cancel
                     </button>
                   </div>
                 </div>
               ) : (
-                <div style={{ background: "white", borderRadius: 20, padding: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", border: "1px solid #F0E8DA", marginBottom: 24 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-                    <div style={{ fontSize: 56, background: "#FAF6F0", borderRadius: "50%", width: 72, height: 72, display: "flex", alignItems: "center", justifyContent: "center" }}>{currentUser.avatar}</div>
-                    <div>
-                      <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>{currentUser.firstName} {currentUser.lastName}</div>
-                      <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 2 }}>{currentUser.occupation}{currentUser.age ? ` · Age ${currentUser.age}` : ""}</div>
-                      <div style={{ display: "inline-block", marginTop: 6, fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : "#5B21B6", padding: "3px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 0, fontSize: 14, color: "#6B5B45" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
-                      <span style={{ fontWeight: 600 }}>Email</span><span>{currentUser.email}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
-                      <span style={{ fontWeight: 600 }}>Learning</span><span>{currentUser.languageInterest || "—"}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 0", borderBottom: "1px solid #F0E8DA" }}>
-                      <span style={{ fontWeight: 600 }}>Dialects known</span>
-                      <span style={{ textAlign: "right" }}>
-                        {(currentUser.dialectsKnown || []).length > 0
-                          ? currentUser.dialectsKnown.join(", ")
-                          : <span style={{ color: "#B8A898" }}>None listed</span>}
-                      </span>
-                    </div>
-                  </div>
-                  <button className="btn-hover"
-                    onClick={() => {
-                      setProfileForm({
-                        firstName: currentUser.firstName || '',
-                        lastName: currentUser.lastName || '',
-                        age: currentUser.age || '',
-                        occupation: currentUser.occupation || '',
-                        email: currentUser.email || '',
-                        languageInterest: currentUser.languageInterest || '',
-                        gender: currentUser.gender || '',
-                        role: currentUser.role || 'mentee',
-                        dialectsKnown: currentUser.dialectsKnown || [],
-                      });
-                      setProfileEditMode(true);
-                    }}
-                    style={{ marginTop: 24, width: "100%", padding: "12px", background: "#FAF6F0", color: "#1A1208", border: "2px solid #E8DDD0", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    Edit Profile
-                  </button>
-                  <button className="btn-hover" onClick={handleLogout}
-                    style={{ marginTop: 10, width: "100%", padding: "12px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    Sign Out
-                  </button>
+                <div>
+                  {(() => {
+                    const level = getLevel(xp);
+                    const nextLevel = getNextLevel(xp);
+                    const progress = getLevelProgress(xp);
+                    const dialectObj = currentUser.languageInterest ? dialects.find(d => d.name === currentUser.languageInterest) : null;
+                    const ringColor = dialectObj?.color || "#C0392B";
+
+                    return (
+                      <>
+                        {/* Identity Header */}
+                        <div className="card" style={{ padding: 28, marginBottom: 20 }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginBottom: 24 }}>
+                            <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              <div style={{ position: "absolute", width: 88, height: 88, borderRadius: "50%", background: ringColor + "20", border: "3px solid " + ringColor }}></div>
+                              <div style={{ fontSize: 56, zIndex: 1 }}>{currentUser.avatar}</div>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 2 }}>{currentUser.firstName} {currentUser.lastName}</div>
+                              <div style={{ fontSize: 14, color: "#8B7355", marginBottom: 12 }}>{currentUser.occupation}{currentUser.age ? ` · Age ${currentUser.age}` : ""}</div>
+                              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
+                                {level && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 10, background: level.color + "20", color: level.color, fontWeight: 700, fontSize: 12 }}>
+                                    <span>{level.icon}</span>{level.name}
+                                  </div>
+                                )}
+                                <div style={{ fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : currentUser.role === "both" ? "#E8D5F2" : currentUser.role === "none" ? "#F0E8DA" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : currentUser.role === "both" ? "#6B21A8" : currentUser.role === "none" ? "#6B5B45" : "#5B21B6", padding: "4px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", gap: 8 }}>
+                            <button className="btn-secondary" onClick={() => {
+                              setProfileForm({
+                                firstName: currentUser.firstName || '',
+                                lastName: currentUser.lastName || '',
+                                age: currentUser.age || '',
+                                occupation: currentUser.occupation || '',
+                                email: currentUser.email || '',
+                                languageInterest: currentUser.languageInterest || '',
+                                gender: currentUser.gender || '',
+                                role: currentUser.role || 'mentee',
+                                dialectsKnown: currentUser.dialectsKnown || [],
+                              });
+                              setProfileEditMode(true);
+                            }} style={{ flex: 1 }}>
+                              Edit Profile
+                            </button>
+                            <button className="btn-ghost" onClick={handleLogout} style={{ flex: 1 }}>
+                              Sign Out
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Learning Journey */}
+                        {currentUser.languageInterest && (
+                          <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+                            <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Learning Journey</div>
+                            {nextLevel ? (
+                              <>
+                                <div style={{ marginBottom: 12 }}>
+                                  <div style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>
+                                    Progress to {nextLevel.name}
+                                  </div>
+                                  <div className="progress" style={{ height: 8 }}>
+                                    <div className="progress-fill" style={{ width: progress + "%", background: level?.color || "#C0392B" }}></div>
+                                  </div>
+                                  <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 6 }}>
+                                    {xp} XP · {nextLevel.minXP - xp} XP to {nextLevel.name}
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <div style={{ fontSize: 12, color: "#1A6B3C", fontWeight: 600 }}>Max level reached!</div>
+                            )}
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 16 }}>
+                              <div style={{ background: "#FAF6F0", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                                <div style={{ fontSize: 11, color: "#6B5B45", marginBottom: 4 }}>Streak</div>
+                                <div style={{ fontSize: 20, fontWeight: 700, color: "#C0392B" }}>
+                                  🔥 {streak}
+                                </div>
+                              </div>
+                              <div style={{ background: "#FAF6F0", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                                <div style={{ fontSize: 11, color: "#6B5B45", marginBottom: 4 }}>Total XP</div>
+                                <div style={{ fontSize: 20, fontWeight: 700, color: "#1A1208" }}>{xp}</div>
+                              </div>
+                              <div style={{ background: "#FAF6F0", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                                <div style={{ fontSize: 11, color: "#6B5B45", marginBottom: 4 }}>Dialects</div>
+                                <div style={{ fontSize: 20, fontWeight: 700, color: "#1A1208" }}>{(currentUser.dialectsKnown || []).length}</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* My Dialects */}
+                        <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+                          <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>My Dialects</div>
+
+                          {currentUser.languageInterest && (
+                            <div style={{ marginBottom: 20 }}>
+                              <div style={{ fontSize: 12, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Currently Learning</div>
+                              {dialectObj && <SealChip dialect={dialectObj} size="md" />}
+                              <button className="btn-primary" onClick={() => selectDialect(dialectObj?.id)} style={{ marginTop: 12, width: "100%", fontSize: 13 }}>
+                                Continue Learning
+                              </button>
+                            </div>
+                          )}
+
+                          <div>
+                            <div style={{ fontSize: 12, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Heritage — Dialects I Know</div>
+                            {(currentUser.dialectsKnown || []).length > 0 ? (
+                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                {currentUser.dialectsKnown.map(d => {
+                                  const dObj = dialects.find(x => x.name === d);
+                                  return dObj ? <SealChip key={d} dialect={dObj} size="md" /> : null;
+                                })}
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: 13, color: "#9B8B75", fontStyle: "italic" }}>
+                                Add dialects you know in your profile to celebrate your heritage.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Community Role */}
+                        <div className="card" style={{ padding: 24 }}>
+                          <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 12 }}>Community Role</div>
+                          <div style={{ fontSize: 14, color: "#1A1208", marginBottom: 8 }}>
+                            {currentUser.role === "mentor" && "You are a Sin Seh (先生) — an experienced mentor. Learners can find you in the Network directory."}
+                            {currentUser.role === "mentee" && "You are a learner. Browse Sin Sehs in the Network to find a mentor for your dialect journey."}
+                            {currentUser.role === "both" && "You are both a mentor and learner. Help others while continuing your own dialect journey."}
+                            {currentUser.role === "none" && "You're exploring the community. You can update your role anytime to connect with mentors or mentees."}
+                          </div>
+                          <button className="btn-primary" onClick={() => setScreen("network")} style={{ marginTop: 12, width: "100%" }}>
+                            Go to Network
+                          </button>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
           ) : pendingGoogle ? (
-            <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)" }}>
+            <div className="card" style={{ padding: 36 }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 6 }}>
-                Complete Your Profile
+                Complete Your Heritage Profile
               </div>
               <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 28 }}>
-                Signed in as <strong>{pendingGoogle.googleData.email}</strong>. Tell us a bit more about yourself.
+                Signed in as <strong>{pendingGoogle.googleData.email}</strong>. A language lost is a worldview lost. Let's start your dialect journey.
               </p>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
@@ -3101,8 +3289,7 @@ function DialectPlatformContent() {
                   ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
                   <div key={label}>
                     <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                    <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
-                      style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 14, fontFamily: "inherit", outline: "none", background: "#FAF6F0", boxSizing: "border-box" }} />
+                    <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
                   </div>
                 ))}
               </div>
@@ -3111,15 +3298,14 @@ function DialectPlatformContent() {
                 ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, val, setter]) => (
                 <div key={label} style={{ marginBottom: 16 }}>
                   <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                  <input type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label}
-                    style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", outline: "none", background: "#FAF6F0" }} />
+                  <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
                 </div>
               ))}
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
-                <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))}
-                  style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "2px solid #E8DDD0", fontSize: 15, fontFamily: "inherit", background: "#FAF6F0" }}>
+                <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))} className="input"
+                  style={{ height: 44 }}>
                   <option value="">—  Not interested in learning</option>
                   {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
                 </select>
@@ -3127,7 +3313,7 @@ function DialectPlatformContent() {
 
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <div className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => {
                     const checked = (profileForm.dialectsKnown || []).includes(d);
                     return (
@@ -3138,6 +3324,7 @@ function DialectPlatformContent() {
                             ? f.dialectsKnown.filter(x => x !== d)
                             : [...(f.dialectsKnown || []), d],
                         }))}
+                        className={checked ? "active" : ""}
                         style={{ padding: "8px 16px", borderRadius: 20, border: "2px solid " + (checked ? "#C0392B" : "#E8DDD0"), background: checked ? "#FDF0EF" : "white", color: checked ? "#C0392B" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
                         {checked ? "✓ " : ""}{d}
                       </button>
@@ -3161,33 +3348,32 @@ function DialectPlatformContent() {
 
               <div style={{ marginBottom: 28 }}>
                 <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I want to join as a</label>
-                <div style={{ display: "flex", gap: 12 }}>
-                  {[["mentee", "Mentee", "I want to learn dialects"], ["mentor", "Mentor", "I can teach others"]].map(([val, label, sub]) => {
-                    const emoji = getAvatar(profileForm.gender, val);
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                  {[["mentee", "Mentee", "Learn dialects"], ["mentor", "Mentor", "Teach as a Sin Seh"], ["both", "Both", "Learn & teach"], ["none", "Observer", "Just exploring"]].map(([val, label, sub]) => {
+                    const emoji = val === "both" || val === "none" ? "👤" : getAvatar(profileForm.gender, val);
                     return (
                       <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
-                        style={{ flex: 1, padding: "16px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
-                        <div style={{ fontSize: 28, marginBottom: 4 }}>{emoji}</div>
-                        <div style={{ fontWeight: 700, fontSize: 15, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
-                        <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                        style={{ flex: 1, minWidth: 100, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
+                        <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
+                        <div style={{ fontWeight: 700, fontSize: 13, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
+                        <div style={{ fontSize: 10, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <button className="btn-hover" onClick={completeProfile}
-                style={{ width: "100%", padding: "14px", background: "#C0392B", color: "white", border: "none", borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+              <button className="btn-primary" onClick={completeProfile} style={{ width: "100%" }}>
                 Complete Profile
               </button>
             </div>
           ) : (
-            <div style={{ background: "white", borderRadius: 20, padding: 36, boxShadow: "0 4px 20px rgba(0,0,0,0.07)", textAlign: "center" }}>
+            <div className="card" style={{ padding: 36, textAlign: "center" }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>
-                Sign In to Your Account
+                Welcome to tiagong.sg
               </div>
               <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 32 }}>
-                Use Google to sign in or create your tiagong.sg profile and connect with dialect learners across Singapore.
+                A language lost is a worldview lost. Sign in to start your dialect learning journey and connect with native speakers across Singapore.
               </p>
 
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>

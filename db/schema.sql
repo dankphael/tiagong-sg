@@ -11,6 +11,10 @@ CREATE TABLE users (
   gender ENUM('male', 'female'),
   dialect_group VARCHAR(100),
   dialects_known JSONB DEFAULT '[]',
+  progress JSONB DEFAULT '{}',
+  xp INT DEFAULT 0,
+  streak INT DEFAULT 0,
+  last_daily_date VARCHAR(20),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

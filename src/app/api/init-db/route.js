@@ -31,6 +31,9 @@ export async function GET(req) {
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS progress JSONB DEFAULT '{}'`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS dialects_known JSONB DEFAULT '[]'`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(50)`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS xp INT DEFAULT 0`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS streak INT DEFAULT 0`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_daily_date VARCHAR(20)`);
 
     await query(`
       CREATE TABLE IF NOT EXISTS connections (
@@ -43,6 +46,9 @@ export async function GET(req) {
         UNIQUE(requester_id, receiver_id)
       )
     `);
+
+    // Add message column to connections if it doesn't exist
+    await query(`ALTER TABLE connections ADD COLUMN IF NOT EXISTS message TEXT`);
 
     await query(`CREATE INDEX IF NOT EXISTS idx_users_dialect_group ON users(dialect_group)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
