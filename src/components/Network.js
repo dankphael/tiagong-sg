@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Mail } from 'lucide-react';
 import { getAvatar } from '@/lib/avatar';
 import { buildIntroEmailUrl } from '@/lib/emailTemplate';
 
@@ -124,7 +125,7 @@ export default function Network({ currentUser }) {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
-        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 48, color: '#1A1208' }}>Network</h1>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 48, color: '#1A1208' }}>Network</h1>
       </div>
 
       <div style={{ display: 'flex', background: '#F0E8DA', borderRadius: 14, padding: 4, maxWidth: 500, margin: '0 auto 40px' }}>
@@ -193,7 +194,7 @@ export default function Network({ currentUser }) {
                     {/* Email Privacy Rule */}
                     {shouldShowEmail(user.id) && (
                       <p style={{ fontSize: 12, color: '#C0392B', marginBottom: 12 }}>
-                        📧 <a href={buildIntroEmailUrl(currentUser, { ...user, firstName: user.first_name, languageInterest: user.dialect_group })} target="_blank" rel="noopener noreferrer" style={{ color: '#C0392B', textDecoration: 'underline' }}>{user.email}</a>
+                        <Mail size={13} /> <a href={buildIntroEmailUrl(currentUser, { ...user, firstName: user.first_name, languageInterest: user.dialect_group })} target="_blank" rel="noopener noreferrer" style={{ color: '#C0392B', textDecoration: 'underline' }}>{user.email}</a>
                       </p>
                     )}
 
@@ -354,7 +355,7 @@ export default function Network({ currentUser }) {
       {removeConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: 'white', borderRadius: 20, padding: 36, maxWidth: 420, width: '100%', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 22, color: '#1A1208', marginBottom: 12 }}>Disconnect?</div>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: '#1A1208', marginBottom: 12 }}>Disconnect?</div>
             <p style={{ fontSize: 14, color: '#6B5B45', marginBottom: 24, lineHeight: 1.6 }}>
               This will disconnect you from <strong>{removeConfirm.name}</strong>. You can always send a new connection request later.
             </p>

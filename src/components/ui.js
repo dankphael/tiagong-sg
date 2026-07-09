@@ -2,6 +2,107 @@
 
 import { useState, useEffect, useRef } from "react";
 
+/* ── SealChip ──
+   A refined Chinese-character seal for a dialect: the dialect's 方言
+   character on a tinted dialectColor background. Culturally grounded,
+   never an emoji. */
+export function SealChip({ dialect, size = "md", style }) {
+  const dims = size === "lg" ? 60 : size === "sm" ? 38 : 48;
+  const font = size === "lg" ? 26 : size === "sm" ? 17 : 22;
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: dims,
+        height: dims,
+        borderRadius: "var(--radius-md)",
+        background: dialect.bg || `${dialect.color}1A`,
+        color: dialect.color,
+        fontFamily: "var(--font-chinese)",
+        fontWeight: 700,
+        fontSize: font,
+        lineHeight: 1,
+        boxShadow: `inset 0 0 0 1.5px ${dialect.color}55`,
+        flexShrink: 0,
+        ...style,
+      }}
+    >
+      {dialect.chinese}
+    </span>
+  );
+}
+
+export function Badge({ children, color, style }) {
+  return (
+    <span
+      className="badge"
+      style={color ? { background: `${color}14`, color, borderColor: `${color}40` } : undefined}
+      {...style}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function Chip({ children, style }) {
+  return (
+    <span className="chip" style={style}>
+      {children}
+    </span>
+  );
+}
+
+export function SectionHeader({ eyebrow, title, subtitle, action, className }) {
+  return (
+    <div className={`section-header${className ? " " + className : ""}`}>
+      {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+      {title && <h2 className="heading">{title}</h2>}
+      {subtitle && <p className="body-text" style={{ marginTop: "var(--space-2)", maxWidth: 640 }}>{subtitle}</p>}
+      {action}
+    </div>
+  );
+}
+
+export function Card({ children, hover, className, style }) {
+  return (
+    <div className={`card${hover ? " card-hover" : ""}${className ? " " + className : ""}`} style={style}>
+      {children}
+    </div>
+  );
+}
+
+export function IconButton({ children, onClick, label, style }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        padding: "10px 16px",
+        borderRadius: "var(--radius-md)",
+        border: "1.5px solid var(--color-border)",
+        background: "var(--color-surface)",
+        color: "var(--color-text-secondary)",
+        fontFamily: "var(--font-sans)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "background 0.15s, border-color 0.2s, color 0.2s",
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function CountUp({ value, active, duration = 1200 }) {
   const [display, setDisplay] = useState(0);
   useEffect(() => {
@@ -52,23 +153,23 @@ export function DialectTooltip({ phrase, meaning, romanization, color = "#C0392B
           top: tooltipPos.top,
           left: tooltipPos.left,
           zIndex: 1000,
-          background: "white",
-          borderRadius: 12,
+          background: "var(--color-surface)",
+          borderRadius: "var(--radius-md)",
           padding: "14px 16px",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-          border: `2px solid ${color}30`,
+          boxShadow: "var(--shadow-md)",
+          border: `1.5px solid ${color}40`,
           minWidth: 200,
           fontSize: 13,
-          fontFamily: "inherit"
+          fontFamily: "var(--font-sans)"
         }}>
           <div style={{ fontWeight: 700, color: color, marginBottom: 6, fontSize: 14 }}>
             {phrase}
           </div>
-          <div style={{ color: "#6B5B45", marginBottom: romanization ? 8 : 0 }}>
+          <div style={{ color: "var(--color-text-secondary)", marginBottom: romanization ? 8 : 0 }}>
             {meaning}
           </div>
           {romanization && (
-            <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic" }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-faint)", fontStyle: "italic" }}>
               {romanization}
             </div>
           )}
