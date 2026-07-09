@@ -12,7 +12,7 @@ import { getLevel } from "@/data/xpSystem";
 // is migrated off the monolithic src/app/page.js into a real route.
 const LINKS = [
   ["/?screen=home", "Learn", "home"],
-  ["/?screen=search", "Search", "search"],
+  ["/dictionary", "Search", "dictionary"],
   ["/singlish", "Dialects in Singlish", "singlish"],
   ["/?screen=network", "Network", "network"],
   ["/associations", "Associations", "associations"],
