@@ -360,7 +360,7 @@ function DialectPlatformContent() {
         // Refetch community profiles to reflect changes
         fetch("/api/users/profiles")
           .then(r => r.json())
-          .then(users => setRegisteredUsers(users))
+          .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
           .catch(err => console.error('Failed to refresh profiles:', err));
       })
       .catch(() => setAuthError('Network error'));
@@ -612,7 +612,7 @@ function DialectPlatformContent() {
 
     fetch("/api/users/profiles")
       .then(r => r.json())
-      .then(users => setRegisteredUsers(users))
+      .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
       .catch(err => console.error('Failed to load profiles:', err));
 
     // Restore session from stored token
