@@ -13,7 +13,7 @@ import { hakkaFlashcards } from "@/data/flashcardsHakka";
 import { hainaneseFlashcards } from "@/data/flashcardsHainanese";
 import newStoryQuizzes from "@/data/storyQuizzes";
 import { speak, stopSpeaking, isTTSAvailable } from "@/lib/tts";
-import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom } from "@/data/xpSystem";
+import { LEVELS, getLevel, getNextLevel, getLevelProgress, XP_REWARDS, calculateStreak, seededRandom, getDailyChallengeSeed } from "@/data/xpSystem";
 
 import { CountUp, DialectTooltip, AnnotatedText, SealChip, Badge, Chip, SectionHeader, Card, IconButton } from "@/components/ui";
 import {
