@@ -13,7 +13,7 @@ import { getLevel } from "@/data/xpSystem";
 const LINKS = [
   ["/?screen=home", "Learn", "home"],
   ["/?screen=search", "Search", "search"],
-  ["/?screen=singlish", "Dialects in Singlish", "singlish"],
+  ["/singlish", "Dialects in Singlish", "singlish"],
   ["/?screen=network", "Network", "network"],
   ["/associations", "Associations", "associations"],
   ["/about", "About", "about"],
