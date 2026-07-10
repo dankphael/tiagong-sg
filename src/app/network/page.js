@@ -310,7 +310,7 @@ export default function NetworkPage() {
           ) : (
             <div style={{ background: "#EEF2FF", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 12, border: "1px solid #5B21B640" }}>
               <span style={{ fontSize: 20 }}><GraduationCap size={20} /></span>
-              <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, their contact will be revealed.</div>
+              <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, a chat opens here so you can get to know each other.</div>
             </div>
           )}
 
@@ -469,7 +469,7 @@ export default function NetworkPage() {
           ) : (
             <div style={{ background: "#EEF2FF", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 12, border: "1px solid #5B21B640" }}>
               <span style={{ fontSize: 20 }}><GraduationCap size={20} /></span>
-              <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, their contact will be revealed.</div>
+              <div style={{ fontSize: 14, color: "#3B1D8A" }}>Browse Sin Sehs below and send a mentorship request. Once accepted, a chat opens here so you can get to know each other.</div>
             </div>
           )}
 
@@ -588,9 +588,10 @@ export default function NetworkPage() {
                                       {c.connected_user_dialect && (
                                         <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, display: "block", marginBottom: 10 }}>{c.connected_user_dialect}</span>
                                       )}
-                                      <div style={{ padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 8 }}>
-                                        {c.connected_user_email}
-                                      </div>
+                                      <button className="btn-hover" onClick={() => openChatWith(c.connected_user_id)}
+                                        style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: 8 }}>
+                                        <MessageCircle size={15} /> Open Chat
+                                      </button>
                                       <button onClick={() => setRemoveConfirm({ id: c.id, name: c.connected_user_name })} className="btn-hover"
                                         style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                                         Remove Connection
@@ -621,9 +622,10 @@ export default function NetworkPage() {
                                       {c.connected_user_dialect && (
                                         <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600, display: "block", marginBottom: 10 }}>{c.connected_user_dialect}</span>
                                       )}
-                                      <div style={{ padding: "10px 14px", borderRadius: 10, background: "#F5F0EA", border: "1px solid #E8DDD0", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>
-                                        {c.connected_user_email}
-                                      </div>
+                                      <button className="btn-hover" onClick={() => openChatWith(c.connected_user_id)}
+                                        style={{ width: "100%", padding: "10px 14px", borderRadius: 10, background: "#F5F0EA", border: "1px solid #E8DDD0", fontSize: 13, color: "#6B5B45", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: 8 }}>
+                                        <MessageCircle size={15} /> Open Chat
+                                      </button>
                                       <button onClick={() => setRemoveConfirm({ id: c.id, name: c.connected_user_name })} className="btn-hover"
                                         style={{ width: "100%", padding: "8px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", border: "1px solid #C0392B40", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                                         Remove Connection

@@ -86,10 +86,6 @@ export async function GET(req) {
           ELSE u1.first_name || ' ' || u1.last_name
         END as connected_user_name,
         CASE
-          WHEN c.requester_id = $1 THEN u2.email
-          ELSE u1.email
-        END as connected_user_email,
-        CASE
           WHEN c.requester_id = $1 THEN u2.id
           ELSE u1.id
         END as connected_user_id,
