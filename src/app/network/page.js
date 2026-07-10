@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GraduationCap, UserCheck, ArrowRight, Repeat, Handshake, Sprout, BadgeCheck } from "lucide-react";
+import { GraduationCap, UserCheck, ArrowRight, Repeat, Handshake, Sprout, BadgeCheck, MessageCircle } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { rankSinSehs, INTENTS } from "@/lib/matching";
 import { huayKuan } from "@/data/staticData";
+import ChatPanel from "@/components/ChatPanel";
 
 const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
@@ -23,6 +24,37 @@ export default function NetworkPage() {
   const [removeConfirm, setRemoveConfirm] = useState(null); // { id, name } when confirming connection removal
   const [connections, setConnections] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [openChatConnectionId, setOpenChatConnectionId] = useState(null);
+  const [unreadCounts, setUnreadCounts] = useState({});
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("view") === "chats") setNetworkView("chats");
+    const c = params.get("c");
+    if (c) setOpenChatConnectionId(Number(c));
+  }, []);
+
+  async function loadUnreadCounts() {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    try {
+      const res = await fetch("/api/messages/unread", { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (!Array.isArray(data)) return;
+      setUnreadCounts(Object.fromEntries(data.map(r => [r.connection_id, r.unread_count])));
+    } catch (e) {
+      console.error("Failed to load unread counts:", e);
+    }
+  }
+
+  useEffect(() => {
+    if (!currentUser) return;
+    loadUnreadCounts();
+    const interval = setInterval(loadUnreadCounts, 20000);
+    return () => clearInterval(interval);
+  }, [currentUser?.id]);
+
+  const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
 
   async function loadConnections() {
     if (!currentUser) return;
@@ -131,6 +163,18 @@ export default function NetworkPage() {
     }
   }
 
+  function getAcceptedConnectionId(targetId) {
+    const accepted = connections.find(c => c.connected_user_id === targetId && c.status === 'accepted');
+    return accepted ? accepted.id : null;
+  }
+
+  function openChatWith(targetId) {
+    const id = getAcceptedConnectionId(targetId);
+    if (!id) return;
+    setOpenChatConnectionId(id);
+    setNetworkView("chats");
+  }
+
   function getConnectionStatus(targetId) {
     const accepted = connections.find(c => c.connected_user_id === targetId && c.status === 'accepted');
     if (accepted) return 'accepted';
@@ -153,13 +197,18 @@ export default function NetworkPage() {
 
       {/* Main view toggle */}
       <div className="pill-toggle" style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 40, flexWrap: "wrap" }}>
-        {[["directory", "Find a Sin Seh"], ["mentorships", "My Mentorships"], ["everyone", "Everyone"]].map(([view, label]) => (
+        {[["directory", "Find a Sin Seh"], ["mentorships", "My Mentorships"], ["chats", "Chats"], ["everyone", "Everyone"]].map(([view, label]) => (
           <button key={view} onClick={() => setNetworkView(view)} className={networkView === view ? "active" : ""}
             style={{ padding: "11px 24px", borderRadius: 10, background: networkView === view ? "#C0392B" : "white", color: networkView === view ? "white" : "#6B5B45", fontSize: 14, border: "2px solid " + (networkView === view ? "#C0392B" : "#E8DDD0"), fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}>
             {label}
             {view === "mentorships" && pendingRequests.length > 0 && (
               <span style={{ marginLeft: 8, background: networkView === view ? "rgba(255,255,255,0.3)" : "#C0392B", color: "white", borderRadius: "50%", width: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
                 {pendingRequests.length}
+              </span>
+            )}
+            {view === "chats" && totalUnread > 0 && (
+              <span style={{ marginLeft: 8, background: networkView === view ? "rgba(255,255,255,0.3)" : "#C0392B", color: "white", borderRadius: "50%", width: 20, height: 20, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>
+                {totalUnread}
               </span>
             )}
           </button>
@@ -211,7 +260,7 @@ export default function NetworkPage() {
           <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 420, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
             <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
             <p style={{ fontSize: 14, color: "#6B5B45", marginBottom: 24, lineHeight: 1.6 }}>
-              This will disconnect you from <strong>{removeConfirm.name}</strong>. You can always send a new connection request later.
+              This will disconnect you from <strong>{removeConfirm.name}</strong> and permanently delete your chat history with them. You can always send a new connection request later, but the conversation cannot be recovered.
             </p>
             {connectError && (
               <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 8, padding: "10px 14px", fontSize: 13, marginBottom: 16, border: "1px solid #C0392B40" }}>
@@ -358,9 +407,10 @@ export default function NetworkPage() {
                         </div>
                       )}
                       {status === 'accepted' ? (
-                        <div style={{ padding: "12px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
-                          ✓ Connected
-                        </div>
+                        <button className="btn-hover" onClick={() => openChatWith(m.id)}
+                          style={{ width: "100%", padding: "12px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          <MessageCircle size={15} /> Open Chat
+                        </button>
                       ) : status === 'sent' ? (
                         <div style={{ padding: "12px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
                           Request Sent ✓
@@ -595,6 +645,20 @@ export default function NetworkPage() {
         </div>
       )}
 
+      {networkView === "chats" && (
+        <div>
+          {!currentUser ? (
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><MessageCircle size={40} /></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your chats</div>
+            </div>
+          ) : (
+            <ChatPanel currentUser={currentUser} connections={connections} users={registeredUsers}
+              openConnectionId={openChatConnectionId} onOpenConnection={(id) => { setOpenChatConnectionId(id); loadUnreadCounts(); }} />
+          )}
+        </div>
+      )}
+
       {networkView === "everyone" && (
         <div>
           {connectError && (
@@ -643,9 +707,10 @@ export default function NetworkPage() {
                         <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest || "—"}</span>
                       </div>
                       {connStatus === 'accepted' ? (
-                        <div style={{ marginTop: 4, padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
-                          ✓ Connected
-                        </div>
+                        <button className="btn-hover" onClick={() => openChatWith(m.id)}
+                          style={{ marginTop: 4, width: "100%", padding: "10px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                          <MessageCircle size={15} /> Open Chat
+                        </button>
                       ) : isCurrentUser ? (
                         <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#9B8B75", fontSize: 13, textAlign: "center" }}>
                           This is you

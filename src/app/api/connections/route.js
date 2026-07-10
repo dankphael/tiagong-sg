@@ -100,7 +100,13 @@ export async function GET(req) {
         CASE
           WHEN c.requester_id = $1 THEN u2.dialect_group
           ELSE u1.dialect_group
-        END as connected_user_dialect
+        END as connected_user_dialect,
+        CASE
+          WHEN c.requester_id = $1 THEN u2.verified
+          ELSE u1.verified
+        END as connected_user_verified,
+        (SELECT body FROM messages WHERE connection_id = c.id ORDER BY id DESC LIMIT 1) as last_message_body,
+        (SELECT created_at FROM messages WHERE connection_id = c.id ORDER BY id DESC LIMIT 1) as last_message_at
        FROM connections c
        JOIN users u1 ON c.requester_id = u1.id
        JOIN users u2 ON c.receiver_id = u2.id
