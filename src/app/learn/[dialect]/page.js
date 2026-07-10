@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { hokkienFlashcards } from "@/data/flashcardsHokkien";
@@ -239,6 +239,18 @@ export default function LearnDialectPage() {
     setReverseIndex(0);
     setReverseFlipped(false);
   }, [selectedDialect, selectedCategory]);
+
+  // Deep-link support: /learn/[dialect]?mode=daily-challenge (used by the
+  // home dashboard's "Today's Challenge" card) jumps straight into a mode.
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (!mode) return;
+    setLessonMode(mode);
+    if (mode === 'daily-challenge') startDailyChallenge();
+    if (mode === 'speed-round') startSpeedRound();
+    if (mode === 'reverse-cards') startReverseCards();
+  }, []);
 
   // Build flashcard deck: hardcoded lessons + dictionary words with full rich data
   const dictForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags || []).includes(selectedCategory)) : [];

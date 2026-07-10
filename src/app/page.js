@@ -2,14 +2,17 @@
 
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
+import { Flame, ArrowRight, BookOpen } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
+import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
 
 function DialectPlatformContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { progress } = useApp();
+  const { currentUser, xp, streak, dailyCompleted, progress, selectedDialect } = useApp();
 
   // Legacy ?screen=&dialect= query params (pre-route-split) redirect to
   // their new routes so old bookmarks/links keep working.
@@ -29,6 +32,79 @@ function DialectPlatformContent() {
       router.replace(routeMap[screenParam]);
     }
   }, [searchParams]);
+
+  if (currentUser) {
+    const level = getLevel(xp);
+    const nextLevel = getNextLevel(xp);
+    const levelProgress = getLevelProgress(xp);
+    const dialect = dialects.find(d => d.id === selectedDialect) || dialects[0];
+    const reviewDue = Object.keys(progress).length;
+
+    return (
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
+        <div style={{ marginBottom: 32 }}>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>Welcome back</div>
+          <h1 className="heading" style={{ fontSize: 32 }}>{currentUser.firstName}</h1>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
+          <div className="card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 14 }}>
+            <Flame size={28} color={dailyCompleted ? "#E8A33D" : "var(--color-text-faint)"} fill={dailyCompleted ? "#E8A33D" : "none"} />
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-text)" }}>{streak}</div>
+              <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>day streak</div>
+            </div>
+          </div>
+          <div className="card" style={{ padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--color-text-muted)", marginBottom: 6 }}>
+              <span>{level?.icon} {level?.name}</span>
+              <span>{xp} XP</span>
+            </div>
+            <div className="progress" style={{ height: 6 }}>
+              <div className="progress-fill" style={{ width: levelProgress + "%", background: level?.color || "var(--color-primary)" }} />
+            </div>
+            {nextLevel && (
+              <div style={{ fontSize: 11, color: "var(--color-text-faint)", marginTop: 6 }}>{nextLevel.minXP - xp} XP to {nextLevel.name}</div>
+            )}
+          </div>
+        </div>
+
+        <Link href={`/learn/${dialect.id}?mode=daily-challenge`} style={{ textDecoration: "none" }}>
+          <div className="card card-hover" style={{ padding: 28, marginBottom: 20, background: "linear-gradient(135deg, #1A1208 0%, #2C1810 100%)", border: "1px solid #3D2A18", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 6 }}>
+                {dailyCompleted ? "Done for today" : "Today's Challenge"}
+              </div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#F5E6C8" }}>
+                {dailyCompleted ? "See you tomorrow" : "10 mixed questions across all dialects"}
+              </div>
+            </div>
+            <div style={{ color: "#F5E6C8", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+              {dailyCompleted ? "Review anyway" : "Start"} <ArrowRight size={16} />
+            </div>
+          </div>
+        </Link>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+          <Link href={`/learn/${dialect.id}`} style={{ textDecoration: "none" }}>
+            <div className="card card-hover" style={{ padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <BookOpen size={20} color={dialect.color} />
+                <div style={{ fontWeight: 700, color: "var(--color-text)" }}>Continue {dialect.name}</div>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Pick up your flashcards and lesson modes where you left off.</p>
+            </div>
+          </Link>
+          <Link href="/learn" style={{ textDecoration: "none" }}>
+            <div className="card card-hover" style={{ padding: 24 }}>
+              <div style={{ fontWeight: 700, color: "var(--color-text)", marginBottom: 8 }}>Browse all dialects</div>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>{reviewDue} categories in progress · explore Cantonese, Teochew, Hakka and Hainanese too.</p>
+            </div>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
