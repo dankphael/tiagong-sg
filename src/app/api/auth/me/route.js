@@ -9,7 +9,7 @@ export async function GET(req) {
   try {
     const result = await query(
       `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, progress, dialects_known, xp, streak, last_daily_date,
-       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified, custodian_dialects
        FROM users WHERE id = $1`,
       [decoded.userId]
     );
@@ -46,6 +46,7 @@ export async function GET(req) {
         bio: u.bio,
         huayKuan: u.huay_kuan,
         verified: !!u.verified,
+        custodianDialects: u.custodian_dialects || [],
       },
     }, { status: 200 });
   } catch (err) {

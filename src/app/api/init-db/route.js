@@ -76,6 +76,54 @@ export async function GET(req) {
       )
     `);
 
+    // Language Custodian program: community contributions to the dictionary
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custodian_dialects JSONB DEFAULT '[]'`);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS contributions (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type VARCHAR(30) NOT NULL,
+        word_id VARCHAR(64),
+        dialect VARCHAR(50) NOT NULL,
+        payload JSONB DEFAULT '{}',
+        reason TEXT,
+        status VARCHAR(20) DEFAULT 'pending',
+        reviewer_id INT REFERENCES users(id),
+        review_note TEXT,
+        reviewed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS word_variants (
+        id SERIAL PRIMARY KEY,
+        contribution_id INT UNIQUE REFERENCES contributions(id) ON DELETE SET NULL,
+        word_id VARCHAR(64),
+        dialect VARCHAR(50) NOT NULL,
+        variant_type VARCHAR(30) NOT NULL,
+        payload JSONB DEFAULT '{}',
+        contributor_name VARCHAR(200),
+        context_note TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS custodian_applications (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+        dialects JSONB DEFAULT '[]',
+        background TEXT,
+        credentials TEXT,
+        huay_kuan VARCHAR(100),
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     await query(`CREATE INDEX IF NOT EXISTS idx_users_dialect_group ON users(dialect_group)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_connections_requester ON connections(requester_id)`);
@@ -83,6 +131,10 @@ export async function GET(req) {
     await query(`CREATE INDEX IF NOT EXISTS idx_connections_status ON connections(status)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_messages_connection ON messages(connection_id, id)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(connection_id, read_at) WHERE read_at IS NULL`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_status_dialect ON contributions(status, dialect)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_user ON contributions(user_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_word ON contributions(word_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_variants_word ON word_variants(word_id)`);
 
     return Response.json({ success: true, message: '✅ Database initialized!' }, { status: 200 });
   } catch (error) {
