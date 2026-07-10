@@ -536,7 +536,7 @@ export default function LearnDialectPage() {
                   </button>
                   <button className="btn-hover" onClick={nextCard}
                     style={{ flex: 2, padding: "13px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                    {cardIndex < cards.length - 1 ? "Next <ArrowRight size={15} />" : "<Repeat size={15} /> Restart"}
+                    {cardIndex < cards.length - 1 ? <>Next <ArrowRight size={15} /></> : <><Repeat size={15} /> Restart</>}
                   </button>
                 </div>
               )}
@@ -711,7 +711,7 @@ export default function LearnDialectPage() {
                         }
                       }}
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {situationalCueIndex < quiz.cues.length - 1 ? "Next Scene <ArrowRight size={15} />" : situationalQuizIndex < quizzes.length - 1 ? "Next Story <ArrowRight size={15} />" : "View Results <ArrowRight size={15} />"}
+                        {situationalCueIndex < quiz.cues.length - 1 ? <>Next Scene <ArrowRight size={15} /></> : situationalQuizIndex < quizzes.length - 1 ? <>Next Story <ArrowRight size={15} /></> : <>View Results <ArrowRight size={15} /></>}
                       </button>
                     )}
                   </div>
@@ -879,7 +879,7 @@ export default function LearnDialectPage() {
                         }
                       }}
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {sentenceIndex < exercises.length - 1 ? "Next <ArrowRight size={15} />" : "View Results <ArrowRight size={15} />"}
+                        {sentenceIndex < exercises.length - 1 ? <>Next <ArrowRight size={15} /></> : <>View Results <ArrowRight size={15} /></>}
                       </button>
                     )}
                   </div>
@@ -1104,7 +1104,7 @@ export default function LearnDialectPage() {
                         }
                       }}
                         style={{ width: "100%", padding: "14px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                        {dailyIndex < dailyQuestions.length - 1 ? "Next <ArrowRight size={15} />" : "View Results <ArrowRight size={15} />"}
+                        {dailyIndex < dailyQuestions.length - 1 ? <>Next <ArrowRight size={15} /></> : <>View Results <ArrowRight size={15} /></>}
                       </button>
                     )}
                   </div>
@@ -1224,7 +1224,7 @@ export default function LearnDialectPage() {
                             setReverseIndex(0);
                           }
                         }} style={{ flex: 2, padding: "13px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                          {reverseIndex < reverseCards.length - 1 ? "Next <ArrowRight size={15} />" : "<Repeat size={15} /> Restart"}
+                          {reverseIndex < reverseCards.length - 1 ? <>Next <ArrowRight size={15} /></> : <><Repeat size={15} /> Restart</>}
                         </button>
                       </div>
                     )}

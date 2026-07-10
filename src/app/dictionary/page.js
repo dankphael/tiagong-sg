@@ -31,7 +31,6 @@ export default function DictionaryPage() {
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]);
   const [searchCategory, setSearchCategory] = useState("all");
-  const [searchDifficulty, setSearchDifficulty] = useState("all");
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [searchSort, setSearchSort] = useState("relevance");
@@ -41,10 +40,9 @@ export default function DictionaryPage() {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchDifficulty, searchSort]);
+  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchSort]);
 
   // Build flat, searchable phrase database across all dialects
-  const difficultyMap = { greetings: "beginner", food: "intermediate", numbers: "advanced" };
   const allPhrases = [];
   for (const [dialectId, dialectData] of Object.entries(lessons)) {
     const dialectInfo = dialects.find(d => d.id === dialectId);
@@ -57,7 +55,6 @@ export default function DictionaryPage() {
           dialectColor: dialectInfo?.color || "#666",
           dialectIcon: dialectInfo?.icon || "",
           category,
-          difficulty: difficultyMap[category] || "beginner",
         });
       }
     }
@@ -75,14 +72,12 @@ export default function DictionaryPage() {
       dialectColor: dialectInfo?.color || "#666",
       dialectIcon: dialectInfo?.icon || "",
       category: cat,
-      difficulty: difficultyMap[cat] || "beginner",
     });
   }
   const q = searchDebouncedQuery.toLowerCase().trim();
   let filteredPhrases = allPhrases.filter(p => {
     if (!searchDialects.includes(p.dialect)) return false;
     if (searchCategory !== "all" && p.category !== searchCategory) return false;
-    if (searchDifficulty !== "all" && p.difficulty !== searchDifficulty) return false;
     if (!q) return true;
     return (
       p.meaning.toLowerCase().includes(q) ||
@@ -94,7 +89,6 @@ export default function DictionaryPage() {
 
   if (searchSort === "a-z") filteredPhrases.sort((a, b) => a.phrase.localeCompare(b.phrase));
   else if (searchSort === "z-a") filteredPhrases.sort((a, b) => b.phrase.localeCompare(a.phrase));
-  else if (searchSort === "frequency") filteredPhrases.sort((a, b) => (b.frequency || 0) - (a.frequency || 0));
 
   const totalPages = Math.ceil(filteredPhrases.length / PAGE_SIZE);
   const start = (searchPage - 1) * PAGE_SIZE;
@@ -136,7 +130,7 @@ export default function DictionaryPage() {
       </div>
 
       {/* Active filter chips */}
-      {(searchDialects.length < 5 || searchCategory !== "all" || searchDifficulty !== "all" || searchSort !== "relevance") && (
+      {(searchDialects.length < 5 || searchCategory !== "all" || searchSort !== "relevance") && (
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 16 }}>
           <span style={{ fontSize: 12, color: "#8B7355", fontWeight: 600 }}>Active:</span>
           {searchDialects.length < 5 && searchDialects.map(id => {
@@ -156,19 +150,13 @@ export default function DictionaryPage() {
               <button onClick={() => setSearchCategory("all")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
             </span>
           )}
-          {searchDifficulty !== "all" && (
-            <span style={{ background: "#F5EFE6", border: "1.5px solid #D4B896", borderRadius: 20, padding: "3px 10px 3px 10px", fontSize: 12, color: "#6B5B45", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-              {searchDifficulty.charAt(0).toUpperCase() + searchDifficulty.slice(1)}
-              <button onClick={() => setSearchDifficulty("all")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
-            </span>
-          )}
           {searchSort !== "relevance" && (
             <span style={{ background: "#F5EFE6", border: "1.5px solid #D4B896", borderRadius: 20, padding: "3px 10px 3px 10px", fontSize: 12, color: "#6B5B45", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-              Sort: {searchSort === "a-z" ? "A – Z" : searchSort === "z-a" ? "Z – A" : "Most Common"}
+              Sort: {searchSort === "a-z" ? "A – Z" : "Z – A"}
               <button onClick={() => setSearchSort("relevance")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 14, padding: 0 }}>×</button>
             </span>
           )}
-          <button onClick={() => { setSearchDialects(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]); setSearchCategory("all"); setSearchDifficulty("all"); setSearchSort("relevance"); }}
+          <button onClick={() => { setSearchDialects(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]); setSearchCategory("all"); setSearchSort("relevance"); }}
             style={{ background: "none", border: "1.5px solid #E8DDD0", borderRadius: 20, padding: "3px 12px", fontSize: 12, color: "#8B7355", cursor: "pointer", fontFamily: "inherit" }}>
             Clear all
           </button>
@@ -239,26 +227,10 @@ export default function DictionaryPage() {
             })()}
           </div>
 
-          {/* Difficulty filter */}
-          <div style={{ marginBottom: 22 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Difficulty</div>
-            {[["all", "All levels", ""], ["beginner", "Beginner", "#1A6B3C"], ["intermediate", "Intermediate", "#D4860B"], ["advanced", "Advanced", "#C0392B"]].map(([v, label, dot]) => (
-              <button key={v} onClick={() => setSearchDifficulty(v)}
-                role="radio" aria-checked={searchDifficulty === v}
-                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchDifficulty === v ? "var(--color-dark)" : "transparent", color: searchDifficulty === v ? "var(--color-cream)" : "var(--color-text-secondary)", border: searchDifficulty === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchDifficulty === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
-                {dot && <span style={{ width: 10, height: 10, borderRadius: "50%", background: dot, flexShrink: 0 }} />}
-                {label}
-                {v === "beginner" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Greetings</span>}
-                {v === "intermediate" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Food</span>}
-                {v === "advanced" && <span style={{ fontSize: 10, color: searchDifficulty === v ? "rgba(255,255,255,0.6)" : "#C0B0A0", marginLeft: "auto" }}>Numbers</span>}
-              </button>
-            ))}
-          </div>
-
           {/* Sort */}
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Sort By</div>
-            {[["relevance", "Relevance"], ["a-z", "A – Z"], ["z-a", "Z – A"], ["frequency", "Most Common"]].map(([v, label]) => (
+            {[["relevance", "Relevance"], ["a-z", "A – Z"], ["z-a", "Z – A"]].map(([v, label]) => (
               <button key={v} onClick={() => setSearchSort(v)}
                 role="radio" aria-checked={searchSort === v}
                 style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", marginBottom: 4, borderRadius: 8, background: searchSort === v ? "#1A1208" : "transparent", color: searchSort === v ? "#F5E6C8" : "#6B5B45", border: searchSort === v ? "none" : "1.5px solid transparent", fontSize: 13, fontWeight: searchSort === v ? 700 : 400, cursor: "pointer", textAlign: "left", fontFamily: "inherit", transition: "all 0.15s" }}>
@@ -311,9 +283,6 @@ export default function DictionaryPage() {
                       </span>
                       <span style={{ background: "#F5EFE6", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#8B7355" }}>
                         {p.category}
-                      </span>
-                      <span style={{ background: p.difficulty === "beginner" ? "#EAFAF1" : p.difficulty === "intermediate" ? "#FEF9E7" : "#FDEDEC", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: p.difficulty === "beginner" ? "#1A6B3C" : p.difficulty === "intermediate" ? "#8E6000" : "#A93226" }}>
-                        {p.difficulty}
                       </span>
                     </div>
                     <div className="romanized" style={{ fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>
