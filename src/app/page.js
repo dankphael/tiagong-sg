@@ -126,6 +126,9 @@ function DialectPlatformContent() {
                 <p style={{ color: "#E8D4A8", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, maxWidth: 320 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
                 </p>
+                <Link href="/welcome" className="btn-primary" style={{ marginTop: 16, textDecoration: "none", fontSize: 14, padding: "10px 24px", pointerEvents: "auto", position: "relative", zIndex: 4 }}>
+                  New here? 2-minute intro
+                </Link>
               </div>
               {dialects.map((d, i) => {
                 const angle = (-90 + i * 72) * (Math.PI / 180);
@@ -174,9 +177,12 @@ function DialectPlatformContent() {
                 <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 14 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 32 }}>
+                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 20 }}>
                   每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
                 </p>
+                <Link href="/welcome" className="btn-primary" style={{ display: "inline-block", marginBottom: 12, textDecoration: "none", fontSize: 14, padding: "10px 24px" }}>
+                  New here? 2-minute intro
+                </Link>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {dialects.map((d, i) => {
