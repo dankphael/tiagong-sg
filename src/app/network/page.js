@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { GraduationCap, UserCheck, ArrowRight, Repeat, Handshake, Sprout, BadgeCheck, MessageCircle } from "lucide-react";
+import { GraduationCap, UserCheck, ArrowRight, Handshake, Sprout, BadgeCheck, MessageCircle } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { rankSinSehs, INTENTS } from "@/lib/matching";
 import { huayKuan } from "@/data/staticData";
@@ -58,7 +58,7 @@ export default function NetworkPage() {
   useEffect(() => {
     if (!currentUser) return;
     loadUnreadCounts();
-    const interval = setInterval(loadUnreadCounts, 20000);
+    const interval = setInterval(() => { loadUnreadCounts(); loadConnections(); }, 20000);
     return () => clearInterval(interval);
   }, [currentUser?.id]);
 
@@ -518,14 +518,6 @@ export default function NetworkPage() {
             const hasAny = incoming.length > 0 || sent.length > 0 || active.length > 0;
             return (
               <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
-                {currentUser && (
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <button onClick={() => loadConnections()} className="btn-hover"
-                      style={{ fontSize: 12, color: "#8B7355", background: "transparent", border: "1px solid #E8DDD0", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontFamily: "inherit" }}>
-                      <Repeat size={14} /> Refresh
-                    </button>
-                  </div>
-                )}
                 {connectError && (
                   <div style={{ background: "#FDEDEC", color: "#C0392B", borderRadius: 10, padding: "12px 16px", fontSize: 13, border: "1px solid #C0392B40" }}>
                     {connectError}
@@ -700,7 +692,7 @@ export default function NetworkPage() {
             </div>
           ) : (
             <ChatPanel currentUser={currentUser} connections={connections} users={registeredUsers} connectionsLoading={connectionsLoading}
-              openConnectionId={openChatConnectionId} onOpenConnection={(id) => { setOpenChatConnectionId(id); loadUnreadCounts(); }} />
+              openConnectionId={openChatConnectionId} onOpenConnection={(id) => { setOpenChatConnectionId(id); setUnreadCounts(u => ({ ...u, [id]: 0 })); loadUnreadCounts(); }} />
           )}
         </div>
       )}
