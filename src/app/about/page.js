@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { CountUp } from "@/components/ui";
@@ -130,23 +131,23 @@ export default function AboutPage() {
             Speak a dialect fluently?<br /><em style={{ color: "#E8D4A8" }}>Help validate our dictionary.</em>
           </h2>
           <p style={{ color: "#C9B58E", fontSize: 15, lineHeight: 1.7, maxWidth: 600, margin: "0 auto" }}>
-            Right now, our phrases are drafted with the help of AI (Qwen and Claude). We need fluent speakers — our <strong style={{ color: "#F5E6C8" }}>Dialect Curators</strong> — to review and refine each entry, making sure the translations, romanisations, and tones ring true to how the dialect is actually spoken. Curators are our linguistic and language researchers — credited on the platform, with early access to new features and a direct hand in shaping how Singapore's dialect heritage is preserved online.
+            Right now, our phrases are drafted with the help of AI (Qwen and Claude), and language is dynamic — spellings, meanings, and everyday usage shift between generations and families. We need fluent speakers — our <strong style={{ color: "#F5E6C8" }}>Language Custodians</strong> — to review and refine each entry, making sure the translations, romanisations, and tones ring true to how the dialect is actually spoken. Custodians review community-submitted corrections and new words on the <Link href="/contribute" style={{ color: "#F5E6C8", textDecoration: "underline" }}>Contribute</Link> page — credited on the platform, with a direct hand in shaping how Singapore's dialect heritage is preserved online.
           </p>
         </div>
         <div className="about-curator-grid">
           {dialects.map(d => (
-            <a
+            <Link
               key={d.id}
-              href={`mailto:raphaeleeingwi@gmail.com?subject=${encodeURIComponent(`Dialect Curator — ${d.name}`)}&body=${encodeURIComponent(`Hi Raphael,\n\nI'd like to help validate ${d.name} (${d.chinese}) entries on tiagong.sg.\n\nA bit about my background:\n\n— `)}`}
+              href="/contribute"
               className="about-curator-card"
               style={{ borderColor: `${d.color}66`, background: `${d.color}11` }}
             >
               <div style={{ fontFamily: "var(--font-chinese)", fontSize: 22, fontWeight: 700, color: d.color, marginBottom: 4 }}>{d.chinese}</div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 17, fontWeight: 700, color: "#F5E6C8", marginBottom: 8 }}>
-                {d.name}<br />Curator
+                {d.name}<br />Custodian
               </div>
-              <div style={{ fontSize: 12, color: d.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>Volunteer &rarr;</div>
-            </a>
+              <div style={{ fontSize: 12, color: d.color, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>Apply &rarr;</div>
+            </Link>
           ))}
         </div>
       </div>
@@ -158,9 +159,9 @@ export default function AboutPage() {
           { q: "Is tiagong.sg free?", a: "Yes, completely free. This is a non-commercial project for cultural preservation — no paywalls, no ads." },
           { q: "Why these five dialects?", a: "Hokkien, Cantonese, Teochew, Hakka, and Hainanese are the major Chinese dialect groups in Singapore by historical immigration. They shaped the kopitiam, the wet market, and the family table." },
           { q: "Who built this?", a: "Raphael — a Singaporean who grew up in a Teochew-speaking household and wanted a way to keep that world alive. See the Founder Note above." },
-          { q: "How are the phrases sourced?", a: "Right now, the dictionary is being compiled with the help of large language models (Qwen and Claude). We're aware that AI-generated translations need human verification — which is exactly why we're building a team of Dialect Curators (see above) to validate every entry. We'd rather be transparent about this than hide it." },
+          { q: "How are the phrases sourced?", a: "Right now, the dictionary is being compiled with the help of large language models (Qwen and Claude). We're aware that AI-generated translations need human verification — which is exactly why we're building a team of Language Custodians (see above) to validate every entry. We'd rather be transparent about this than hide it." },
           { q: "What's a \"Sin Seh\"?", a: "Sin Seh (先生) is the Hokkien/Teochew term for a teacher, doctor, or wise mentor. The mentorship feature pairs learners with fluent speakers in the community who are willing to teach." },
-          { q: "Can I contribute phrases or corrections?", a: "Yes — either by joining the Dialect Curators team (above) or by emailing us directly. Every correction makes the platform more accurate for the next learner." },
+          { q: "Can I contribute phrases or corrections?", a: "Yes — every dictionary entry has \"Suggest an edit\", \"Add example\", and \"Flag issue\" buttons, and you can submit brand-new words on the Contribute page. A Language Custodian for that dialect reviews every submission." },
           { q: "Is my learning data private?", a: "Your progress is stored only to track your own learning journey. We don't sell or share data, and we don't run third-party trackers." },
           { q: "Will more dialects be added?", a: "The focus is on Singapore's five main dialects. Extensions to other dialects (Foochow / Hock Chew, Henghua, etc.) are possible in the future as the curator team grows." },
         ].map((item, i) => {
@@ -212,7 +213,8 @@ export default function AboutPage() {
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>Get In Touch</h2>
         <div style={{ background: "white", borderRadius: 16, padding: "28px 32px", border: "1px solid #F0E8DA", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
           <p style={{ color: "#6B5B45", fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>
-            Email us directly at{" "}
+            Spotted a translation error? Flag it directly on the entry in the <Link href="/dictionary" style={{ color: "#C0392B", fontWeight: 700 }}>Dictionary</Link> — no email needed.
+            For everything else, email us directly at{" "}
             <a href="mailto:raphaeleeingwi@gmail.com" style={{ color: "#C0392B", fontWeight: 700, textDecoration: "none" }}>raphaeleeingwi@gmail.com</a>
             {" "}— or use one of the prefilled subject lines below:
           </p>
@@ -229,24 +231,6 @@ I wanted to share some feedback about tiagong.sg:
 [Share your thoughts here — what's working well, what could be better, features you'd like to see, etc.]
 
 Thanks for building this platform!
-
-Best regards,
-[Your name]`
-              },
-              {
-                label: "Report a translation error",
-                template: `Subject: Translation error report
-
-Hi Raphael,
-
-I found a translation issue on tiagong.sg that I wanted to flag:
-
-Dialect: [e.g., Hokkien]
-Phrase: [The phrase with the error]
-Issue: [Explain what's wrong — incorrect tone, romanization, meaning, etc.]
-Suggested correction: [What it should be]
-
-Thanks for keeping the dictionary accurate!
 
 Best regards,
 [Your name]`

@@ -11,6 +11,8 @@ import {
 import { useApp } from "@/components/AppProvider";
 import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
+import ContributionModal from "@/components/ContributionModal";
+import Link from "next/link";
 
 const CATEGORY_ICONS = {
   family: Users, body: Heart, daily_life: Home, emotions: Smile, travel: Plane,
@@ -26,7 +28,8 @@ const CATEGORY_ICONS = {
 const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
-  const { apiWords } = useApp();
+  const { apiWords, currentUser, showToast } = useApp();
+  const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]);
@@ -63,6 +66,7 @@ export default function DictionaryPage() {
     const dialectInfo = dialects.find(d => d.id === word.dialect);
     const cat = word.tags?.[0] || "other";
     allPhrases.push({
+      wordId: word.id,
       phrase: word.headword?.romanized || "",
       chinese: word.headword?.traditional || "",
       meaning: word.definitions?.[0]?.english || "",
@@ -95,18 +99,36 @@ export default function DictionaryPage() {
   const end = Math.min(start + PAGE_SIZE, filteredPhrases.length);
   const pageResults = filteredPhrases.slice(start, end);
 
+  function openContribution(word, type) {
+    if (!currentUser) {
+      showToast("Sign in to contribute", "error");
+      return;
+    }
+    setContributionModal({ word, type });
+  }
+
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px" }} className="fade-up">
 
       {/* Page header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 className="heading" style={{ fontSize: 38, marginBottom: 6 }}>
-          Search All Dialects
-        </h1>
-        <p className="body-text" style={{ fontSize: 14 }}>
-          Search across Hokkien, Cantonese, Teochew, Hakka and Hainanese simultaneously
-        </p>
+      <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+        <div>
+          <h1 className="heading" style={{ fontSize: 38, marginBottom: 6 }}>
+            Search All Dialects
+          </h1>
+          <p className="body-text" style={{ fontSize: 14 }}>
+            Search across Hokkien, Cantonese, Teochew, Hakka and Hainanese simultaneously
+          </p>
+        </div>
+        <Link href="/contribute?type=new_word" className="btn-hover"
+          style={{ padding: "10px 18px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 13, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
+          + Add a New Word
+        </Link>
       </div>
+
+      {contributionModal && (
+        <ContributionModal word={contributionModal.word} type={contributionModal.type} onClose={() => setContributionModal(null)} />
+      )}
 
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 16 }}>
@@ -294,9 +316,25 @@ export default function DictionaryPage() {
                     <div style={{ fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 3 }}>
                       {p.meaning}
                     </div>
-                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic" }}>
+                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic", marginBottom: p.wordId ? 10 : 0 }}>
                       /{p.romanisation}/
                     </div>
+                    {p.wordId && (
+                      <div style={{ display: "flex", gap: 10, borderTop: "1px solid #F0E8DA", paddingTop: 8 }}>
+                        <button onClick={() => openContribution(p, "correction")}
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
+                          Suggest an edit
+                        </button>
+                        <button onClick={() => openContribution(p, "usage_example")}
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
+                          Add example
+                        </button>
+                        <button onClick={() => openContribution(p, "error_flag")}
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
+                          Flag issue
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -42,6 +42,7 @@ export const XP_REWARDS = {
   dailyComplete: 30,
   speedRoundCorrect: 15,
   storyComplete: 40,
+  contributionAccepted: 40,
 };
 
 export function calculateStreak(completedDates) {
