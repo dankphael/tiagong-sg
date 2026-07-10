@@ -9,6 +9,7 @@ import { getAvatar } from "@/lib/avatar";
 import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
 import { SealChip } from "@/components/ui";
+import MatchPreferencesFields from "@/components/MatchPreferencesFields";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -19,7 +20,10 @@ export default function ProfilePage() {
     setSelectedDialect,
   } = useApp();
 
-  const [profileForm, setProfileForm] = useState({ firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", gender: "", dialectsKnown: [] });
+  const [profileForm, setProfileForm] = useState({
+    firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", gender: "", dialectsKnown: [],
+    intent: "", offerings: [], availability: [], formats: [], region: "", interests: [], proficiency: "", bio: "", huayKuan: "",
+  });
   const [profileEditMode, setProfileEditMode] = useState(false);
 
   function completeProfile() { return ctxCompleteProfile(profileForm); }
@@ -130,6 +134,11 @@ export default function ProfilePage() {
                 </div>
               </div>
 
+              <div style={{ borderTop: "1px solid #E8DDD0", paddingTop: 20, marginBottom: 20 }}>
+                <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Matchmaking Preferences</div>
+                <MatchPreferencesFields form={profileForm} setForm={setProfileForm} />
+              </div>
+
               <div style={{ display: "flex", gap: 12 }}>
                 <button className="btn-primary" onClick={saveProfile} style={{ flex: 1 }}>
                   Save Changes
@@ -182,6 +191,15 @@ export default function ProfilePage() {
                             gender: currentUser.gender || '',
                             role: currentUser.role || 'mentee',
                             dialectsKnown: currentUser.dialectsKnown || [],
+                            intent: currentUser.intent || "",
+                            offerings: currentUser.offerings || [],
+                            availability: currentUser.availability || [],
+                            formats: currentUser.formats || [],
+                            region: currentUser.region || "",
+                            interests: currentUser.interests || [],
+                            proficiency: currentUser.proficiency || "",
+                            bio: currentUser.bio || "",
+                            huayKuan: currentUser.huayKuan || "",
                           });
                           setProfileEditMode(true);
                         }} style={{ flex: 1 }}>
@@ -369,6 +387,11 @@ export default function ProfilePage() {
                 );
               })}
             </div>
+          </div>
+
+          <div style={{ borderTop: "1px solid #E8DDD0", paddingTop: 20, marginBottom: 8 }}>
+            <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Matchmaking Preferences</div>
+            <MatchPreferencesFields form={profileForm} setForm={setProfileForm} />
           </div>
 
           <button className="btn-primary" onClick={completeProfile} style={{ width: "100%" }}>

@@ -78,7 +78,10 @@ export async function POST(req) {
       return Response.json({ needsProfile: true, googleData }, { status: 200 });
     }
 
-    const { age, occupation, languageInterest, role, gender, firstName, lastName, dialectsKnown } = profileData;
+    const {
+      age, occupation, languageInterest, role, gender, firstName, lastName, dialectsKnown,
+      intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+    } = profileData;
     const result = await query(
       `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known, password_hash,
        intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified)
@@ -96,15 +99,15 @@ export async function POST(req) {
         gender || null,
         JSON.stringify(dialectsKnown || []),
         'google-oauth',
-        null,
-        JSON.stringify([]),
-        JSON.stringify([]),
-        JSON.stringify([]),
-        null,
-        JSON.stringify([]),
-        null,
-        null,
-        null,
+        intent || null,
+        JSON.stringify(offerings || []),
+        JSON.stringify(availability || []),
+        JSON.stringify(formats || []),
+        region || null,
+        JSON.stringify(interests || []),
+        proficiency || null,
+        bio || null,
+        huayKuan || null,
         false,
       ]
     );

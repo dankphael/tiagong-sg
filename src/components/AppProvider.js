@@ -123,7 +123,10 @@ export function AppProvider({ children }) {
   function saveProfile(profileForm) {
     const token = localStorage.getItem("auth_token");
     if (!token) return Promise.resolve(false);
-    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = profileForm;
+    const {
+      firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown,
+      intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+    } = profileForm;
     if (!gender) {
       setAuthError("Please select your gender");
       return Promise.resolve(false);
@@ -132,7 +135,10 @@ export function AppProvider({ children }) {
     return fetch("/api/users/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown }),
+      body: JSON.stringify({
+        firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown,
+        intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+      }),
     })
       .then(res => res.json().then(data => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
@@ -140,6 +146,7 @@ export function AppProvider({ children }) {
         setCurrentUser(prev => ({
           ...prev, firstName, lastName, age, occupation,
           languageInterest, role, gender, dialectsKnown,
+          intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
           avatar: getAvatar(gender, role),
         }));
         fetch("/api/users/profiles")
