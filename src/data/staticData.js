@@ -2795,6 +2795,60 @@ export const situationalQuizzes = {
           { phrase: "Wa ai khui khi a", meaning: "I want to go", correct: false }
         ]}
       ]
+    },
+    {
+      id: 2,
+      title: "Ordering at the Hawker Centre",
+      story: "You're hungry and it's your turn at the stall — order like a local.",
+      cues: [
+        { context: "The uncle at the stall asks [[Beh sia mih?|What do you want?|beh sia mih]]. You've decided on your order.", dialogues: [
+          { phrase: "Wa beh tsi̍t uánn bah-oân-thng", meaning: "I want a bowl of meatball soup", correct: true },
+          { phrase: "Wa boh eng", meaning: "I have no time", correct: false },
+          { phrase: "Chin sian lah", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "He asks if you want it spicy.", dialogues: [
+          { phrase: "Beh hiam, tsió-tsió tō hó", meaning: "A little spicy, just a little is fine", correct: true },
+          { phrase: "Wa ai khì liáu", meaning: "I want to go already", correct: false },
+          { phrase: "Chin pá liáu", meaning: "So full already", correct: false }
+        ]},
+        { context: "He tells you the price: [[Sann kho͘ gōo]] — three dollars fifty.", dialogues: [
+          { phrase: "Hó, gún hō͘ lí chîⁿ", meaning: "Okay, here's your money", correct: true },
+          { phrase: "Taai kuì lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Wa m̄ bat", meaning: "I don't know", correct: false }
+        ]},
+        { context: "He hands over your food and says [[Chiah pá!|Enjoy your meal!|chiah pa]]", dialogues: [
+          { phrase: "Ló-lat, to-siā!", meaning: "Thanks for your effort, thank you!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "Nothing, nothing", correct: false },
+          { phrase: "Wa ai khì a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "Taking a Taxi",
+      story: "You flag down a cab and need to get where you're going.",
+      cues: [
+        { context: "You get in. The driver asks where to.", dialogues: [
+          { phrase: "Guá beh khì tsia̍h-tsia̍h", meaning: "I want to go to Katong", correct: true },
+          { phrase: "Wa m̄ bat khì tó", meaning: "I don't know where to go", correct: false },
+          { phrase: "Chin sian lor", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "The driver asks which way you prefer — highway or normal road.", dialogues: [
+          { phrase: "Kiánn-lō͘ mā hó, lóng ē-tàng", meaning: "Either way is fine, both work", correct: true },
+          { phrase: "Boh eng, boh eng!", meaning: "No time, no time!", correct: false },
+          { phrase: "Wa ai khui khi lie", meaning: "I want to go home", correct: false }
+        ]},
+        { context: "Traffic is heavy. The driver apologises for the delay.", dialogues: [
+          { phrase: "Bô iàu-kín, chin-chiànn bô su", meaning: "No worries, it's really fine", correct: true },
+          { phrase: "Chiah liao beh ho!", meaning: "Eaten already not good!", correct: false },
+          { phrase: "Wa ai khui liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "You've arrived. The meter shows [[Cha̍p-jī kho͘|Twelve dollars|chap ji khoo]].", dialogues: [
+          { phrase: "Hó, m̄-bián tháu, lâu leh!", meaning: "Okay, no need for change, keep it!", correct: true },
+          { phrase: "Taai kuì lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Wa ai khui khi a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
     }
   ],
   cantonese: [
@@ -2852,6 +2906,60 @@ export const situationalQuizzes = {
           { phrase: "Maan on, po po! Faan gaau fun!", meaning: "Good night, grandma! Sleep well!", correct: true },
           { phrase: "Boh si, boh si, faai di la", meaning: "Never mind, never mind, hurry lah", correct: false },
           { phrase: "Waih? Góng máh?", meaning: "Hello? What are you saying?", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 2,
+      title: "Ordering at the Hawker Centre",
+      story: "You're hungry and it's your turn at the stall — order like a local.",
+      cues: [
+        { context: "The auntie asks [[Yiu mat yeh a?|What do you want?|yiu mat yeh a]]. You've decided.", dialogues: [
+          { phrase: "Ngóh yiu wún ngau naam min", meaning: "I want a bowl of beef brisket noodles", correct: true },
+          { phrase: "Ngóh móuh sìh gaan", meaning: "I have no time", correct: false },
+          { phrase: "Hóu mòhn a", meaning: "So bored ah", correct: false }
+        ]},
+        { context: "She asks if you want extra chili.", dialogues: [
+          { phrase: "Síu síu laaht jauh dāk", meaning: "A little spicy is fine", correct: true },
+          { phrase: "Ngóh yiu jáu la", meaning: "I want to go already", correct: false },
+          { phrase: "Ngóh gau ba la", meaning: "I'm full already", correct: false }
+        ]},
+        { context: "She tells you the price: [[Sāam mān bun]] — three dollars fifty.", dialogues: [
+          { phrase: "Hóu, béi chín néih", meaning: "Okay, here's your money", correct: true },
+          { phrase: "Taai gwai laa", meaning: "Too expensive laa", correct: false },
+          { phrase: "Ngóh mh̀ ji", meaning: "I don't know", correct: false }
+        ]},
+        { context: "She hands over your food: [[Sihk faahn faai lo!|Enjoy your meal!|sihk faahn faai lo]]", dialogues: [
+          { phrase: "Dō jeh saai!", meaning: "Thank you so much!", correct: true },
+          { phrase: "Móuh sih, móuh sih", meaning: "Nothing, nothing", correct: false },
+          { phrase: "Ngóh yiu jáu la", meaning: "I want to leave now", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "Taking a Taxi",
+      story: "You flag down a cab and need to get where you're going.",
+      cues: [
+        { context: "You get in. The driver asks where to.", dialogues: [
+          { phrase: "Ngóh heui Tòhng Yàhn Gāai", meaning: "I want to go to Chinatown", correct: true },
+          { phrase: "Ngóh mh̀ ji heui bīndouh", meaning: "I don't know where to go", correct: false },
+          { phrase: "Hóu mòhn a", meaning: "So bored ah", correct: false }
+        ]},
+        { context: "The driver asks highway or normal road.", dialogues: [
+          { phrase: "Bīn tìuh dōu dāk, mh̀ gán yiu", meaning: "Either way is fine, doesn't matter", correct: true },
+          { phrase: "Móuh sìh gaan la!", meaning: "No time la!", correct: false },
+          { phrase: "Ngóh yiu faan uk kéi", meaning: "I want to go home", correct: false }
+        ]},
+        { context: "Traffic is heavy. The driver apologises for the delay.", dialogues: [
+          { phrase: "Móuh man tai, jān haih móuh sih", meaning: "No worries, it's really fine", correct: true },
+          { phrase: "Sihk jó mh̀ hóu!", meaning: "Already eaten, not good!", correct: false },
+          { phrase: "Ngóh yiu jáu la", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "You've arrived. The meter shows [[Sahp yih mān|Twelve dollars|sahp yih mān]].", dialogues: [
+          { phrase: "Hóu, mh̀ sái jáau, làuh dī!", meaning: "Okay, no need for change, keep it!", correct: true },
+          { phrase: "Taai gwai laa", meaning: "Too expensive laa", correct: false },
+          { phrase: "Ngóh yiu jáu la", meaning: "I want to go now", correct: false }
         ]}
       ]
     }
@@ -2913,6 +3021,55 @@ export const situationalQuizzes = {
           { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false }
         ]}
       ]
+    },
+    {
+      id: 2,
+      title: "Ordering at the Hawker Centre",
+      story: "You're hungry and it's your turn at the stall — order like a local.",
+      cues: [
+        { context: "The uncle asks what you want.", dialogues: [
+          { phrase: "Wa beh zit uann muê", meaning: "I want a bowl of porridge", correct: true },
+          { phrase: "Wa boh eng", meaning: "I have no time", correct: false },
+          { phrase: "Chin sian lah", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "He asks if you want it spicy.", dialogues: [
+          { phrase: "Zoi-zoi hiam tio ho", meaning: "A little spicy is fine", correct: true },
+          { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false },
+          { phrase: "Chin pua liao", meaning: "So full already", correct: false }
+        ]},
+        { context: "He tells you the price: three dollars fifty.", dialogues: [
+          { phrase: "Ho, hor lu lui", meaning: "Okay, here's your money", correct: true },
+          { phrase: "Zia kui lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false }
+        ]},
+        { context: "He hands over your food, wishing you a good meal.", dialogues: [
+          { phrase: "Lor lat, dor jia!", meaning: "Thanks for your effort, thank you!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "Nothing, nothing", correct: false },
+          { phrase: "Wa ai khi a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "Taking a Taxi",
+      story: "You flag down a cab and need to get where you're going.",
+      cues: [
+        { context: "You get in. The driver asks where to.", dialogues: [
+          { phrase: "Wa beh khi lao gu chia", meaning: "I want to go to Toa Payoh", correct: true },
+          { phrase: "Wa m bat khi do-wi", meaning: "I don't know where to go", correct: false },
+          { phrase: "Chin sian lor", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "Traffic is heavy. The driver apologises for the delay.", dialogues: [
+          { phrase: "Boh su, zin ziah boh su", meaning: "No worries, it's really fine", correct: true },
+          { phrase: "Ziah liao boh ho!", meaning: "Eaten already not good!", correct: false },
+          { phrase: "Wa ai khi liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "You've arrived. The meter shows twelve dollars.", dialogues: [
+          { phrase: "Ho, m sai tio, lu lah!", meaning: "Okay, no need for change, keep it!", correct: true },
+          { phrase: "Zia kui lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Wa ai khi a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
     }
   ],
   hakka: [
@@ -2972,6 +3129,55 @@ export const situationalQuizzes = {
           { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
         ]}
       ]
+    },
+    {
+      id: 2,
+      title: "Ordering at the Hawker Centre",
+      story: "You're hungry and it's your turn at the stall — order like a local.",
+      cues: [
+        { context: "The uncle asks what you want.", dialogues: [
+          { phrase: "Nga oi chit vun fan", meaning: "I want a bowl of rice", correct: true },
+          { phrase: "Nga mo kung", meaning: "I have no time", correct: false },
+          { phrase: "Chang sian lah", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "He asks if you want it spicy.", dialogues: [
+          { phrase: "Set-set lat tsiu ho", meaning: "A little spicy is fine", correct: true },
+          { phrase: "Nga oi hi lah", meaning: "I want to go already", correct: false },
+          { phrase: "Chang ngiat lo", meaning: "So full already", correct: false }
+        ]},
+        { context: "He tells you the price: three dollars fifty.", dialogues: [
+          { phrase: "Ho, hi ngi lui", meaning: "Okay, here's your money", correct: true },
+          { phrase: "Tai gwai lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Nga m sik", meaning: "I don't know", correct: false }
+        ]},
+        { context: "He hands over your food, wishing you a good meal.", dialogues: [
+          { phrase: "Lo lit, do jia!", meaning: "Thanks for your effort, thank you!", correct: true },
+          { phrase: "Mo si, mo si", meaning: "Nothing, nothing", correct: false },
+          { phrase: "Nga oi hi a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "Taking a Taxi",
+      story: "You flag down a cab and need to get where you're going.",
+      cues: [
+        { context: "You get in. The driver asks where to.", dialogues: [
+          { phrase: "Nga oi hi Bishan", meaning: "I want to go to Bishan", correct: true },
+          { phrase: "Nga m sik hi nai-vi", meaning: "I don't know where to go", correct: false },
+          { phrase: "Chang sian lo", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "Traffic is heavy. The driver apologises for the delay.", dialogues: [
+          { phrase: "Mo het, chin he mo het", meaning: "No worries, it's really fine", correct: true },
+          { phrase: "Sik liaw mo ho!", meaning: "Eaten already not good!", correct: false },
+          { phrase: "Nga oi hi lah", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "You've arrived. The meter shows twelve dollars.", dialogues: [
+          { phrase: "Ho, m sai fan, lui do ngi lah!", meaning: "Okay, no need for change, keep it!", correct: true },
+          { phrase: "Tai gwai lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Nga oi hi a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
     }
   ],
   hainanese: [
@@ -3029,6 +3235,55 @@ export const situationalQuizzes = {
           { phrase: "Am on, ama! Zao sin, siang tin siao!", meaning: "Good night, mother! Rest well, sleep tight!", correct: true },
           { phrase: "boh2 man5 tai5", meaning: "No problem", correct: false },
           { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 2,
+      title: "Ordering at the Hawker Centre",
+      story: "You're hungry and it's your turn at the stall — order like a local.",
+      cues: [
+        { context: "The auntie asks what you want.", dialogues: [
+          { phrase: "Wa beh zit uann png", meaning: "I want a bowl of rice", correct: true },
+          { phrase: "Wa boh eng", meaning: "I have no time", correct: false },
+          { phrase: "Chin sian lah", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "She asks if you want it spicy.", dialogues: [
+          { phrase: "Zoi-zoi hiam tio ho", meaning: "A little spicy is fine", correct: true },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false },
+          { phrase: "Chin pua liao", meaning: "So full already", correct: false }
+        ]},
+        { context: "She tells you the price: three dollars fifty.", dialogues: [
+          { phrase: "Ho, hor lu lui", meaning: "Okay, here's your money", correct: true },
+          { phrase: "Zia kui lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Wa m bat", meaning: "I don't know", correct: false }
+        ]},
+        { context: "She hands over your food, wishing you a good meal.", dialogues: [
+          { phrase: "Doh jia, doh jia!", meaning: "Thank you, thank you!", correct: true },
+          { phrase: "Boh su, boh su", meaning: "Nothing, nothing", correct: false },
+          { phrase: "Wa ai hi a", meaning: "I want to go now", correct: false }
+        ]}
+      ]
+    },
+    {
+      id: 3,
+      title: "Taking a Taxi",
+      story: "You flag down a cab and need to get where you're going.",
+      cues: [
+        { context: "You get in. The driver asks where to.", dialogues: [
+          { phrase: "Wa beh hi Geylang", meaning: "I want to go to Geylang", correct: true },
+          { phrase: "Wa m bat hi do-wi", meaning: "I don't know where to go", correct: false },
+          { phrase: "Chin sian lor", meaning: "So bored lah", correct: false }
+        ]},
+        { context: "Traffic is heavy. The driver apologises for the delay.", dialogues: [
+          { phrase: "Boh su, zin ziah boh su", meaning: "No worries, it's really fine", correct: true },
+          { phrase: "Chiak liao boh ho!", meaning: "Eaten already not good!", correct: false },
+          { phrase: "Wa ai hi liao", meaning: "I want to go already", correct: false }
+        ]},
+        { context: "You've arrived. The meter shows twelve dollars.", dialogues: [
+          { phrase: "Ho, m sai tio, lu lah!", meaning: "Okay, no need for change, keep it!", correct: true },
+          { phrase: "Zia kui lah", meaning: "Too expensive lah", correct: false },
+          { phrase: "Wa ai hi a", meaning: "I want to go now", correct: false }
         ]}
       ]
     }
