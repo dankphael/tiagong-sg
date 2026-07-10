@@ -37,11 +37,7 @@ export function Nav() {
 
       <div className={`nav-links${open ? " open" : ""}`}>
         {LINKS.map(([href, label, screenId]) => (
-          <Link key={href} href={href} className="nav-link" onClick={() => setOpen(false)}
-            style={{
-              color: activeScreen === screenId ? "var(--color-cream)" : undefined,
-              borderBottomColor: activeScreen === screenId ? "var(--color-primary)" : undefined,
-            }}>
+          <Link key={href} href={href} className={`nav-link${activeScreen === screenId ? " active" : ""}`} onClick={() => setOpen(false)}>
             {label}
           </Link>
         ))}
