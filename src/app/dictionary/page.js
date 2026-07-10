@@ -6,7 +6,7 @@ import {
   Users, Heart, Home, Smile, Plane, Clock, Utensils, Briefcase, MapPin,
   PawPrint, Coffee, Languages, BookOpen, User, CupSoda, Handshake, Hash,
   Waves, Car, Palette, Ruler, Flag, PersonStanding, Package, Sparkles,
-  Repeat, MessageCircle, ScrollText,
+  Repeat, MessageCircle, ScrollText, Mic,
 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { SealChip } from "@/components/ui";
@@ -31,6 +31,7 @@ const PAGE_SIZE = 60;
 export default function DictionaryPage() {
   const { apiWords, overlay, currentUser, showToast } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
+  const [canRecord, setCanRecord] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]);
@@ -45,6 +46,10 @@ export default function DictionaryPage() {
   }, [searchQuery]);
 
   useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchSort]);
+
+  useEffect(() => {
+    setCanRecord(!!(navigator.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== "undefined"));
+  }, []);
 
   // Build flat, searchable phrase database across all dialects
   const allPhrases = [];
@@ -358,6 +363,12 @@ export default function DictionaryPage() {
                           style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
                           Add example
                         </button>
+                        {canRecord && (
+                          <button onClick={() => openContribution(p, "pronunciation_audio")}
+                            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            <Mic size={11} /> Record pronunciation
+                          </button>
+                        )}
                         <button onClick={() => openContribution(p, "error_flag")}
                           style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
                           Flag issue

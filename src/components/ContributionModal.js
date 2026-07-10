@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import AudioRecorder from "@/components/AudioRecorder";
 
 const CORRECTION_FIELDS = [
   ["spelling", "Spelling / Chinese characters"],
@@ -23,10 +24,14 @@ export default function ContributionModal({ word, type, onClose }) {
   const [contextNote, setContextNote] = useState("");
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [audioClip, setAudioClip] = useState(null); // { base64, mimeType, durationMs }
 
   if (!word) return null;
 
-  const title = type === "correction" ? "Suggest an Edit" : type === "usage_example" ? "Add a Usage Example" : "Flag an Issue";
+  const title = type === "correction" ? "Suggest an Edit"
+    : type === "usage_example" ? "Add a Usage Example"
+    : type === "pronunciation_audio" ? "Record Pronunciation"
+    : "Flag an Issue";
 
   async function handleSubmit() {
     if (!currentUser) {
@@ -36,12 +41,17 @@ export default function ContributionModal({ word, type, onClose }) {
     }
 
     let payload;
+    let audioFields = {};
     if (type === "correction") {
       if (!proposedValue.trim()) { showToast("Please enter your proposed value", "error"); return; }
       payload = { field, proposedValue: proposedValue.trim(), currentValue: currentFieldValue(), contextNote: contextNote.trim() };
     } else if (type === "usage_example") {
       if (!exampleText.trim()) { showToast("Please enter an example sentence", "error"); return; }
       payload = { exampleText: exampleText.trim(), translation: translation.trim(), contextNote: contextNote.trim() };
+    } else if (type === "pronunciation_audio") {
+      if (!audioClip) { showToast("Record a clip first", "error"); return; }
+      payload = { contextNote: contextNote.trim() };
+      audioFields = { audioData: audioClip.base64, audioMimeType: audioClip.mimeType, durationMs: audioClip.durationMs };
     } else {
       if (!description.trim()) { showToast("Please describe the issue", "error"); return; }
       payload = { description: description.trim() };
@@ -53,7 +63,7 @@ export default function ContributionModal({ word, type, onClose }) {
       const res = await fetch("/api/contributions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ type, wordId: word.wordId, dialect: word.dialect, payload, reason: reason.trim() || null }),
+        body: JSON.stringify({ type, wordId: word.wordId, dialect: word.dialect, payload, reason: reason.trim() || null, ...audioFields }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -107,6 +117,10 @@ export default function ContributionModal({ word, type, onClose }) {
             <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Translation (optional)</label>
             <input type="text" value={translation} onChange={e => setTranslation(e.target.value)} className="input" style={{ marginBottom: 16 }} />
           </>
+        )}
+
+        {type === "pronunciation_audio" && (
+          <AudioRecorder onAudioReady={setAudioClip} onClear={() => setAudioClip(null)} />
         )}
 
         {type === "error_flag" && (

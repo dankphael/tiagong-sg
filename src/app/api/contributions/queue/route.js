@@ -14,21 +14,25 @@ export async function GET(req) {
       return Response.json({ error: 'Not a Language Custodian' }, { status: 403 });
     }
 
-    // Admins act as super-custodians and see every dialect's queue
+    // Admins act as super-custodians and see every dialect's queue.
+    // LEFT JOIN audio_clips for pronunciation_audio submissions' duration —
+    // never selects the clip's base64 data itself (that stays behind /api/audio/[id]).
     const result = isAdmin
       ? await query(
           `SELECT c.id, c.type, c.word_id, c.dialect, c.payload, c.reason, c.status, c.created_at,
-           u.first_name, u.last_name
+           u.first_name, u.last_name, ac.duration_ms
            FROM contributions c
            JOIN users u ON c.user_id = u.id
+           LEFT JOIN audio_clips ac ON ac.contribution_id = c.id
            WHERE c.status = 'pending'
            ORDER BY c.created_at ASC`
         )
       : await query(
           `SELECT c.id, c.type, c.word_id, c.dialect, c.payload, c.reason, c.status, c.created_at,
-           u.first_name, u.last_name
+           u.first_name, u.last_name, ac.duration_ms
            FROM contributions c
            JOIN users u ON c.user_id = u.id
+           LEFT JOIN audio_clips ac ON ac.contribution_id = c.id
            WHERE c.status = 'pending' AND c.dialect = ANY($1::text[])
            ORDER BY c.created_at ASC`,
           [custodianDialects]

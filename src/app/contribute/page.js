@@ -16,6 +16,7 @@ const TYPE_LABELS = {
   new_word: "New Word",
   usage_example: "Usage Example",
   error_flag: "Error Flag",
+  pronunciation_audio: "Pronunciation",
 };
 
 export default function ContributePage() {
@@ -217,6 +218,9 @@ export default function ContributePage() {
                       {s.payload?.romanized && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.romanized} — {s.payload.english}</div>}
                       {s.payload?.exampleText && <div style={{ fontSize: 13, color: "#6B5B45" }}>"{s.payload.exampleText}"</div>}
                       {s.payload?.description && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.description}</div>}
+                      {s.type === "pronunciation_audio" && (
+                        <div style={{ fontSize: 13, color: "#6B5B45" }}>Pronunciation recording{s.duration_ms ? ` (${(s.duration_ms / 1000).toFixed(1)}s)` : ""}</div>
+                      )}
                       {s.status === "rejected" && s.review_note && (
                         <div style={{ fontSize: 12, color: "#C0392B", marginTop: 6, fontStyle: "italic" }}>Custodian note: {s.review_note}</div>
                       )}

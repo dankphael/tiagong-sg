@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Play, Pause } from "lucide-react";
 
 const TYPE_LABELS = {
   correction: "Correction",
   new_word: "New Word",
   usage_example: "Usage Example",
   error_flag: "Error Flag",
+  pronunciation_audio: "Pronunciation Recording",
 };
 
 // Renders one pending contribution in the custodian review queue, with
@@ -17,8 +19,37 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioElRef = useRef(null);
 
   const submitterName = `${submission.first_name || ''} ${submission.last_name || ''}`.trim() || 'Unknown';
+
+  useEffect(() => {
+    if (audioUrl && audioElRef.current) audioElRef.current.play().catch(() => {});
+    return () => { if (audioUrl) URL.revokeObjectURL(audioUrl); };
+  }, [audioUrl]);
+
+  async function handlePlayPending() {
+    if (audioUrl) {
+      audioElRef.current?.paused ? audioElRef.current.play() : audioElRef.current?.pause();
+      return;
+    }
+    setAudioLoading(true);
+    try {
+      const token = localStorage.getItem("auth_token");
+      const res = await fetch(`/api/audio/${submission.payload?.audioClipId}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error("Failed to load audio");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setAudioUrl(url);
+    } catch (e) {
+      console.error("Failed to load pending audio clip:", e);
+    } finally {
+      setAudioLoading(false);
+    }
+  }
 
   async function handle(action) {
     setBusy(true);
@@ -71,6 +102,19 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
         <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FAF6F0", marginBottom: 10, fontSize: 13, color: "#1A1208" }}>
           "{submission.payload?.exampleText}"
           {submission.payload?.translation && <div style={{ color: "#6B5B45", fontSize: 12 }}>{submission.payload.translation}</div>}
+        </div>
+      )}
+
+      {submission.type === "pronunciation_audio" && (
+        <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FAF6F0", marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
+          <audio ref={audioElRef} src={audioUrl || undefined} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} />
+          <button onClick={handlePlayPending} disabled={audioLoading}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 8, background: "#1A6B3C", color: "white", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            {isPlaying ? <Pause size={13} /> : <Play size={13} />} {audioLoading ? "Loading…" : isPlaying ? "Pause" : "Play"}
+          </button>
+          {submission.duration_ms && (
+            <span style={{ fontSize: 12, color: "#6B5B45" }}>{(submission.duration_ms / 1000).toFixed(1)}s</span>
+          )}
         </div>
       )}
 

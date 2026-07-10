@@ -118,8 +118,10 @@ export async function GET(req) {
 
   try {
     const result = await query(
-      `SELECT id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at
-       FROM contributions WHERE user_id = $1 ORDER BY created_at DESC`,
+      `SELECT c.id, c.type, c.word_id, c.dialect, c.payload, c.reason, c.status, c.review_note, c.reviewed_at, c.created_at, ac.duration_ms
+       FROM contributions c
+       LEFT JOIN audio_clips ac ON ac.contribution_id = c.id
+       WHERE c.user_id = $1 ORDER BY c.created_at DESC`,
       [decoded.userId]
     );
 
