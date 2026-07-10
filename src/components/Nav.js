@@ -64,7 +64,7 @@ export function Nav() {
                 {level.icon} {level.name}
               </span>
             )}
-            <button onClick={() => { router.push("/?screen=profile"); setOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal", background: "none", border: "none", cursor: "pointer" }}>
+            <button onClick={() => { router.push("/profile"); setOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal", background: "none", border: "none", cursor: "pointer" }}>
               <User size={16} /> {currentUser.firstName}
             </button>
             <button onClick={handleLogout} className="btn-secondary" style={{ padding: "7px 14px", fontSize: 12 }}>
@@ -72,7 +72,7 @@ export function Nav() {
             </button>
           </div>
         ) : (
-          <Link href="/?screen=profile" className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
+          <Link href="/profile" className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
             Sign In
           </Link>
         )}

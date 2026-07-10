@@ -244,7 +244,7 @@ export default function NetworkPage() {
           {!currentUser ? (
             <div style={{ background: "#FAF6F0", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, border: "1px dashed #D4C9B8" }}>
               <div style={{ fontSize: 14, color: "#8B7355" }}>Register your profile to access mentorship features.</div>
-              <button onClick={() => router.push("/?screen=profile")} className="btn-hover"
+              <button onClick={() => router.push("/profile")} className="btn-hover"
                 style={{ padding: "10px 20px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                 Register Profile
               </button>
@@ -331,7 +331,7 @@ export default function NetworkPage() {
                           Respond to their request <ArrowRight size={15} />
                         </button>
                       ) : !currentUser ? (
-                        <button className="btn-hover" onClick={() => router.push("/?screen=profile")}
+                        <button className="btn-hover" onClick={() => router.push("/profile")}
                           style={{ width: "100%", padding: "12px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                           Register to Connect
                         </button>
@@ -366,7 +366,7 @@ export default function NetworkPage() {
           {!currentUser ? (
             <div style={{ background: "#FAF6F0", borderRadius: 14, padding: "16px 24px", marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, border: "1px dashed #D4C9B8" }}>
               <div style={{ fontSize: 14, color: "#8B7355" }}>Register your profile to access mentorship features.</div>
-              <button onClick={() => router.push("/?screen=profile")} className="btn-hover"
+              <button onClick={() => router.push("/profile")} className="btn-hover"
                 style={{ padding: "10px 20px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                 Register Profile
               </button>
@@ -611,7 +611,7 @@ export default function NetworkPage() {
                           This is you
                         </div>
                       ) : !currentUser ? (
-                        <button className="btn-hover" onClick={() => router.push("/?screen=profile")}
+                        <button className="btn-hover" onClick={() => router.push("/profile")}
                           style={{ marginTop: 4, width: "100%", padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#8B7355", border: "1px dashed #D4C9B8", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                           Register to Connect
                         </button>
