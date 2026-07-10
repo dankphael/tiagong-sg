@@ -65,6 +65,22 @@ export const dialects = [
 ];
 
 
+// Interest tags used in match preferences (profile form, matching engine, chat icebreakers)
+export const interestTags = [
+  { id: "food", label: "Food", emoji: "🍜" },
+  { id: "history", label: "History", emoji: "📜" },
+  { id: "music", label: "Music", emoji: "🎵" },
+  { id: "mahjong", label: "Mahjong", emoji: "🀄" },
+  { id: "cooking", label: "Cooking", emoji: "🍳" },
+  { id: "opera", label: "Chinese Opera", emoji: "🎭" },
+  { id: "kopitiam", label: "Kopitiam Culture", emoji: "☕" },
+  { id: "family_stories", label: "Family Stories", emoji: "👪" },
+  { id: "travel", label: "Travel", emoji: "✈️" },
+  { id: "gardening", label: "Gardening", emoji: "🌱" },
+  { id: "movies_tv", label: "Movies & TV", emoji: "🎬" },
+  { id: "games", label: "Games", emoji: "🎲" },
+];
+
 export const huayKuan = [
   {
     id: "shhk",
