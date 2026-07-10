@@ -79,6 +79,10 @@ export async function GET(req) {
     // Language Custodian program: community contributions to the dictionary
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custodian_dialects JSONB DEFAULT '[]'`);
 
+    // Account types (admin console) — custodian stays derived from custodian_dialects
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS account_type VARCHAR(20) DEFAULT 'user'`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS deactivated BOOLEAN DEFAULT false`);
+
     await query(`
       CREATE TABLE IF NOT EXISTS contributions (
         id SERIAL PRIMARY KEY,

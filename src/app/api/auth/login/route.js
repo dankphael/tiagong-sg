@@ -24,6 +24,10 @@ export async function POST(req) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    if (user.deactivated) {
+      return Response.json({ error: 'This account has been deactivated' }, { status: 403 });
+    }
+
     // Create JWT token
     const token = jwt.sign(
       { userId: user.id, email: user.email },

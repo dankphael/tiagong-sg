@@ -47,6 +47,8 @@ function userResponse(row, picture) {
     bio: row.bio,
     huayKuan: row.huay_kuan,
     verified: !!row.verified,
+    custodianDialects: row.custodian_dialects || [],
+    accountType: row.account_type || 'user',
   };
 }
 
@@ -63,13 +65,17 @@ export async function POST(req) {
 
     const existing = await query(
       `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
-       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified,
+       custodian_dialects, account_type, deactivated
        FROM users WHERE email = $1`,
       [googleData.email]
     );
 
     if (existing.rows.length > 0) {
       const row = existing.rows[0];
+      if (row.deactivated) {
+        return Response.json({ error: 'This account has been deactivated' }, { status: 403 });
+      }
       const token = signToken(row.id, row.email);
       return Response.json({ token, user: userResponse(row, googleData.picture) }, { status: 200 });
     }
@@ -87,7 +93,8 @@ export async function POST(req) {
        intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
        RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
-       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified`,
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified,
+       custodian_dialects, account_type`,
       [
         googleData.email,
         firstName || googleData.firstName,

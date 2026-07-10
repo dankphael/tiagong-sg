@@ -28,6 +28,9 @@ CREATE TABLE users (
   verified BOOLEAN DEFAULT false,
   -- Language Custodian program
   custodian_dialects JSONB DEFAULT '[]',
+  -- Account types (admin console)
+  account_type VARCHAR(20) DEFAULT 'user',
+  deactivated BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -29,9 +29,10 @@ export async function PATCH(req, { params }) {
       return Response.json({ error: 'This contribution has already been reviewed' }, { status: 409 });
     }
 
-    const userResult = await query(`SELECT custodian_dialects FROM users WHERE id = $1`, [decoded.userId]);
+    const userResult = await query(`SELECT custodian_dialects, account_type FROM users WHERE id = $1`, [decoded.userId]);
     const custodianDialects = userResult.rows[0]?.custodian_dialects || [];
-    if (!Array.isArray(custodianDialects) || !custodianDialects.includes(contribution.dialect)) {
+    const isAdmin = userResult.rows[0]?.account_type === 'admin';
+    if (!isAdmin && (!Array.isArray(custodianDialects) || !custodianDialects.includes(contribution.dialect))) {
       return Response.json({ error: 'Not authorized to review this dialect' }, { status: 403 });
     }
 
