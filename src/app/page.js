@@ -85,7 +85,7 @@ function DialectPlatformContent() {
           </div>
         </Link>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
           <Link href={`/learn/${dialect.id}`} style={{ textDecoration: "none" }}>
             <div className="card card-hover" style={{ padding: 24 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
@@ -93,6 +93,12 @@ function DialectPlatformContent() {
                 <div style={{ fontWeight: 700, color: "var(--color-text)" }}>Continue {dialect.name}</div>
               </div>
               <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Pick up your flashcards and lesson modes where you left off.</p>
+            </div>
+          </Link>
+          <Link href={`/learn/${dialect.id}?mode=review`} style={{ textDecoration: "none" }}>
+            <div className="card card-hover" style={{ padding: 24 }}>
+              <div style={{ fontWeight: 700, color: "var(--color-text)", marginBottom: 8 }}>Review weak cards</div>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Cycle through cards you haven't marked "known" yet in {dialect.name}.</p>
             </div>
           </Link>
           <Link href="/learn" style={{ textDecoration: "none" }}>

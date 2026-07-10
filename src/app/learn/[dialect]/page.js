@@ -17,7 +17,7 @@ import {
   Volume2, MessageCircle, Languages, Users, Heart, Home, Smile, Plane, Clock,
   Utensils, Briefcase, MapPin, PawPrint, Coffee, User, CupSoda, Handshake,
   Hash, Waves, Car, Palette, Ruler, Flag, PersonStanding, Package, Sparkles,
-  ScrollText, Flame,
+  ScrollText, Flame, Star,
 } from "lucide-react";
 import { dialects, lessons, categories, situationalQuizzes, sentenceCompletion } from "@/data/staticData";
 
@@ -250,42 +250,65 @@ export default function LearnDialectPage() {
     if (mode === 'daily-challenge') startDailyChallenge();
     if (mode === 'speed-round') startSpeedRound();
     if (mode === 'reverse-cards') startReverseCards();
+    if (mode === 'review') startReview();
   }, []);
 
   // Build flashcard deck: hardcoded lessons + dictionary words with full rich data
-  const dictForCategory = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags || []).includes(selectedCategory)) : [];
-  const staticCards = (selectedDialect && lessons[selectedDialect]?.[selectedCategory] || []);
-  const richStatic = staticCards.map(sc => {
-    const dictMatch = dictForCategory.find(d => d.headword?.romanized === sc.phrase);
-    if (dictMatch) {
-      return {
-        phrase: sc.phrase,
-        chinese: sc.chinese,
-        meaning: sc.meaning,
-        romanisation: sc.romanisation,
-        ipa: dictMatch.pronunciations?.[0]?.ipa || '',
-        pos: dictMatch.part_of_speech || '',
-        examples: dictMatch.definitions?.[0]?.examples || [],
-        frequency: dictMatch.frequency || 'common',
-        register: dictMatch.register || 'informal',
-        fromDictionary: true,
-      };
+  function buildCardsForCategory(catId) {
+    const dictForCat = selectedDialect ? apiWords.filter(w => w.dialect === selectedDialect && (w.tags || []).includes(catId)) : [];
+    const staticCards = (selectedDialect && lessons[selectedDialect]?.[catId]) || [];
+    const richStatic = staticCards.map(sc => {
+      const dictMatch = dictForCat.find(d => d.headword?.romanized === sc.phrase);
+      if (dictMatch) {
+        return {
+          phrase: sc.phrase,
+          chinese: sc.chinese,
+          meaning: sc.meaning,
+          romanisation: sc.romanisation,
+          ipa: dictMatch.pronunciations?.[0]?.ipa || '',
+          pos: dictMatch.part_of_speech || '',
+          examples: dictMatch.definitions?.[0]?.examples || [],
+          frequency: dictMatch.frequency || 'common',
+          register: dictMatch.register || 'informal',
+          fromDictionary: true,
+        };
+      }
+      return { ...sc, ipa: '', pos: '', examples: [], frequency: 'common', register: 'informal', fromDictionary: false };
+    });
+    const dictCards = dictForCat.filter(d => !staticCards.find(s => s.phrase === d.headword?.romanized)).map(d => ({
+      phrase: d.headword?.romanized || '',
+      chinese: d.headword?.traditional || '',
+      meaning: d.definitions?.[0]?.english || '',
+      romanisation: d.headword?.romanized || '',
+      ipa: d.pronunciations?.[0]?.ipa || '',
+      pos: d.part_of_speech || '',
+      examples: d.definitions?.[0]?.examples || [],
+      frequency: d.frequency || 'common',
+      register: d.register || 'informal',
+      fromDictionary: true,
+    }));
+    return [...richStatic, ...dictCards];
+  }
+  const cards = buildCardsForCategory(selectedCategory);
+
+  // Review mode: cards across every category not yet marked "known"
+  const [reviewQueue, setReviewQueue] = useState([]);
+  const [reviewPos, setReviewPos] = useState(0);
+  const [reviewFlipped2, setReviewFlipped2] = useState(false);
+
+  function startReview() {
+    const queue = [];
+    for (const cat of categories) {
+      const catCards = buildCardsForCategory(cat.id);
+      catCards.forEach((card, idx) => {
+        const key = `${selectedDialect}-${cat.id}-${idx}`;
+        if (!knownCards[key]) queue.push({ category: cat.id, idx, card });
+      });
     }
-    return { ...sc, ipa: '', pos: '', examples: [], frequency: 'common', register: 'informal', fromDictionary: false };
-  });
-  const dictCards = dictForCategory.filter(d => !staticCards.find(s => s.phrase === d.headword?.romanized)).map(d => ({
-    phrase: d.headword?.romanized || '',
-    chinese: d.headword?.traditional || '',
-    meaning: d.definitions?.[0]?.english || '',
-    romanisation: d.headword?.romanized || '',
-    ipa: d.pronunciations?.[0]?.ipa || '',
-    pos: d.part_of_speech || '',
-    examples: d.definitions?.[0]?.examples || [],
-    frequency: d.frequency || 'common',
-    register: d.register || 'informal',
-    fromDictionary: true,
-  }));
-  const cards = [...richStatic, ...dictCards];
+    setReviewQueue(queue.sort(() => Math.random() - 0.5));
+    setReviewPos(0);
+    setReviewFlipped2(false);
+  }
 
   function nextCard() {
     setFlipped(false);
@@ -332,6 +355,7 @@ export default function LearnDialectPage() {
               { mode: "speed-round", icon: Zap, label: "Speed Round", desc: "60s rapid fire" },
               { mode: "daily-challenge", icon: Trophy, label: "Daily Challenge", desc: "10 mixed questions" },
               { mode: "reverse-cards", icon: Repeat, label: "Reverse Cards", desc: "English → dialect" },
+              { mode: "review", icon: Star, label: "Review", desc: "Cards you don't know yet" },
             ].map(({ mode, icon: Icon, label, desc }) => (
               <button key={mode} className="tab-btn" onClick={() => {
                 setLessonMode(mode);
@@ -339,6 +363,7 @@ export default function LearnDialectPage() {
                 if (mode === "speed-round") startSpeedRound();
                 if (mode === "daily-challenge") startDailyChallenge();
                 if (mode === "reverse-cards") startReverseCards();
+                if (mode === "review") startReview();
               }} style={{
                 padding: "14px 10px", borderRadius: "var(--radius-md)",
                 background: lessonMode === mode ? dialect.color : "var(--color-surface)",
@@ -1203,6 +1228,80 @@ export default function LearnDialectPage() {
                         </button>
                       </div>
                     )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* ─── REVIEW (cards not yet known, across every category) ─── */}
+          {lessonMode === "review" && (
+            <div>
+              {reviewQueue.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "60px 24px" }}>
+                  <div style={{ marginBottom: 16 }}><Star size={56} /></div>
+                  <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>All caught up!</h2>
+                  <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
+                    You've marked every card in this dialect as known. Keep learning new categories in Flashcards to build up more review material.
+                  </p>
+                  <button className="btn-hover" onClick={() => startReview()}
+                    style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                    Refresh <Repeat size={15} />
+                  </button>
+                </div>
+              ) : (() => {
+                const item = reviewQueue[reviewPos];
+                const card = item.card;
+                return (
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13, color: "#8B7355" }}>
+                      <span>Card {reviewPos + 1} of {reviewQueue.length}</span>
+                      <span style={{ color: dialect.color, fontWeight: 600 }}>{item.category.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div className="progress" style={{ marginBottom: 24 }}>
+                      <div className="progress-fill" style={{ width: `${((reviewPos + 1) / reviewQueue.length) * 100}%`, background: dialect.color }} />
+                    </div>
+
+                    <div className="card-3d flashcard" style={{ marginBottom: 20 }} onClick={() => setReviewFlipped2(!reviewFlipped2)}>
+                      <div className={`card-inner ${reviewFlipped2 ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
+                        <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
+                          <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
+                          <div className="romanized" style={{ fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>{card.phrase}</div>
+                          <div style={{ fontFamily: "var(--font-chinese)", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>{card.chinese}</div>
+                          <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, selectedDialect); }}
+                            className="btn-tts"
+                            style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+                            <Volume2 size={15} /> Hear it
+                          </button>
+                        </div>
+                        <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px" }}>
+                          <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>{card.meaning}</div>
+                          <div style={{ fontSize: 14, color: dialect.color, marginTop: 8, fontWeight: 600 }}>{card.romanisation}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+                      <button className="btn-hover" onClick={() => {
+                        setReviewFlipped2(false);
+                        setTimeout(() => setReviewPos(p => (p + 1) % reviewQueue.length), 150);
+                      }} style={{ flex: 1, padding: "13px", background: "#FDEDEC", border: "2px solid #E74C3C", borderRadius: 12, fontSize: 14, fontWeight: 600, color: "#C0392B", cursor: "pointer", fontFamily: "inherit" }}>
+                        <Repeat size={15} /> Still learning
+                      </button>
+                      <button className="btn-hover" onClick={() => {
+                        const key = `${selectedDialect}-${item.category}-${item.idx}`;
+                        setKnownCards(prev => ({ ...prev, [key]: true }));
+                        awardXp(XP_REWARDS.correctAnswer, 'reviewed');
+                        setReviewFlipped2(false);
+                        setTimeout(() => {
+                          const nextQueue = reviewQueue.filter((_, i) => i !== reviewPos);
+                          setReviewQueue(nextQueue);
+                          setReviewPos(p => nextQueue.length ? p % nextQueue.length : 0);
+                        }, 150);
+                      }} style={{ flex: 2, padding: "13px", background: "#EAFAF1", border: "2px solid #27AE60", borderRadius: 12, fontSize: 14, fontWeight: 700, color: "#1A6B3C", cursor: "pointer", fontFamily: "inherit" }}>
+                        ✓ Know it!
+                      </button>
+                    </div>
                   </div>
                 );
               })()}
