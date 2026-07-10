@@ -10,7 +10,8 @@ export default function CustodianPage() {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const isCustodian = currentUser?.custodianDialects?.length > 0;
+  const isAdmin = currentUser?.accountType === 'admin';
+  const isCustodian = currentUser?.custodianDialects?.length > 0 || isAdmin;
 
   async function loadQueue() {
     const token = localStorage.getItem("auth_token");
@@ -83,7 +84,7 @@ export default function CustodianPage() {
         <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Custodian Console</div>
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Review Queue</h1>
         <p style={{ color: "#8B7355", fontSize: 14 }}>
-          Reviewing for: {currentUser.custodianDialects.join(", ")} · {queue.length} pending
+          Reviewing for: {currentUser.custodianDialects?.length > 0 ? currentUser.custodianDialects.join(", ") : "All dialects (admin)"} · {queue.length} pending
         </p>
       </div>
 

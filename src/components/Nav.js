@@ -25,7 +25,8 @@ export function Nav() {
   const router = useRouter();
   const { currentUser, handleLogout, xp, streak, dailyCompleted } = useApp();
   const level = getLevel(xp);
-  const isCustodian = currentUser?.custodianDialects?.length > 0;
+  const isAdmin = currentUser?.accountType === 'admin';
+  const isCustodian = currentUser?.custodianDialects?.length > 0 || isAdmin;
   const activeScreen = pathname === "/" ? "home" : pathname.replace(/^\//, "").split("/")[0];
 
   useEffect(() => {
@@ -62,6 +63,11 @@ export function Nav() {
                 {queueCount}
               </span>
             )}
+          </Link>
+        )}
+        {isAdmin && (
+          <Link href="/admin" className={`nav-link${activeScreen === "admin" ? " active" : ""}`} onClick={() => setOpen(false)}>
+            Admin
           </Link>
         )}
       </div>
