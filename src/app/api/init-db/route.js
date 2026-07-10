@@ -128,6 +128,20 @@ export async function GET(req) {
       )
     `);
 
+    // Community pronunciation recordings — base64 audio, kept out of the
+    // contributions/word_variants JSONB payloads (those ride bulk public
+    // endpoints and must stay small); payload only ever references the clip id.
+    await query(`
+      CREATE TABLE IF NOT EXISTS audio_clips (
+        id SERIAL PRIMARY KEY,
+        contribution_id INT REFERENCES contributions(id) ON DELETE CASCADE,
+        mime_type VARCHAR(50) NOT NULL,
+        data TEXT NOT NULL,
+        duration_ms INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     await query(`CREATE INDEX IF NOT EXISTS idx_users_dialect_group ON users(dialect_group)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_connections_requester ON connections(requester_id)`);
@@ -137,6 +151,7 @@ export async function GET(req) {
     await query(`CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(connection_id, read_at) WHERE read_at IS NULL`);
     await query(`CREATE INDEX IF NOT EXISTS idx_contributions_status_dialect ON contributions(status, dialect)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_contributions_user ON contributions(user_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_audio_clips_contribution ON audio_clips(contribution_id)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_contributions_word ON contributions(word_id)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_word_variants_word ON word_variants(word_id)`);
 

@@ -103,6 +103,18 @@ CREATE TABLE custodian_applications (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Audio Clips Table (community pronunciation recordings — base64, kept out
+-- of the contributions/word_variants JSONB payloads since those ride bulk
+-- public endpoints; payload only ever references the clip id)
+CREATE TABLE audio_clips (
+  id SERIAL PRIMARY KEY,
+  contribution_id INT REFERENCES contributions(id) ON DELETE CASCADE,
+  mime_type VARCHAR(50) NOT NULL,
+  data TEXT NOT NULL,
+  duration_ms INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_users_dialect_group ON users(dialect_group);
 CREATE INDEX idx_users_role ON users(role);
@@ -115,3 +127,4 @@ CREATE INDEX idx_contributions_status_dialect ON contributions(status, dialect);
 CREATE INDEX idx_contributions_user ON contributions(user_id);
 CREATE INDEX idx_contributions_word ON contributions(word_id);
 CREATE INDEX idx_word_variants_word ON word_variants(word_id);
+CREATE INDEX idx_audio_clips_contribution ON audio_clips(contribution_id);

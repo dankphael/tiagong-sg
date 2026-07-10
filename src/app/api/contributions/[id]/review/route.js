@@ -46,7 +46,7 @@ export async function PATCH(req, { params }) {
 
     if (action === 'accept') {
       if (contribution.type !== 'error_flag') {
-        const variantTypeMap = { correction: contribution.payload?.field, new_word: 'new_word', usage_example: 'usage_example' };
+        const variantTypeMap = { correction: contribution.payload?.field, new_word: 'new_word', usage_example: 'usage_example', pronunciation_audio: 'pronunciation' };
         const submitterResult = await query(`SELECT first_name, last_name FROM users WHERE id = $1`, [contribution.user_id]);
         const submitter = submitterResult.rows[0];
         const contributorName = submitter ? `${submitter.first_name || ''} ${submitter.last_name || ''}`.trim() || 'A community member' : 'A community member';
