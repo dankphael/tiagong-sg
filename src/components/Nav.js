@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,11 +20,23 @@ const LINKS = [
 
 export function Nav() {
   const [open, setOpen] = useState(false);
+  const [queueCount, setQueueCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const { currentUser, handleLogout, xp, streak, dailyCompleted } = useApp();
   const level = getLevel(xp);
+  const isCustodian = currentUser?.custodianDialects?.length > 0;
   const activeScreen = pathname === "/" ? "home" : pathname.replace(/^\//, "").split("/")[0];
+
+  useEffect(() => {
+    if (!isCustodian) { setQueueCount(0); return; }
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    fetch("/api/contributions/queue", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => setQueueCount(Array.isArray(data) ? data.length : 0))
+      .catch(() => {});
+  }, [isCustodian, currentUser?.id]);
 
   return (
     <nav style={{ background: "var(--color-dark)", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid var(--color-primary)" }}>
@@ -42,6 +54,16 @@ export function Nav() {
             {label}
           </Link>
         ))}
+        {isCustodian && (
+          <Link href="/custodian" className={`nav-link${activeScreen === "custodian" ? " active" : ""}`} onClick={() => setOpen(false)}>
+            Custodian
+            {queueCount > 0 && (
+              <span style={{ marginLeft: 6, background: "#C0392B", color: "white", borderRadius: "50%", width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700 }}>
+                {queueCount}
+              </span>
+            )}
+          </Link>
+        )}
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
