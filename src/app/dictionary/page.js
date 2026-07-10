@@ -12,6 +12,7 @@ import { useApp } from "@/components/AppProvider";
 import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
 import ContributionModal from "@/components/ContributionModal";
+import VariantChips from "@/components/VariantChips";
 import Link from "next/link";
 
 const CATEGORY_ICONS = {
@@ -28,7 +29,7 @@ const CATEGORY_ICONS = {
 const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
-  const { apiWords, currentUser, showToast } = useApp();
+  const { apiWords, overlay, currentUser, showToast } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
@@ -76,6 +77,25 @@ export default function DictionaryPage() {
       dialectColor: dialectInfo?.color || "#666",
       dialectIcon: dialectInfo?.icon || "",
       category: cat,
+      variants: overlay.variants[word.id] || [],
+    });
+  }
+  for (const nw of overlay.newWords || []) {
+    const dialectInfo = dialects.find(d => d.id === nw.dialect);
+    allPhrases.push({
+      wordId: null,
+      phrase: nw.payload?.romanized || "",
+      chinese: nw.payload?.traditional || "",
+      meaning: nw.payload?.english || "",
+      romanisation: nw.payload?.romanized || "",
+      dialect: nw.dialect,
+      dialectName: dialectInfo?.name || nw.dialect,
+      dialectColor: dialectInfo?.color || "#666",
+      dialectIcon: dialectInfo?.icon || "",
+      category: nw.payload?.partOfSpeech || "other",
+      variants: [],
+      isCommunity: true,
+      contributorName: nw.contributor_name,
     });
   }
   const q = searchDebouncedQuery.toLowerCase().trim();
@@ -306,6 +326,11 @@ export default function DictionaryPage() {
                       <span style={{ background: "#F5EFE6", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#8B7355" }}>
                         {p.category}
                       </span>
+                      {p.isCommunity && (
+                        <span style={{ background: "#EAFAF1", border: "1.5px solid #1A6B3C50", borderRadius: 20, padding: "3px 10px", fontSize: 11, color: "#1A6B3C", fontWeight: 700 }}>
+                          Community
+                        </span>
+                      )}
                     </div>
                     <div className="romanized" style={{ fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>
                       {p.phrase}
@@ -316,9 +341,13 @@ export default function DictionaryPage() {
                     <div style={{ fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 3 }}>
                       {p.meaning}
                     </div>
-                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic", marginBottom: p.wordId ? 10 : 0 }}>
+                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic", marginBottom: (p.wordId || p.isCommunity) ? 10 : 0 }}>
                       /{p.romanisation}/
                     </div>
+                    {p.isCommunity && p.contributorName && (
+                      <div style={{ fontSize: 11, color: "#9B8B75", marginBottom: 10 }}>Contributed by {p.contributorName}</div>
+                    )}
+                    <VariantChips variants={p.variants} />
                     {p.wordId && (
                       <div style={{ display: "flex", gap: 10, borderTop: "1px solid #F0E8DA", paddingTop: 8 }}>
                         <button onClick={() => openContribution(p, "correction")}

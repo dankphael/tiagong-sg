@@ -32,6 +32,7 @@ export function AppProvider({ children }) {
   const [ready, setReady] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
+  const [overlay, setOverlay] = useState({ variants: {}, newWords: [] });
 
   const dialect = dialects.find(d => d.id === selectedDialect) || null;
 
@@ -185,6 +186,15 @@ export function AppProvider({ children }) {
       .then(data => setApiWords(data.words || []))
       .catch(() => {});
 
+    fetch("/api/contributions/overlay")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.variants) {
+          setOverlay({ variants: data.variants || {}, newWords: Array.isArray(data.newWords) ? data.newWords : [] });
+        }
+      })
+      .catch(() => {});
+
     fetch("/api/users/profiles")
       .then(r => r.json())
       .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
@@ -265,7 +275,7 @@ export function AppProvider({ children }) {
 
   const value = {
     currentUser, setCurrentUser,
-    registeredUsers, setRegisteredUsers, profilesLoading,
+    registeredUsers, setRegisteredUsers, profilesLoading, overlay,
     xp, setXp, streak, setStreak,
     dailyCompleted, setDailyCompleted, markDailyComplete,
     progress, setProgress,
