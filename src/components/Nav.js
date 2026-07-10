@@ -14,7 +14,7 @@ const LINKS = [
   ["/?screen=home", "Learn", "home"],
   ["/dictionary", "Search", "dictionary"],
   ["/singlish", "Dialects in Singlish", "singlish"],
-  ["/?screen=network", "Network", "network"],
+  ["/network", "Network", "network"],
   ["/associations", "Associations", "associations"],
   ["/about", "About", "about"],
 ];

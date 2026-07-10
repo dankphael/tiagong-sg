@@ -101,7 +101,7 @@ export default function AboutPage() {
           {[
             { num: "1", color: "#C0392B", title: "Choose your dialect", desc: "Five Singapore dialects to explore — pick where your roots lie, or where curiosity leads.", target: "/" },
             { num: "2", color: "#8E44AD", title: "Learn phrases & idioms", desc: "Flashcards, story quizzes, and fill-in-the-blank exercises to build vocabulary your grandparents would recognise.", target: "/" },
-            { num: "3", color: "#1A6B3C", title: "Find a Sin Seh", desc: "Connect with fluent mentors in our community who can guide you through real conversations.", target: "/?screen=network" },
+            { num: "3", color: "#1A6B3C", title: "Find a Sin Seh", desc: "Connect with fluent mentors in our community who can guide you through real conversations.", target: "/network" },
             { num: "4", color: "#D4860B", title: "Practice in Singlish", desc: "See how dialect words already live in everyday Singlish — and use them with confidence.", target: "/singlish" },
           ].map(s => (
             <div key={s.num} onClick={() => router.push(s.target)} className="about-step-card" style={{ borderTopColor: s.color }}>
@@ -326,7 +326,7 @@ Best regards,
         </p>
         <div className="about-cta-buttons">
           <button onClick={() => router.push("/")} className="btn-primary" style={{ fontSize: 15 }}>Start Learning</button>
-          <button onClick={() => router.push("/?screen=network")} className="btn-secondary" style={{ fontSize: 15 }}>Find a Sin Seh</button>
+          <button onClick={() => router.push("/network")} className="btn-secondary" style={{ fontSize: 15 }}>Find a Sin Seh</button>
           <button onClick={() => router.push("/associations")} className="btn-secondary" style={{ fontSize: 15 }}>Browse Associations</button>
         </div>
       </div>
