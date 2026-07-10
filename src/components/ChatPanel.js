@@ -18,10 +18,11 @@ function fmtTime(iso) {
 // vestibule chat: conversation list + thread + icebreakers + meetup
 // proposals. Not meant to replace WhatsApp, just to get two people to a
 // first coffee chat.
-export default function ChatPanel({ currentUser, connections, openConnectionId, onOpenConnection, users }) {
+export default function ChatPanel({ currentUser, connections, openConnectionId, onOpenConnection, users, connectionsLoading }) {
   const { showToast } = useApp();
   const [activeId, setActiveId] = useState(openConnectionId || null);
   const [messages, setMessages] = useState([]);
+  const [threadLoading, setThreadLoading] = useState(false);
   const [draft, setDraft] = useState("");
   const [proposing, setProposing] = useState(false);
   const [proposal, setProposal] = useState({ date: "", time: "", place: "" });
@@ -41,11 +42,12 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
     setMessages([]);
     sinceIdRef.current = null;
     if (pollRef.current) clearInterval(pollRef.current);
-    if (!activeId) return;
+    if (!activeId) { setThreadLoading(false); return; }
+    setThreadLoading(true);
 
-    async function fetchMessages() {
+    async function fetchMessages(isInitial) {
       const token = localStorage.getItem("auth_token");
-      if (!token) return;
+      if (!token) { if (isInitial) setThreadLoading(false); return; }
       try {
         const params = new URLSearchParams({ connectionId: activeId });
         if (sinceIdRef.current) params.set("sinceId", sinceIdRef.current);
@@ -58,11 +60,13 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
         }
       } catch (e) {
         console.error("Failed to fetch messages:", e);
+      } finally {
+        if (isInitial) setThreadLoading(false);
       }
     }
 
-    fetchMessages();
-    pollRef.current = setInterval(fetchMessages, POLL_MS);
+    fetchMessages(true);
+    pollRef.current = setInterval(() => fetchMessages(false), POLL_MS);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [activeId]);
 
@@ -131,7 +135,13 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
     <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, minHeight: 480 }}>
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "16px 18px", borderBottom: "1px solid #E8DDD0", fontSize: 12, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700 }}>Chats</div>
-        {accepted.length === 0 ? (
+        {connectionsLoading ? (
+          <div style={{ padding: "10px 18px" }}>
+            {[0, 1, 2].map(i => (
+              <div key={i} className="shimmer" style={{ background: "#F0E8DA", borderRadius: 8, height: 52, marginBottom: 8 }} />
+            ))}
+          </div>
+        ) : accepted.length === 0 ? (
           <div style={{ padding: "24px 18px", fontSize: 13, color: "#9B8B75", textAlign: "center" }}>
             No conversations yet. Connect with someone to start chatting.
           </div>
@@ -165,7 +175,13 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
               {active.connected_user_name}
             </div>
             <div style={{ flex: 1, padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, maxHeight: 380 }}>
-              {messages.length === 0 && (
+              {threadLoading ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className="shimmer" style={{ background: "#F0E8DA", borderRadius: 14, height: 36, width: i % 2 ? "50%" : "65%", alignSelf: i % 2 ? "flex-end" : "flex-start" }} />
+                  ))}
+                </div>
+              ) : messages.length === 0 && (
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 8 }}>Not sure how to start? Try:</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

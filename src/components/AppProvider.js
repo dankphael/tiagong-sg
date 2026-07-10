@@ -31,6 +31,7 @@ export function AppProvider({ children }) {
   const [pendingGoogle, setPendingGoogle] = useState(null);
   const [ready, setReady] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [profilesLoading, setProfilesLoading] = useState(true);
 
   const dialect = dialects.find(d => d.id === selectedDialect) || null;
 
@@ -187,7 +188,8 @@ export function AppProvider({ children }) {
     fetch("/api/users/profiles")
       .then(r => r.json())
       .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
-      .catch(err => console.error("Failed to load profiles:", err));
+      .catch(err => console.error("Failed to load profiles:", err))
+      .finally(() => setProfilesLoading(false));
 
     const token = localStorage.getItem("auth_token");
     if (token) {
@@ -263,7 +265,7 @@ export function AppProvider({ children }) {
 
   const value = {
     currentUser, setCurrentUser,
-    registeredUsers, setRegisteredUsers,
+    registeredUsers, setRegisteredUsers, profilesLoading,
     xp, setXp, streak, setStreak,
     dailyCompleted, setDailyCompleted, markDailyComplete,
     progress, setProgress,

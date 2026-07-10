@@ -12,7 +12,7 @@ const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
 export default function NetworkPage() {
   const router = useRouter();
-  const { currentUser, registeredUsers, showToast } = useApp();
+  const { currentUser, registeredUsers, profilesLoading, showToast } = useApp();
 
   const [networkView, setNetworkView] = useState("directory");
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
@@ -24,6 +24,7 @@ export default function NetworkPage() {
   const [removeConfirm, setRemoveConfirm] = useState(null); // { id, name } when confirming connection removal
   const [connections, setConnections] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [connectionsLoading, setConnectionsLoading] = useState(true);
   const [openChatConnectionId, setOpenChatConnectionId] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
   const unreadErrorShownRef = useRef(false);
@@ -82,6 +83,8 @@ export default function NetworkPage() {
     } catch (e) {
       console.error('Failed to load connections:', e);
       if (!connectionsErrorShownRef.current) { connectionsErrorShownRef.current = true; showToast("Couldn't load your connections", "error"); }
+    } finally {
+      setConnectionsLoading(false);
     }
   }
 
@@ -378,7 +381,13 @@ export default function NetworkPage() {
 
             const sorted = rankSinSehs(currentUser, filtered);
 
-            return filtered.length === 0 ? (
+            return profilesLoading ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="card shimmer" style={{ padding: 28, height: 180, background: "#F0E8DA" }} />
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><UserCheck size={40} /></div>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No Sin Sehs yet</div>
@@ -526,6 +535,12 @@ export default function NetworkPage() {
                   <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
                     <div style={{ fontSize: 48, marginBottom: 16 }}><Handshake size={40} /></div>
                     <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your mentorships</div>
+                  </div>
+                ) : connectionsLoading ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                    {[0, 1, 2].map(i => (
+                      <div key={i} className="card shimmer" style={{ padding: 24, height: 120, background: "#F0E8DA" }} />
+                    ))}
                   </div>
                 ) : !hasAny ? (
                   <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
@@ -684,7 +699,7 @@ export default function NetworkPage() {
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your chats</div>
             </div>
           ) : (
-            <ChatPanel currentUser={currentUser} connections={connections} users={registeredUsers}
+            <ChatPanel currentUser={currentUser} connections={connections} users={registeredUsers} connectionsLoading={connectionsLoading}
               openConnectionId={openChatConnectionId} onOpenConnection={(id) => { setOpenChatConnectionId(id); loadUnreadCounts(); }} />
           )}
         </div>
@@ -706,7 +721,13 @@ export default function NetworkPage() {
             ))}
           </div>
 
-          {registeredUsers.length === 0 ? (
+          {profilesLoading ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+              {[0, 1, 2].map(i => (
+                <div key={i} className="card shimmer" style={{ padding: 24, height: 150, background: "#F0E8DA" }} />
+              ))}
+            </div>
+          ) : registeredUsers.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><Sprout size={40} /></div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
