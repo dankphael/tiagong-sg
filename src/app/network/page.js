@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { GraduationCap, UserCheck, ArrowRight, Repeat, Handshake, Sprout, BadgeCheck, MessageCircle } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
@@ -12,7 +12,7 @@ const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
 export default function NetworkPage() {
   const router = useRouter();
-  const { currentUser, registeredUsers } = useApp();
+  const { currentUser, registeredUsers, showToast } = useApp();
 
   const [networkView, setNetworkView] = useState("directory");
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
@@ -26,6 +26,8 @@ export default function NetworkPage() {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [openChatConnectionId, setOpenChatConnectionId] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
+  const unreadErrorShownRef = useRef(false);
+  const connectionsErrorShownRef = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -40,10 +42,15 @@ export default function NetworkPage() {
     try {
       const res = await fetch("/api/messages/unread", { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
-      if (!Array.isArray(data)) return;
+      if (!Array.isArray(data)) {
+        if (!unreadErrorShownRef.current) { unreadErrorShownRef.current = true; showToast("Couldn't load unread messages", "error"); }
+        return;
+      }
+      unreadErrorShownRef.current = false;
       setUnreadCounts(Object.fromEntries(data.map(r => [r.connection_id, r.unread_count])));
     } catch (e) {
       console.error("Failed to load unread counts:", e);
+      if (!unreadErrorShownRef.current) { unreadErrorShownRef.current = true; showToast("Couldn't load unread messages", "error"); }
     }
   }
 
@@ -65,10 +72,16 @@ export default function NetworkPage() {
         fetch(`/api/connections?userId=${currentUser.id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
         fetch(`/api/connections/pending?userId=${currentUser.id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
       ]);
+      if (!Array.isArray(a) || !Array.isArray(b)) {
+        if (!connectionsErrorShownRef.current) { connectionsErrorShownRef.current = true; showToast("Couldn't load your connections", "error"); }
+      } else {
+        connectionsErrorShownRef.current = false;
+      }
       setConnections(Array.isArray(a) ? a : []);
       setPendingRequests(Array.isArray(b) ? b : []);
     } catch (e) {
       console.error('Failed to load connections:', e);
+      if (!connectionsErrorShownRef.current) { connectionsErrorShownRef.current = true; showToast("Couldn't load your connections", "error"); }
     }
   }
 
@@ -76,7 +89,7 @@ export default function NetworkPage() {
     if (currentUser) loadConnections();
   }, [currentUser?.id]);
 
-  async function sendConnectRequest(targetUserId, message = '') {
+  async function sendConnectRequest(targetUserId, message = '', targetName = '') {
     if (!currentUser || currentUser.id === targetUserId) return false;
     const token = localStorage.getItem('auth_token');
     setConnectError(null);
@@ -88,14 +101,18 @@ export default function NetworkPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setConnectError(data.error || `Request failed (${res.status})`);
+        const errMsg = data.error || `Request failed (${res.status})`;
+        setConnectError(errMsg);
+        showToast(errMsg, "error");
         return false;
       }
       await loadConnections();
+      showToast(targetName ? `Request sent to ${targetName}` : "Request sent", "success");
       return true;
     } catch (e) {
       console.error('Failed to send connect request:', e);
       setConnectError('Network error — please try again');
+      showToast('Network error — please try again', "error");
       return false;
     }
   }
@@ -111,13 +128,17 @@ export default function NetworkPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setConnectError(data.error || `Accept failed (${res.status})`);
+        const errMsg = data.error || `Accept failed (${res.status})`;
+        setConnectError(errMsg);
+        showToast(errMsg, "error");
         return;
       }
       await loadConnections();
+      showToast("You're now connected — chat is open", "success");
     } catch (e) {
       console.error('Failed to accept request:', e);
       setConnectError('Network error — please try again');
+      showToast('Network error — please try again', "error");
     }
   }
 
@@ -132,13 +153,17 @@ export default function NetworkPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setConnectError(data.error || `Action failed (${res.status})`);
+        const errMsg = data.error || `Action failed (${res.status})`;
+        setConnectError(errMsg);
+        showToast(errMsg, "error");
         return;
       }
       await loadConnections();
+      showToast("Request declined", "success");
     } catch (e) {
       console.error('Failed to reject request:', e);
       setConnectError('Network error — please try again');
+      showToast('Network error — please try again', "error");
     }
   }
 
@@ -152,14 +177,18 @@ export default function NetworkPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setConnectError(data.error || `Remove failed (${res.status})`);
+        const errMsg = data.error || `Remove failed (${res.status})`;
+        setConnectError(errMsg);
+        showToast(errMsg, "error");
         return;
       }
       setRemoveConfirm(null);
       await loadConnections();
+      showToast("Connection removed", "success");
     } catch (e) {
       console.error('Failed to remove connection:', e);
       setConnectError('Network error — please try again');
+      showToast('Network error — please try again', "error");
     }
   }
 
@@ -245,7 +274,7 @@ export default function NetworkPage() {
                 style={{ flex: 1, padding: "13px", borderRadius: 10, background: "#F5F0EA", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", color: "#6B5B45" }}>
                 Cancel
               </button>
-              <button onClick={async () => { const ok = await sendConnectRequest(requestModal.id, requestMessage); if (ok) { setRequestModal(null); setRequestMessage(""); } }}
+              <button onClick={async () => { const ok = await sendConnectRequest(requestModal.id, requestMessage, requestModal.firstName); if (ok) { setRequestModal(null); setRequestMessage(""); } }}
                 style={{ flex: 1, padding: "13px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                 Send Request
               </button>
@@ -732,7 +761,7 @@ export default function NetworkPage() {
                           Respond to their request <ArrowRight size={15} />
                         </button>
                       ) : (
-                        <button className="btn-hover" onClick={() => sendConnectRequest(m.id)}
+                        <button className="btn-hover" onClick={() => sendConnectRequest(m.id, '', m.firstName)}
                           style={{ marginTop: 4, width: "100%", padding: "10px", borderRadius: 10, background: "#1A1208", color: "#F5E6C8", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
                           Send Connect Request
                         </button>

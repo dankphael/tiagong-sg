@@ -44,8 +44,16 @@ export function AppProvider({ children }) {
   const awardXp = useCallback((amount, label) => {
     setXp(x => x + amount);
     const id = ++toastId;
-    setToasts(t => [...t, { id, text: `+${amount} XP${label ? ` — ${label}` : ""}` }]);
+    setToasts(t => [...t, { id, text: `+${amount} XP${label ? ` — ${label}` : ""}`, type: "xp" }]);
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 1800);
+  }, []);
+
+  // Generic feedback toast — 'success' | 'error' | 'xp'. Reuses the same
+  // toast host as awardXp so there's one visual system for transient feedback.
+  const showToast = useCallback((text, type = "success") => {
+    const id = ++toastId;
+    setToasts(t => [...t, { id, text, type }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3500);
   }, []);
 
   function dismissToast(id) {
@@ -153,6 +161,7 @@ export function AppProvider({ children }) {
           .then(r => r.json())
           .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
           .catch(err => console.error("Failed to refresh profiles:", err));
+        showToast("Profile saved", "success");
         return true;
       })
       .catch(() => { setAuthError("Network error"); return false; });
@@ -265,7 +274,7 @@ export function AppProvider({ children }) {
     successMessage, setSuccessMessage,
     pendingGoogle, setPendingGoogle,
     ready,
-    awardXp, toasts, dismissToast,
+    awardXp, toasts, dismissToast, showToast,
     handleGoogleSuccess, completeProfile, saveProfile, handleLogout, restoreProgress,
     XP_REWARDS,
   };

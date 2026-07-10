@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, Send, Calendar, Check, X } from "lucide-react";
 import { getIcebreakers } from "@/lib/matching";
+import { useApp } from "@/components/AppProvider";
 
 const POLL_MS = 5000;
 
@@ -18,6 +19,7 @@ function fmtTime(iso) {
 // proposals. Not meant to replace WhatsApp, just to get two people to a
 // first coffee chat.
 export default function ChatPanel({ currentUser, connections, openConnectionId, onOpenConnection, users }) {
+  const { showToast } = useApp();
   const [activeId, setActiveId] = useState(openConnectionId || null);
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
@@ -82,7 +84,9 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Failed to send message");
+        const errMsg = data.error || "Failed to send message";
+        setError(errMsg);
+        showToast(errMsg, "error");
         setMessages(prev => prev.filter(m => m.id !== optimistic.id));
         return;
       }
@@ -91,6 +95,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
     } catch (e) {
       console.error("Failed to send message:", e);
       setError("Network error — please try again");
+      showToast("Network error — please try again", "error");
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
     }
   }
@@ -105,11 +110,17 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
         body: JSON.stringify({ action }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to respond"); return; }
+      if (!res.ok) {
+        const errMsg = data.error || "Failed to respond";
+        setError(errMsg);
+        showToast(errMsg, "error");
+        return;
+      }
       setMessages(prev => prev.map(m => m.id === data.id ? data : m));
     } catch (e) {
       console.error("Failed to respond to proposal:", e);
       setError("Network error — please try again");
+      showToast("Network error — please try again", "error");
     }
   }
 
