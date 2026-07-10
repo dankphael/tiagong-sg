@@ -1,21 +1,52 @@
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
+import { INTENTS, AVAILABILITY_SLOTS, FORMATS, REGIONS, PROFICIENCY_LEVELS } from '@/lib/matching';
+
+const VALID_INTENTS = INTENTS.map(i => i.id);
+const VALID_AVAILABILITY = AVAILABILITY_SLOTS.map(s => s.id);
+const VALID_FORMATS = FORMATS.map(f => f.id);
+const VALID_REGIONS = REGIONS.map(r => r.id);
+const VALID_PROFICIENCY = PROFICIENCY_LEVELS.map(p => p.id);
 
 export async function PATCH(req) {
   const { error, status, decoded } = requireAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
-    const { firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown } = await req.json();
+    const {
+      firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown,
+      intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+    } = await req.json();
 
     if (!gender || !['male', 'female'].includes(gender)) {
       return Response.json({ error: 'Gender is required and must be male or female' }, { status: 400 });
     }
 
+    if (intent != null && !VALID_INTENTS.includes(intent)) {
+      return Response.json({ error: 'Invalid intent' }, { status: 400 });
+    }
+    if (region != null && !VALID_REGIONS.includes(region)) {
+      return Response.json({ error: 'Invalid region' }, { status: 400 });
+    }
+    if (proficiency != null && !VALID_PROFICIENCY.includes(proficiency)) {
+      return Response.json({ error: 'Invalid proficiency' }, { status: 400 });
+    }
+    for (const o of offerings || []) {
+      if (!VALID_INTENTS.includes(o)) return Response.json({ error: 'Invalid offering' }, { status: 400 });
+    }
+    for (const a of availability || []) {
+      if (!VALID_AVAILABILITY.includes(a)) return Response.json({ error: 'Invalid availability slot' }, { status: 400 });
+    }
+    for (const f of formats || []) {
+      if (!VALID_FORMATS.includes(f)) return Response.json({ error: 'Invalid format' }, { status: 400 });
+    }
+
     await query(
       `UPDATE users SET first_name=$1, last_name=$2, age=$3, occupation=$4,
        dialect_group=$5, role=$6, gender=$7, dialects_known=$8,
-       updated_at=CURRENT_TIMESTAMP WHERE id=$9`,
+       intent=$9, offerings=$10, availability=$11, formats=$12, region=$13,
+       interests=$14, proficiency=$15, bio=$16, huay_kuan=$17,
+       updated_at=CURRENT_TIMESTAMP WHERE id=$18`,
       [
         firstName || null,
         lastName || null,
@@ -25,6 +56,15 @@ export async function PATCH(req) {
         role || 'mentee',
         gender,
         JSON.stringify(dialectsKnown || []),
+        intent || null,
+        JSON.stringify(offerings || []),
+        JSON.stringify(availability || []),
+        JSON.stringify(formats || []),
+        region || null,
+        JSON.stringify(interests || []),
+        proficiency || null,
+        bio || null,
+        huayKuan || null,
         decoded.userId,
       ]
     );

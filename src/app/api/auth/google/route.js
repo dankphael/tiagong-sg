@@ -37,6 +37,16 @@ function userResponse(row, picture) {
     languageInterest: row.dialect_group || 'Hokkien',
     avatar: getAvatar(row.gender, row.role || 'mentee'),
     dialectsKnown: row.dialects_known || [],
+    intent: row.intent,
+    offerings: row.offerings || [],
+    availability: row.availability || [],
+    formats: row.formats || [],
+    region: row.region,
+    interests: row.interests || [],
+    proficiency: row.proficiency,
+    bio: row.bio,
+    huayKuan: row.huay_kuan,
+    verified: !!row.verified,
   };
 }
 
@@ -52,7 +62,9 @@ export async function POST(req) {
     const googleData = decodeGoogleCredential(credential);
 
     const existing = await query(
-      'SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known FROM users WHERE email = $1',
+      `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified
+       FROM users WHERE email = $1`,
       [googleData.email]
     );
 
@@ -68,9 +80,11 @@ export async function POST(req) {
 
     const { age, occupation, languageInterest, role, gender, firstName, lastName, dialectsKnown } = profileData;
     const result = await query(
-      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known, password_hash)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known`,
+      `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known, password_hash,
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+       RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified`,
       [
         googleData.email,
         firstName || googleData.firstName,
@@ -82,6 +96,16 @@ export async function POST(req) {
         gender || null,
         JSON.stringify(dialectsKnown || []),
         'google-oauth',
+        null,
+        JSON.stringify([]),
+        JSON.stringify([]),
+        JSON.stringify([]),
+        null,
+        JSON.stringify([]),
+        null,
+        null,
+        null,
+        false,
       ]
     );
 
