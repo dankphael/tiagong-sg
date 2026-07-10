@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GraduationCap, UserCheck, ArrowRight, Repeat, Handshake, Sprout } from "lucide-react";
+import { GraduationCap, UserCheck, ArrowRight, Repeat, Handshake, Sprout, BadgeCheck } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
+import { rankSinSehs, INTENTS } from "@/lib/matching";
+import { huayKuan } from "@/data/staticData";
+
+const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
 export default function NetworkPage() {
   const router = useRouter();
@@ -11,6 +15,7 @@ export default function NetworkPage() {
 
   const [networkView, setNetworkView] = useState("directory");
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
+  const [sinSehIntentFilter, setSinSehIntentFilter] = useState("All");
   const [networkFilter, setNetworkFilter] = useState("All");
   const [requestModal, setRequestModal] = useState(null); // { user } when composing a mentorship request
   const [requestMessage, setRequestMessage] = useState("");
@@ -261,11 +266,21 @@ export default function NetworkPage() {
           )}
 
           {/* Dialect filter pills */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
             {["All", "Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(f => (
               <button key={f} onClick={() => setSinSehDialectFilter(f)} className={sinSehDialectFilter === f ? "active" : ""}
                 style={{ padding: "7px 16px", borderRadius: 20, background: sinSehDialectFilter === f ? "#C0392B" : "white", color: sinSehDialectFilter === f ? "white" : "#6B5B45", fontSize: 13, border: "1px solid " + (sinSehDialectFilter === f ? "#C0392B" : "#E8DDD0"), fontWeight: sinSehDialectFilter === f ? 600 : 400, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
                 {f}
+              </button>
+            ))}
+          </div>
+
+          {/* Intent filter pills */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 28 }}>
+            {[["All", "Any intent"], ...INTENTS.map(i => [i.id, i.label])].map(([id, label]) => (
+              <button key={id} onClick={() => setSinSehIntentFilter(id)} className={sinSehIntentFilter === id ? "active" : ""}
+                style={{ padding: "6px 14px", borderRadius: 20, background: sinSehIntentFilter === id ? "#1A1208" : "#FAF6F0", color: sinSehIntentFilter === id ? "#F5E6C8" : "#8B7355", fontSize: 12, border: "1px solid " + (sinSehIntentFilter === id ? "#1A1208" : "#E8DDD0"), fontWeight: sinSehIntentFilter === id ? 600 : 400, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                {label}
               </button>
             ))}
           </div>
@@ -278,13 +293,12 @@ export default function NetworkPage() {
 
           {(() => {
             const sinSehs = registeredUsers.filter(u => (u.role === "mentor" || u.role === "both") && u.id !== currentUser?.id);
-            const filtered = sinSehDialectFilter === "All" ? sinSehs : sinSehs.filter(u => u.languageInterest === sinSehDialectFilter);
+            let filtered = sinSehDialectFilter === "All" ? sinSehs : sinSehs.filter(u => u.languageInterest === sinSehDialectFilter);
+            if (sinSehIntentFilter !== "All") {
+              filtered = filtered.filter(u => !Array.isArray(u.offerings) || u.offerings.length === 0 || u.offerings.includes(sinSehIntentFilter));
+            }
 
-            const sorted = filtered.sort((a, b) => {
-              const aMatches = currentUser?.languageInterest === a.languageInterest;
-              const bMatches = currentUser?.languageInterest === b.languageInterest;
-              return bMatches - aMatches;
-            });
+            const sorted = rankSinSehs(currentUser, filtered);
 
             return filtered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
@@ -298,9 +312,15 @@ export default function NetworkPage() {
                   const dialectColor = dColors[m.languageInterest] || "#8B7355";
                   const status = currentUser ? getConnectionStatus(m.id) : 'none';
                   const isDialectMatch = currentUser?.languageInterest === m.languageInterest;
+                  const isGreatMatch = currentUser && m._matchScore >= 50;
+                  const hk = m.huayKuan ? HUAY_KUAN_BY_ID[m.huayKuan] : null;
                   return (
                     <div key={m.id} className="card" style={{ padding: 28, position: "relative" }}>
-                      {isDialectMatch && currentUser && (
+                      {isGreatMatch ? (
+                        <div style={{ position: "absolute", top: 12, right: 12, fontSize: 11, background: "#C0392B", color: "white", padding: "4px 8px", borderRadius: 6, fontWeight: 700 }}>
+                          ⭐ Great match
+                        </div>
+                      ) : isDialectMatch && currentUser && (
                         <div style={{ position: "absolute", top: 12, right: 12, fontSize: 11, background: "#1A6B3C", color: "white", padding: "4px 8px", borderRadius: 6, fontWeight: 700 }}>
                           Matches your dialect ✓
                         </div>
@@ -308,14 +328,35 @@ export default function NetworkPage() {
                       <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
                         <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
+                          <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208", display: "flex", alignItems: "center", gap: 6 }}>
+                            {m.firstName} {m.lastName}
+                            {m.verified && <span title="Verified Sin Seh" style={{ display: "inline-flex", color: "#D4860B" }}><BadgeCheck size={16} /></span>}
+                          </div>
                           <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 12, background: dialectColor + "18", color: dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
                         <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Sin Seh</span>
+                        {m.menteeCount > 0 && (
+                          <span style={{ fontSize: 11, background: "#F5F0EA", color: "#6B5B45", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>{m.menteeCount} mentee{m.menteeCount > 1 ? "s" : ""}</span>
+                        )}
+                        {hk && (
+                          <span style={{ fontSize: 11, background: "#F5F0EA", color: "#6B5B45", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>{hk.shortName || hk.name}</span>
+                        )}
                       </div>
+                      {m.bio && (
+                        <p style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.5, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {m.bio}
+                        </p>
+                      )}
+                      {currentUser && m._matchReasons?.length > 0 && (
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+                          {m._matchReasons.map((r, i) => (
+                            <span key={i} style={{ fontSize: 11, background: "#EAFAF1", color: "#1A6B3C", padding: "3px 9px", borderRadius: 8, fontWeight: 500 }}>{r}</span>
+                          ))}
+                        </div>
+                      )}
                       {status === 'accepted' ? (
                         <div style={{ padding: "12px 14px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 13, color: "#1A6B3C", fontWeight: 600 }}>
                           ✓ Connected
