@@ -3,15 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, User, Flame } from "lucide-react";
 import { useApp } from "./AppProvider";
 import { getLevel } from "@/data/xpSystem";
 
-// TODO: switch to clean paths (/learn, /dictionary, etc.) once each screen
-// is migrated off the monolithic src/app/page.js into a real route.
 const LINKS = [
-  ["/?screen=home", "Learn", "home"],
+  ["/learn", "Learn", "learn"],
   ["/dictionary", "Search", "dictionary"],
   ["/singlish", "Dialects in Singlish", "singlish"],
   ["/network", "Network", "network"],
@@ -22,11 +20,10 @@ const LINKS = [
 export function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { currentUser, handleLogout, xp, streak, dailyCompleted } = useApp();
   const level = getLevel(xp);
-  const activeScreen = pathname === "/" ? (searchParams.get("screen") || "home") : pathname.replace(/^\//, "");
+  const activeScreen = pathname === "/" ? "home" : pathname.replace(/^\//, "").split("/")[0];
 
   return (
     <nav style={{ background: "var(--color-dark)", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid var(--color-primary)" }}>

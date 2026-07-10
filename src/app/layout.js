@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Geist, Geist_Mono, Cormorant_Garamond, Noto_Serif_SC } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/components/AppProvider";
@@ -50,9 +49,7 @@ export default function RootLayout({ children }) {
     >
       <body className="app-shell">
         <AppProvider>
-          <Suspense fallback={null}>
-            <Nav />
-          </Suspense>
+          <Nav />
           {children}
           <Footer />
           <XpToastHost />

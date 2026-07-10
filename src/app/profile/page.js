@@ -40,7 +40,7 @@ export default function ProfilePage() {
   function continueLearning(dialectId) {
     if (!dialectId) return;
     setSelectedDialect(dialectId);
-    router.push(`/?screen=lesson&dialect=${dialectId}`);
+    router.push(`/learn/${dialectId}`);
   }
 
   return (

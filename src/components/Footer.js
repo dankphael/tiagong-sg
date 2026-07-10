@@ -19,7 +19,7 @@ export function Footer() {
         </div>
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Explore</div>
-          {[["/?screen=home", "Learn Dialects"], ["/dictionary", "Search Phrases"], ["/singlish", "Dialects in Singlish"], ["/associations", "Clan Associations"], ["/about", "About Us"]].map(([href, label]) => (
+          {[["/learn", "Learn Dialects"], ["/dictionary", "Search Phrases"], ["/singlish", "Dialects in Singlish"], ["/associations", "Clan Associations"], ["/about", "About Us"]].map(([href, label]) => (
             <Link key={href} href={href} style={{ display: "block", color: "#8B7355", fontSize: 13, marginBottom: 8, textDecoration: "none", transition: "color 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.color = "#F5E6C8"} onMouseLeave={e => e.currentTarget.style.color = "#8B7355"}>
               {label}
@@ -29,7 +29,7 @@ export function Footer() {
         <div>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#C0392B", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 }}>Dialects</div>
           {dialects.map(d => (
-            <Link key={d.id} href={`/?screen=lesson&dialect=${d.id}`} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, display: "flex", alignItems: "center", gap: 6, textDecoration: "none", transition: "color 0.15s" }}
+            <Link key={d.id} href={`/learn/${d.id}`} style={{ color: "#8B7355", fontSize: 13, marginBottom: 8, display: "flex", alignItems: "center", gap: 6, textDecoration: "none", transition: "color 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.color = "#F5E6C8"} onMouseLeave={e => e.currentTarget.style.color = "#8B7355"}>
               <span>{d.icon}</span> {d.name}
             </Link>
