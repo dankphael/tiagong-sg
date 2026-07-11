@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
@@ -135,6 +135,14 @@ export default function LearnDialectPage() {
     setSpeedTimeLeft(60);
     setSpeedActive(true);
   }, [selectedDialect]);
+
+  // Stop the clock once every speed-round question has been answered, so the
+  // timer doesn't keep ticking behind the results screen.
+  useEffect(() => {
+    if (speedActive && speedQuestions.length > 0 && speedQuestion >= speedQuestions.length) {
+      setSpeedActive(false);
+    }
+  }, [speedQuestion, speedQuestions.length, speedActive]);
 
   // Speed round timer
   useEffect(() => {
@@ -290,6 +298,58 @@ export default function LearnDialectPage() {
     return [...richStatic, ...dictCards];
   }
   const cards = buildCardsForCategory(selectedCategory);
+  // Keep cardIndex in range: the deck can shrink after dictionary words load
+  // in, or when switching categories, which would otherwise leave cardIndex
+  // pointing past the end and render a blank card.
+  useEffect(() => {
+    if (cardIndex > cards.length - 1) setCardIndex(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards.length]);
+  const safeCardIndex = cards.length > 0 ? Math.min(cardIndex, cards.length - 1) : 0;
+  const currentCard = cards[safeCardIndex];
+
+  // Fill-in-the-blank exercises: static seed set + exercises generated live from
+  // dictionary DB words that have example sentences. This makes the game grow as
+  // contributors add words and usage examples rather than being a fixed list.
+  // Memoised on the dialect + dictionary size so it doesn't reshuffle each render.
+  const sentenceExercises = useMemo(() => {
+    const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const dictWords = apiWords.filter(w => w.dialect === selectedDialect);
+    const answerPool = [...new Set(dictWords.map(w => w.headword?.romanized).filter(Boolean))];
+    const dynamic = [];
+    for (const w of dictWords) {
+      const answer = w.headword?.romanized;
+      if (!answer || answerPool.length < 4) continue;
+      const ex = (w.definitions?.[0]?.examples || [])[0];
+      const sentence = ex?.text_source_lang;
+      if (!sentence) continue;
+      const idx = sentence.toLowerCase().indexOf(answer.toLowerCase());
+      if (idx === -1) continue;
+      // Skip degenerate cases where the "sentence" is just the word itself.
+      const remainder = sentence.replace(new RegExp(escapeRegExp(answer), "i"), "").replace(/[!?.,;:'"()]/g, "").trim();
+      if (remainder.length < 3) continue;
+      const blanked = sentence.slice(0, idx) + "___" + sentence.slice(idx + answer.length);
+      const distractors = answerPool.filter(p => p.toLowerCase() !== answer.toLowerCase()).sort(() => Math.random() - 0.5).slice(0, 3);
+      if (distractors.length < 3) continue;
+      const options = [answer, ...distractors].sort(() => Math.random() - 0.5);
+      dynamic.push({
+        sentence: blanked,
+        options,
+        correctIndex: options.indexOf(answer),
+        meaning: ex.text_target_lang || w.definitions?.[0]?.english || "",
+      });
+    }
+    const seed = sentenceCompletion[selectedDialect] || [];
+    // Cap so a session stays bite-sized; prefer a mix of seed + dynamic.
+    return [...seed, ...dynamic.sort(() => Math.random() - 0.5)].slice(0, 15);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDialect, apiWords.length]);
+
+  // Keep the fill-in-blank pointer in range if the exercise set changes.
+  useEffect(() => {
+    if (sentenceIndex > sentenceExercises.length - 1) { setSentenceIndex(0); setSelectedAnswer(null); setQuizShowResult(false); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sentenceExercises.length]);
 
   // Review mode: cards across every category not yet marked "known"
   const [reviewQueue, setReviewQueue] = useState([]);
@@ -360,6 +420,8 @@ export default function LearnDialectPage() {
               <button key={mode} className="tab-btn" onClick={() => {
                 setLessonMode(mode);
                 setSelectedAnswer(null); setQuizShowResult(false); setCompletionData(null);
+                if (mode === "situational-quiz") { setSituationalQuizIndex(0); setSituationalCueIndex(0); setSituationalScore(0); }
+                if (mode === "completing-sentence") { setSentenceIndex(0); setSentenceScore(0); }
                 if (mode === "speed-round") startSpeedRound();
                 if (mode === "daily-challenge") startDailyChallenge();
                 if (mode === "reverse-cards") startReverseCards();
@@ -426,15 +488,21 @@ export default function LearnDialectPage() {
               })()}
 
 
+              {cards.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "48px 24px", color: "#8B7355", background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: "var(--radius-lg)" }}>
+                  No cards in this category yet. Pick another category above, or contribute words to help grow it.
+                </div>
+              ) : (
+              <>
               {/* Progress bar */}
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12, color: "#8B7355" }}>
-                <span>Card {cardIndex + 1} / {cards.length}</span>
+                <span>Card {safeCardIndex + 1} / {cards.length}</span>
                 <span style={{ color: dialect.color, fontWeight: 600 }}>
                   {Object.keys(knownCards).filter(k => k.startsWith(`${selectedDialect}-${selectedCategory}-`)).length} known
                 </span>
               </div>
               <div className="progress" style={{ marginBottom: 24 }}>
-                <div className="progress-fill" style={{ width: `${((cardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
+                <div className="progress-fill" style={{ width: `${((safeCardIndex + 1) / cards.length) * 100}%`, background: dialect.color }} />
               </div>
 
               {/* Flashcard */}
@@ -443,15 +511,15 @@ export default function LearnDialectPage() {
                   <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
                     <div className="romanized" style={{ fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
-                      {cards[cardIndex]?.phrase}
+                      {currentCard?.phrase}
                     </div>
                     <div style={{ fontFamily: "var(--font-chinese)", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
-                      {cards[cardIndex]?.chinese}
+                      {currentCard?.chinese}
                     </div>
                     <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 8, fontStyle: "italic" }}>
-                      /{cards[cardIndex]?.romanisation}/
+                      /{currentCard?.romanisation}/
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
+                    <button onClick={(e) => { e.stopPropagation(); speak(currentCard?.phrase, selectedDialect); }}
                       className="btn-tts"
                       style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
                       <Volume2 size={15} /> Hear it
@@ -460,31 +528,31 @@ export default function LearnDialectPage() {
                   <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px", overflowY: "auto" }}>
                     <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 10 }}>Meaning</div>
                     <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>
-                      {cards[cardIndex]?.meaning}
+                      {currentCard?.meaning}
                     </div>
                     <div style={{ fontSize: 14, color: dialect.color, marginTop: 8, fontWeight: 600 }}>
-                      {cards[cardIndex]?.romanisation}
+                      {currentCard?.romanisation}
                     </div>
                     <div style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "#8B7355", marginTop: 4 }}>
-                      {cards[cardIndex]?.chinese}
+                      {currentCard?.chinese}
                     </div>
-                    {cards[cardIndex]?.ipa && (
+                    {currentCard?.ipa && (
                       <div style={{ fontSize: 13, color: "#9B8B75", marginTop: 8, fontStyle: "italic" }}>
-                        {cards[cardIndex]?.ipa}
+                        {currentCard?.ipa}
                       </div>
                     )}
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center", marginTop: 8 }}>
-                      {cards[cardIndex]?.pos && (
-                        <span style={{ fontSize: 10, background: "#F0E8DA", color: "#8B7355", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{cards[cardIndex]?.pos}</span>
+                      {currentCard?.pos && (
+                        <span style={{ fontSize: 10, background: "#F0E8DA", color: "#8B7355", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{currentCard?.pos}</span>
                       )}
-                      {cards[cardIndex]?.frequency && (
-                        <span style={{ fontSize: 10, background: cards[cardIndex]?.frequency === 'very_common' ? "#EAFAF1" : "#FEF9E7", color: cards[cardIndex]?.frequency === 'very_common' ? "#1A6B3C" : "#D4860B", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{cards[cardIndex]?.frequency}</span>
+                      {currentCard?.frequency && (
+                        <span style={{ fontSize: 10, background: currentCard?.frequency === 'very_common' ? "#EAFAF1" : "#FEF9E7", color: currentCard?.frequency === 'very_common' ? "#1A6B3C" : "#D4860B", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{currentCard?.frequency}</span>
                       )}
                     </div>
-                    {cards[cardIndex]?.examples && cards[cardIndex]?.examples.length > 0 && (
+                    {currentCard?.examples && currentCard?.examples.length > 0 && (
                       <div style={{ marginTop: 10, width: "100%" }}>
                         <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Example</div>
-                        {cards[cardIndex].examples.slice(0, 2).map((ex, i) => (
+                        {currentCard.examples.slice(0, 2).map((ex, i) => (
                           <div key={i} style={{ background: "#FAF6F0", borderRadius: 8, padding: "8px 12px", marginBottom: 4, fontSize: 12, color: "#1A1208", borderLeft: `3px solid ${dialect.color}` }}>
                             <div style={{ fontStyle: "italic" }}>"{ex.text_source_lang}"</div>
                             <div style={{ color: "#8B7355", marginTop: 2 }}>{ex.text_target_lang}</div>
@@ -492,7 +560,7 @@ export default function LearnDialectPage() {
                         ))}
                       </div>
                     )}
-                    <button onClick={(e) => { e.stopPropagation(); speak(cards[cardIndex]?.phrase, selectedDialect); }}
+                    <button onClick={(e) => { e.stopPropagation(); speak(currentCard?.phrase, selectedDialect); }}
                       className="btn-tts"
                       style={{ marginTop: 12, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: "var(--radius-pill)", color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
                       <Volume2 size={15} /> Hear pronunciation
@@ -552,6 +620,8 @@ export default function LearnDialectPage() {
                   Try Story Quiz <ArrowRight size={15} />
                 </button>
               </div>
+              </>
+              )}
             </div>
           )}
 
@@ -605,7 +675,7 @@ export default function LearnDialectPage() {
                         <span style={{ fontWeight: 700, color: "#1A1208" }}>{quiz.title}</span>
                       </div>
                       <div style={{ background: `${dialect.color}18`, border: `1.5px solid ${dialect.color}40`, borderRadius: 20, padding: "4px 14px", fontSize: 13, fontWeight: 700, color: dialect.color }}>
-                        {situationalScore} / {situationalCueIndex} ✓
+                        {situationalScore} / {totalScenes} ✓
                       </div>
                     </div>
 
@@ -674,11 +744,11 @@ export default function LearnDialectPage() {
                               <DialectTooltip phrase={dialogue.phrase} meaning={dialogue.meaning} color={dialect.color} />
                             </div>
                             <div style={{ fontSize: 12, opacity: 0.65 }}>"{dialogue.meaning}"</div>
-                            <button onClick={(e) => { e.stopPropagation(); speak(dialogue.phrase, selectedDialect); }}
+                            <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); speak(dialogue.phrase, selectedDialect); }}
                               className="btn-tts"
                               style={{ marginTop: 6, padding: "4px 12px", background: `${dialect.color}10`, border: `1px solid ${dialect.color}30`, borderRadius: 12, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
                               <Volume2 size={15} /> Hear
-                            </button>
+                            </span>
                             {quizShowResult && isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✓</span>}
                             {quizShowResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✗</span>}
                           </button>
@@ -724,7 +794,7 @@ export default function LearnDialectPage() {
           {lessonMode === "completing-sentence" && (
             <div>
               {(() => {
-                const exercises = sentenceCompletion[selectedDialect] || [];
+                const exercises = sentenceExercises;
                 if (exercises.length === 0) return <div style={{ textAlign: "center", padding: "40px", color: "#8B7355" }}>No exercises available yet.</div>;
 
                 // Completion screen
@@ -771,13 +841,13 @@ export default function LearnDialectPage() {
                         <span style={{ fontWeight: 700, color: "#1A1208" }}>Question {sentenceIndex + 1}</span> of {exercises.length}
                       </div>
                       <div style={{ background: `${dialect.color}18`, border: `1.5px solid ${dialect.color}40`, borderRadius: 20, padding: "4px 14px", fontSize: 13, fontWeight: 700, color: dialect.color }}>
-                        {sentenceScore} / {sentenceIndex} ✓
+                        {sentenceScore} / {exercises.length} ✓
                       </div>
                     </div>
 
                     {/* Progress */}
                     <div className="progress" style={{ marginBottom: 24 }}>
-                      <div className="progress-fill" style={{ width: `${(sentenceIndex / exercises.length) * 100}%`, background: dialect.color }} />
+                      <div className="progress-fill" style={{ width: `${((sentenceIndex + 1) / exercises.length) * 100}%`, background: dialect.color }} />
                     </div>
 
                     {/* Sentence card */}
