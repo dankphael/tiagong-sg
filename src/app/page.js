@@ -76,7 +76,7 @@ function DialectPlatformContent() {
                 {dailyCompleted ? "Done for today" : "Today's Challenge"}
               </div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#F5E6C8" }}>
-                {dailyCompleted ? "See you tomorrow" : "10 mixed questions across all dialects"}
+                {dailyCompleted ? "See you tomorrow" : `10 questions in ${dialect.name}`}
               </div>
             </div>
             <div style={{ color: "#F5E6C8", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
