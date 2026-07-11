@@ -55,7 +55,7 @@ export default function ProfilePage() {
             <div className="card" style={{ padding: 32 }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div className="form-grid-2" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
                 {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
                   ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
                   <div key={label}>
@@ -232,7 +232,7 @@ export default function ProfilePage() {
                         ) : (
                           <div style={{ fontSize: 12, color: "#1A6B3C", fontWeight: 600 }}>Max level reached!</div>
                         )}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 16 }}>
+                        <div className="form-grid-3" style={{ display: "grid", gap: 12, marginTop: 16 }}>
                           <div style={{ background: "#FAF6F0", borderRadius: 10, padding: 12, textAlign: "center" }}>
                             <div style={{ fontSize: 11, color: "#6B5B45", marginBottom: 4 }}>Streak</div>
                             <div style={{ fontSize: 20, fontWeight: 700, color: "#C0392B" }}>
@@ -310,7 +310,7 @@ export default function ProfilePage() {
             Signed in as <strong>{pendingGoogle.googleData.email}</strong>. A language lost is a worldview lost. Let's start your dialect journey.
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+          <div className="form-grid-2" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
             {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
               ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
               <div key={label}>

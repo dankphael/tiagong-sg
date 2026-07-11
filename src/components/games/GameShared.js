@@ -33,7 +33,7 @@ export function ResultsScreen({ title, subtitle, score, total, extraLine, dialec
   return (
     <div style={{ textAlign: "center" }} className="fade-up">
       <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Trophy size={56} /></div>
-      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>{title}</h2>
+      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(26px, 7vw, 36px)", color: "#1A1208", marginBottom: 8 }}>{title}</h2>
       {subtitle && <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32 }}>{subtitle}</p>}
       <div style={{ background: grade.bg, border: `2px solid ${grade.color}40`, borderRadius: 20, padding: "32px 24px", marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
         <div style={{ fontSize: 56, fontWeight: 800, color: grade.color, fontFamily: "var(--font-serif)" }}>{score}<span style={{ fontSize: 28 }}>/{total}</span></div>

@@ -230,7 +230,7 @@ export default function AdminPage() {
 
       {tab === "users" && (
         <div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") loadUsers(search); }}
               placeholder="Search by name or email..." className="input" style={{ flex: 1 }} />

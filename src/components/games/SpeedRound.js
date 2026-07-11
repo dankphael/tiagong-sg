@@ -116,7 +116,7 @@ export default function SpeedRound({ dialect, dialectId }) {
       </div>
 
       {/* Options */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div className="answer-grid" style={{ display: "grid", gap: 10 }}>
         {q.options.map((opt, idx) => (
           <button key={idx} className="btn-hover" onClick={() => {
             const correct = idx === q.correctIndex;

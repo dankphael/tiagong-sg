@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, Send, Calendar, Check, X } from "lucide-react";
+import { MessageCircle, Send, Calendar, Check, X, ArrowLeft } from "lucide-react";
 import { getIcebreakers } from "@/lib/matching";
 import { useApp } from "@/components/AppProvider";
 
@@ -132,8 +132,8 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
   const icebreakers = active && currentUser ? getIcebreakers(currentUser, otherProfile || {}) : [];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, minHeight: 480 }}>
-      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+    <div className="chat-layout" style={{ gap: 20, minHeight: 480 }}>
+      <div className={`card${active ? " chat-list-col-hidden-mobile" : ""}`} style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "16px 18px", borderBottom: "1px solid #E8DDD0", fontSize: 12, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700 }}>Chats</div>
         {connectionsLoading ? (
           <div style={{ padding: "10px 18px" }}>
@@ -163,7 +163,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
         )}
       </div>
 
-      <div className="card" style={{ padding: 0, display: "flex", flexDirection: "column" }}>
+      <div className={`card${!active ? " chat-thread-col-hidden-mobile" : ""}`} style={{ padding: 0, display: "flex", flexDirection: "column" }}>
         {!active ? (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#9B8B75", padding: 40 }}>
             <MessageCircle size={36} style={{ marginBottom: 12 }} />
@@ -171,10 +171,14 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
           </div>
         ) : (
           <>
-            <div style={{ padding: "16px 20px", borderBottom: "1px solid #E8DDD0", fontWeight: 700, fontSize: 15, color: "#1A1208" }}>
-              {active.connected_user_name}
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid #E8DDD0", fontWeight: 700, fontSize: 15, color: "#1A1208", display: "flex", alignItems: "center", gap: 10 }}>
+              <button className="chat-mobile-back" onClick={() => setActiveId(null)} title="Back to chats"
+                style={{ alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 8, background: "#FAF6F0", border: "1px solid #E8DDD0", color: "#6B5B45", cursor: "pointer", flexShrink: 0 }}>
+                <ArrowLeft size={16} />
+              </button>
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{active.connected_user_name}</span>
             </div>
-            <div style={{ flex: 1, padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, maxHeight: 380 }}>
+            <div style={{ flex: 1, padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, maxHeight: "min(380px, 55vh)" }}>
               {threadLoading ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {[0, 1, 2].map(i => (
@@ -199,7 +203,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
                 if (m.type === "meetup_proposal") {
                   const st = m.metadata?.status || "proposed";
                   return (
-                    <div key={m.id} style={{ alignSelf: "center", maxWidth: 320, width: "100%", padding: 16, borderRadius: 12, background: st === "accepted" ? "#EAFAF1" : st === "declined" ? "#FDEDEC" : "#FEF3E2", border: "1px solid " + (st === "accepted" ? "#1A6B3C40" : st === "declined" ? "#C0392B40" : "#D4860B40") }}>
+                    <div key={m.id} style={{ alignSelf: "center", maxWidth: "min(320px, 100%)", width: "100%", padding: 16, borderRadius: 12, background: st === "accepted" ? "#EAFAF1" : st === "declined" ? "#FDEDEC" : "#FEF3E2", border: "1px solid " + (st === "accepted" ? "#1A6B3C40" : st === "declined" ? "#C0392B40" : "#D4860B40") }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, fontWeight: 700, fontSize: 13, color: "#1A1208" }}>
                         <Calendar size={16} /> Meetup Proposal
                       </div>

@@ -164,6 +164,17 @@ html {
   border: 1px solid var(--color-border);
 }
 
+/* ── Chat panel (network messaging) ── */
+.chat-layout { display: grid; grid-template-columns: 280px 1fr; }
+.chat-mobile-back { display: none; }
+
+/* ── Profile form grids ── */
+.form-grid-2 { grid-template-columns: 1fr 1fr; }
+.form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ── Learning-game answer option grids ── */
+.answer-grid { grid-template-columns: 1fr 1fr; }
+
 /* ── Inputs ── */
 .input {
   width: 100%; font-family: var(--font-sans); font-size: var(--text-base);
@@ -509,9 +520,13 @@ html {
   /* Footer */
   .footer-grid { grid-template-columns: 1fr; gap: 24px; }
 
-  /* Chat (network/messaging) — conversation list + thread stack instead of
-     sitting side by side. */
+  /* Chat (network/messaging) — show either the conversation list or the
+     open thread, never both stacked, so a phone screen isn't split in
+     half; the thread's "Back" button (JS-controlled, clears the active
+     conversation) returns to the list. */
   .chat-layout { grid-template-columns: 1fr !important; }
+  .chat-list-col-hidden-mobile, .chat-thread-col-hidden-mobile { display: none !important; }
+  .chat-mobile-back { display: inline-flex !important; }
 
   /* Profile forms */
   .form-grid-2, .form-grid-3 { grid-template-columns: 1fr !important; }
