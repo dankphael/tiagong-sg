@@ -60,7 +60,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
         };
 
         return (
-          <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4, width: "100%", minWidth: 0 }}>
             {allCats.map(cat => {
               const key = `${dialectId}-${cat.id}`;
               const done = progress[key];

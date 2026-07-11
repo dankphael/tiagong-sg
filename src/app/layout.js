@@ -27,6 +27,11 @@ const notoSerifSC = Noto_Serif_SC({
   weight: ["400", "600", "700"],
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata = {
   title: "tiagong.sg",
   description: "Connect with Sin Sehs and learn Chinese dialects",
