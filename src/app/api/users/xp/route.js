@@ -17,14 +17,27 @@ export async function PATCH(req) {
       params.push(xp);
       paramCount++;
     }
-    if (streak != null) {
-      updates.push(`streak = $${paramCount}`);
-      params.push(streak);
-      paramCount++;
-    }
+
     if (lastDailyDate != null) {
+      // Completing the daily challenge is the one place streak changes.
+      // Compute it here, server-side, keyed off the PREVIOUS last_daily_date,
+      // so re-sending the same date (e.g. a replayed "Try Again" run, or a
+      // retried request) can never bump the streak twice in one day.
       updates.push(`last_daily_date = $${paramCount}`);
       params.push(lastDailyDate);
+      paramCount++;
+      updates.push(`streak = CASE
+        WHEN last_daily_date = $${paramCount} THEN streak
+        WHEN last_daily_date = ($${paramCount}::date - INTERVAL '1 day')::text THEN streak + 1
+        ELSE 1
+      END`);
+      params.push(lastDailyDate);
+      paramCount++;
+    } else if (streak != null) {
+      // Plain xp/streak sync (no daily-completion event) — trust the client
+      // value as before.
+      updates.push(`streak = $${paramCount}`);
+      params.push(streak);
       paramCount++;
     }
 

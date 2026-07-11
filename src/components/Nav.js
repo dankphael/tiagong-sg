@@ -8,8 +8,7 @@ import { Menu, X, User, Flame } from "lucide-react";
 import { useApp } from "./AppProvider";
 import { getLevel } from "@/data/xpSystem";
 
-const LINKS = [
-  ["/learn", "Learn", "learn"],
+const OTHER_LINKS = [
   ["/dictionary", "Search", "dictionary"],
   ["/singlish", "Dialects in Singlish", "singlish"],
   ["/network", "Network", "network"],
@@ -23,7 +22,12 @@ export function Nav() {
   const [queueCount, setQueueCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, handleLogout, xp, streak, dailyCompleted } = useApp();
+  const { currentUser, handleLogout, xp, streak, dailyCompleted, selectedDialect } = useApp();
+  // Once a learner has a dialect in progress, "Learn" jumps straight back
+  // into it instead of the dialect-chooser grid. First-time visitors (no
+  // dialect chosen yet) still land on /learn to pick one.
+  const learnHref = selectedDialect ? `/learn/${selectedDialect}` : "/learn";
+  const LINKS = [["/learn", "Learn", "learn", learnHref], ...OTHER_LINKS.map(([href, label, screenId]) => [href, label, screenId, href])];
   const level = getLevel(xp);
   const isAdmin = currentUser?.accountType === 'admin';
   const isCustodian = currentUser?.custodianDialects?.length > 0 || isAdmin;
@@ -50,8 +54,8 @@ export function Nav() {
       </Link>
 
       <div className={`nav-links${open ? " open" : ""}`}>
-        {LINKS.map(([href, label, screenId]) => (
-          <Link key={href} href={href} className={`nav-link${activeScreen === screenId ? " active" : ""}`} onClick={() => setOpen(false)}>
+        {LINKS.map(([staticHref, label, screenId, actualHref]) => (
+          <Link key={staticHref} href={actualHref} className={`nav-link${activeScreen === screenId ? " active" : ""}`} onClick={() => setOpen(false)}>
             {label}
           </Link>
         ))}
