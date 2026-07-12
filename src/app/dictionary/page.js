@@ -13,6 +13,7 @@ import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
 import ContributionModal from "@/components/ContributionModal";
 import VariantChips from "@/components/VariantChips";
+import WordComments from "@/components/WordComments";
 import Link from "next/link";
 
 const CATEGORY_ICONS = {
@@ -32,6 +33,7 @@ export default function DictionaryPage() {
   const { apiWords, overlay, currentUser, showToast } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [canRecord, setCanRecord] = useState(false);
+  const [commentCounts, setCommentCounts] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]);
@@ -123,6 +125,15 @@ export default function DictionaryPage() {
   const start = (searchPage - 1) * PAGE_SIZE;
   const end = Math.min(start + PAGE_SIZE, filteredPhrases.length);
   const pageResults = filteredPhrases.slice(start, end);
+  const pageWordIds = pageResults.map(p => p.wordId).filter(Boolean).join(',');
+
+  useEffect(() => {
+    if (!pageWordIds) return;
+    fetch(`/api/comments?counts=${pageWordIds}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setCommentCounts(prev => ({ ...prev, ...data })))
+      .catch(() => {});
+  }, [pageWordIds]);
 
   function openContribution(word, type) {
     if (!currentUser) {
@@ -373,6 +384,11 @@ export default function DictionaryPage() {
                           style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                           Flag issue
                         </button>
+                      </div>
+                    )}
+                    {p.wordId && (
+                      <div style={{ marginTop: 4 }}>
+                        <WordComments wordId={p.wordId} dialect={p.dialect} count={commentCounts[p.wordId] || 0} />
                       </div>
                     )}
                   </div>
