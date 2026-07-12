@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { GoogleLogin } from "@react-oauth/google";
 import { Mars, Venus } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const [profileForm, setProfileForm] = useState({
     firstName: "", lastName: "", age: "", occupation: "", email: "", languageInterest: "Hokkien", role: "mentee", gender: "", dialectsKnown: [],
     intent: "", offerings: [], availability: [], formats: [], region: "", interests: [], proficiency: "", bio: "", huayKuan: "",
+    heritageStory: "", leaderboardOptOut: false,
   });
   const [profileEditMode, setProfileEditMode] = useState(false);
 
@@ -139,6 +141,20 @@ export default function ProfilePage() {
                 <MatchPreferencesFields form={profileForm} setForm={setProfileForm} />
               </div>
 
+              <div style={{ borderTop: "1px solid #E8DDD0", paddingTop: 20, marginBottom: 20 }}>
+                <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Community Profile</div>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>My dialect story</label>
+                <textarea value={profileForm.heritageStory || ""} onChange={e => setProfileForm(f => ({ ...f, heritageStory: e.target.value.slice(0, 1000) }))}
+                  placeholder="Which dialect did your family speak? Why are you learning it? Share your story — it'll show on your public community profile."
+                  className="input" style={{ minHeight: 100, resize: "vertical", marginBottom: 4 }} />
+                <div style={{ fontSize: 11, color: "#9B8B75", textAlign: "right", marginBottom: 16 }}>{(profileForm.heritageStory || "").length}/1000</div>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#6B5B45", cursor: "pointer" }}>
+                  <input type="checkbox" checked={!!profileForm.leaderboardOptOut}
+                    onChange={e => setProfileForm(f => ({ ...f, leaderboardOptOut: e.target.checked }))} />
+                  Hide me from public leaderboards
+                </label>
+              </div>
+
               <div style={{ display: "flex", gap: 12 }}>
                 <button className="btn-primary" onClick={saveProfile} style={{ flex: 1 }}>
                   Save Changes
@@ -200,6 +216,8 @@ export default function ProfilePage() {
                             proficiency: currentUser.proficiency || "",
                             bio: currentUser.bio || "",
                             huayKuan: currentUser.huayKuan || "",
+                            heritageStory: currentUser.heritageStory || "",
+                            leaderboardOptOut: !!currentUser.leaderboardOptOut,
                           });
                           setProfileEditMode(true);
                         }} style={{ flex: 1 }}>
@@ -209,6 +227,13 @@ export default function ProfilePage() {
                           Sign Out
                         </button>
                       </div>
+                      {currentUser.id && (
+                        <div style={{ marginTop: 12, textAlign: "center" }}>
+                          <Link href={`/member/${currentUser.id}`} style={{ fontSize: 13, color: "var(--color-primary)", fontWeight: 600, textDecoration: "none" }}>
+                            View your public community profile →
+                          </Link>
+                        </div>
+                      )}
                     </div>
 
                     {/* Learning Journey */}
