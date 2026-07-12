@@ -93,7 +93,7 @@ export function Nav() {
             <button onClick={() => { router.push("/profile"); setOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal", background: "none", border: "none", cursor: "pointer" }}>
               <User size={16} /> {currentUser.firstName}
             </button>
-            <button onClick={handleLogout} className="btn-secondary" style={{ padding: "7px 14px", fontSize: 12 }}>
+            <button onClick={handleLogout} className="btn-secondary nav-signout" style={{ padding: "7px 14px", fontSize: 12 }}>
               Sign Out
             </button>
           </div>

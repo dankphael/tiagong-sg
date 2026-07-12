@@ -81,7 +81,7 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
       </div>
 
       {/* Category tabs */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4, width: "100%", minWidth: 0 }}>
         {categories.map(cat => (
           <button key={cat.id} className="tab-btn" onClick={() => { onSelectCategory(cat.id); restart(cat.id); }}
             style={{ flex: "0 0 auto", padding: "8px 12px", borderRadius: 12, background: selectedCategory === cat.id ? dialect.color : "white", color: selectedCategory === cat.id ? "white" : "#1A1208", fontSize: 12, fontWeight: 600, border: `2px solid ${selectedCategory === cat.id ? dialect.color : "#E8DDD0"}`, whiteSpace: "nowrap" }}>

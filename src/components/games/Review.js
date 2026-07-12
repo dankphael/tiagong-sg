@@ -75,7 +75,7 @@ export default function Review({ dialect, dialectId, autoStart }) {
         <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
           <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
             <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
-            <div className="romanized" style={{ fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>{card.phrase}</div>
+            <div className="romanized" style={{ fontSize: "clamp(28px, 9vw, 44px)", fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>{card.phrase}</div>
             <div style={{ fontFamily: "var(--font-chinese)", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>{card.chinese}</div>
             <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, dialectId); }}
               className="btn-tts"

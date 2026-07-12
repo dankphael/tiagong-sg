@@ -68,7 +68,7 @@ function LearnDialectContent() {
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px" }} className="fade-up">
 
       {/* Dialect Header — compact */}
-      <div style={{ background: `linear-gradient(135deg, ${dialect.color}18, ${dialect.color}08)`, border: `1.5px solid ${dialect.color}30`, borderRadius: "var(--radius-lg)", padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ background: `linear-gradient(135deg, ${dialect.color}18, ${dialect.color}08)`, border: `1.5px solid ${dialect.color}30`, borderRadius: "var(--radius-lg)", padding: "20px 24px", marginBottom: 28, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
         <DialectSwitcher dialect={dialect} />
         <button className="btn-secondary" onClick={() => router.push("/learn")} style={{ fontSize: 13, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 6 }}>
           <ArrowLeft size={15} /> Back

@@ -354,23 +354,23 @@ export default function DictionaryPage() {
                     )}
                     <VariantChips variants={p.variants} />
                     {p.wordId && (
-                      <div style={{ display: "flex", gap: 10, borderTop: "1px solid #F0E8DA", paddingTop: 8 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
                         <button onClick={() => openContribution(p, "correction")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                           Suggest an edit
                         </button>
                         <button onClick={() => openContribution(p, "usage_example")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                           Add example
                         </button>
                         {canRecord && (
                           <button onClick={() => openContribution(p, "pronunciation_audio")}
-                            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: 0, fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
                             <Mic size={11} /> Record pronunciation
                           </button>
                         )}
                         <button onClick={() => openContribution(p, "error_flag")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: 0, fontFamily: "inherit" }}>
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                           Flag issue
                         </button>
                       </div>

@@ -223,7 +223,7 @@ export default function NetworkPage() {
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
       <div style={{ textAlign: "center", marginBottom: 40 }}>
         <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Community</div>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 48, color: "#1A1208", marginBottom: 12 }}>Network</h1>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(34px, 9vw, 48px)", color: "#1A1208", marginBottom: 12 }}>Network</h1>
         <p style={{ color: "#8B7355", fontSize: 16, maxWidth: 560, margin: "0 auto" }}>Connect with fellow learners and Sin Sehs (mentors) across Singapore. Keep our dialects alive together.</p>
       </div>
 
@@ -319,7 +319,7 @@ export default function NetworkPage() {
           <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 24, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><GraduationCap size={48} /></div>
             <div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(26px, 7vw, 36px)", fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
               <div style={{ fontSize: 14, color: "#A08060", marginTop: 4, marginBottom: 8 }}>Mentorship Programme · Completely Free</div>
               <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.7, maxWidth: 560 }}>Connect with native speakers who give their time freely. Find a mentor for your dialect journey below.</p>
             </div>
@@ -382,7 +382,7 @@ export default function NetworkPage() {
             const sorted = rankSinSehs(currentUser, filtered);
 
             return profilesLoading ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap: 24 }}>
                 {[0, 1, 2].map(i => (
                   <div key={i} className="card shimmer" style={{ padding: 28, height: 180, background: "#F0E8DA" }} />
                 ))}
@@ -394,7 +394,7 @@ export default function NetworkPage() {
                 <p style={{ fontSize: 14 }}>{sinSehDialectFilter !== "All" ? `No mentors available for ${sinSehDialectFilter} yet.` : "Be the first — set your role to Mentor in your Profile."}</p>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap: 24 }}>
                 {sorted.map(m => {
                   const dialectColor = dColors[m.languageInterest] || "#8B7355";
                   const status = currentUser ? getConnectionStatus(m.id) : 'none';
@@ -484,7 +484,7 @@ export default function NetworkPage() {
           <div style={{ background: "linear-gradient(135deg, #2C1508, #4A1F10)", borderRadius: 20, padding: "36px 32px", marginBottom: 24, display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><GraduationCap size={48} /></div>
             <div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(26px, 7vw, 36px)", fontWeight: 700, color: "#F5E6C8" }}>Sin Seh <span style={{ fontStyle: "italic", color: "#C0392B" }}>先生</span></div>
               <div style={{ fontSize: 14, color: "#A08060", marginTop: 4, marginBottom: 8 }}>Mentorship Programme · Completely Free</div>
               <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.7, maxWidth: 560 }}>Connect with native speakers who give their time freely. Set your role in your Profile, then find a Sin Seh or manage your mentees here.</p>
             </div>
@@ -529,7 +529,7 @@ export default function NetworkPage() {
                     <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your mentorships</div>
                   </div>
                 ) : connectionsLoading ? (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
                     {[0, 1, 2].map(i => (
                       <div key={i} className="card shimmer" style={{ padding: 24, height: 120, background: "#F0E8DA" }} />
                     ))}
@@ -610,7 +610,7 @@ export default function NetworkPage() {
                           {validMentorships.length > 0 && (
                             <div>
                               <div style={{ fontSize: 11, letterSpacing: 3, color: "#1A6B3C", textTransform: "uppercase", marginBottom: 16, fontWeight: 700 }}>Active Mentorships ({validMentorships.length})</div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
                                 {validMentorships.map(c => {
                                   const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
                                   return (
@@ -644,7 +644,7 @@ export default function NetworkPage() {
                               <div style={{ background: "#FEF9F0", borderRadius: 12, padding: 12, marginBottom: 20, fontSize: 12, color: "#8B7355", border: "1px solid #D4860B30" }}>
                                 These connections no longer match your current role — both of you may now have the same role. You can remove them below.
                               </div>
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
                                 {lapsedMentorships.map(c => {
                                   const dialectColor = dColors[c.connected_user_dialect] || "#8B7355";
                                   return (
@@ -714,7 +714,7 @@ export default function NetworkPage() {
           </div>
 
           {profilesLoading ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 20 }}>
               {[0, 1, 2].map(i => (
                 <div key={i} className="card shimmer" style={{ padding: 24, height: 150, background: "#F0E8DA" }} />
               ))}
@@ -726,7 +726,7 @@ export default function NetworkPage() {
               <p style={{ fontSize: 14 }}>Be the first to join the community and connect with fellow dialect learners.</p>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 20 }}>
               {registeredUsers
                 .filter(m => networkFilter === "All" || m.role === networkFilter.toLowerCase())
                 .map(m => {

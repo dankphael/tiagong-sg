@@ -106,7 +106,7 @@ export default function DailyChallenge({ dialect, dialectId, autoStart }) {
       </div>
 
       {/* Options */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+      <div className="answer-grid" style={{ display: "grid", gap: 10, marginBottom: 20 }}>
         {q.options.map((opt, idx) => {
           let bg = "white", border = "#E8DDD0", color = "#1A1208";
           if (showResult) {

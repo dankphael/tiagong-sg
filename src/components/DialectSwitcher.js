@@ -33,7 +33,7 @@ export default function DialectSwitcher({ dialect }) {
         </div>
       </button>
       {open && (
-        <div style={{ position: "absolute", top: "100%", left: 0, marginTop: 8, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", border: "1px solid var(--color-border)", overflow: "hidden", zIndex: 20, minWidth: 240 }}>
+        <div style={{ position: "absolute", top: "100%", left: 0, marginTop: 8, background: "white", borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", border: "1px solid var(--color-border)", overflow: "hidden", zIndex: 20, minWidth: 240, maxWidth: "calc(100vw - 48px)" }}>
           {dialects.map(d => (
             <button key={d.id} onClick={() => { setOpen(false); router.push(`/learn/${d.id}`); }}
               style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", background: d.id === dialect.id ? `${d.color}12` : "white", border: "none", borderBottom: "1px solid var(--color-border)", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>

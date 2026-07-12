@@ -60,7 +60,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
         };
 
         return (
-          <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4, width: "100%", minWidth: 0 }}>
             {allCats.map(cat => {
               const key = `${dialectId}-${cat.id}`;
               const done = progress[key];
@@ -101,7 +101,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
             <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
               <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
                 <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
-                <div className="romanized" style={{ fontSize: 44, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
+                <div className="romanized" style={{ fontSize: "clamp(28px, 9vw, 44px)", fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>
                   {currentCard?.phrase}
                 </div>
                 <div style={{ fontFamily: "var(--font-chinese)", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>

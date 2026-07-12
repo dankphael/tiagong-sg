@@ -88,9 +88,9 @@ export default function ContributionModal({ word, type, onClose }) {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(12px, 4vw, 24px)" }}
       onClick={onClose}>
-      <div style={{ background: "white", borderRadius: 20, padding: 32, maxWidth: 460, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}
+      <div style={{ background: "white", borderRadius: 20, padding: "clamp(20px, 5vw, 32px)", maxWidth: 460, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}
         onClick={e => e.stopPropagation()}>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 4 }}>{title}</div>
         <div style={{ fontSize: 13, color: "#9B8B75", marginBottom: 20 }}>{word.phrase} · {word.meaning}</div>
