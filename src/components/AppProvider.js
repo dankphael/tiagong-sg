@@ -175,6 +175,7 @@ export function AppProvider({ children }) {
     const {
       firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown,
       intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+      heritageStory, leaderboardOptOut,
     } = profileForm;
     if (!gender) {
       setAuthError("Please select your gender");
@@ -187,6 +188,7 @@ export function AppProvider({ children }) {
       body: JSON.stringify({
         firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown,
         intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+        heritageStory, leaderboardOptOut,
       }),
     })
       .then(res => res.json().then(data => ({ ok: res.ok, data })))
@@ -196,6 +198,7 @@ export function AppProvider({ children }) {
           ...prev, firstName, lastName, age, occupation,
           languageInterest, role, gender, dialectsKnown,
           intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+          heritageStory, leaderboardOptOut,
           avatar: getAvatar(gender, role),
         }));
         fetch("/api/users/profiles")
