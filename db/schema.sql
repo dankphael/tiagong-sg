@@ -139,6 +139,19 @@ CREATE TABLE word_comments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Upvotes / attestation — comments and accepted variants (incl. pronunciation
+-- recordings) share one votes table via target_type. `active` is a soft
+-- toggle (not row deletion) so XP is awarded only on first INSERT.
+CREATE TABLE votes (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  target_type VARCHAR(20) NOT NULL,
+  target_id INT NOT NULL,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, target_type, target_id)
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_users_dialect_group ON users(dialect_group);
 CREATE INDEX idx_users_role ON users(role);
@@ -155,3 +168,4 @@ CREATE INDEX idx_audio_clips_contribution ON audio_clips(contribution_id);
 CREATE INDEX idx_xp_events_user_time ON xp_events(user_id, created_at);
 CREATE INDEX idx_xp_events_time ON xp_events(created_at);
 CREATE INDEX idx_word_comments_word ON word_comments(word_id);
+CREATE INDEX idx_votes_target ON votes(target_type, target_id) WHERE active;

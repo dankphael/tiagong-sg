@@ -24,13 +24,17 @@ export async function GET(req) {
 
     const wordId = searchParams.get('wordId');
     if (!wordId) return Response.json({ error: 'wordId is required' }, { status: 400 });
+    const sort = searchParams.get('sort') === 'top' ? 'top' : 'recent';
 
     const result = await query(
-      `SELECT wc.id, wc.body, wc.created_at, wc.user_id, u.first_name, u.last_name
+      `SELECT wc.id, wc.body, wc.created_at, wc.user_id, u.first_name, u.last_name,
+              COUNT(v.id) FILTER (WHERE v.active) AS vote_count
        FROM word_comments wc
        JOIN users u ON u.id = wc.user_id
+       LEFT JOIN votes v ON v.target_type = 'comment' AND v.target_id = wc.id
        WHERE wc.word_id = $1 AND NOT wc.deleted
-       ORDER BY wc.created_at ASC`,
+       GROUP BY wc.id, u.first_name, u.last_name
+       ORDER BY ${sort === 'top' ? 'vote_count DESC, wc.created_at ASC' : 'wc.created_at ASC'}`,
       [wordId]
     );
 
@@ -40,6 +44,7 @@ export async function GET(req) {
       createdAt: r.created_at,
       authorId: r.user_id,
       authorName: `${r.first_name || ''} ${r.last_name || ''}`.trim() || 'A community member',
+      voteCount: Number(r.vote_count),
     }));
 
     return Response.json(comments, { status: 200, headers: { 'Cache-Control': 'public, max-age=30' } });

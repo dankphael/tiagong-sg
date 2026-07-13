@@ -171,6 +171,23 @@ export async function GET(req) {
       )
     `);
 
+    // Upvotes / attestation — comments and accepted variants (incl.
+    // pronunciation recordings) share one votes table via target_type.
+    // `active` is a soft toggle (not row deletion) so XP can be awarded only
+    // on first INSERT and never re-awarded by an un-vote/re-vote loop.
+    await query(`
+      CREATE TABLE IF NOT EXISTS votes (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        target_type VARCHAR(20) NOT NULL,
+        target_id INT NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, target_type, target_id)
+      )
+    `);
+    await query(`CREATE INDEX IF NOT EXISTS idx_votes_target ON votes(target_type, target_id) WHERE active`);
+
     await query(`CREATE INDEX IF NOT EXISTS idx_xp_events_user_time ON xp_events(user_id, created_at)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_xp_events_time ON xp_events(created_at)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_word_comments_word ON word_comments(word_id)`);

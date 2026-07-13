@@ -43,6 +43,7 @@ export const XP_REWARDS = {
   speedRoundCorrect: 15,
   storyComplete: 40,
   contributionAccepted: 40,
+  commentUpvoted: 2, // per unique upvote; capped at 10 upvotes (20 XP) per comment — see /api/votes
 };
 
 export function calculateStreak(completedDates) {

@@ -6,13 +6,18 @@ import { query } from '@/lib/db';
 export async function GET() {
   try {
     const result = await query(
-      `SELECT id, word_id, dialect, variant_type, payload, contributor_name, context_note, created_at
-       FROM word_variants ORDER BY created_at ASC`
+      `SELECT wv.id, wv.word_id, wv.dialect, wv.variant_type, wv.payload, wv.contributor_name, wv.context_note, wv.created_at,
+              COUNT(v.id) FILTER (WHERE v.active) AS vote_count
+       FROM word_variants wv
+       LEFT JOIN votes v ON v.target_type = 'variant' AND v.target_id = wv.id
+       GROUP BY wv.id
+       ORDER BY wv.created_at ASC`
     );
 
     const variants = {};
     const newWords = [];
     for (const row of result.rows) {
+      row.vote_count = Number(row.vote_count) || 0;
       if (row.word_id) {
         if (!variants[row.word_id]) variants[row.word_id] = [];
         variants[row.word_id].push(row);
