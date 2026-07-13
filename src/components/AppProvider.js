@@ -191,8 +191,9 @@ export function AppProvider({ children }) {
         heritageStory, leaderboardOptOut,
       }),
     })
-      .then(res => res.json().then(data => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
+      .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
+      .then(({ ok, status, data }) => {
+        if (status === 401) { handleSessionExpired(); return false; }
         if (!ok) { setAuthError(data.error || "Failed to save profile"); return false; }
         setCurrentUser(prev => ({
           ...prev, firstName, lastName, age, occupation,
@@ -226,6 +227,19 @@ export function AppProvider({ children }) {
     setKnownCards({});
     setProgress({});
     setSelectedDialect(null);
+  }
+
+  // The JWT is valid for 30 days with no refresh; nothing else in the app
+  // inspects for 401s, so an expired token otherwise leaves the UI looking
+  // "signed in" while every save silently fails. Called from every authed
+  // persistence path below; ref-guarded so simultaneous 401s (progress + xp
+  // firing around the same time) only sign the user out and toast once.
+  const sessionExpiredRef = useRef(false);
+  function handleSessionExpired() {
+    if (sessionExpiredRef.current) return;
+    sessionExpiredRef.current = true;
+    handleLogout();
+    showToast("Your session expired — please sign in again", "error");
   }
 
   // Bootstrap: dictionary, community profiles, session restore
@@ -302,7 +316,7 @@ export function AppProvider({ children }) {
           knownCards,
           completedCategories: progress,
         }),
-      }).catch(() => {});
+      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
     }, 1500);
     return () => clearTimeout(tid);
   }, [knownCards, progress, selectedDialect, currentUser]);
@@ -317,7 +331,7 @@ export function AppProvider({ children }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ xp, streak }),
-      }).catch(() => {});
+      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
     }, 1500);
     return () => clearTimeout(tid);
   }, [xp, streak, currentUser]);
@@ -352,7 +366,7 @@ export function AppProvider({ children }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ lastDailyDate: today }),
-      }).catch(() => {});
+      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
     }
   }
 

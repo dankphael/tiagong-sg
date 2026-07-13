@@ -1,8 +1,20 @@
 import jwt from 'jsonwebtoken';
 
+let warnedMissingSecret = false;
+
 export function verifyToken(token) {
+  if (!process.env.JWT_SECRET) {
+    // Never verify against a guessable fallback secret — that would make
+    // every session token forgeable. Treat all tokens as invalid (401)
+    // until the server is configured.
+    if (!warnedMissingSecret) {
+      warnedMissingSecret = true;
+      console.error('JWT_SECRET is not set — refusing to verify session tokens until it is configured.');
+    }
+    return null;
+  }
   try {
-    return jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+    return jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
     return null;
   }
