@@ -2,7 +2,7 @@ import { query, withTransaction } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { XP_REWARDS } from '@/data/xpSystem';
 
-const TARGET_TYPES = ['comment', 'variant'];
+const TARGET_TYPES = ['comment', 'variant', 'answer'];
 const XP_CAP_VOTES = 10; // 10 votes * commentUpvoted(2) = 20 XP cap per comment
 
 // GET ?mine=1 — the caller's own active votes, as [{targetType, targetId}].
@@ -48,9 +48,12 @@ export async function POST(req) {
     if (targetType === 'comment') {
       const exists = await query(`SELECT id FROM word_comments WHERE id = $1 AND NOT deleted`, [id]);
       if (exists.rows.length === 0) return Response.json({ error: 'Comment not found' }, { status: 404 });
-    } else {
+    } else if (targetType === 'variant') {
       const exists = await query(`SELECT id FROM word_variants WHERE id = $1`, [id]);
       if (exists.rows.length === 0) return Response.json({ error: 'Variant not found' }, { status: 404 });
+    } else {
+      const exists = await query(`SELECT id FROM answers WHERE id = $1`, [id]);
+      if (exists.rows.length === 0) return Response.json({ error: 'Answer not found' }, { status: 404 });
     }
 
     // New (never-before-voted) targets are throttled by counting rows this

@@ -44,6 +44,7 @@ export const XP_REWARDS = {
   storyComplete: 40,
   contributionAccepted: 40,
   commentUpvoted: 2, // per unique upvote; capped at 10 upvotes (20 XP) per comment — see /api/votes
+  answerAccepted: 25, // awarded to the answerer when the asker accepts their answer in Ask a Senior
 };
 
 export function calculateStreak(completedDates) {

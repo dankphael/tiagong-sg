@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import {
-  BookOpen, Search, Flame, Users, Sparkles, PenLine, Landmark, UserCircle, ArrowRight,
+  BookOpen, Search, Flame, Users, Sparkles, PenLine, Landmark, UserCircle, ArrowRight, MessageCircleQuestion,
 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { SealChip } from "@/components/ui";
@@ -56,6 +56,17 @@ const SECTIONS = [
     bullets: [
       "Filter by dialect, role, and what you're looking for",
       "Chat and meetup proposals happen after a connection is accepted",
+    ],
+  },
+  {
+    icon: MessageCircleQuestion,
+    title: "Ask a Senior",
+    href: "/ask",
+    cta: "Ask a question",
+    body: "Not sure how to say something? Post a question and native speakers can answer with text — and even a short voice recording. Attest to answers you recognise, and the best ones can be promoted straight into the dictionary.",
+    bullets: [
+      "Accept the answer that helped you most — the answerer earns XP",
+      "A Language Custodian can turn a great answer into a permanent dictionary entry",
     ],
   },
   {

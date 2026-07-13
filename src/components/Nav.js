@@ -12,6 +12,7 @@ const OTHER_LINKS = [
   ["/dictionary", "Search", "dictionary"],
   ["/singlish", "Dialects in Singlish", "singlish"],
   ["/network", "Network", "network"],
+  ["/ask", "Ask a Senior", "ask"],
   ["/community", "Community", "community"],
   ["/contribute", "Contribute", "contribute"],
   ["/associations", "Associations", "associations"],

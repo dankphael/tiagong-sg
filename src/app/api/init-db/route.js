@@ -213,6 +213,39 @@ export async function GET(req) {
     await query(`CREATE INDEX IF NOT EXISTS idx_contributions_word ON contributions(word_id)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_word_variants_word ON word_variants(word_id)`);
 
+    // "Ask a Senior" Q&A — learners post "how do you say X" questions,
+    // native speakers answer with text + optional voice recording (rides
+    // the same audio_clips table as contributions). Votes reuse the votes
+    // table via target_type='answer'; accepted answers can be promoted into
+    // a normal pending new_word contribution by a custodian.
+    await query(`
+      CREATE TABLE IF NOT EXISTS questions (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        dialect VARCHAR(50) NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        detail TEXT,
+        status VARCHAR(20) DEFAULT 'open',
+        accepted_answer_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await query(`
+      CREATE TABLE IF NOT EXISTS answers (
+        id SERIAL PRIMARY KEY,
+        question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        romanized VARCHAR(200) NOT NULL,
+        chinese VARCHAR(100),
+        explanation TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    await query(`CREATE INDEX IF NOT EXISTS idx_questions_dialect_status ON questions(dialect, status)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_questions_user ON questions(user_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_answers_question ON answers(question_id)`);
+    await query(`ALTER TABLE audio_clips ADD COLUMN IF NOT EXISTS answer_id INT REFERENCES answers(id) ON DELETE CASCADE`);
+
     return Response.json({ success: true, message: '✅ Database initialized!' }, { status: 200 });
   } catch (error) {
     console.error('❌ Database initialization failed:', error);

@@ -2,13 +2,11 @@ import { query, withTransaction } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { dialects } from '@/data/staticData';
 import { isBlobConfigured, uploadAudio, deleteAudio } from '@/lib/audioStorage';
+import { validateAudioFields } from '@/lib/audioValidation';
 
 const VALID_DIALECTS = dialects.map(d => d.id);
 const VALID_TYPES = ['correction', 'new_word', 'usage_example', 'error_flag', 'pronunciation_audio'];
 const VALID_CORRECTION_FIELDS = ['spelling', 'romanisation', 'definition', 'usage_context'];
-const VALID_AUDIO_MIME_TYPES = ['audio/webm', 'audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus'];
-const MAX_AUDIO_BASE64_CHARS = 400_000; // ~300KB decoded, generous for a ~10s clip
-const MAX_AUDIO_DURATION_MS = 11_000;
 
 function validatePayload(type, payload) {
   if (!payload || typeof payload !== 'object') return 'Missing payload';
@@ -25,14 +23,6 @@ function validatePayload(type, payload) {
   // pronunciation_audio: payload only carries an optional contextNote —
   // the actual audio is validated separately in POST (audioData/
   // audioMimeType/durationMs are top-level fields, not part of payload).
-  return null;
-}
-
-function validateAudioFields(audioData, audioMimeType, durationMs) {
-  if (typeof audioData !== 'string' || audioData.length === 0) return 'audioData is required';
-  if (audioData.length > MAX_AUDIO_BASE64_CHARS) return 'Recording is too large (max ~10 seconds)';
-  if (!VALID_AUDIO_MIME_TYPES.includes(audioMimeType)) return 'Invalid audio format';
-  if (typeof durationMs !== 'number' || durationMs <= 0 || durationMs > MAX_AUDIO_DURATION_MS) return 'Invalid recording duration';
   return null;
 }
 

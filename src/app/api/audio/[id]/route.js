@@ -11,9 +11,9 @@ export async function GET(req, { params }) {
     const { id } = await params;
 
     const result = await query(
-      `SELECT ac.mime_type, ac.data, ac.blob_url, c.status, c.dialect, c.user_id
+      `SELECT ac.mime_type, ac.data, ac.blob_url, ac.answer_id, c.status, c.dialect, c.user_id
        FROM audio_clips ac
-       JOIN contributions c ON ac.contribution_id = c.id
+       LEFT JOIN contributions c ON ac.contribution_id = c.id
        WHERE ac.id = $1`,
       [id]
     );
@@ -23,7 +23,11 @@ export async function GET(req, { params }) {
     }
     const clip = result.rows[0];
 
-    if (clip.status === 'accepted') {
+    // Ask a Senior answers are a public board — a clip attached to an answer
+    // stays public even after being promoted into a (still-pending)
+    // contribution, since it was already visible to everyone on the
+    // question thread.
+    if (clip.answer_id != null || clip.status === 'accepted') {
       // Blob-stored clips redirect straight to the CDN — no DB payload, no
       // Node decode. Legacy base64 rows keep the old inline-serve path.
       if (clip.blob_url) {
