@@ -1,13 +1,84 @@
 'use client';
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Flame, ArrowRight, BookOpen } from "lucide-react";
+import { Flame, ArrowRight, BookOpen, Sparkles, PenLine, Mic, UserPlus } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
+import { relativeTime } from "@/lib/time";
+
+const STRIP_ICONS = { contribution: PenLine, pronunciation: Mic, new_member: UserPlus };
+const NUDGE_DISMISSED_KEY = 'tiagong_profile_nudge_dismissed';
+
+// Sign-up is now minimal (name/dialect/gender only) — this nudges signed-in
+// users who never filled in matchmaking preferences (no `intent` set) to
+// finish their profile, without forcing it during sign-up itself.
+function ProfileNudge() {
+  const [dismissed, setDismissed] = useState(true);
+  useEffect(() => {
+    setDismissed(localStorage.getItem(NUDGE_DISMISSED_KEY) === '1');
+  }, []);
+  if (dismissed) return null;
+  return (
+    <div className="card" style={{ padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", background: "#FEF9E7", border: "1px solid #D4860B30" }}>
+      <div style={{ fontSize: 13, color: "#6B5B45" }}>
+        <strong style={{ color: "#1A1208" }}>Finish setting up your profile</strong> — add your availability and interests so Sin Sehs can find you.
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <Link href="/profile" style={{ fontSize: 13, fontWeight: 600, color: "#D4860B", textDecoration: "none" }}>Complete profile →</Link>
+        <button onClick={() => { localStorage.setItem(NUDGE_DISMISSED_KEY, '1'); setDismissed(true); }}
+          style={{ background: "none", border: "none", cursor: "pointer", color: "#9B8B75", fontSize: 13, fontFamily: "inherit" }}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Light "the community is alive" signal on home — latest 3 activity items
+// with a link through to the full /community page. Renders nothing at all
+// if the fetch fails or there's no activity yet, so it never looks broken.
+function CommunityStrip({ dark }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    fetch('/api/community/activity')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setItems(Array.isArray(data) ? data.slice(0, 3) : []))
+      .catch(() => setItems([]));
+  }, []);
+
+  if (!items || items.length === 0) return null;
+
+  const textColor = dark ? '#E8D4A8' : 'var(--color-text)';
+  const mutedColor = dark ? '#A08060' : 'var(--color-text-muted)';
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ fontSize: 11, letterSpacing: 2, color: '#C0392B', textTransform: 'uppercase', fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
+        <Sparkles size={13} /> Just happened
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+        {items.map((item, i) => {
+          const Icon = STRIP_ICONS[item.kind] || Sparkles;
+          return (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <Icon size={13} style={{ flexShrink: 0, color: mutedColor }} />
+              <span style={{ color: textColor, fontWeight: 600 }}>{item.name}</span>
+              <span style={{ color: mutedColor }}>{item.label}</span>
+              <span style={{ color: mutedColor, fontSize: 11 }}>· {relativeTime(item.at)}</span>
+            </div>
+          );
+        })}
+      </div>
+      <Link href="/community" style={{ fontSize: 13, fontWeight: 600, color: '#C0392B', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        See what's happening <ArrowRight size={13} />
+      </Link>
+    </div>
+  );
+}
 
 function DialectPlatformContent() {
   const router = useRouter();
@@ -46,6 +117,8 @@ function DialectPlatformContent() {
           <div className="eyebrow" style={{ marginBottom: 6 }}>Welcome back</div>
           <h1 className="heading" style={{ fontSize: 32 }}>{currentUser.firstName}</h1>
         </div>
+
+        {!currentUser.intent && <ProfileNudge />}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
           <div className="card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 14 }}>
@@ -107,6 +180,10 @@ function DialectPlatformContent() {
               <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>{reviewDue} categories in progress · explore Cantonese, Teochew, Hakka and Hainanese too.</p>
             </div>
           </Link>
+        </div>
+
+        <div className="card" style={{ padding: 24, marginTop: 20 }}>
+          <CommunityStrip />
         </div>
       </div>
     );
@@ -209,6 +286,9 @@ function DialectPlatformContent() {
               </div>
             </div>
         </div>
+      </div>
+      <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 24px 40px" }}>
+        <CommunityStrip />
       </div>
     </>
   );

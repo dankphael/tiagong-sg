@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import AudioRecorder from "@/components/AudioRecorder";
 
@@ -15,6 +16,7 @@ const CORRECTION_FIELDS = [
 // submissions against an existing dictionary word. New-word submissions
 // are handled by the /contribute page form instead.
 export default function ContributionModal({ word, type, onClose }) {
+  const router = useRouter();
   const { currentUser, showToast } = useApp();
   const [field, setField] = useState("definition");
   const [proposedValue, setProposedValue] = useState("");
@@ -37,6 +39,7 @@ export default function ContributionModal({ word, type, onClose }) {
     if (!currentUser) {
       showToast("Sign in to contribute", "error");
       onClose();
+      router.push("/signin?next=" + encodeURIComponent(window.location.pathname));
       return;
     }
 

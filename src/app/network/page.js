@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { GraduationCap, UserCheck, ArrowRight, Handshake, Sprout, BadgeCheck, MessageCircle } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { rankSinSehs, INTENTS } from "@/lib/matching";
@@ -416,7 +417,9 @@ export default function NetworkPage() {
                         <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
                         <div>
                           <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208", display: "flex", alignItems: "center", gap: 6 }}>
-                            {m.firstName} {m.lastName}
+                            <Link href={`/member/${m.id}`} style={{ color: "inherit", textDecoration: "none" }} onClick={e => e.stopPropagation()}>
+                              {m.firstName} {m.lastName}
+                            </Link>
                             {m.verified && <span title="Verified Sin Seh" style={{ display: "inline-flex", color: "#D4860B" }}><BadgeCheck size={16} /></span>}
                           </div>
                           <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
@@ -526,7 +529,10 @@ export default function NetworkPage() {
                 {!currentUser ? (
                   <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
                     <div style={{ fontSize: 48, marginBottom: 16 }}><Handshake size={40} /></div>
-                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your mentorships</div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 16 }}>Sign in to view your mentorships</div>
+                    <Link href={`/signin?next=${encodeURIComponent("/network")}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
+                      Sign In
+                    </Link>
                   </div>
                 ) : connectionsLoading ? (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
@@ -688,7 +694,10 @@ export default function NetworkPage() {
           {!currentUser ? (
             <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><MessageCircle size={40} /></div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your chats</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 16 }}>Sign in to view your chats</div>
+              <Link href={`/signin?next=${encodeURIComponent("/network")}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
+                Sign In
+              </Link>
             </div>
           ) : (
             <ChatPanel currentUser={currentUser} connections={connections} users={registeredUsers} connectionsLoading={connectionsLoading}
@@ -739,7 +748,9 @@ export default function NetworkPage() {
                         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                           <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{m.firstName} {m.lastName}</div>
+                            <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>
+                              <Link href={`/member/${m.id}`} style={{ color: "inherit", textDecoration: "none" }}>{m.firstName} {m.lastName}</Link>
+                            </div>
                             <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
                           </div>
                         </div>

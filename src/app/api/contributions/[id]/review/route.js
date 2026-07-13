@@ -67,6 +67,7 @@ export async function PATCH(req, { params }) {
       }
 
       await query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, contribution.user_id]);
+      await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'contribution_accepted')`, [contribution.user_id, XP_REWARDS.contributionAccepted]);
     }
 
     return Response.json(updated.rows[0], { status: 200 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { dialects } from "@/data/staticData";
 import { XP_REWARDS } from "@/data/xpSystem";
@@ -20,6 +21,7 @@ const TYPE_LABELS = {
 };
 
 export default function ContributePage() {
+  const router = useRouter();
   const { currentUser, showToast } = useApp();
 
   const [newWordForm, setNewWordForm] = useState({ dialect: "hokkien", romanized: "", traditional: "", english: "", mandarin: "", partOfSpeech: "", contextNote: "", reason: "" });
@@ -56,7 +58,7 @@ export default function ContributePage() {
   }, [currentUser?.id]);
 
   async function submitNewWord() {
-    if (!currentUser) { showToast("Sign in to contribute", "error"); return; }
+    if (!currentUser) { showToast("Sign in to contribute", "error"); router.push("/signin?next=" + encodeURIComponent("/contribute")); return; }
     if (!newWordForm.romanized.trim() && !newWordForm.traditional.trim()) {
       showToast("Please enter at least a romanized or Chinese-character form", "error");
       return;
@@ -98,7 +100,7 @@ export default function ContributePage() {
   }
 
   async function submitApplication() {
-    if (!currentUser) { showToast("Sign in to apply", "error"); return; }
+    if (!currentUser) { showToast("Sign in to apply", "error"); router.push("/signin?next=" + encodeURIComponent("/contribute")); return; }
     if (applicationForm.dialects.length === 0) { showToast("Select at least one dialect", "error"); return; }
     if (!applicationForm.background.trim()) { showToast("Please share your dialect background", "error"); return; }
     setSubmittingApplication(true);

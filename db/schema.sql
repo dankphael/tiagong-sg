@@ -31,6 +31,9 @@ CREATE TABLE users (
   -- Account types (admin console)
   account_type VARCHAR(20) DEFAULT 'user',
   deactivated BOOLEAN DEFAULT false,
+  -- Community Pulse
+  heritage_story TEXT,
+  leaderboard_opt_out BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -115,6 +118,27 @@ CREATE TABLE audio_clips (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Per-event XP log — powers the weekly leaderboard (users.xp stays the
+-- single running total used everywhere else; this is additive).
+CREATE TABLE xp_events (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  amount INT NOT NULL,
+  source VARCHAR(40),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Word-level community discussion threads, anchored to dictionary words.
+CREATE TABLE word_comments (
+  id SERIAL PRIMARY KEY,
+  word_id VARCHAR(64) NOT NULL,
+  dialect VARCHAR(50),
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  deleted BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_users_dialect_group ON users(dialect_group);
 CREATE INDEX idx_users_role ON users(role);
@@ -128,3 +152,6 @@ CREATE INDEX idx_contributions_user ON contributions(user_id);
 CREATE INDEX idx_contributions_word ON contributions(word_id);
 CREATE INDEX idx_word_variants_word ON word_variants(word_id);
 CREATE INDEX idx_audio_clips_contribution ON audio_clips(contribution_id);
+CREATE INDEX idx_xp_events_user_time ON xp_events(user_id, created_at);
+CREATE INDEX idx_xp_events_time ON xp_events(created_at);
+CREATE INDEX idx_word_comments_word ON word_comments(word_id);

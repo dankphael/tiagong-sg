@@ -2,11 +2,21 @@ import { query } from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { getAvatar } from '@/lib/avatar';
 
-function decodeGoogleCredential(credential) {
-  const parts = credential.split('.');
-  if (parts.length < 2) throw new Error('Invalid credential');
-  const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-  if (!payload.email) throw new Error('No email in credential');
+// Verify the Google ID token against Google's tokeninfo endpoint rather than
+// trusting a local base64 decode — an unverified credential is forgeable by
+// anyone, which would allow signing in as an arbitrary email. tokeninfo
+// checks the signature, expiry, and issuer for us; we additionally pin the
+// audience to OUR client id so tokens minted for other apps are rejected.
+async function verifyGoogleCredential(credential) {
+  const res = await fetch(
+    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
+    { cache: 'no-store' }
+  );
+  if (!res.ok) return null;
+  const payload = await res.json();
+  const expectedAud = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  if (!expectedAud || payload.aud !== expectedAud) return null;
+  if (!payload.email || payload.email_verified !== 'true') return null;
   const [firstName, ...rest] = (payload.name || '').split(' ');
   return {
     email: payload.email,
@@ -17,9 +27,14 @@ function decodeGoogleCredential(credential) {
 }
 
 function signToken(userId, email) {
+  if (!process.env.JWT_SECRET) {
+    // Refuse to mint tokens with a guessable secret — a hardcoded fallback
+    // here would make every session forgeable.
+    throw new Error('JWT_SECRET is not configured');
+  }
   return jwt.sign(
     { userId, email },
-    process.env.JWT_SECRET || 'dev-secret',
+    process.env.JWT_SECRET,
     { expiresIn: '30d' }
   );
 }
@@ -61,7 +76,15 @@ export async function POST(req) {
       return Response.json({ error: 'Missing Google credential' }, { status: 400 });
     }
 
-    const googleData = decodeGoogleCredential(credential);
+    let googleData = null;
+    try {
+      googleData = await verifyGoogleCredential(credential);
+    } catch (e) {
+      console.error('Google tokeninfo verification failed:', e);
+    }
+    if (!googleData) {
+      return Response.json({ error: 'Invalid Google credential' }, { status: 401 });
+    }
 
     const existing = await query(
       `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
@@ -124,6 +147,9 @@ export async function POST(req) {
     return Response.json({ token, user: userResponse(row, googleData.picture) }, { status: 201 });
   } catch (error) {
     console.error('Google OAuth error:', error);
+    if (error.message === 'JWT_SECRET is not configured') {
+      return Response.json({ error: 'Sign-in is not configured on the server' }, { status: 500 });
+    }
     return Response.json({ error: 'Authentication failed', detail: error.message }, { status: 500 });
   }
 }

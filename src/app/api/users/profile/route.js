@@ -16,6 +16,7 @@ export async function PATCH(req) {
     const {
       firstName, lastName, age, occupation, languageInterest, role, gender, dialectsKnown,
       intent, offerings, availability, formats, region, interests, proficiency, bio, huayKuan,
+      heritageStory, leaderboardOptOut,
     } = await req.json();
 
     if (!gender || !['male', 'female'].includes(gender)) {
@@ -46,7 +47,8 @@ export async function PATCH(req) {
        dialect_group=$5, role=$6, gender=$7, dialects_known=$8,
        intent=$9, offerings=$10, availability=$11, formats=$12, region=$13,
        interests=$14, proficiency=$15, bio=$16, huay_kuan=$17,
-       updated_at=CURRENT_TIMESTAMP WHERE id=$18`,
+       heritage_story=$18, leaderboard_opt_out=$19,
+       updated_at=CURRENT_TIMESTAMP WHERE id=$20`,
       [
         firstName || null,
         lastName || null,
@@ -65,6 +67,8 @@ export async function PATCH(req) {
         proficiency || null,
         bio || null,
         huayKuan || null,
+        heritageStory || null,
+        !!leaderboardOptOut,
         decoded.userId,
       ]
     );

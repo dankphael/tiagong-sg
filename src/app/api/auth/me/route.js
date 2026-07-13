@@ -9,7 +9,8 @@ export async function GET(req) {
   try {
     const result = await query(
       `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, progress, dialects_known, xp, streak, last_daily_date,
-       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified, custodian_dialects, account_type, deactivated
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified, custodian_dialects, account_type, deactivated,
+       heritage_story, leaderboard_opt_out
        FROM users WHERE id = $1`,
       [decoded.userId]
     );
@@ -51,6 +52,8 @@ export async function GET(req) {
         verified: !!u.verified,
         custodianDialects: u.custodian_dialects || [],
         accountType: u.account_type || 'user',
+        heritageStory: u.heritage_story || '',
+        leaderboardOptOut: !!u.leaderboard_opt_out,
       },
     }, { status: 200 });
   } catch (err) {

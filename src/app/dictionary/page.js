@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search, X, ChevronUp, ChevronDown, Filter, ArrowLeft, ArrowRight,
   Users, Heart, Home, Smile, Plane, Clock, Utensils, Briefcase, MapPin,
@@ -12,7 +13,9 @@ import { useApp } from "@/components/AppProvider";
 import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
 import ContributionModal from "@/components/ContributionModal";
+import WordDetailModal from "@/components/WordDetailModal";
 import VariantChips from "@/components/VariantChips";
+import WordComments from "@/components/WordComments";
 import Link from "next/link";
 
 const CATEGORY_ICONS = {
@@ -29,9 +32,12 @@ const CATEGORY_ICONS = {
 const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
+  const router = useRouter();
   const { apiWords, overlay, currentUser, showToast } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
+  const [wordModal, setWordModal] = useState(null); // flattened phrase object when viewing an entry
   const [canRecord, setCanRecord] = useState(false);
+  const [commentCounts, setCommentCounts] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]);
@@ -50,6 +56,31 @@ export default function DictionaryPage() {
   useEffect(() => {
     setCanRecord(!!(navigator.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== "undefined"));
   }, []);
+
+  // Deep-link support: /dictionary?word=<id> opens that entry's detail modal
+  // once the dictionary has loaded. Runs once (guarded) after apiWords is
+  // populated — before that, the target word can't be found yet.
+  useEffect(() => {
+    if (apiWords.length === 0) return;
+    const id = new URLSearchParams(window.location.search).get('word');
+    if (!id) return;
+    const match = apiWords.find(w => w.id === id);
+    if (!match) return;
+    const dialectInfo = dialects.find(d => d.id === match.dialect);
+    setWordModal({
+      wordId: match.id,
+      phrase: match.headword?.romanized || "",
+      chinese: match.headword?.traditional || "",
+      meaning: match.definitions?.[0]?.english || "",
+      romanisation: match.headword?.romanized || "",
+      dialect: match.dialect,
+      dialectName: dialectInfo?.name || match.dialect,
+      dialectColor: dialectInfo?.color || "#666",
+      category: match.tags?.[0] || "other",
+      variants: overlay.variants[match.id] || [],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiWords.length]);
 
   // Build flat, searchable phrase database across all dialects
   const allPhrases = [];
@@ -123,13 +154,35 @@ export default function DictionaryPage() {
   const start = (searchPage - 1) * PAGE_SIZE;
   const end = Math.min(start + PAGE_SIZE, filteredPhrases.length);
   const pageResults = filteredPhrases.slice(start, end);
+  const pageWordIds = pageResults.map(p => p.wordId).filter(Boolean).join(',');
+
+  useEffect(() => {
+    if (!pageWordIds) return;
+    fetch(`/api/comments?counts=${pageWordIds}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setCommentCounts(prev => ({ ...prev, ...data })))
+      .catch(() => {});
+  }, [pageWordIds]);
 
   function openContribution(word, type) {
     if (!currentUser) {
       showToast("Sign in to contribute", "error");
+      router.push("/signin?next=" + encodeURIComponent("/dictionary"));
       return;
     }
     setContributionModal({ word, type });
+  }
+
+  function openWordModal(word) {
+    setWordModal(word);
+    if (word.wordId) {
+      window.history.replaceState(null, '', `?word=${word.wordId}`);
+    }
+  }
+
+  function closeWordModal() {
+    setWordModal(null);
+    window.history.replaceState(null, '', window.location.pathname);
   }
 
   return (
@@ -150,6 +203,17 @@ export default function DictionaryPage() {
           + Add a New Word
         </Link>
       </div>
+
+      {wordModal && (
+        <WordDetailModal
+          word={wordModal}
+          fullWord={apiWords.find(w => w.id === wordModal.wordId) || null}
+          onClose={closeWordModal}
+          onContribute={openContribution}
+          canRecord={canRecord}
+          commentCount={commentCounts[wordModal.wordId] || 0}
+        />
+      )}
 
       {contributionModal && (
         <ContributionModal word={contributionModal.word} type={contributionModal.type} onClose={() => setContributionModal(null)} />
@@ -322,8 +386,8 @@ export default function DictionaryPage() {
             <>
               <div className="search-results-grid">
                 {pageResults.map((p, i) => (
-                  <div key={start + i} className="result-card btn-hover"
-                    style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "default", transition: "all 0.2s" }}>
+                  <div key={start + i} className="result-card btn-hover" onClick={() => openWordModal(p)}
+                    style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "pointer", transition: "all 0.2s" }}>
                     <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
                       <span style={{ background: `${p.dialectColor}16`, border: `1.5px solid ${p.dialectColor}50`, borderRadius: 20, padding: "3px 10px", fontSize: 11, color: p.dialectColor, fontWeight: 700, letterSpacing: 0.3 }}>
                         {p.dialectName}
@@ -352,9 +416,11 @@ export default function DictionaryPage() {
                     {p.isCommunity && p.contributorName && (
                       <div style={{ fontSize: 11, color: "#9B8B75", marginBottom: 10 }}>Contributed by {p.contributorName}</div>
                     )}
-                    <VariantChips variants={p.variants} />
+                    <div onClick={e => e.stopPropagation()}>
+                      <VariantChips variants={p.variants} />
+                    </div>
                     {p.wordId && (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
+                      <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
                         <button onClick={() => openContribution(p, "correction")}
                           style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                           Suggest an edit
@@ -373,6 +439,11 @@ export default function DictionaryPage() {
                           style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                           Flag issue
                         </button>
+                      </div>
+                    )}
+                    {p.wordId && (
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 4 }}>
+                        <WordComments wordId={p.wordId} dialect={p.dialect} count={commentCounts[p.wordId] || 0} />
                       </div>
                     )}
                   </div>

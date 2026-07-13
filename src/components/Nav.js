@@ -12,6 +12,7 @@ const OTHER_LINKS = [
   ["/dictionary", "Search", "dictionary"],
   ["/singlish", "Dialects in Singlish", "singlish"],
   ["/network", "Network", "network"],
+  ["/community", "Community", "community"],
   ["/contribute", "Contribute", "contribute"],
   ["/associations", "Associations", "associations"],
   ["/about", "About", "about"],
@@ -98,7 +99,7 @@ export function Nav() {
             </button>
           </div>
         ) : (
-          <Link href="/profile" className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
+          <Link href={`/signin?next=${encodeURIComponent(pathname)}`} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
             Sign In
           </Link>
         )}

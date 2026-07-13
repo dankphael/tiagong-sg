@@ -142,6 +142,39 @@ export async function GET(req) {
       )
     `);
 
+    // Community Pulse: heritage story + leaderboard opt-out
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS heritage_story TEXT`);
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS leaderboard_opt_out BOOLEAN DEFAULT false`);
+
+    // Per-event XP log — powers the weekly leaderboard (the users.xp column
+    // stays the single running total used everywhere else; this is additive).
+    await query(`
+      CREATE TABLE IF NOT EXISTS xp_events (
+        id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
+        amount INT NOT NULL,
+        source VARCHAR(40),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Word-level community discussion threads, anchored to dictionary words.
+    await query(`
+      CREATE TABLE IF NOT EXISTS word_comments (
+        id SERIAL PRIMARY KEY,
+        word_id VARCHAR(64) NOT NULL,
+        dialect VARCHAR(50),
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
+        body TEXT NOT NULL,
+        deleted BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await query(`CREATE INDEX IF NOT EXISTS idx_xp_events_user_time ON xp_events(user_id, created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_xp_events_time ON xp_events(created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_comments_word ON word_comments(word_id)`);
+
     await query(`CREATE INDEX IF NOT EXISTS idx_users_dialect_group ON users(dialect_group)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_connections_requester ON connections(requester_id)`);

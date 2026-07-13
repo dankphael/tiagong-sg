@@ -13,6 +13,17 @@ export async function PATCH(req) {
     let paramCount = 1;
 
     if (xp != null) {
+      // Client sends the new absolute total (debounced); log only the
+      // positive delta as a weekly-leaderboard event. Reads-then-writes
+      // are fine here — this endpoint isn't called concurrently per user
+      // (debounced client-side), and a missed race just under-counts one
+      // leaderboard event, never corrupts the authoritative xp total below.
+      const current = await query(`SELECT xp FROM users WHERE id = $1`, [decoded.userId]);
+      const prevXp = current.rows[0]?.xp || 0;
+      const delta = xp - prevXp;
+      if (delta > 0) {
+        await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'sync')`, [decoded.userId, delta]);
+      }
       updates.push(`xp = $${paramCount}`);
       params.push(xp);
       paramCount++;
