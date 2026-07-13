@@ -15,6 +15,7 @@ const OTHER_LINKS = [
   ["/community", "Community", "community"],
   ["/contribute", "Contribute", "contribute"],
   ["/associations", "Associations", "associations"],
+  ["/guide", "Guide", "guide"],
   ["/about", "About", "about"],
 ];
 

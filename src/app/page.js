@@ -12,6 +12,7 @@ import { relativeTime } from "@/lib/time";
 
 const STRIP_ICONS = { contribution: PenLine, pronunciation: Mic, new_member: UserPlus };
 const NUDGE_DISMISSED_KEY = 'tiagong_profile_nudge_dismissed';
+const GUIDE_NUDGE_DISMISSED_KEY = 'tiagong_guide_nudge_dismissed';
 
 // Sign-up is now minimal (name/dialect/gender only) — this nudges signed-in
 // users who never filled in matchmaking preferences (no `intent` set) to
@@ -30,6 +31,31 @@ function ProfileNudge() {
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <Link href="/profile" style={{ fontSize: 13, fontWeight: 600, color: "#D4860B", textDecoration: "none" }}>Complete profile →</Link>
         <button onClick={() => { localStorage.setItem(NUDGE_DISMISSED_KEY, '1'); setDismissed(true); }}
+          style={{ background: "none", border: "none", cursor: "pointer", color: "#9B8B75", fontSize: 13, fontFamily: "inherit" }}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// One-time nudge for new-ish users (low XP, so it naturally stops showing as
+// they get further in) pointing them at the /guide walkthrough. Visiting
+// /guide itself also sets the dismissed flag, so reading it once is enough.
+function GuideNudge() {
+  const [dismissed, setDismissed] = useState(true);
+  useEffect(() => {
+    setDismissed(localStorage.getItem(GUIDE_NUDGE_DISMISSED_KEY) === '1');
+  }, []);
+  if (dismissed) return null;
+  return (
+    <div className="card" style={{ padding: "16px 20px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", background: "#FDF0EF", border: "1px solid #C0392B30" }}>
+      <div style={{ fontSize: 13, color: "#6B5B45" }}>
+        <strong style={{ color: "#1A1208" }}>New here?</strong> Take a quick tour of everything you can do on tiagong.sg.
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <Link href="/guide" style={{ fontSize: 13, fontWeight: 600, color: "#C0392B", textDecoration: "none" }}>See the guide →</Link>
+        <button onClick={() => { localStorage.setItem(GUIDE_NUDGE_DISMISSED_KEY, '1'); setDismissed(true); }}
           style={{ background: "none", border: "none", cursor: "pointer", color: "#9B8B75", fontSize: 13, fontFamily: "inherit" }}>
           Dismiss
         </button>
@@ -118,6 +144,7 @@ function DialectPlatformContent() {
           <h1 className="heading" style={{ fontSize: 32 }}>{currentUser.firstName}</h1>
         </div>
 
+        {xp < 50 && <GuideNudge />}
         {!currentUser.intent && <ProfileNudge />}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
+import Link from "next/link";
 import { ArrowRight, ArrowLeft, Volume2 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { speak } from "@/lib/tts";
@@ -168,6 +169,9 @@ export default function WelcomePage() {
             />
           </div>
           <button className="btn-ghost" onClick={skip}>Skip for now</button>
+          <div style={{ marginTop: 16 }}>
+            <Link href="/guide" style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Read the full guide →</Link>
+          </div>
         </div>
       )}
     </div>
