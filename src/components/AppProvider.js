@@ -54,6 +54,7 @@ export function AppProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [overlay, setOverlay] = useState({ variants: {}, newWords: [] });
+  const [myVotes, setMyVotes] = useState(new Set()); // Set of "targetType:targetId"
 
   const dialect = dialects.find(d => d.id === selectedDialect) || null;
 
@@ -128,6 +129,7 @@ export function AppProvider({ children }) {
             setDailyCompleted(data.user.lastDailyDate === today);
           }
           mergeGuestProgress();
+          fetchMyVotes();
           setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
           setSuccessMessage(`Successfully signed in. Welcome, ${data.user.firstName}!`);
           setTimeout(() => setSuccessMessage(null), 4000);
@@ -158,6 +160,7 @@ export function AppProvider({ children }) {
         localStorage.setItem("auth_token", data.token);
         setCurrentUser(data.user);
         mergeGuestProgress();
+        fetchMyVotes();
         setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
         setPendingGoogle(null);
         return true;
@@ -227,6 +230,7 @@ export function AppProvider({ children }) {
     setKnownCards({});
     setProgress({});
     setSelectedDialect(null);
+    setMyVotes(new Set());
   }
 
   // The JWT is valid for 30 days with no refresh; nothing else in the app
@@ -240,6 +244,66 @@ export function AppProvider({ children }) {
     sessionExpiredRef.current = true;
     handleLogout();
     showToast("Your session expired — please sign in again", "error");
+  }
+
+  // One bootstrap fetch of the caller's own active votes — powers "did I
+  // vote this" (filled heart) across dictionary cards, the word detail
+  // modal, and comment threads without each component fetching separately.
+  function fetchMyVotes() {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    fetch("/api/votes?mine=1", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => setMyVotes(new Set((Array.isArray(rows) ? rows : []).map(v => `${v.targetType}:${v.targetId}`))))
+      .catch(() => {});
+  }
+
+  // Optimistic toggle: flips the local Set immediately so the heart responds
+  // instantly, then confirms with the server; reverts on failure. `active`
+  // is a soft toggle server-side, so repeated clicks never double-count.
+  function toggleVote(targetType, targetId) {
+    if (!currentUser) {
+      showToast("Sign in to vote", "error");
+      return;
+    }
+    const key = `${targetType}:${targetId}`;
+    const wasActive = myVotes.has(key);
+    setMyVotes(prev => {
+      const next = new Set(prev);
+      if (wasActive) next.delete(key); else next.add(key);
+      return next;
+    });
+    const token = localStorage.getItem("auth_token");
+    fetch("/api/votes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ targetType, targetId }),
+    })
+      .then(res => {
+        if (res.status === 401) {
+          handleSessionExpired();
+          return null; // session-expired already reverts + toasts via handleLogout
+        }
+        if (!res.ok) throw new Error("vote failed");
+        return res.json();
+      })
+      .then(data => {
+        if (!data) return;
+        // Reconcile with the server's actual state in case of a race.
+        setMyVotes(prev => {
+          const next = new Set(prev);
+          if (data.voted) next.add(key); else next.delete(key);
+          return next;
+        });
+      })
+      .catch(() => {
+        setMyVotes(prev => {
+          const next = new Set(prev);
+          if (wasActive) next.add(key); else next.delete(key);
+          return next;
+        });
+        showToast("Couldn't save your vote — please try again", "error");
+      });
   }
 
   // Bootstrap: dictionary, community profiles, session restore
@@ -279,6 +343,7 @@ export function AppProvider({ children }) {
               const today = new Date().toISOString().split("T")[0];
               setDailyCompleted(data.user.lastDailyDate === today);
             }
+            fetchMyVotes();
           } else {
             localStorage.removeItem("auth_token");
             restoreProgress(readGuestProgress());
@@ -373,6 +438,7 @@ export function AppProvider({ children }) {
   const value = {
     currentUser, setCurrentUser,
     registeredUsers, setRegisteredUsers, profilesLoading, overlay,
+    myVotes, toggleVote,
     xp, setXp, streak, setStreak,
     dailyCompleted, setDailyCompleted, markDailyComplete, lastDailyDate,
     progress, setProgress,
