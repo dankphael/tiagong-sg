@@ -1,4 +1,4 @@
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { XP_REWARDS } from '@/data/xpSystem';
 
@@ -53,35 +53,39 @@ export async function POST(req) {
       if (exists.rows.length === 0) return Response.json({ error: 'Variant not found' }, { status: 404 });
     }
 
-    const toggled = await query(
-      `WITH ins AS (
-         INSERT INTO votes (user_id, target_type, target_id, active)
-         VALUES ($1, $2, $3, true)
-         ON CONFLICT (user_id, target_type, target_id)
-         DO UPDATE SET active = NOT votes.active
-         RETURNING active, (xmax = 0) AS inserted
-       )
-       SELECT active, inserted FROM ins`,
-      [decoded.userId, targetType, id]
-    );
-    const { active, inserted } = toggled.rows[0];
+    const { active, count } = await withTransaction(async client => {
+      const toggled = await client.query(
+        `WITH ins AS (
+           INSERT INTO votes (user_id, target_type, target_id, active)
+           VALUES ($1, $2, $3, true)
+           ON CONFLICT (user_id, target_type, target_id)
+           DO UPDATE SET active = NOT votes.active
+           RETURNING active, (xmax = 0) AS inserted
+         )
+         SELECT active, inserted FROM ins`,
+        [decoded.userId, targetType, id]
+      );
+      const { active, inserted } = toggled.rows[0];
 
-    const countResult = await query(
-      `SELECT COUNT(*) AS n FROM votes WHERE target_type = $1 AND target_id = $2 AND active`,
-      [targetType, id]
-    );
-    const count = Number(countResult.rows[0].n);
+      const countResult = await client.query(
+        `SELECT COUNT(*) AS n FROM votes WHERE target_type = $1 AND target_id = $2 AND active`,
+        [targetType, id]
+      );
+      const count = Number(countResult.rows[0].n);
 
-    // First-ever upvote on this comment from this user, still under the cap
-    // — award the author (never the voter themselves).
-    if (inserted && active && targetType === 'comment' && count <= XP_CAP_VOTES) {
-      const authorResult = await query(`SELECT user_id FROM word_comments WHERE id = $1`, [id]);
-      const authorId = authorResult.rows[0]?.user_id;
-      if (authorId && authorId !== decoded.userId) {
-        await query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.commentUpvoted, authorId]);
-        await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'comment_upvoted')`, [authorId, XP_REWARDS.commentUpvoted]);
+      // First-ever upvote on this comment from this user, still under the cap
+      // — award the author (never the voter themselves).
+      if (inserted && active && targetType === 'comment' && count <= XP_CAP_VOTES) {
+        const authorResult = await client.query(`SELECT user_id FROM word_comments WHERE id = $1`, [id]);
+        const authorId = authorResult.rows[0]?.user_id;
+        if (authorId && authorId !== decoded.userId) {
+          await client.query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.commentUpvoted, authorId]);
+          await client.query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'comment_upvoted')`, [authorId, XP_REWARDS.commentUpvoted]);
+        }
       }
-    }
+
+      return { active, count };
+    });
 
     return Response.json({ voted: active, count }, { status: 200 });
   } catch (error) {

@@ -1,4 +1,4 @@
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { dialects } from '@/data/staticData';
 
@@ -76,12 +76,8 @@ export async function POST(req) {
         ? { contextNote: payload?.contextNote || null }
         : { ...(payload || {}), audioClipId: undefined };
 
-      // Sequential statements on the same pooled connection (pg Pool max:1)
-      // so this is effectively transactional; wrapped in BEGIN/COMMIT/
-      // ROLLBACK to avoid an orphaned clip on error.
-      await query('BEGIN');
-      try {
-        const contributionResult = await query(
+      const updatedRow = await withTransaction(async client => {
+        const contributionResult = await client.query(
           `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason)
            VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING id`,
@@ -89,23 +85,20 @@ export async function POST(req) {
         );
         const contributionId = contributionResult.rows[0].id;
 
-        const clipResult = await query(
+        const clipResult = await client.query(
           `INSERT INTO audio_clips (contribution_id, mime_type, data, duration_ms) VALUES ($1, $2, $3, $4) RETURNING id`,
           [contributionId, audioMimeType, audioData, Math.round(durationMs)]
         );
         const audioClipId = clipResult.rows[0].id;
 
-        const updated = await query(
+        const updated = await client.query(
           `UPDATE contributions SET payload = payload || $1::jsonb WHERE id = $2
            RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
           [JSON.stringify({ audioClipId }), contributionId]
         );
-        await query('COMMIT');
-        return Response.json(updated.rows[0], { status: 201 });
-      } catch (txErr) {
-        await query('ROLLBACK');
-        throw txErr;
-      }
+        return updated.rows[0];
+      });
+      return Response.json(updatedRow, { status: 201 });
     }
 
     const result = await query(

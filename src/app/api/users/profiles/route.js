@@ -7,27 +7,39 @@ export async function GET(req) {
     const role = searchParams.get('role');
     const dialectGroup = searchParams.get('dialect');
 
-    let sql = `SELECT id, first_name, last_name, age, occupation, dialect_group, dialects_known,
-      role, gender, intent, offerings, availability, formats, region, interests, proficiency,
-      bio, huay_kuan, verified, created_at,
-      (SELECT COUNT(*) FROM connections c WHERE (c.requester_id = users.id OR c.receiver_id = users.id) AND c.status = 'accepted') AS mentee_count
-      FROM users WHERE 1=1`;
+    // mentee_count is precomputed once as a join instead of a correlated
+    // subquery per row, so the cost doesn't scale with the number of users
+    // returned.
+    let sql = `WITH mentee_counts AS (
+        SELECT user_id, COUNT(*) AS cnt FROM (
+          SELECT requester_id AS user_id FROM connections WHERE status = 'accepted'
+          UNION ALL
+          SELECT receiver_id AS user_id FROM connections WHERE status = 'accepted'
+        ) c GROUP BY user_id
+      )
+      SELECT u.id, u.first_name, u.last_name, u.age, u.occupation, u.dialect_group, u.dialects_known,
+      u.role, u.gender, u.intent, u.offerings, u.availability, u.formats, u.region, u.interests, u.proficiency,
+      u.bio, u.huay_kuan, u.verified, u.created_at,
+      COALESCE(mc.cnt, 0) AS mentee_count
+      FROM users u
+      LEFT JOIN mentee_counts mc ON mc.user_id = u.id
+      WHERE 1=1`;
     const params = [];
     let paramCount = 1;
 
     if (role && role !== 'All') {
-      sql += ` AND role = $${paramCount}`;
+      sql += ` AND u.role = $${paramCount}`;
       params.push(role);
       paramCount++;
     }
 
     if (dialectGroup && dialectGroup !== 'All') {
-      sql += ` AND dialect_group = $${paramCount}`;
+      sql += ` AND u.dialect_group = $${paramCount}`;
       params.push(dialectGroup);
       paramCount++;
     }
 
-    sql += ' ORDER BY created_at DESC LIMIT 100';
+    sql += ' ORDER BY u.created_at DESC LIMIT 100';
 
     const result = await query(sql, params);
 
@@ -58,7 +70,7 @@ export async function GET(req) {
       avatar: getAvatar(u.gender, u.role)
     }));
 
-    return Response.json(users, { status: 200 });
+    return Response.json(users, { status: 200, headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } });
   } catch (error) {
     console.error('Error fetching profiles:', error);
     return Response.json({ error: 'Failed to fetch profiles', detail: error.message }, { status: 500 });

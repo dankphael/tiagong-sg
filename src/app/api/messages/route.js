@@ -38,24 +38,36 @@ export async function GET(req) {
       return Response.json({ error: 'Chat is only available for accepted connections' }, { status: 403 });
     }
 
-    let sql = `SELECT id, connection_id, sender_id, type, body, metadata, created_at, read_at
-      FROM messages WHERE connection_id = $1`;
-    const params = [connectionId];
+    let rows;
     if (sinceId) {
-      sql += ` AND id > $2`;
-      params.push(sinceId);
+      // Polling for new messages only — the thread is already loaded client-side.
+      const result = await query(
+        `SELECT id, connection_id, sender_id, type, body, metadata, created_at, read_at
+         FROM messages WHERE connection_id = $1 AND id > $2 ORDER BY id ASC`,
+        [connectionId, sinceId]
+      );
+      rows = result.rows;
+    } else {
+      // Initial load — cap history so long-lived threads don't return an
+      // unbounded payload; fetch newest 200 then restore chronological order.
+      const result = await query(
+        `SELECT id, connection_id, sender_id, type, body, metadata, created_at, read_at
+         FROM messages WHERE connection_id = $1 ORDER BY id DESC LIMIT 200`,
+        [connectionId]
+      );
+      rows = result.rows.reverse();
     }
-    sql += ` ORDER BY id ASC`;
 
-    const result = await query(sql, params);
+    const hasUnread = rows.some(r => r.sender_id !== decoded.userId && r.read_at == null);
+    if (hasUnread) {
+      await query(
+        `UPDATE messages SET read_at = CURRENT_TIMESTAMP
+         WHERE connection_id = $1 AND sender_id != $2 AND read_at IS NULL`,
+        [connectionId, decoded.userId]
+      );
+    }
 
-    await query(
-      `UPDATE messages SET read_at = CURRENT_TIMESTAMP
-       WHERE connection_id = $1 AND sender_id != $2 AND read_at IS NULL`,
-      [connectionId, decoded.userId]
-    );
-
-    return Response.json(result.rows, { status: 200 });
+    return Response.json(rows, { status: 200 });
   } catch (err) {
     console.error('Error fetching messages:', err);
     return Response.json({ error: 'Failed to fetch messages' }, { status: 500 });
@@ -86,6 +98,15 @@ export async function POST(req) {
     }
     if (connection.status !== 'accepted') {
       return Response.json({ error: 'Chat is only available for accepted connections' }, { status: 403 });
+    }
+
+    const recent = await query(
+      `SELECT id FROM messages WHERE connection_id = $1 AND sender_id = $2
+       AND created_at > NOW() - INTERVAL '1 second' LIMIT 1`,
+      [connectionId, decoded.userId]
+    );
+    if (recent.rows.length > 0) {
+      return Response.json({ error: 'Sending too fast — please slow down' }, { status: 429 });
     }
 
     let finalMetadata = metadata || {};

@@ -1,11 +1,10 @@
 import { query } from '@/lib/db';
 
 export async function GET(req) {
-  // Note: Authorization check removed for initial database setup
-  // const authHeader = req.headers.get('authorization');
-  // if (authHeader !== `Bearer ${process.env.INIT_SECRET}`) {
-  //   return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
+  const authHeader = req.headers.get('authorization');
+  if (!process.env.INIT_SECRET || authHeader !== `Bearer ${process.env.INIT_SECRET}`) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   try {
     console.log('🔧 Initializing database...');
@@ -187,10 +186,12 @@ export async function GET(req) {
       )
     `);
     await query(`CREATE INDEX IF NOT EXISTS idx_votes_target ON votes(target_type, target_id) WHERE active`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_votes_user ON votes(user_id) WHERE active`);
 
     await query(`CREATE INDEX IF NOT EXISTS idx_xp_events_user_time ON xp_events(user_id, created_at)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_xp_events_time ON xp_events(created_at)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_word_comments_word ON word_comments(word_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_comments_user ON word_comments(user_id, created_at DESC)`);
 
     await query(`CREATE INDEX IF NOT EXISTS idx_users_dialect_group ON users(dialect_group)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);

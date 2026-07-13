@@ -34,7 +34,8 @@ export async function GET(req) {
        LEFT JOIN votes v ON v.target_type = 'comment' AND v.target_id = wc.id
        WHERE wc.word_id = $1 AND NOT wc.deleted
        GROUP BY wc.id, u.first_name, u.last_name
-       ORDER BY ${sort === 'top' ? 'vote_count DESC, wc.created_at ASC' : 'wc.created_at ASC'}`,
+       ORDER BY ${sort === 'top' ? 'vote_count DESC, wc.created_at ASC' : 'wc.created_at ASC'}
+       LIMIT 100`,
       [wordId]
     );
 
