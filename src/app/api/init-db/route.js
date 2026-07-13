@@ -127,19 +127,23 @@ export async function GET(req) {
       )
     `);
 
-    // Community pronunciation recordings — base64 audio, kept out of the
-    // contributions/word_variants JSONB payloads (those ride bulk public
-    // endpoints and must stay small); payload only ever references the clip id.
+    // Community pronunciation recordings, kept out of the contributions/
+    // word_variants JSONB payloads (those ride bulk public endpoints and must
+    // stay small); payload only ever references the clip id. New clips are
+    // stored in Vercel Blob (blob_url) when BLOB_READ_WRITE_TOKEN is set;
+    // `data` (base64, legacy/fallback) and `blob_url` are mutually exclusive.
     await query(`
       CREATE TABLE IF NOT EXISTS audio_clips (
         id SERIAL PRIMARY KEY,
         contribution_id INT REFERENCES contributions(id) ON DELETE CASCADE,
         mime_type VARCHAR(50) NOT NULL,
-        data TEXT NOT NULL,
+        data TEXT,
         duration_ms INT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await query(`ALTER TABLE audio_clips ADD COLUMN IF NOT EXISTS blob_url TEXT`);
+    await query(`ALTER TABLE audio_clips ALTER COLUMN data DROP NOT NULL`);
 
     // Community Pulse: heritage story + leaderboard opt-out
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS heritage_story TEXT`);

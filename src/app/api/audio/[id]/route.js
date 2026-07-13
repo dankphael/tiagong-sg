@@ -11,7 +11,7 @@ export async function GET(req, { params }) {
     const { id } = await params;
 
     const result = await query(
-      `SELECT ac.mime_type, ac.data, c.status, c.dialect, c.user_id
+      `SELECT ac.mime_type, ac.data, ac.blob_url, c.status, c.dialect, c.user_id
        FROM audio_clips ac
        JOIN contributions c ON ac.contribution_id = c.id
        WHERE ac.id = $1`,
@@ -24,6 +24,11 @@ export async function GET(req, { params }) {
     const clip = result.rows[0];
 
     if (clip.status === 'accepted') {
+      // Blob-stored clips redirect straight to the CDN — no DB payload, no
+      // Node decode. Legacy base64 rows keep the old inline-serve path.
+      if (clip.blob_url) {
+        return Response.redirect(clip.blob_url, 302);
+      }
       return new Response(Buffer.from(clip.data, 'base64'), {
         status: 200,
         headers: {
@@ -46,6 +51,23 @@ export async function GET(req, { params }) {
       if (!isAdmin && !isCustodianForDialect) {
         return Response.json({ error: 'Not authorized to access this recording' }, { status: 403 });
       }
+    }
+
+    // Pending/rejected clips stay access-gated even when stored in Blob
+    // (its URL is otherwise unguessable but not access-controlled), so we
+    // fetch and re-stream it ourselves instead of redirecting.
+    if (clip.blob_url) {
+      const blobRes = await fetch(clip.blob_url);
+      if (!blobRes.ok) {
+        return Response.json({ error: 'Failed to load audio' }, { status: 502 });
+      }
+      return new Response(blobRes.body, {
+        status: 200,
+        headers: {
+          'Content-Type': clip.mime_type,
+          'Cache-Control': 'no-store',
+        },
+      });
     }
 
     return new Response(Buffer.from(clip.data, 'base64'), {

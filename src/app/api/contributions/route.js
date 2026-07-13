@@ -1,6 +1,7 @@
 import { query, withTransaction } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { dialects } from '@/data/staticData';
+import { isBlobConfigured, uploadAudio, deleteAudio } from '@/lib/audioStorage';
 
 const VALID_DIALECTS = dialects.map(d => d.id);
 const VALID_TYPES = ['correction', 'new_word', 'usage_example', 'error_flag', 'pronunciation_audio'];
@@ -91,29 +92,41 @@ export async function POST(req) {
         ? { contextNote: payload?.contextNote || null }
         : { ...(payload || {}), audioClipId: undefined };
 
-      const updatedRow = await withTransaction(async client => {
-        const contributionResult = await client.query(
-          `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING id`,
-          [decoded.userId, type, wordId || null, dialect, JSON.stringify(initialPayload), reason || null]
-        );
-        const contributionId = contributionResult.rows[0].id;
+      // Upload to Blob (external I/O) before opening the DB transaction —
+      // network calls don't belong inside BEGIN/COMMIT. Falls back to
+      // storing base64 directly when no Blob store is attached (e.g. this
+      // sandbox), so audio contributions keep working everywhere.
+      const useBlob = isBlobConfigured();
+      const blobUrl = useBlob ? await uploadAudio(audioData, audioMimeType) : null;
 
-        const clipResult = await client.query(
-          `INSERT INTO audio_clips (contribution_id, mime_type, data, duration_ms) VALUES ($1, $2, $3, $4) RETURNING id`,
-          [contributionId, audioMimeType, audioData, Math.round(durationMs)]
-        );
-        const audioClipId = clipResult.rows[0].id;
+      try {
+        const updatedRow = await withTransaction(async client => {
+          const contributionResult = await client.query(
+            `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING id`,
+            [decoded.userId, type, wordId || null, dialect, JSON.stringify(initialPayload), reason || null]
+          );
+          const contributionId = contributionResult.rows[0].id;
 
-        const updated = await client.query(
-          `UPDATE contributions SET payload = payload || $1::jsonb WHERE id = $2
-           RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
-          [JSON.stringify({ audioClipId }), contributionId]
-        );
-        return updated.rows[0];
-      });
-      return Response.json(updatedRow, { status: 201 });
+          const clipResult = await client.query(
+            `INSERT INTO audio_clips (contribution_id, mime_type, data, blob_url, duration_ms) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+            [contributionId, audioMimeType, useBlob ? null : audioData, blobUrl, Math.round(durationMs)]
+          );
+          const audioClipId = clipResult.rows[0].id;
+
+          const updated = await client.query(
+            `UPDATE contributions SET payload = payload || $1::jsonb WHERE id = $2
+             RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
+            [JSON.stringify({ audioClipId }), contributionId]
+          );
+          return updated.rows[0];
+        });
+        return Response.json(updatedRow, { status: 201 });
+      } catch (txErr) {
+        if (blobUrl) await deleteAudio(blobUrl);
+        throw txErr;
+      }
     }
 
     const result = await query(
