@@ -16,7 +16,9 @@ const VARIANT_LABELS = {
 
 function variantValue(v) {
   if (v.variant_type === "usage_example") return v.payload?.exampleText;
-  if (v.variant_type === "new_word") return v.payload?.english;
+  if (v.variant_type === "new_word") {
+    return [v.payload?.romanized || v.payload?.traditional, v.payload?.english].filter(Boolean).join(" — ");
+  }
   return v.payload?.proposedValue;
 }
 
@@ -94,6 +96,12 @@ export default function VariantChips({ variants }) {
                 <span style={{ fontWeight: 600, color: "#1A6B3C" }}>{VARIANT_LABELS[v.variant_type] || v.variant_type}:</span>{" "}
                 {variantValue(v)}
                 {v.context_note && <span style={{ color: "#8B7355", fontStyle: "italic" }}> — "{v.context_note}"</span>}
+                {v.variant_type === "new_word" && v.payload?.audioClipId && (
+                  <button onClick={() => playClip(v.payload.audioClipId)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", padding: "2px 6px", fontFamily: "inherit", color: "#1A6B3C", fontSize: 11, fontWeight: 600 }}>
+                    <Play size={10} fill="currentColor" /> Play
+                  </button>
+                )}
                 {v.contributor_name && <div style={{ fontSize: 11, color: "#9B8B75" }}>Contributed by {v.contributor_name}</div>}
               </div>
               <AttestButton v={v} />

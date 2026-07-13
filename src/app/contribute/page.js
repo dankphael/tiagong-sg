@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { dialects } from "@/data/staticData";
 import { XP_REWARDS } from "@/data/xpSystem";
+import NewWordWizard from "@/components/NewWordWizard";
 
 const STATUS_COLORS = {
   pending: { bg: "#FEF3E2", color: "#D4860B" },
@@ -23,9 +24,6 @@ const TYPE_LABELS = {
 export default function ContributePage() {
   const router = useRouter();
   const { currentUser, showToast } = useApp();
-
-  const [newWordForm, setNewWordForm] = useState({ dialect: "hokkien", romanized: "", traditional: "", english: "", mandarin: "", partOfSpeech: "", contextNote: "", reason: "" });
-  const [submittingWord, setSubmittingWord] = useState(false);
 
   const [submissions, setSubmissions] = useState([]);
   const [submissionsLoading, setSubmissionsLoading] = useState(true);
@@ -56,48 +54,6 @@ export default function ContributePage() {
       .catch(err => console.error("Failed to load application:", err))
       .finally(() => setApplicationLoading(false));
   }, [currentUser?.id]);
-
-  async function submitNewWord() {
-    if (!currentUser) { showToast("Sign in to contribute", "error"); router.push("/signin?next=" + encodeURIComponent("/contribute")); return; }
-    if (!newWordForm.romanized.trim() && !newWordForm.traditional.trim()) {
-      showToast("Please enter at least a romanized or Chinese-character form", "error");
-      return;
-    }
-    setSubmittingWord(true);
-    const token = localStorage.getItem("auth_token");
-    try {
-      const res = await fetch("/api/contributions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          type: "new_word",
-          dialect: newWordForm.dialect,
-          payload: {
-            romanized: newWordForm.romanized.trim(),
-            traditional: newWordForm.traditional.trim(),
-            english: newWordForm.english.trim(),
-            mandarin: newWordForm.mandarin.trim(),
-            partOfSpeech: newWordForm.partOfSpeech.trim(),
-            contextNote: newWordForm.contextNote.trim(),
-          },
-          reason: newWordForm.reason.trim() || null,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to submit", "error");
-      } else {
-        showToast("Thanks! A Language Custodian will review your new word.", "success");
-        setSubmissions(s => [data, ...s]);
-        setNewWordForm({ dialect: newWordForm.dialect, romanized: "", traditional: "", english: "", mandarin: "", partOfSpeech: "", contextNote: "", reason: "" });
-      }
-    } catch (e) {
-      console.error("Failed to submit new word:", e);
-      showToast("Network error — please try again", "error");
-    } finally {
-      setSubmittingWord(false);
-    }
-  }
 
   async function submitApplication() {
     if (!currentUser) { showToast("Sign in to apply", "error"); router.push("/signin?next=" + encodeURIComponent("/contribute")); return; }
@@ -148,53 +104,7 @@ export default function ContributePage() {
         <>
           {/* Add a new word */}
           <div className="card" style={{ padding: 28, marginBottom: 32 }}>
-            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 16 }}>Add a New Word</div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect</label>
-                <select value={newWordForm.dialect} onChange={e => setNewWordForm(f => ({ ...f, dialect: e.target.value }))} className="input" style={{ height: 44 }}>
-                  {dialects.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Part of speech (optional)</label>
-                <input type="text" value={newWordForm.partOfSpeech} onChange={e => setNewWordForm(f => ({ ...f, partOfSpeech: e.target.value }))}
-                  placeholder="e.g. verb, noun" className="input" />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-              <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Romanized spelling</label>
-                <input type="text" value={newWordForm.romanized} onChange={e => setNewWordForm(f => ({ ...f, romanized: e.target.value }))} className="input" />
-              </div>
-              <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Chinese characters</label>
-                <input type="text" value={newWordForm.traditional} onChange={e => setNewWordForm(f => ({ ...f, traditional: e.target.value }))} className="input" />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>English meaning</label>
-              <input type="text" value={newWordForm.english} onChange={e => setNewWordForm(f => ({ ...f, english: e.target.value }))} className="input" />
-            </div>
-
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Context note (optional)</label>
-              <input type="text" value={newWordForm.contextNote} onChange={e => setNewWordForm(f => ({ ...f, contextNote: e.target.value }))}
-                placeholder="When/how is this word used?" className="input" />
-            </div>
-
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Why should this be added? (optional)</label>
-              <textarea value={newWordForm.reason} onChange={e => setNewWordForm(f => ({ ...f, reason: e.target.value }))} rows={2}
-                className="input" style={{ resize: "vertical", padding: 12 }} />
-            </div>
-
-            <button className="btn-primary" onClick={submitNewWord} disabled={submittingWord} style={{ width: "100%" }}>
-              {submittingWord ? "Submitting..." : "Submit New Word"}
-            </button>
+            <NewWordWizard onSubmitted={c => setSubmissions(s => [c, ...s])} />
           </div>
 
           {/* My submissions */}
@@ -222,6 +132,9 @@ export default function ContributePage() {
                       {s.payload?.description && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.description}</div>}
                       {s.type === "pronunciation_audio" && (
                         <div style={{ fontSize: 13, color: "#6B5B45" }}>Pronunciation recording{s.duration_ms ? ` (${(s.duration_ms / 1000).toFixed(1)}s)` : ""}</div>
+                      )}
+                      {s.type === "new_word" && s.duration_ms && (
+                        <div style={{ fontSize: 13, color: "#6B5B45" }}>Includes recording ({(s.duration_ms / 1000).toFixed(1)}s)</div>
                       )}
                       {s.status === "rejected" && s.review_note && (
                         <div style={{ fontSize: 12, color: "#C0392B", marginTop: 6, fontStyle: "italic" }}>Custodian note: {s.review_note}</div>

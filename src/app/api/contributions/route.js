@@ -57,24 +57,35 @@ export async function POST(req) {
       return Response.json({ error: payloadError }, { status: 400 });
     }
 
-    if (type === 'pronunciation_audio') {
+    // pronunciation_audio always carries audio; new_word may optionally
+    // include a recording of the word being spoken (from the wizard's
+    // voice step) alongside the typed fields.
+    const wantsAudio = type === 'pronunciation_audio' || (type === 'new_word' && audioData);
+
+    if (wantsAudio) {
       const audioError = validateAudioFields(audioData, audioMimeType, durationMs);
       if (audioError) {
         return Response.json({ error: audioError }, { status: 400 });
       }
 
-      // Server builds the payload itself — only contextNote comes from the
-      // client; audioClipId is set after the clip is inserted, never trusted
-      // from the request. Sequential statements on the same pooled
-      // connection (pg Pool max:1) so this is effectively transactional;
-      // wrapped in BEGIN/COMMIT/ROLLBACK to avoid an orphaned clip on error.
+      // Server builds the payload itself — audioClipId is set after the clip
+      // is inserted, never trusted from the request. For pronunciation_audio
+      // only contextNote is kept from the client payload; for new_word the
+      // full typed payload is kept (any client-sent audioClipId stripped).
+      const initialPayload = type === 'pronunciation_audio'
+        ? { contextNote: payload?.contextNote || null }
+        : { ...(payload || {}), audioClipId: undefined };
+
+      // Sequential statements on the same pooled connection (pg Pool max:1)
+      // so this is effectively transactional; wrapped in BEGIN/COMMIT/
+      // ROLLBACK to avoid an orphaned clip on error.
       await query('BEGIN');
       try {
         const contributionResult = await query(
           `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason)
            VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING id`,
-          [decoded.userId, type, wordId, dialect, JSON.stringify({ contextNote: payload?.contextNote || null }), reason || null]
+          [decoded.userId, type, wordId || null, dialect, JSON.stringify(initialPayload), reason || null]
         );
         const contributionId = contributionResult.rows[0].id;
 
