@@ -10,7 +10,7 @@ export async function GET(req) {
     const result = await query(
       `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, progress, dialects_known, xp, streak, last_daily_date,
        intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified, custodian_dialects, account_type, deactivated,
-       heritage_story, leaderboard_opt_out
+       heritage_story, leaderboard_opt_out, avatar_url
        FROM users WHERE id = $1`,
       [decoded.userId]
     );
@@ -35,6 +35,7 @@ export async function GET(req) {
         gender: u.gender,
         languageInterest: u.dialect_group || 'Hokkien',
         avatar: getAvatar(u.gender, u.role || 'mentee'),
+        avatarUrl: u.avatar_url || null,
         progress: u.progress || {},
         dialectsKnown: u.dialects_known || [],
         xp: u.xp || 0,

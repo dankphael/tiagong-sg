@@ -149,6 +149,9 @@ export async function GET(req) {
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS heritage_story TEXT`);
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS leaderboard_opt_out BOOLEAN DEFAULT false`);
 
+    // Uploaded profile photo (Vercel Blob URL) — null falls back to the emoji avatar
+    await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT`);
+
     // Per-event XP log — powers the weekly leaderboard (the users.xp column
     // stays the single running total used everywhere else; this is additive).
     await query(`

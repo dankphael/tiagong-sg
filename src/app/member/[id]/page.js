@@ -9,6 +9,7 @@ import { getLevel } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
 import { computeBadges } from "@/lib/badges";
 import { Flame, PenLine, Calendar } from "lucide-react";
+import Avatar from "@/components/Avatar";
 
 const CONTRIB_LABELS = {
   new_word: 'words added',
@@ -67,7 +68,9 @@ export default function MemberPage() {
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px' }} className="fade-up">
       <div className="card" style={{ padding: 32, marginBottom: 20, textAlign: 'center' }}>
-        <div style={{ fontSize: 56, marginBottom: 10 }}>{getAvatar(profile.gender, profile.role)}</div>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+          <Avatar url={profile.avatarUrl} emoji={getAvatar(profile.gender, profile.role)} size={80} />
+        </div>
         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
           {profile.firstName} {profile.lastName}
           {profile.verified && <span style={{ color: '#D4860B', fontSize: 18 }} title="Verified">✓</span>}

@@ -19,7 +19,7 @@ export async function GET(req) {
       )
       SELECT u.id, u.first_name, u.last_name, u.age, u.occupation, u.dialect_group, u.dialects_known,
       u.role, u.gender, u.intent, u.offerings, u.availability, u.formats, u.region, u.interests, u.proficiency,
-      u.bio, u.huay_kuan, u.verified, u.created_at,
+      u.bio, u.huay_kuan, u.verified, u.created_at, u.avatar_url,
       COALESCE(mc.cnt, 0) AS mentee_count
       FROM users u
       LEFT JOIN mentee_counts mc ON mc.user_id = u.id
@@ -67,7 +67,8 @@ export async function GET(req) {
       huayKuan: u.huay_kuan,
       verified: !!u.verified,
       menteeCount: Number(u.mentee_count) || 0,
-      avatar: getAvatar(u.gender, u.role)
+      avatar: getAvatar(u.gender, u.role),
+      avatarUrl: u.avatar_url || null
     }));
 
     return Response.json(users, { status: 200, headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } });

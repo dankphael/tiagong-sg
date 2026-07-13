@@ -8,6 +8,7 @@ import { useApp } from "@/components/AppProvider";
 import { rankSinSehs, INTENTS } from "@/lib/matching";
 import { huayKuan } from "@/data/staticData";
 import ChatPanel from "@/components/ChatPanel";
+import Avatar from "@/components/Avatar";
 
 const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
@@ -265,7 +266,7 @@ export default function NetworkPage() {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
           <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 480, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
             <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 24 }}>
-              <div style={{ fontSize: 36 }}>{requestModal.avatar}</div>
+              <Avatar url={requestModal.avatarUrl} emoji={requestModal.avatar} size={48} />
               <div>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208" }}>Request {requestModal.firstName}</div>
                 <div style={{ fontSize: 13, color: "#9B8B75" }}>Sin Seh · {requestModal.languageInterest}</div>
@@ -426,7 +427,7 @@ export default function NetworkPage() {
                         </div>
                       )}
                       <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
-                        <div style={{ fontSize: 44, background: "#FAF6F0", borderRadius: "50%", width: 60, height: 60, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                        <Avatar url={m.avatarUrl} emoji={m.avatar} size={60} />
                         <div>
                           <div style={{ fontWeight: 700, fontSize: 17, color: "#1A1208", display: "flex", alignItems: "center", gap: 6 }}>
                             <Link href={`/member/${m.id}`} style={{ color: "inherit", textDecoration: "none" }} onClick={e => e.stopPropagation()}>
@@ -758,7 +759,7 @@ export default function NetworkPage() {
                     <div key={m.id} className="card" style={{ padding: 24 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                          <div style={{ fontSize: 40, background: "#FAF6F0", borderRadius: "50%", width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center" }}>{m.avatar}</div>
+                          <Avatar url={m.avatarUrl} emoji={m.avatar} size={56} />
                           <div>
                             <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>
                               <Link href={`/member/${m.id}`} style={{ color: "inherit", textDecoration: "none" }}>{m.firstName} {m.lastName}</Link>

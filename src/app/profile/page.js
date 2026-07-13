@@ -10,13 +10,39 @@ import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
 import { SealChip } from "@/components/ui";
 import MatchPreferencesFields from "@/components/MatchPreferencesFields";
+import Avatar from "@/components/Avatar";
+
+// Crops to a centered square and downscales before upload, so phone photos
+// don't turn into multi-MB blobs — matches the audio contribution flow's
+// "shrink on the client, validate on the server" pattern.
+function cropAndResizeImage(file, size = 256) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = (img.height - side) / 2;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      resolve(dataUrl.split(",")[1]);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Couldn't read that image")); };
+    img.src = url;
+  });
+}
 
 export default function ProfilePage() {
   const router = useRouter();
   const {
-    currentUser, xp, streak, authError, setAuthError, successMessage,
+    currentUser, setCurrentUser, xp, streak, authError, setAuthError, successMessage,
     pendingGoogle, saveProfile: ctxSaveProfile, handleLogout,
-    setSelectedDialect,
+    setSelectedDialect, showToast,
   } = useApp();
 
   const [profileForm, setProfileForm] = useState({
@@ -25,8 +51,57 @@ export default function ProfilePage() {
     heritageStory: "", leaderboardOptOut: false,
   });
   const [profileEditMode, setProfileEditMode] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   function saveProfile() { return ctxSaveProfile(profileForm).then(ok => { if (ok) setProfileEditMode(false); }); }
+
+  async function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      showToast("Please choose a JPEG, PNG, or WebP image", "error");
+      return;
+    }
+    setUploadingPhoto(true);
+    const token = localStorage.getItem("auth_token");
+    try {
+      const imageData = await cropAndResizeImage(file);
+      const res = await fetch("/api/users/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ imageData, mimeType: "image/jpeg" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Failed to upload photo", "error");
+        return;
+      }
+      setCurrentUser(prev => ({ ...prev, avatarUrl: data.avatarUrl }));
+      showToast("Photo updated", "success");
+    } catch (e) {
+      console.error("Failed to upload photo:", e);
+      showToast("Couldn't process that image — please try another", "error");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
+
+  async function removePhoto() {
+    setUploadingPhoto(true);
+    const token = localStorage.getItem("auth_token");
+    try {
+      const res = await fetch("/api/users/avatar", { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) { showToast("Failed to remove photo", "error"); return; }
+      setCurrentUser(prev => ({ ...prev, avatarUrl: null }));
+      showToast("Photo removed", "success");
+    } catch (e) {
+      console.error("Failed to remove photo:", e);
+      showToast("Network error — please try again", "error");
+    } finally {
+      setUploadingPhoto(false);
+    }
+  }
 
   function continueLearning(dialectId) {
     if (!dialectId) return;
@@ -41,6 +116,21 @@ export default function ProfilePage() {
           {profileEditMode ? (
             <div className="card" style={{ padding: 32 }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                <Avatar url={currentUser.avatarUrl} emoji={currentUser.avatar} size={72} fontSize={44} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label className="btn-secondary" style={{ cursor: uploadingPhoto ? "default" : "pointer", opacity: uploadingPhoto ? 0.6 : 1, textAlign: "center" }}>
+                    {uploadingPhoto ? "Uploading…" : "Upload photo"}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} disabled={uploadingPhoto} style={{ display: "none" }} />
+                  </label>
+                  {currentUser.avatarUrl && (
+                    <button type="button" className="btn-ghost" onClick={removePhoto} disabled={uploadingPhoto} style={{ fontSize: 13 }}>
+                      Remove photo
+                    </button>
+                  )}
+                </div>
+              </div>
 
               <div className="form-grid-2" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
                 {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
@@ -165,7 +255,9 @@ export default function ProfilePage() {
                       <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginBottom: 24 }}>
                         <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           <div style={{ position: "absolute", width: 88, height: 88, borderRadius: "50%", background: ringColor + "20", border: "3px solid " + ringColor }}></div>
-                          <div style={{ fontSize: 56, zIndex: 1 }}>{currentUser.avatar}</div>
+                          <div style={{ zIndex: 1 }}>
+                            <Avatar url={currentUser.avatarUrl} emoji={currentUser.avatar} size={80} fontSize={52} />
+                          </div>
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 2 }}>{currentUser.firstName} {currentUser.lastName}</div>

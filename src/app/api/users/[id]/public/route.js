@@ -13,7 +13,7 @@ export async function GET(req, { params }) {
 
     const result = await query(
       `SELECT id, first_name, last_name, gender, role, dialect_group, verified,
-              custodian_dialects, heritage_story, bio, xp, streak, created_at, deactivated
+              custodian_dialects, heritage_story, bio, xp, streak, created_at, deactivated, avatar_url
        FROM users WHERE id = $1`,
       [userId]
     );
@@ -37,6 +37,7 @@ export async function GET(req, { params }) {
       role: u.role || 'mentee',
       languageInterest: u.dialect_group,
       verified: !!u.verified,
+      avatarUrl: u.avatar_url || null,
       custodianDialects: u.custodian_dialects || [],
       heritageStory: u.heritage_story || '',
       bio: u.bio || '',

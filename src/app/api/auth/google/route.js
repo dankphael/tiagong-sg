@@ -51,6 +51,7 @@ function userResponse(row, picture) {
     gender: row.gender,
     languageInterest: row.dialect_group || 'Hokkien',
     avatar: getAvatar(row.gender, row.role || 'mentee'),
+    avatarUrl: row.avatar_url || picture || null,
     dialectsKnown: row.dialects_known || [],
     intent: row.intent,
     offerings: row.offerings || [],
@@ -89,7 +90,7 @@ export async function POST(req) {
     const existing = await query(
       `SELECT id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
        intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified,
-       custodian_dialects, account_type, deactivated
+       custodian_dialects, account_type, deactivated, avatar_url
        FROM users WHERE email = $1`,
       [googleData.email]
     );
@@ -98,6 +99,12 @@ export async function POST(req) {
       const row = existing.rows[0];
       if (row.deactivated) {
         return Response.json({ error: 'This account has been deactivated' }, { status: 403 });
+      }
+      // Seed the avatar from the Google account photo once, the first time
+      // we see this user has none — never overwrites a photo they uploaded.
+      if (!row.avatar_url && googleData.picture) {
+        await query(`UPDATE users SET avatar_url = $1 WHERE id = $2`, [googleData.picture, row.id]);
+        row.avatar_url = googleData.picture;
       }
       const token = signToken(row.id, row.email);
       return Response.json({ token, user: userResponse(row, googleData.picture) }, { status: 200 });
@@ -113,11 +120,11 @@ export async function POST(req) {
     } = profileData;
     const result = await query(
       `INSERT INTO users (email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known, password_hash,
-       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+       intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified, avatar_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
        RETURNING id, email, first_name, last_name, age, occupation, dialect_group, role, gender, dialects_known,
        intent, offerings, availability, formats, region, interests, proficiency, bio, huay_kuan, verified,
-       custodian_dialects, account_type`,
+       custodian_dialects, account_type, avatar_url`,
       [
         googleData.email,
         firstName || googleData.firstName,
@@ -139,6 +146,7 @@ export async function POST(req) {
         bio || null,
         huayKuan || null,
         false,
+        googleData.picture || null,
       ]
     );
 
