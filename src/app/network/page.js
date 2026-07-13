@@ -529,7 +529,10 @@ export default function NetworkPage() {
                 {!currentUser ? (
                   <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
                     <div style={{ fontSize: 48, marginBottom: 16 }}><Handshake size={40} /></div>
-                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your mentorships</div>
+                    <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 16 }}>Sign in to view your mentorships</div>
+                    <Link href={`/signin?next=${encodeURIComponent("/network")}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
+                      Sign In
+                    </Link>
                   </div>
                 ) : connectionsLoading ? (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: 16 }}>
@@ -691,7 +694,10 @@ export default function NetworkPage() {
           {!currentUser ? (
             <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><MessageCircle size={40} /></div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208" }}>Sign in to view your chats</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 16 }}>Sign in to view your chats</div>
+              <Link href={`/signin?next=${encodeURIComponent("/network")}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
+                Sign In
+              </Link>
             </div>
           ) : (
             <ChatPanel currentUser={currentUser} connections={connections} users={registeredUsers} connectionsLoading={connectionsLoading}

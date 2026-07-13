@@ -112,7 +112,11 @@ export default function WordComments({ wordId, dialect, count = 0 }) {
               </button>
             </div>
           ) : (
-            <div style={{ fontSize: 12, color: "#9B8B75" }}>Sign in to join the conversation.</div>
+            <div style={{ fontSize: 12, color: "#9B8B75" }}>
+              <Link href={`/signin?next=${encodeURIComponent("/dictionary")}`} style={{ color: "#C0392B", fontWeight: 600, textDecoration: "none" }}>
+                Sign in
+              </Link> to join the conversation.
+            </div>
           )}
         </div>
       )}

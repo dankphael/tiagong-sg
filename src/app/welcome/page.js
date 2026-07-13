@@ -52,7 +52,7 @@ export default function WelcomePage() {
     const result = await handleGoogleSuccess(credentialResponse);
     finishOnboarding();
     if (result?.needsProfile) {
-      router.push('/profile');
+      router.push('/signin?next=/');
     } else {
       router.push('/');
     }

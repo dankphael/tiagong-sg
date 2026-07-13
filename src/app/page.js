@@ -11,6 +11,32 @@ import { dialects } from "@/data/staticData";
 import { relativeTime } from "@/lib/time";
 
 const STRIP_ICONS = { contribution: PenLine, pronunciation: Mic, new_member: UserPlus };
+const NUDGE_DISMISSED_KEY = 'tiagong_profile_nudge_dismissed';
+
+// Sign-up is now minimal (name/dialect/gender only) — this nudges signed-in
+// users who never filled in matchmaking preferences (no `intent` set) to
+// finish their profile, without forcing it during sign-up itself.
+function ProfileNudge() {
+  const [dismissed, setDismissed] = useState(true);
+  useEffect(() => {
+    setDismissed(localStorage.getItem(NUDGE_DISMISSED_KEY) === '1');
+  }, []);
+  if (dismissed) return null;
+  return (
+    <div className="card" style={{ padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", background: "#FEF9E7", border: "1px solid #D4860B30" }}>
+      <div style={{ fontSize: 13, color: "#6B5B45" }}>
+        <strong style={{ color: "#1A1208" }}>Finish setting up your profile</strong> — add your availability and interests so Sin Sehs can find you.
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <Link href="/profile" style={{ fontSize: 13, fontWeight: 600, color: "#D4860B", textDecoration: "none" }}>Complete profile →</Link>
+        <button onClick={() => { localStorage.setItem(NUDGE_DISMISSED_KEY, '1'); setDismissed(true); }}
+          style={{ background: "none", border: "none", cursor: "pointer", color: "#9B8B75", fontSize: 13, fontFamily: "inherit" }}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // Light "the community is alive" signal on home — latest 3 activity items
 // with a link through to the full /community page. Renders nothing at all
@@ -91,6 +117,8 @@ function DialectPlatformContent() {
           <div className="eyebrow" style={{ marginBottom: 6 }}>Welcome back</div>
           <h1 className="heading" style={{ fontSize: 32 }}>{currentUser.firstName}</h1>
         </div>
+
+        {!currentUser.intent && <ProfileNudge />}
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
           <div className="card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 14 }}>

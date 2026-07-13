@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { GoogleLogin } from "@react-oauth/google";
 import { Mars, Venus } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { getAvatar } from "@/lib/avatar";
@@ -16,8 +15,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const {
     currentUser, xp, streak, authError, setAuthError, successMessage,
-    pendingGoogle, handleGoogleSuccess: ctxHandleGoogleSuccess,
-    completeProfile: ctxCompleteProfile, saveProfile: ctxSaveProfile, handleLogout,
+    pendingGoogle, saveProfile: ctxSaveProfile, handleLogout,
     setSelectedDialect,
   } = useApp();
 
@@ -28,20 +26,7 @@ export default function ProfilePage() {
   });
   const [profileEditMode, setProfileEditMode] = useState(false);
 
-  function completeProfile() { return ctxCompleteProfile(profileForm); }
   function saveProfile() { return ctxSaveProfile(profileForm).then(ok => { if (ok) setProfileEditMode(false); }); }
-  function handleGoogleSuccess(credentialResponse) {
-    return ctxHandleGoogleSuccess(credentialResponse).then(result => {
-      if (result?.needsProfile) {
-        setProfileForm(f => ({
-          ...f,
-          firstName: result.googleData.firstName || '',
-          lastName: result.googleData.lastName || '',
-          email: result.googleData.email || '',
-        }));
-      }
-    });
-  }
 
   function continueLearning(dialectId) {
     if (!dialectId) return;
@@ -326,119 +311,19 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-      ) : pendingGoogle ? (
-        <div className="card" style={{ padding: 36 }}>
-          <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 6 }}>
-            Complete Your Heritage Profile
-          </div>
-          <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 28 }}>
-            Signed in as <strong>{pendingGoogle.googleData.email}</strong>. A language lost is a worldview lost. Let's start your dialect journey.
-          </p>
-
-          <div className="form-grid-2" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
-            {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
-              ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
-              <div key={label}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
-              </div>
-            ))}
-          </div>
-
-          {[["Age", "number", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
-            ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, val, setter]) => (
-            <div key={label} style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-              <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
-            </div>
-          ))}
-
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
-            <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))} className="input"
-              style={{ height: 44 }}>
-              <option value="">—  Not interested in learning</option>
-              {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</label>
-            <div className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => {
-                const checked = (profileForm.dialectsKnown || []).includes(d);
-                return (
-                  <button key={d} type="button"
-                    onClick={() => setProfileForm(f => ({
-                      ...f,
-                      dialectsKnown: checked
-                        ? f.dialectsKnown.filter(x => x !== d)
-                        : [...(f.dialectsKnown || []), d],
-                    }))}
-                    className={checked ? "active" : ""}
-                    style={{ padding: "8px 16px", borderRadius: 20, border: "2px solid " + (checked ? "#C0392B" : "#E8DDD0"), background: checked ? "#FDF0EF" : "white", color: checked ? "#C0392B" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
-                    {checked ? "✓ " : ""}{d}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 28 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
-            <div style={{ display: "flex", gap: 12 }}>
-              {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, icon, label]) => (
-                <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
-                  style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
-                  <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.gender === val ? "#C0392B" : "#1A1208" }}>{label}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 28 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I want to join as a</label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-              {[["mentee", "Mentee", "Learn dialects"], ["mentor", "Mentor", "Teach as a Sin Seh"], ["both", "Both", "Learn & teach"], ["none", "Observer", "Just exploring"]].map(([val, label, sub]) => {
-                const emoji = val === "both" || val === "none" ? "👤" : getAvatar(profileForm.gender, val);
-                return (
-                  <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, role: val }))}
-                    style={{ flex: 1, minWidth: 100, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
-                    <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
-                    <div style={{ fontSize: 10, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid #E8DDD0", paddingTop: 20, marginBottom: 8 }}>
-            <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Matchmaking Preferences</div>
-            <MatchPreferencesFields form={profileForm} setForm={setProfileForm} />
-          </div>
-
-          <button className="btn-primary" onClick={completeProfile} style={{ width: "100%" }}>
-            Complete Profile
-          </button>
-        </div>
       ) : (
         <div className="card" style={{ padding: 36, textAlign: "center" }}>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>
-            Welcome to tiagong.sg
+            {pendingGoogle ? "Almost there" : "Welcome to tiagong.sg"}
           </div>
           <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 32 }}>
-            A language lost is a worldview lost. Sign in to start your dialect learning journey and connect with native speakers across Singapore.
+            {pendingGoogle
+              ? "Just a few essentials left to finish setting up your account."
+              : "A language lost is a worldview lost. Sign in to start your dialect learning journey and connect with native speakers across Singapore."}
           </p>
-
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setAuthError("Google sign-in failed")}
-              text="signin_with"
-            />
-          </div>
+          <Link href="/signin?next=/profile" className="btn-primary" style={{ textDecoration: "none", display: "inline-block", padding: "12px 28px" }}>
+            {pendingGoogle ? "Finish setting up" : "Sign In"}
+          </Link>
         </div>
       )}
 

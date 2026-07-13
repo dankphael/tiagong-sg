@@ -99,7 +99,7 @@ export function Nav() {
             </button>
           </div>
         ) : (
-          <Link href="/profile" className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
+          <Link href={`/signin?next=${encodeURIComponent(pathname)}`} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
             Sign In
           </Link>
         )}

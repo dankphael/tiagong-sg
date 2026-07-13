@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search, X, ChevronUp, ChevronDown, Filter, ArrowLeft, ArrowRight,
   Users, Heart, Home, Smile, Plane, Clock, Utensils, Briefcase, MapPin,
@@ -31,6 +32,7 @@ const CATEGORY_ICONS = {
 const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
+  const router = useRouter();
   const { apiWords, overlay, currentUser, showToast } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [wordModal, setWordModal] = useState(null); // flattened phrase object when viewing an entry
@@ -165,6 +167,7 @@ export default function DictionaryPage() {
   function openContribution(word, type) {
     if (!currentUser) {
       showToast("Sign in to contribute", "error");
+      router.push("/signin?next=" + encodeURIComponent("/dictionary"));
       return;
     }
     setContributionModal({ word, type });
