@@ -53,6 +53,18 @@ export async function POST(req) {
       if (exists.rows.length === 0) return Response.json({ error: 'Variant not found' }, { status: 404 });
     }
 
+    // New (never-before-voted) targets are throttled by counting rows this
+    // user has created in the last minute — re-toggling an existing vote
+    // doesn't insert a new row, so this only caps how fast someone can
+    // spread votes across new targets, not rapid on/off clicking on one.
+    const recentVotes = await query(
+      `SELECT COUNT(*) AS n FROM votes WHERE user_id = $1 AND created_at > NOW() - INTERVAL '60 seconds'`,
+      [decoded.userId]
+    );
+    if (Number(recentVotes.rows[0].n) > 30) {
+      return Response.json({ error: 'Too many votes — please slow down' }, { status: 429 });
+    }
+
     const { active, count } = await withTransaction(async client => {
       const toggled = await client.query(
         `WITH ins AS (

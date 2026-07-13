@@ -66,8 +66,20 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
     }
 
     fetchMessages(true);
-    pollRef.current = setInterval(() => fetchMessages(false), POLL_MS);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+    pollRef.current = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      fetchMessages(false);
+    }, POLL_MS);
+
+    function onVisible() {
+      if (document.visibilityState === "visible") fetchMessages(false);
+    }
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [activeId]);
 
   useEffect(() => {

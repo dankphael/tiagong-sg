@@ -44,7 +44,8 @@ async function fetchBoard(board, dialect, weekStart) {
        JOIN contributions c ON c.user_id = u.id AND c.status = 'accepted' AND c.reviewed_at >= $1 ${dialectClause}
        WHERE NOT COALESCE(u.leaderboard_opt_out, false) AND NOT COALESCE(u.deactivated, false)
        GROUP BY u.id
-       ORDER BY score DESC`,
+       ORDER BY score DESC
+       LIMIT 500`,
       params
     );
     return result.rows;
@@ -62,7 +63,8 @@ async function fetchBoard(board, dialect, weekStart) {
      WHERE NOT COALESCE(u.leaderboard_opt_out, false) AND NOT COALESCE(u.deactivated, false) ${dialectClause}
      GROUP BY u.id
      HAVING COALESCE(SUM(xe.amount), 0) > 0
-     ORDER BY score DESC`,
+     ORDER BY score DESC
+     LIMIT 500`,
     params
   );
   return result.rows;

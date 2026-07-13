@@ -59,8 +59,20 @@ export default function NetworkPage() {
   useEffect(() => {
     if (!currentUser) return;
     loadUnreadCounts();
-    const interval = setInterval(() => { loadUnreadCounts(); loadConnections(); }, 20000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      if (document.visibilityState === "hidden") return;
+      loadUnreadCounts(); loadConnections();
+    }, 20000);
+
+    function onVisible() {
+      if (document.visibilityState === "visible") { loadUnreadCounts(); loadConnections(); }
+    }
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [currentUser?.id]);
 
   const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);

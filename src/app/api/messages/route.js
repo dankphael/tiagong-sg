@@ -74,10 +74,17 @@ export async function GET(req) {
   }
 }
 
+const MAX_BODY_BYTES = 64_000; // generous ceiling for a ≤1000 char message plus metadata
+
 // POST {connectionId, type, body, metadata} — send a message or meetup proposal.
 export async function POST(req) {
   const { error, status, decoded } = requireAuth(req);
   if (error) return Response.json({ error }, { status });
+
+  const contentLength = Number(req.headers.get('content-length'));
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return Response.json({ error: 'Request body too large' }, { status: 413 });
+  }
 
   try {
     const { connectionId, type = 'text', body, metadata } = await req.json();

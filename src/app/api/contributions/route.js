@@ -35,13 +35,28 @@ function validateAudioFields(audioData, audioMimeType, durationMs) {
   return null;
 }
 
+const MAX_BODY_BYTES = 600_000; // ~400k base64 chars (a ~10s clip) plus JSON overhead
+
 // POST — submit a contribution (correction, new word, usage example, or error flag)
 export async function POST(req) {
   const { error, status, decoded } = requireAuth(req);
   if (error) return Response.json({ error }, { status });
 
+  const contentLength = Number(req.headers.get('content-length'));
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return Response.json({ error: 'Request body too large' }, { status: 413 });
+  }
+
   try {
     const { type, wordId, dialect, payload, reason, audioData, audioMimeType, durationMs } = await req.json();
+
+    const recent = await query(
+      `SELECT id FROM contributions WHERE user_id = $1 AND created_at > NOW() - INTERVAL '15 seconds' LIMIT 1`,
+      [decoded.userId]
+    );
+    if (recent.rows.length > 0) {
+      return Response.json({ error: 'You are submitting too quickly — please wait a moment' }, { status: 429 });
+    }
 
     if (!VALID_TYPES.includes(type)) {
       return Response.json({ error: 'Invalid contribution type' }, { status: 400 });
