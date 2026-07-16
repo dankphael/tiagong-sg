@@ -6,6 +6,7 @@ import { AnnotatedText, DialectTooltip } from "@/components/ui";
 import { ArrowRight, MessageCircle, Repeat, Volume2 } from "lucide-react";
 import { situationalQuizzes } from "@/data/staticData";
 import { ResultsScreen } from "@/components/games/GameShared";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
   const [quizIndex, setQuizIndex] = useState(0);
@@ -71,7 +72,11 @@ export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: `${dialect.color}15`, border: `1.5px solid ${dialect.color}35`, borderRadius: 20, padding: "4px 12px", marginBottom: 12 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: dialect.color, textTransform: "uppercase", letterSpacing: 1 }}>Scene {cueIndex + 1} of {totalScenes}</span>
         </div>
-        <div style={{ background: "#F9F5EE", borderRadius: 14, padding: "18px 20px", border: `2px solid ${dialect.color}25` }}>
+        <div style={{ background: "#F9F5EE", borderRadius: 14, padding: "18px 20px", border: `2px solid ${dialect.color}25`, position: "relative" }}>
+          <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2 }}>
+            <ReportButton dialectId={dialectId} card={{ phrase: cue.context, meaning: quiz.title, staticSource: "storyQuizzes" }} gameMode="story-quiz"
+              style={{ background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, color: dialect.color }} />
+          </div>
           <div style={{ fontSize: 12, color: "#9B8B75", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}><MessageCircle size={13} /> WHAT WOULD YOU SAY?</div>
           <div style={{ fontSize: 15, color: "#1A1208", lineHeight: 1.6 }}>
             <AnnotatedText text={cue.context} dialectColor={dialect.color} />

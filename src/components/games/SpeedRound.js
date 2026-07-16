@@ -6,6 +6,7 @@ import { Zap, ArrowRight, Repeat } from "lucide-react";
 import { XP_REWARDS } from "@/data/xpSystem";
 import { buildSpeedQuestions } from "@/lib/gameDecks";
 import { ResultsScreen } from "@/components/games/GameShared";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function SpeedRound({ dialect, dialectId }) {
   const { apiWords, awardXp } = useApp();
@@ -103,7 +104,10 @@ export default function SpeedRound({ dialect, dialectId }) {
       </div>
 
       {/* Question */}
-      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
+      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, position: "relative" }}>
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+          <ReportButton dialectId={dialectId} card={{ phrase: q.answerPhrase, chinese: q.chinese, meaning: q.english, romanisation: q.romanisation, staticSource: q.staticSource, wordId: q.wordId }} gameMode="speed-round" />
+        </div>
         <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>What is this in {dialect.name}?</div>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 32, fontWeight: 700, color: "white" }}>{q.english}</div>
         {q.chinese && <div style={{ fontFamily: "var(--font-chinese)", fontSize: 20, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
