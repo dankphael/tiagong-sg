@@ -8,6 +8,7 @@ import { XP_REWARDS } from "@/data/xpSystem";
 import { categories } from "@/data/staticData";
 import { buildReverseCards } from "@/lib/gameDecks";
 import { ResultsScreen } from "@/components/games/GameShared";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function ReverseCards({ dialect, dialectId, selectedCategory, onSelectCategory, autoStart, onSwitchMode }) {
   const { apiWords, awardXp } = useApp();
@@ -91,8 +92,11 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
       </div>
 
       {/* Card */}
-      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, cursor: "pointer" }}
+      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, cursor: "pointer", position: "relative" }}
         onClick={() => setFlipped(!flipped)}>
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+          <ReportButton dialectId={dialectId} card={card} gameMode="reverse-cards" category={selectedCategory} />
+        </div>
         <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Tap to {flipped ? "see question" : "reveal answer"}</div>
         {!flipped ? (
           <>

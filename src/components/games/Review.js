@@ -6,6 +6,7 @@ import { speak } from "@/lib/tts";
 import { Star, Repeat, Volume2 } from "lucide-react";
 import { XP_REWARDS } from "@/data/xpSystem";
 import { buildReviewQueue } from "@/lib/gameDecks";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function Review({ dialect, dialectId, autoStart }) {
   const { apiWords, knownCards, setKnownCards, awardXp } = useApp();
@@ -71,7 +72,10 @@ export default function Review({ dialect, dialectId, autoStart }) {
         <div className="progress-fill" style={{ width: `${((pos + 1) / queue.length) * 100}%`, background: dialect.color }} />
       </div>
 
-      <div className="card-3d flashcard" style={{ marginBottom: 20 }} onClick={() => setFlipped(!flipped)}>
+      <div className="card-3d flashcard" style={{ marginBottom: 20, position: "relative" }} onClick={() => setFlipped(!flipped)}>
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+          <ReportButton dialectId={dialectId} card={card} gameMode="review" category={item.category} />
+        </div>
         <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
           <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
             <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>

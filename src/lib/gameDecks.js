@@ -36,9 +36,10 @@ export function buildCardsForCategory(apiWords, dialectId, catId) {
         frequency: dictMatch.frequency || 'common',
         register: dictMatch.register || 'informal',
         fromDictionary: true,
+        wordId: dictMatch.id,
       };
     }
-    return { ...sc, ipa: '', pos: '', examples: [], frequency: 'common', register: 'informal', fromDictionary: false };
+    return { ...sc, ipa: '', pos: '', examples: [], frequency: 'common', register: 'informal', fromDictionary: false, staticSource: 'lessons' };
   });
   const dictCards = dictForCat.filter(d => !staticCards.find(s => s.phrase === d.headword?.romanized)).map(d => ({
     phrase: d.headword?.romanized || '',
@@ -51,6 +52,7 @@ export function buildCardsForCategory(apiWords, dialectId, catId) {
     frequency: d.frequency || 'common',
     register: d.register || 'informal',
     fromDictionary: true,
+    wordId: d.id,
   }));
   return [...richStatic, ...dictCards];
 }
@@ -60,13 +62,13 @@ export function buildSpeedQuestions(apiWords, dialectId) {
   const allCards = [];
   for (const cat of SPEED_CATS) {
     const cards = lessons[dialectId]?.[cat] || [];
-    for (const card of cards) allCards.push(card);
+    for (const card of cards) allCards.push({ ...card, staticSource: 'lessons' });
   }
   const extraCards = EXTRA_CARDS_MAP[dialectId];
   if (extraCards) {
     for (const cat of SPEED_CATS) {
       const cards = extraCards[cat] || [];
-      for (const card of cards) allCards.push(card);
+      for (const card of cards) allCards.push({ ...card, staticSource: 'flashcards' });
     }
   }
   if (apiWords.length > 0) {
@@ -82,6 +84,7 @@ export function buildSpeedQuestions(apiWords, dialectId) {
           ipa: w.pronunciations?.[0]?.ipa || '',
           pos: w.part_of_speech || '',
           examples: w.definitions?.[0]?.examples || [],
+          wordId: w.id,
         });
       }
     }
@@ -93,11 +96,14 @@ export function buildSpeedQuestions(apiWords, dialectId) {
     return {
       english: card.meaning,
       chinese: card.chinese,
+      romanisation: card.phrase,
       ipa: card.ipa || '',
       pos: card.pos || '',
       options,
       correctIndex: options.indexOf(card.phrase),
       answerPhrase: card.phrase,
+      wordId: card.wordId,
+      staticSource: card.staticSource,
     };
   });
 }
@@ -119,6 +125,7 @@ export function buildDailyQuestions(apiWords, dialectId) {
         ipa: w.pronunciations?.[0]?.ipa || '',
         pos: w.part_of_speech || '',
         examples: w.definitions?.[0]?.examples || [],
+        wordId: w.id,
       });
     }
   }
@@ -127,7 +134,7 @@ export function buildDailyQuestions(apiWords, dialectId) {
       const cards = lessons[dialectId]?.[cat] || [];
       for (const card of cards) {
         if (!allCards.find(c => c.phrase === card.phrase)) {
-          allCards.push({ ...card, ipa: '', pos: '', examples: [] });
+          allCards.push({ ...card, ipa: '', pos: '', examples: [], staticSource: 'lessons' });
         }
       }
     }
@@ -141,10 +148,13 @@ export function buildDailyQuestions(apiWords, dialectId) {
     return {
       english: card.meaning,
       chinese: card.chinese,
+      romanisation: card.phrase,
       ipa: card.ipa || '',
       pos: card.pos || '',
       options,
       correctIndex: options.indexOf(card.phrase),
+      wordId: card.wordId,
+      staticSource: card.staticSource,
     };
   });
 }
@@ -165,12 +175,13 @@ export function buildReverseCards(apiWords, dialectId, catId) {
       pos: w.part_of_speech || '',
       examples: w.definitions?.[0]?.examples || [],
       cardIndex: cards.length,
+      wordId: w.id,
     });
   }
   const staticCards = lessons[dialectId]?.[catId] || [];
   for (const sc of staticCards) {
     if (!cards.find(c => c.phrase === sc.phrase)) {
-      cards.push({ ...sc, ipa: '', pos: '', examples: [], cardIndex: cards.length });
+      cards.push({ ...sc, ipa: '', pos: '', examples: [], cardIndex: cards.length, staticSource: 'lessons' });
     }
   }
   return cards.sort(() => Math.random() - 0.5);
@@ -203,9 +214,10 @@ export function buildSentenceExercises(apiWords, dialectId) {
       options,
       correctIndex: options.indexOf(answer),
       meaning: ex.text_target_lang || w.definitions?.[0]?.english || "",
+      wordId: w.id,
     });
   }
-  const seed = sentenceCompletion[dialectId] || [];
+  const seed = (sentenceCompletion[dialectId] || []).map(s => ({ ...s, staticSource: 'sentenceCompletion' }));
   return [...seed, ...dynamic.sort(() => Math.random() - 0.5)].slice(0, 15);
 }
 

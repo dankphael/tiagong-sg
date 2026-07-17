@@ -6,6 +6,7 @@ import { speak } from "@/lib/tts";
 import { ArrowRight, Repeat, Volume2 } from "lucide-react";
 import { buildSentenceExercises } from "@/lib/gameDecks";
 import { ResultsScreen } from "@/components/games/GameShared";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function FillInBlank({ dialect, dialectId, onSwitchMode }) {
   const { apiWords } = useApp();
@@ -70,7 +71,10 @@ export default function FillInBlank({ dialect, dialectId, onSwitchMode }) {
       </div>
 
       {/* Sentence card */}
-      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
+      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, position: "relative" }}>
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+          <ReportButton dialectId={dialectId} card={{ phrase: exercise.sentence, meaning: exercise.meaning, staticSource: exercise.staticSource, wordId: exercise.wordId }} gameMode="fill-in-blank" />
+        </div>
         <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Fill in the blank</div>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "white", lineHeight: 1.8, flexWrap: "wrap" }}>
           {parts.map((part, idx) => (

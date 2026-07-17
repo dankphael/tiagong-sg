@@ -58,6 +58,10 @@ export default function ContributionModal({ word, type, onClose }) {
     } else {
       if (!description.trim()) { showToast("Please describe the issue", "error"); return; }
       payload = { description: description.trim() };
+      if (!word.wordId) {
+        payload.snapshot = { phrase: word.phrase, chinese: word.chinese, meaning: word.meaning, romanisation: word.romanisation };
+        payload.source = { gameMode: word.gameMode, category: word.category, staticSource: word.staticSource };
+      }
     }
 
     setSubmitting(true);
@@ -66,7 +70,7 @@ export default function ContributionModal({ word, type, onClose }) {
       const res = await fetch("/api/contributions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ type, wordId: word.wordId, dialect: word.dialect, payload, reason: reason.trim() || null, ...audioFields }),
+        body: JSON.stringify({ type, wordId: word.wordId || undefined, dialect: word.dialect, payload, reason: reason.trim() || null, ...audioFields }),
       });
       const data = await res.json();
       if (!res.ok) {

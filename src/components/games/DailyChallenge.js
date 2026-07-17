@@ -7,6 +7,7 @@ import { Trophy, ArrowRight, Repeat, Volume2, Flame } from "lucide-react";
 import { XP_REWARDS } from "@/data/xpSystem";
 import { buildDailyQuestions } from "@/lib/gameDecks";
 import { ResultsScreen } from "@/components/games/GameShared";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function DailyChallenge({ dialect, dialectId, autoStart }) {
   const { apiWords, awardXp, streak, xp, dailyCompleted, markDailyComplete } = useApp();
@@ -93,7 +94,10 @@ export default function DailyChallenge({ dialect, dialectId, autoStart }) {
       </div>
 
       {/* Question */}
-      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24 }}>
+      <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, position: "relative" }}>
+        <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+          <ReportButton dialectId={dialectId} card={{ phrase: q.options[q.correctIndex], chinese: q.chinese, meaning: q.english, romanisation: q.romanisation, staticSource: q.staticSource, wordId: q.wordId }} gameMode="daily-challenge" />
+        </div>
         <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", marginBottom: 16, textTransform: "uppercase" }}>Translate</div>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "white" }}>{q.english}</div>
         {q.chinese && <div style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}

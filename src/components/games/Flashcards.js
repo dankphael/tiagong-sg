@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Repeat, Volume2, Languages } from "lucide-react"
 import { lessons, categories } from "@/data/staticData";
 import { buildCardsForCategory } from "@/lib/gameDecks";
 import { CATEGORY_ICONS } from "@/components/games/GameShared";
+import ReportButton from "@/components/games/ReportButton";
 
 export default function Flashcards({ dialect, dialectId, selectedCategory, onSelectCategory, onSwitchMode }) {
   const { apiWords, knownCards, setKnownCards, progress, setProgress } = useApp();
@@ -97,7 +98,10 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
           </div>
 
           {/* Flashcard */}
-          <div className="card-3d flashcard" style={{ marginBottom: 20 }} onClick={() => setFlipped(!flipped)}>
+          <div className="card-3d flashcard" style={{ marginBottom: 20, position: "relative" }} onClick={() => setFlipped(!flipped)}>
+            <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
+              <ReportButton dialectId={dialectId} card={currentCard} gameMode="flashcards" category={selectedCategory} />
+            </div>
             <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
               <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: 20 }}>
                 <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>

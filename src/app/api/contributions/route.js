@@ -49,7 +49,7 @@ export async function POST(req) {
     if (!VALID_DIALECTS.includes(dialect)) {
       return Response.json({ error: 'Invalid dialect' }, { status: 400 });
     }
-    if (type !== 'new_word' && !wordId) {
+    if (type !== 'new_word' && type !== 'error_flag' && !wordId) {
       return Response.json({ error: 'wordId is required for this contribution type' }, { status: 400 });
     }
     const payloadError = validatePayload(type, payload);
