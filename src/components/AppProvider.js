@@ -54,6 +54,7 @@ export function AppProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [overlay, setOverlay] = useState({ variants: {}, newWords: [] });
+  const [introDismissed, setIntroDismissed] = useState(false);
 
   const dialect = dialects.find(d => d.id === selectedDialect) || null;
 
@@ -242,8 +243,20 @@ export function AppProvider({ children }) {
     showToast("Your session expired — please sign in again", "error");
   }
 
+  function markIntroSeen() {
+    try {
+      localStorage.setItem("tiagong_onboarded", "1");
+    } catch {
+      // localStorage unavailable — the prompt just won't stay dismissed
+      // across reloads; not worth surfacing to the user.
+    }
+    setIntroDismissed(true);
+  }
+
   // Bootstrap: dictionary, community profiles, session restore
   useEffect(() => {
+    setIntroDismissed(localStorage.getItem("tiagong_onboarded") === "1");
+
     fetch("/dictionary.json")
       .then(r => r.json())
       .then(data => setApiWords(data.words || []))
@@ -373,6 +386,7 @@ export function AppProvider({ children }) {
   const value = {
     currentUser, setCurrentUser,
     registeredUsers, setRegisteredUsers, profilesLoading, overlay,
+    introDismissed, markIntroSeen,
     xp, setXp, streak, setStreak,
     dailyCompleted, setDailyCompleted, markDailyComplete, lastDailyDate,
     progress, setProgress,
