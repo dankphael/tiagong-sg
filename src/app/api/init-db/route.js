@@ -1,11 +1,15 @@
 import { query } from '@/lib/db';
 
 export async function GET(req) {
-  // Note: Authorization check removed for initial database setup
-  // const authHeader = req.headers.get('authorization');
-  // if (authHeader !== `Bearer ${process.env.INIT_SECRET}`) {
-  //   return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
+  // Fail closed: an unset INIT_SECRET must never mean "open to everyone" —
+  // require it to be configured, then require the caller to present it.
+  if (!process.env.INIT_SECRET) {
+    return Response.json({ error: 'INIT_SECRET is not configured' }, { status: 503 });
+  }
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.INIT_SECRET}`) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   try {
     console.log('🔧 Initializing database...');
