@@ -96,7 +96,7 @@ export default function MemberPage() {
 
       {profile.heritageStory && (
         <div className="card" style={{ padding: 24, marginBottom: 20 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>My dialect story</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>About Me</div>
           <p style={{ fontSize: 15, color: 'var(--color-text)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{profile.heritageStory}</p>
         </div>
       )}

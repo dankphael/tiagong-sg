@@ -154,7 +154,7 @@ export default function MatchPreferencesFields({ form, setForm }) {
         </Field>
       )}
 
-      <Field label="My bio / dialect story">
+      <Field label="About Me">
         <textarea value={form.bio || ""} onChange={e => setForm(f => ({ ...f, bio: e.target.value.slice(0, 500) }))} className="input"
           placeholder="Share a bit about your dialect journey or what you're hoping to find here..."
           style={{ minHeight: 90, resize: "vertical", fontFamily: "inherit", padding: 12 }} />
