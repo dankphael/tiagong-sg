@@ -94,10 +94,10 @@ export default function ProfilePage() {
               <div style={{ marginBottom: 28 }}>
                 <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
                 <div style={{ display: "flex", gap: 12 }}>
-                  {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, icon, label]) => (
+                  {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, Icon, label]) => (
                     <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
                       style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
-                      <div style={{ fontSize: 24, marginBottom: 4 }}>{icon}</div>
+                      <div style={{ fontSize: 24, marginBottom: 4, display: "flex", justifyContent: "center" }}><Icon size={22} /></div>
                       <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.gender === val ? "#C0392B" : "#1A1208" }}>{label}</div>
                     </button>
                   ))}
