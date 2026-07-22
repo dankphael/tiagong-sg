@@ -59,7 +59,7 @@ function IntroPrompt({ mobile }) {
   }
 
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: mobile ? 0 : 16, marginBottom: mobile ? 12 : 0, pointerEvents: "auto", position: "relative", zIndex: 4 }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: mobile ? 0 : 16, marginBottom: mobile ? 12 : 0, pointerEvents: "auto", position: "relative", zIndex: 4 }}>
       <Link href="/welcome" className="btn-primary" style={{ textDecoration: "none", fontSize: 14, padding: "10px 24px", pointerEvents: "auto" }}>
         New here? 2-minute intro
       </Link>
