@@ -11,7 +11,7 @@ export async function GET(req) {
       role, gender, intent, offerings, availability, formats, region, interests, proficiency,
       bio, huay_kuan, verified, created_at,
       (SELECT COUNT(*) FROM connections c WHERE (c.requester_id = users.id OR c.receiver_id = users.id) AND c.status = 'accepted') AS mentee_count
-      FROM users WHERE 1=1`;
+      FROM users WHERE 1=1 AND NOT COALESCE(deactivated, false)`;
     const params = [];
     let paramCount = 1;
 

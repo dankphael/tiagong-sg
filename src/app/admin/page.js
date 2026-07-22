@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useApp } from "@/components/AppProvider";
 
 export default function AdminPage() {
-  const { currentUser, ready, showToast } = useApp();
+  const { currentUser, ready, showToast, setRegisteredUsers } = useApp();
   const [tab, setTab] = useState("applications");
   const [loading, setLoading] = useState(true);
 
@@ -123,6 +123,10 @@ export default function AdminPage() {
         return;
       }
       showToast(nextDeactivated ? "Account deactivated" : "Account reactivated", "success");
+      fetch("/api/users/profiles")
+        .then(r => r.json())
+        .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
+        .catch(err => console.error("Failed to refresh profiles:", err));
     } catch (e) {
       setUsers(u => u.map(x => x.id === user.id ? { ...x, deactivated: user.deactivated } : x));
       console.error("Failed to update user:", e);
