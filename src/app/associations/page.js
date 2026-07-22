@@ -102,7 +102,7 @@ export default function AssociationsPage() {
 
       {/* Non-affiliation disclaimer */}
       <div style={{ marginTop: 16, padding: "16px 22px", background: "#FBF2F0", borderRadius: 14, border: "1px solid #E9D3CD", fontSize: 12.5, color: "#7A5C55", lineHeight: 1.7 }}>
-        <strong style={{ color: "#8A3324" }}>Disclaimer:</strong> tiagong.sg is an independent, community-driven social project. We are <strong>not affiliated with, endorsed by, or officially connected to</strong> any of the huay kuan listed above, the Singapore Federation of Chinese Clan Associations (SFCCA), or any of their member associations. All association details are shared for public reference and heritage-awareness purposes only. If you represent one of these organisations and would like something corrected or removed, please reach out to us.
+        <strong style={{ color: "#8A3324" }}>Disclaimer:</strong> tiagongSG is an independent, community-driven social project. We are <strong>not affiliated with, endorsed by, or officially connected to</strong> any of the huay kuan listed above, the Singapore Federation of Chinese Clan Associations (SFCCA), or any of their member associations. All association details are shared for public reference and heritage-awareness purposes only. If you represent one of these organisations and would like something corrected or removed, please reach out to us.
       </div>
     </div>
   );

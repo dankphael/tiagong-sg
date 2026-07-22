@@ -47,9 +47,9 @@ export function Nav() {
   return (
     <nav style={{ background: "var(--color-dark)", padding: "0 32px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, borderBottom: "3px solid var(--color-primary)" }}>
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }} onClick={() => setOpen(false)}>
-        <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={44} height={44} priority style={{ width: "auto", height: 44 }} />
+        <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagongSG" width={44} height={44} priority style={{ width: "auto", height: 44 }} />
         <div>
-          <div style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: "var(--color-cream)", letterSpacing: 1 }}>tiagong.sg</div>
+          <div style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: "var(--color-cream)", letterSpacing: 1 }}>tiagongSG</div>
           <div style={{ fontSize: 10, color: "var(--color-primary)", letterSpacing: 3, textTransform: "uppercase" }}>Dialect Heritage SG</div>
         </div>
       </Link>

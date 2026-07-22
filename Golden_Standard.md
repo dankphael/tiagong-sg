@@ -1,6 +1,6 @@
-# Romanization Golden Standard for tiagong.sg
+# Romanization Golden Standard for tiagongSG
 
-This document defines the canonical romanization system for each of Singapore's five major Chinese dialects. All dictionary entries, inline phrase cards, and learning materials on tiagong.sg must adhere to these standards.
+This document defines the canonical romanization system for each of Singapore's five major Chinese dialects. All dictionary entries, inline phrase cards, and learning materials on tiagongSG must adhere to these standards.
 
 **Authority**: This document is the single source of truth. If any romanization in the codebase conflicts with these standards, this document takes precedence.
 
@@ -32,7 +32,7 @@ This document defines the canonical romanization system for each of Singapore's 
 - `ts`, `tsh`, `j`, `tsi`, `tshi` for affricate initials
 - Common digraphs: `oa`, `oe`, `oo`, `au`, `ai`, `ia`, `io`, `iu`, `ua`
 
-### POJ examples (common phrases in tiagong.sg)
+### POJ examples (common phrases in tiagongSG)
 
 | Phrase | POJ | English |
 |---|---|---|

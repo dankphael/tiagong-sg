@@ -43,7 +43,7 @@ export async function GET() {
       })),
       ...members.rows.map(r => ({
         kind: 'new_member',
-        label: 'joined tiagong.sg',
+        label: 'joined tiagongSG',
         userId: r.id,
         name: r.first_name || 'A new member',
         dialect: r.dialect_group || null,

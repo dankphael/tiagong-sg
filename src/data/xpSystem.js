@@ -1,4 +1,4 @@
-// XP and Level system for tiagong-sg
+// XP and Level system for tiagongSG
 
 export const LEVELS = [
   { name: "Beginner", minXP: 0, icon: "🌱", color: "#8B7355" },
