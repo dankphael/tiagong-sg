@@ -1,0 +1,31 @@
+{
+  "name": "tiagongsg",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@react-oauth/google": "^0.13.5",
+    "@vercel/postgres": "^0.5.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^1.23.0",
+    "next": "^16.2.3",
+    "pg": "^8.11.3",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "16"
+  },
+  "overrides": {
+    "eslint-config-next": {
+      "eslint": "^8"
+    }
+  }
+}
