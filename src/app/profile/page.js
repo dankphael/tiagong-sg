@@ -314,7 +314,7 @@ export default function ProfilePage() {
       ) : (
         <div className="card" style={{ padding: 36, textAlign: "center" }}>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>
-            {pendingGoogle ? "Almost there" : "Welcome to tiagong.sg"}
+            {pendingGoogle ? "Almost there" : "Welcome to tiagongSG"}
           </div>
           <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 32 }}>
             {pendingGoogle

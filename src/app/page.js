@@ -201,7 +201,7 @@ function DialectPlatformContent() {
               <div className="orbital-ring" />
               <div className="orbital-center" style={{ width: 420, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                 <div style={{ marginBottom: 12, width: "100%", maxWidth: 200 }}>
-                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={200} height={164} priority style={{ width: "100%", height: "auto" }} />
+                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagongSG" width={200} height={164} priority style={{ width: "100%", height: "auto" }} />
                 </div>
                 <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 12, fontSize: 15, maxWidth: 320 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
@@ -255,7 +255,7 @@ function DialectPlatformContent() {
             <div className="orbital-mobile">
               <div style={{ textAlign: "center", marginBottom: 32 }}>
                 <div style={{ marginBottom: 12 }}>
-                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagong.sg" width={140} height={114} priority style={{ width: "100%", height: "auto", maxWidth: 140, margin: "0 auto" }} />
+                  <Image src="/logo/seal_and_name_transparent.png" alt="tiagongSG" width={140} height={114} priority style={{ width: "100%", height: "auto", maxWidth: 140, margin: "0 auto" }} />
                 </div>
                 <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 14 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.

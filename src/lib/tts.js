@@ -1,4 +1,4 @@
-// TTS (Text-to-Speech) utility for tiagong-sg
+// TTS (Text-to-Speech) utility for tiagongSG
 // Uses the free Web Speech API — no API key needed
 
 // Map dialects to BCP-47 language codes for the best available TTS voice

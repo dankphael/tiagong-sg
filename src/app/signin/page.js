@@ -158,7 +158,7 @@ function SignInContent() {
     <div style={{ maxWidth: 420, margin: "0 auto", padding: "64px 24px" }} className="fade-up">
       <div className="card" style={{ padding: 36, textAlign: "center" }}>
         <div style={{ fontSize: 40, marginBottom: 4 }}>{getAvatar("male", "mentee")}</div>
-        <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>Sign in to tiagong.sg</div>
+        <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>Sign in to tiagongSG</div>
         <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>
           A language lost is a worldview lost.
         </p>

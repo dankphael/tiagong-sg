@@ -87,7 +87,7 @@ export default function CommunityPage() {
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '32px 20px' }} className="fade-up">
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{ fontSize: 11, letterSpacing: 4, color: '#C0392B', textTransform: 'uppercase', marginBottom: 8 }}>Community</div>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 7vw, 42px)', color: 'var(--color-text)', marginBottom: 10 }}>What's happening at tiagong.sg</h1>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 7vw, 42px)', color: 'var(--color-text)', marginBottom: 10 }}>What's happening at tiagongSG</h1>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 15, maxWidth: 560, margin: '0 auto' }}>
           See who's learning, who's building the archive, and how much of each dialect has real pronunciation recordings.
         </p>

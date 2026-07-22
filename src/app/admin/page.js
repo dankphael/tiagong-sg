@@ -153,7 +153,7 @@ export default function AdminPage() {
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }} className="fade-up">
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Admin Console</div>
-        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Manage tiagong.sg</h1>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Manage tiagongSG</h1>
         <Link href="/custodian" style={{ fontSize: 13, color: "#C0392B", fontWeight: 600 }}>
           Review contribution queue — all dialects →
         </Link>

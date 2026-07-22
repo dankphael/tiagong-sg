@@ -10,8 +10,8 @@ export function Footer() {
       <div className="footer-grid" style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-            <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagong.sg" width={28} height={28} style={{ width: 28, height: 28 }} />
-            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagong.sg</div>
+            <Image src="/logo/06-seal-only-dark-bg.png" alt="tiagongSG" width={28} height={28} style={{ width: 28, height: 28 }} />
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagongSG</div>
           </div>
           <p style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.7 }}>
             Preserving Singapore's Chinese dialect heritage — one phrase at a time.

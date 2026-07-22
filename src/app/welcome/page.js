@@ -71,7 +71,7 @@ export default function WelcomePage() {
       {step === 0 && (
         <div>
           <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div className="eyebrow" style={{ marginBottom: 8 }}>Welcome to tiagong.sg</div>
+            <div className="eyebrow" style={{ marginBottom: 8 }}>Welcome to tiagongSG</div>
             <h1 className="display-1" style={{ fontSize: 36, marginBottom: 12 }}>Pick a dialect to start</h1>
             <p style={{ color: "var(--color-text-muted)", fontSize: 15 }}>You can always explore the others later.</p>
           </div>

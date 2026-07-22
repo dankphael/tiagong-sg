@@ -33,16 +33,16 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "tiagong.sg",
+  title: "tiagongSG",
   description: "Connect with Sin Sehs and learn Chinese dialects",
   icons: {
     icon: { url: "/logo/08-app-icon-large.png", type: "image/png" },
     apple: { url: "/logo/08-app-icon-large.png", type: "image/png" },
   },
   openGraph: {
-    title: "tiagong.sg",
+    title: "tiagongSG",
     description: "Preserve Singapore's Chinese dialect heritage",
-    images: [{ url: "/logo/01-vertical-dark-bg.png", width: 800, height: 600, alt: "tiagong.sg" }],
+    images: [{ url: "/logo/01-vertical-dark-bg.png", width: 800, height: 600, alt: "tiagongSG" }],
   },
 };
 

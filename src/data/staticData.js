@@ -1,4 +1,4 @@
-// Static data constants for tiagong.sg
+// Static data constants for tiagongSG
 // Auto-extracted from page.js — do not edit manually
 
 export const dialects = [

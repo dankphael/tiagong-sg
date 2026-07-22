@@ -35,7 +35,7 @@ export default function AboutPage() {
       {/* 1. HERO */}
       <div style={{ textAlign: "center", marginBottom: 56 }}>
         <div style={{ marginBottom: 28 }}>
-          <Image src="/logo/02-vertical-cropped.png" alt="tiagong.sg" width={280} height={248} priority style={{ width: "100%", height: "auto", maxWidth: 280, margin: "0 auto" }} />
+          <Image src="/logo/02-vertical-cropped.png" alt="tiagongSG" width={280} height={248} priority style={{ width: "100%", height: "auto", maxWidth: 280, margin: "0 auto" }} />
         </div>
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 44, fontWeight: 700, color: "#1A1208", lineHeight: 1.15, marginBottom: 14 }}>
           A language lost is a <em style={{ color: "#C0392B" }}>worldview lost.</em>
@@ -79,8 +79,8 @@ export default function AboutPage() {
             body: "Dialects carry what Mandarin and English cannot. Hokkien proverbs about the sea and sweat. Cantonese banter that turns kinship into comedy. Teochew lullabies. Hakka resilience. Hainanese coffee orders. When a dialect goes quiet, an entire way of seeing the world goes with it — recipes, rituals, jokes, kinship terms that have no equivalent anywhere else."
           },
           {
-            title: "How tiagong.sg Helps",
-            body: "We're not trying to replace your grandparents — we're trying to give you a reason to call them. tiagong.sg is a starting point: a phrase, a tone, a conversation opener. The real learning happens at the dinner table. Use the platform to begin; let your family teach you the rest."
+            title: "How tiagongSG Helps",
+            body: "We're not trying to replace your grandparents — we're trying to give you a reason to call them. tiagongSG is a starting point: a phrase, a tone, a conversation opener. The real learning happens at the dinner table. Use the platform to begin; let your family teach you the rest."
           }
         ].map((s) => (
           <div key={s.title} style={{ background: "white", borderRadius: 16, padding: "28px 30px", marginBottom: 18, boxShadow: "0 2px 12px rgba(0,0,0,0.04)", border: "1px solid #F0E8DA" }}>
@@ -156,7 +156,7 @@ export default function AboutPage() {
       <div style={{ marginBottom: 64 }}>
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>Frequently Asked</h2>
         {[
-          { q: "Is tiagong.sg free?", a: "Yes, completely free. This is a non-commercial project for cultural preservation — no paywalls, no ads." },
+          { q: "Is tiagongSG free?", a: "Yes, completely free. This is a non-commercial project for cultural preservation — no paywalls, no ads." },
           { q: "Why these five dialects?", a: "Hokkien, Cantonese, Teochew, Hakka, and Hainanese are the major Chinese dialect groups in Singapore by historical immigration. They shaped the kopitiam, the wet market, and the family table." },
           { q: "Who built this?", a: "Raphael — a Singaporean who grew up in a Teochew-speaking household and wanted a way to keep that world alive. See the Founder Note above." },
           { q: "How are the phrases sourced?", a: "Right now, the dictionary is being compiled with the help of large language models (Qwen and Claude). We're aware that AI-generated translations need human verification — which is exactly why we're building a team of Language Custodians (see above) to validate every entry. We'd rather be transparent about this than hide it." },
@@ -193,7 +193,7 @@ export default function AboutPage() {
             {[
               ["Curator-validated dictionary", "Replace AI drafts with fluent-speaker-verified entries across all five dialects."],
               ["Audio pronunciation", "Native-speaker recordings for every phrase — so learners hear, not just read."],
-              ["Classroom partnerships", "Bring tiagong.sg into Singapore schools and community centres as a heritage learning tool."],
+              ["Classroom partnerships", "Bring tiagongSG into Singapore schools and community centres as a heritage learning tool."],
               ["Community meetups", "In-person practice sessions co-hosted with clan associations (huay kuan)."],
             ].map(([title, desc]) => (
               <li key={title} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
@@ -222,11 +222,11 @@ export default function AboutPage() {
             {[
               {
                 label: "General feedback",
-                template: `Subject: General feedback on tiagong.sg
+                template: `Subject: General feedback on tiagongSG
 
 Hi Raphael,
 
-I wanted to share some feedback about tiagong.sg:
+I wanted to share some feedback about tiagongSG:
 
 [Share your thoughts here — what's working well, what could be better, features you'd like to see, etc.]
 
@@ -237,11 +237,11 @@ Best regards,
               },
               {
                 label: "Partnership inquiry",
-                template: `Subject: Partnership inquiry — tiagong.sg
+                template: `Subject: Partnership inquiry — tiagongSG
 
 Hi Raphael,
 
-I'm reaching out to explore a potential partnership with tiagong.sg.
+I'm reaching out to explore a potential partnership with tiagongSG.
 
 Organization/Background: [Tell us about yourself/your organization]
 Partnership idea: [What kind of collaboration are you interested in?]
@@ -260,7 +260,7 @@ Best regards,
 
 Hi Raphael,
 
-I'd like to help validate [Dialect name] entries on tiagong.sg as a Dialect Curator.
+I'd like to help validate [Dialect name] entries on tiagongSG as a Dialect Curator.
 
 Dialect(s): [Which dialects are you fluent in?]
 Background: [How did you learn this dialect? Where are you from? How long have you spoken it?]

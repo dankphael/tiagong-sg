@@ -1,4 +1,4 @@
-// Shared UI components for tiagong.sg
+// Shared UI components for tiagongSG
 
 import { useState, useEffect, useRef } from "react";
 
