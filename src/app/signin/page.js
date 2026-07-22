@@ -26,12 +26,13 @@ function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = safeNext(searchParams.get("next"));
+  const dialectParam = dialects.find(d => d.id === searchParams.get("dialect"));
   const {
     currentUser, pendingGoogle, handleGoogleSuccess, completeProfile,
     authError, setAuthError,
   } = useApp();
 
-  const [form, setForm] = useState({ firstName: "", lastName: "", languageInterest: "", gender: "", role: "mentee" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", languageInterest: dialectParam?.name || "", gender: "", role: "mentee" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 

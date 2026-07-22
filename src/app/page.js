@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Flame, ArrowRight, BookOpen, Sparkles, PenLine, Mic, UserPlus } from "lucide-react";
+import { Flame, ArrowRight, BookOpen, Sparkles, PenLine, Mic, UserPlus, X } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
@@ -34,6 +34,39 @@ function ProfileNudge() {
           Dismiss
         </button>
       </div>
+    </div>
+  );
+}
+
+// First-time-visitor invite into the /welcome intro. Prominent + dismissible
+// until seen/skipped/completed (tracked via AppProvider's introDismissed,
+// backed by the tiagong_onboarded flag); after that it steps back into a
+// low-key permanent link so a redo is still reachable.
+function IntroPrompt({ mobile }) {
+  const { introDismissed, markIntroSeen } = useApp();
+
+  // .orbital-center (the desktop hero column this renders inside) sets
+  // pointer-events: none so the orbital rings behind it don't block clicks
+  // through empty space — every interactive child must opt back in with its
+  // own pointerEvents: "auto", inherited "none" otherwise swallows clicks
+  // while still looking perfectly clickable.
+  if (introDismissed) {
+    return (
+      <Link href="/welcome" style={{ color: mobile ? "#7A6040" : "#A08060", fontSize: 13, textDecoration: "underline", display: "inline-block", marginTop: mobile ? 0 : 14, marginBottom: mobile ? 12 : 0, pointerEvents: "auto", position: "relative", zIndex: 4 }}>
+        Take the 2-minute intro
+      </Link>
+    );
+  }
+
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: mobile ? 0 : 16, marginBottom: mobile ? 12 : 0, pointerEvents: "auto", position: "relative", zIndex: 4 }}>
+      <Link href="/welcome" className="btn-primary" style={{ textDecoration: "none", fontSize: 14, padding: "10px 24px", pointerEvents: "auto" }}>
+        New here? 2-minute intro
+      </Link>
+      <button onClick={markIntroSeen} aria-label="Dismiss intro prompt" title="Dismiss"
+        style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: "50%", width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#E8D4A8", flexShrink: 0, pointerEvents: "auto" }}>
+        <X size={14} />
+      </button>
     </div>
   );
 }
@@ -209,9 +242,7 @@ function DialectPlatformContent() {
                 <p style={{ color: "#E8D4A8", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, maxWidth: 320 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
                 </p>
-                <Link href="/welcome" className="btn-primary" style={{ marginTop: 16, textDecoration: "none", fontSize: 14, padding: "10px 24px", pointerEvents: "auto", position: "relative", zIndex: 4 }}>
-                  New here? 2-minute intro
-                </Link>
+                <IntroPrompt />
               </div>
               {dialects.map((d, i) => {
                 const angle = (-90 + i * 72) * (Math.PI / 180);
@@ -263,9 +294,7 @@ function DialectPlatformContent() {
                 <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 20 }}>
                   每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
                 </p>
-                <Link href="/welcome" className="btn-primary" style={{ display: "inline-block", marginBottom: 12, textDecoration: "none", fontSize: 14, padding: "10px 24px" }}>
-                  New here? 2-minute intro
-                </Link>
+                <IntroPrompt mobile />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {dialects.map((d, i) => {

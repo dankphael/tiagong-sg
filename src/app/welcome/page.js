@@ -3,17 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
-import { ArrowRight, ArrowLeft, Volume2 } from "lucide-react";
+import { ArrowRight, Volume2 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { speak } from "@/lib/tts";
 import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
 
-const STEPS = ["pick", "why", "micro-lesson", "signup"];
+const STEPS = ["pick", "micro-lesson", "done"];
 
 export default function WelcomePage() {
   const router = useRouter();
-  const { awardXp, handleGoogleSuccess, setAuthError } = useApp();
+  const { awardXp, handleGoogleSuccess, setAuthError, setSelectedDialect, markIntroSeen } = useApp();
 
   const [step, setStep] = useState(0);
   const [dialectId, setDialectId] = useState(null);
@@ -22,14 +22,16 @@ export default function WelcomePage() {
   const [earnedXp, setEarnedXp] = useState(0);
 
   const dialect = dialects.find(d => d.id === dialectId);
-  const microCards = dialect ? (lessons[dialect.id]?.greetings || []).slice(0, 4) : [];
-
-  function finishOnboarding() {
-    localStorage.setItem('tiagong_onboarded', '1');
-  }
+  const microCards = dialect ? (lessons[dialect.id]?.greetings || []).slice(0, 3) : [];
 
   function goTo(idx) {
     setStep(idx);
+  }
+
+  function pickDialect(d) {
+    setDialectId(d.id);
+    setSelectedDialect(d.id);
+    goTo(1);
   }
 
   function onKnowCard() {
@@ -39,22 +41,28 @@ export default function WelcomePage() {
       setFlipped(false);
       setTimeout(() => setCardIndex(i => i + 1), 150);
     } else {
-      setTimeout(() => goTo(3), 400);
+      setTimeout(() => goTo(2), 400);
     }
   }
 
+  function goLearn() {
+    markIntroSeen();
+    router.push(dialectId ? `/learn/${dialectId}` : '/learn');
+  }
+
   function skip() {
-    finishOnboarding();
+    markIntroSeen();
     router.push('/');
   }
 
   async function onSignIn(credentialResponse) {
     const result = await handleGoogleSuccess(credentialResponse);
-    finishOnboarding();
+    markIntroSeen();
     if (result?.needsProfile) {
-      router.push('/signin?next=/');
+      const next = dialectId ? `/learn/${dialectId}` : '/';
+      router.push(`/signin?next=${encodeURIComponent(next)}${dialectId ? `&dialect=${dialectId}` : ''}`);
     } else {
-      router.push('/');
+      router.push(dialectId ? `/learn/${dialectId}` : '/');
     }
   }
 
@@ -73,12 +81,14 @@ export default function WelcomePage() {
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             <div className="eyebrow" style={{ marginBottom: 8 }}>Welcome to tiagong.sg</div>
             <h1 className="display-1" style={{ fontSize: 36, marginBottom: 12 }}>Pick a dialect to start</h1>
-            <p style={{ color: "var(--color-text-muted)", fontSize: 15 }}>You can always explore the others later.</p>
+            <p style={{ color: "var(--color-text-muted)", fontSize: 15 }}>
+              A language lost is a worldview lost — you can always explore the others later.
+            </p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
             {dialects.map(d => (
               <div key={d.id} className="card card-hover" style={{ padding: 20, cursor: "pointer", textAlign: "center" }}
-                onClick={() => { setDialectId(d.id); goTo(1); }}>
+                onClick={() => pickDialect(d)}>
                 <SealChip dialect={d} size="lg" style={{ margin: "0 auto 10px" }} />
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>{d.name}</div>
                 <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 4 }}>{d.speakers}</div>
@@ -91,28 +101,8 @@ export default function WelcomePage() {
         </div>
       )}
 
-      {/* Step 1: Why it matters */}
-      {step === 1 && dialect && (
-        <div style={{ textAlign: "center" }}>
-          <div className="eyebrow" style={{ marginBottom: 8 }}>{dialect.name} · {dialect.chinese}</div>
-          <h1 className="display-1" style={{ fontSize: 32, marginBottom: 20 }}>
-            A language lost is a <em style={{ color: "var(--color-primary)" }}>worldview lost.</em>
-          </h1>
-          <div className="card" style={{ padding: 28, textAlign: "left", marginBottom: 28 }}>
-            <p style={{ fontSize: 15, color: "var(--color-text)", lineHeight: 1.7, marginBottom: 12 }}>{dialect.description}</p>
-            <div style={{ fontSize: 13, color: "var(--color-text-muted)" }}>📍 {dialect.origin} · 👥 {dialect.speakers}</div>
-          </div>
-          <p style={{ color: "var(--color-text-muted)", fontSize: 14, marginBottom: 28 }}>
-            We're not trying to replace your grandparents — we're trying to give you a reason to call them.
-          </p>
-          <button className="btn-primary" onClick={() => goTo(2)} style={{ width: "100%" }}>
-            Try 4 phrases <ArrowRight size={16} />
-          </button>
-        </div>
-      )}
-
-      {/* Step 2: Micro-lesson */}
-      {step === 2 && dialect && microCards.length > 0 && (
+      {/* Step 1: Micro-lesson */}
+      {step === 1 && dialect && microCards.length > 0 && (
         <div>
           <div style={{ textAlign: "center", marginBottom: 20 }}>
             <div className="eyebrow" style={{ marginBottom: 6 }}>{dialect.name} · Greetings</div>
@@ -152,22 +142,29 @@ export default function WelcomePage() {
         </div>
       )}
 
-      {/* Step 3: Sign up */}
-      {step === 3 && (
+      {/* Step 2: You're in — soft finish, no sign-up gate */}
+      {step === 2 && (
         <div style={{ textAlign: "center" }}>
           <div className="eyebrow" style={{ marginBottom: 8 }}>Nice work!</div>
           <h1 className="display-1" style={{ fontSize: 32, marginBottom: 12 }}>You earned {earnedXp} XP</h1>
-          <p style={{ color: "var(--color-text-muted)", fontSize: 15, marginBottom: 32 }}>
-            Sign in to keep it and start your streak — or skip and browse for now.
+          <p style={{ color: "var(--color-text-muted)", fontSize: 15, marginBottom: 28 }}>
+            You're ready to keep going in {dialect?.name || "your dialect"}.
           </p>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-            <GoogleLogin
-              onSuccess={onSignIn}
-              onError={() => setAuthError("Google sign-in failed")}
-              text="signup_with"
-            />
+          <button className="btn-primary" onClick={goLearn} style={{ width: "100%", marginBottom: 20 }}>
+            Start learning {dialect?.name} <ArrowRight size={16} />
+          </button>
+          <div style={{ paddingTop: 20, borderTop: "1px solid var(--color-border)" }}>
+            <p style={{ color: "var(--color-text-muted)", fontSize: 13, marginBottom: 14 }}>
+              Want to save this progress across devices? Sign in — totally optional.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <GoogleLogin
+                onSuccess={onSignIn}
+                onError={() => setAuthError("Google sign-in failed")}
+                text="signup_with"
+              />
+            </div>
           </div>
-          <button className="btn-ghost" onClick={skip}>Skip for now</button>
         </div>
       )}
     </div>
