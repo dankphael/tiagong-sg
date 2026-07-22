@@ -8,15 +8,23 @@ import { Menu, X, User, Flame } from "lucide-react";
 import { useApp } from "./AppProvider";
 import { getLevel } from "@/data/xpSystem";
 
-const OTHER_LINKS = [
-  ["/dictionary", "Search", "dictionary"],
-  ["/singlish", "Dialects in Singlish", "singlish"],
-  ["/network", "Network", "network"],
-  ["/community", "Community", "community"],
-  ["/contribute", "Contribute", "contribute"],
-  ["/associations", "Associations", "associations"],
-  ["/about", "About", "about"],
+const NAV_GROUPS = [
+  [
+    ["/dictionary", "Search", "dictionary"],
+    ["/singlish", "Dialects in Singlish", "singlish"],
+  ],
+  [
+    ["/network", "Network", "network"],
+    ["/community", "Community", "community"],
+    ["/contribute", "Contribute", "contribute"],
+  ],
+  [
+    ["/associations", "Associations", "associations"],
+    ["/about", "About", "about"],
+  ],
 ];
+
+const DIVIDER = <span style={{ color: "#4A3A28", fontSize: 14, padding: "0 4px", userSelect: "none" }}>│</span>;
 
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -28,7 +36,14 @@ export function Nav() {
   // into it instead of the dialect-chooser grid. First-time visitors (no
   // dialect chosen yet) still land on /learn to pick one.
   const learnHref = selectedDialect ? `/learn/${selectedDialect}` : "/learn";
-  const LINKS = [["/learn", "Learn", "learn", learnHref], ...OTHER_LINKS.map(([href, label, screenId]) => [href, label, screenId, href])];
+
+  const allLinks = [];
+  NAV_GROUPS.forEach((group, gi) => {
+    if (gi > 0) allLinks.push({ divider: true, key: `div-${gi}` });
+    group.forEach(([href, label, screenId]) => {
+      allLinks.push({ href, label, screenId, key: href });
+    });
+  });
   const level = getLevel(xp);
   const isAdmin = currentUser?.accountType === 'admin';
   const isCustodian = currentUser?.custodianDialects?.length > 0 || isAdmin;
@@ -55,11 +70,17 @@ export function Nav() {
       </Link>
 
       <div className={`nav-links${open ? " open" : ""}`}>
-        {LINKS.map(([staticHref, label, screenId, actualHref]) => (
-          <Link key={staticHref} href={actualHref} className={`nav-link${activeScreen === screenId ? " active" : ""}`} onClick={() => setOpen(false)}>
-            {label}
-          </Link>
-        ))}
+        <Link href={learnHref} className={`nav-link${activeScreen === "learn" ? " active" : ""}`} onClick={() => setOpen(false)}>
+          Learn
+        </Link>
+        {allLinks.map(item => item.divider
+          ? <span key={item.key} style={{ color: "#4A3A28", fontSize: 14, padding: "0 4px", userSelect: "none", lineHeight: "64px" }}>│</span>
+          : (
+            <Link key={item.key} href={item.href} className={`nav-link${activeScreen === item.screenId ? " active" : ""}`} onClick={() => setOpen(false)}>
+              {item.label}
+            </Link>
+          )
+        )}
         {isCustodian && (
           <Link href="/custodian" className={`nav-link${activeScreen === "custodian" ? " active" : ""}`} onClick={() => setOpen(false)}>
             Custodian
