@@ -3,12 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 
 /* ── SealChip ──
-   A refined Chinese-character seal for a dialect: the dialect's 方言
-   character on a tinted dialectColor background. Culturally grounded,
-   never an emoji. */
-export function SealChip({ dialect, size = "md", style }) {
+   A carved Chinese seal (印章) for a dialect: a single representative
+   character reversed in white on a solid dialectColor field, wrapped in a
+   classic double-line inner frame. Culturally grounded, never an emoji.
+   Pass `active={false}` to mute the chop (e.g. a deselected filter). */
+export function SealChip({ dialect, size = "md", active = true, style }) {
   const dims = size === "lg" ? 60 : size === "sm" ? 38 : 48;
-  const font = size === "lg" ? 26 : size === "sm" ? 17 : 22;
+  const font = size === "lg" ? 32 : size === "sm" ? 19 : 26;
+  const ring = size === "lg" ? 2.5 : size === "sm" ? 1.5 : 2;
+  const gap = ring + 1.5;
+  const glyph = dialect.seal || (dialect.chinese ? [...dialect.chinese][0] : "");
   return (
     <span
       aria-hidden="true"
@@ -18,19 +22,23 @@ export function SealChip({ dialect, size = "md", style }) {
         justifyContent: "center",
         width: dims,
         height: dims,
-        borderRadius: "var(--radius-md)",
-        background: dialect.bg || `${dialect.color}1A`,
-        color: dialect.color,
+        borderRadius: "var(--radius-sm)",
+        background: dialect.color,
+        color: "#fff",
         fontFamily: "var(--font-chinese)",
         fontWeight: 700,
         fontSize: font,
         lineHeight: 1,
-        boxShadow: `inset 0 0 0 1.5px ${dialect.color}55`,
+        // white inner ring + a hair of the field colour around it = carved frame
+        boxShadow: `inset 0 0 0 ${ring}px #fff, inset 0 0 0 ${gap}px ${dialect.color}`,
         flexShrink: 0,
+        filter: active ? undefined : "grayscale(0.5)",
+        opacity: active ? 1 : 0.45,
+        transition: "opacity 0.15s, filter 0.15s",
         ...style,
       }}
     >
-      {dialect.chinese}
+      {glyph}
     </span>
   );
 }
