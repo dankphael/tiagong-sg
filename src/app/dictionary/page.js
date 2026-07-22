@@ -309,7 +309,7 @@ export default function DictionaryPage() {
                     aria-label={`Filter by ${d.name}`}
                     style={{ accentColor: d.color, width: 15, height: 15, cursor: "pointer" }}
                   />
-                  <SealChip dialect={d} size="sm" />
+                  <SealChip dialect={d} size="sm" active={searchDialects.includes(d.id)} />
                   <span style={{ fontSize: 13, color: "var(--color-text)", fontWeight: searchDialects.includes(d.id) ? 600 : 400 }}>{d.name}</span>
                   {!searchDialects.includes(d.id) && <span style={{ fontSize: 10, color: "#C0B0A0", marginLeft: "auto" }}>off</span>}
                 </label>
