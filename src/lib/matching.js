@@ -24,11 +24,33 @@ export const FORMATS = [
 ];
 
 export const REGIONS = [
-  { id: "north", label: "North" },
-  { id: "northeast", label: "North-East" },
-  { id: "east", label: "East" },
-  { id: "central", label: "Central" },
-  { id: "west", label: "West" },
+  { id: "ang_mo_kio", label: "Ang Mo Kio" },
+  { id: "bedok", label: "Bedok" },
+  { id: "bishan", label: "Bishan" },
+  { id: "bukit_batok", label: "Bukit Batok" },
+  { id: "bukit_merah", label: "Bukit Merah" },
+  { id: "bukit_panjang", label: "Bukit Panjang" },
+  { id: "bukit_timah", label: "Bukit Timah" },
+  { id: "central_area", label: "Central Area" },
+  { id: "choa_chu_kang", label: "Choa Chu Kang" },
+  { id: "clementi", label: "Clementi" },
+  { id: "geylang", label: "Geylang" },
+  { id: "hougang", label: "Hougang" },
+  { id: "jurong_east", label: "Jurong East" },
+  { id: "jurong_west", label: "Jurong West" },
+  { id: "kallang_whampoa", label: "Kallang/Whampoa" },
+  { id: "marine_parade", label: "Marine Parade" },
+  { id: "novena", label: "Novena" },
+  { id: "pasir_ris", label: "Pasir Ris" },
+  { id: "punggol", label: "Punggol" },
+  { id: "queenstown", label: "Queenstown" },
+  { id: "sembawang", label: "Sembawang" },
+  { id: "sengkang", label: "Sengkang" },
+  { id: "serangoon", label: "Serangoon" },
+  { id: "tampines", label: "Tampines" },
+  { id: "toa_payoh", label: "Toa Payoh" },
+  { id: "woodlands", label: "Woodlands" },
+  { id: "yishun", label: "Yishun" },
 ];
 
 export const PROFICIENCY_LEVELS = [
@@ -76,7 +98,7 @@ export function scoreMatch(me, candidate) {
 
   if (me.region && candidate.region && me.region === candidate.region) {
     score += 10;
-    reasons.push({ text: `Both in the ${REGION_LABELS[me.region] || me.region}`, weight: 10 });
+    reasons.push({ text: `Both in ${REGION_LABELS[me.region] || me.region}`, weight: 10 });
   }
 
   const myFormats = Array.isArray(me.formats) ? me.formats : [];
@@ -138,7 +160,7 @@ export function getIcebreakers(me, other) {
     if (tag) suggestions.push(`I saw we both like ${tag.label.toLowerCase()} ${tag.emoji} — got any favourite spots or stories?`);
   }
   if (me?.region && other?.region && me.region === other.region) {
-    suggestions.push(`Looks like we're both in the ${REGION_LABELS[me.region] || me.region} — maybe we could meet up nearby sometime?`);
+    suggestions.push(`Looks like we're both in ${REGION_LABELS[me.region] || me.region} — maybe we could meet up nearby sometime?`);
   }
   if (other?.huayKuan) {
     suggestions.push(`I noticed your huay kuan affiliation — I'd love to hear more about it.`);
