@@ -4,13 +4,11 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Flame, ArrowRight, BookOpen, Sparkles, PenLine, Mic, UserPlus, X } from "lucide-react";
+import { Flame, ArrowRight, BookOpen, X } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
-import { relativeTime } from "@/lib/time";
 
-const STRIP_ICONS = { contribution: PenLine, pronunciation: Mic, new_member: UserPlus };
 const NUDGE_DISMISSED_KEY = 'tiagong_profile_nudge_dismissed';
 
 // Sign-up is now minimal (name/dialect/gender only) — this nudges signed-in
@@ -74,44 +72,7 @@ function IntroPrompt({ mobile }) {
 // Light "the community is alive" signal on home — latest 3 activity items
 // with a link through to the full /community page. Renders nothing at all
 // if the fetch fails or there's no activity yet, so it never looks broken.
-function CommunityStrip({ dark }) {
-  const [items, setItems] = useState(null);
-  useEffect(() => {
-    fetch('/api/community/activity')
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => setItems(Array.isArray(data) ? data.slice(0, 3) : []))
-      .catch(() => setItems([]));
-  }, []);
-
-  if (!items || items.length === 0) return null;
-
-  const textColor = dark ? '#E8D4A8' : 'var(--color-text)';
-  const mutedColor = dark ? '#A08060' : 'var(--color-text-muted)';
-
-  return (
-    <div style={{ marginTop: 8 }}>
-      <div style={{ fontSize: 11, letterSpacing: 2, color: '#C0392B', textTransform: 'uppercase', fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
-        <Sparkles size={13} /> Just happened
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
-        {items.map((item, i) => {
-          const Icon = STRIP_ICONS[item.kind] || Sparkles;
-          return (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-              <Icon size={13} style={{ flexShrink: 0, color: mutedColor }} />
-              <span style={{ color: textColor, fontWeight: 600 }}>{item.name}</span>
-              <span style={{ color: mutedColor }}>{item.label}</span>
-              <span style={{ color: mutedColor, fontSize: 11 }}>· {relativeTime(item.at)}</span>
-            </div>
-          );
-        })}
-      </div>
-      <Link href="/community" style={{ fontSize: 13, fontWeight: 600, color: '#C0392B', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-        See what's happening <ArrowRight size={13} />
-      </Link>
-    </div>
-  );
-}
+function CommunityStrip() {}
 
 function DialectPlatformContent() {
   const router = useRouter();
@@ -214,10 +175,6 @@ function DialectPlatformContent() {
             </div>
           </Link>
         </div>
-
-        <div className="card" style={{ padding: 24, marginTop: 20 }}>
-          <CommunityStrip />
-        </div>
       </div>
     );
   }
@@ -315,9 +272,6 @@ function DialectPlatformContent() {
               </div>
             </div>
         </div>
-      </div>
-      <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 24px 40px" }}>
-        <CommunityStrip />
       </div>
     </>
   );
