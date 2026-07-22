@@ -138,9 +138,9 @@ export default function ProfilePage() {
 
               <div style={{ borderTop: "1px solid #E8DDD0", paddingTop: 20, marginBottom: 20 }}>
                 <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Community Profile</div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>About Me</label>
+                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>My Dialect Journey</label>
                 <textarea value={profileForm.heritageStory || ""} onChange={e => setProfileForm(f => ({ ...f, heritageStory: e.target.value.slice(0, 1000) }))}
-                  placeholder="Share a bit about yourself — your story, why you're learning, whatever you'd like others to know."
+                  placeholder="Which dialect did your family speak? Why are you learning it? Share your story — it'll show on your public community profile."
                   className="input" style={{ minHeight: 100, resize: "vertical", marginBottom: 4 }} />
                 <div style={{ fontSize: 11, color: "#9B8B75", textAlign: "right", marginBottom: 16 }}>{(profileForm.heritageStory || "").length}/1000</div>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#6B5B45", cursor: "pointer" }}>
