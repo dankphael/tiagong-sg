@@ -2,19 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Volume2, Mic } from "lucide-react";
+import { X, Volume2, Mic, Bookmark, Share2 } from "lucide-react";
 import { speak } from "@/lib/tts";
+import { useApp } from "@/components/AppProvider";
 import VariantChips from "@/components/VariantChips";
 import WordComments from "@/components/WordComments";
 
 const FREQUENCY_LABELS = { very_common: "Very common", common: "Common", uncommon: "Uncommon", rare: "Rare" };
+const REPORT_STATUS_COLORS = { pending: "#D4860B", accepted: "#1A6B3C", rejected: "#C0392B" };
 
 // Full detail view for a dictionary word — opened by tapping a result card.
-// `word` is the flattened card object (always present, works for static
-// lesson phrases too); `fullWord` is the raw dictionary.json entry when this
-// word is DB-backed (null for static-only phrases), which unlocks multiple
-// definitions, example sentences, pronunciations, etymology, and synonyms.
-export default function WordDetailModal({ word, fullWord, onClose, onContribute, canRecord, commentCount }) {
+// `word` is the flattened card object (always present — every card, DB-backed
+// or not, carries a stable `wordId`, see src/lib/wordId.js); `fullWord` is the
+// raw dictionary.json entry when this word is DB-backed (null otherwise),
+// which unlocks multiple definitions, example sentences, pronunciations,
+// etymology, and synonyms.
+export default function WordDetailModal({ word, fullWord, onClose, onContribute, canRecord, commentCount, isSaved, onToggleSave, reportStatus }) {
+  const { showToast } = useApp();
+
+  function handleShare() {
+    const url = `${window.location.origin}/dictionary?word=${encodeURIComponent(word.wordId)}`;
+    navigator.clipboard.writeText(url)
+      .then(() => showToast("Link copied", "success"))
+      .catch(() => showToast("Couldn't copy link", "error"));
+  }
   // Rendered via a portal straight into document.body: the page content
   // wrapper uses the site-wide .fade-up entrance animation, which ends at
   // (but keeps, via animation-fill-mode) transform: translateY(0) — any
@@ -47,13 +58,23 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
       onClick={onClose}>
       <div style={{ background: "white", borderRadius: 20, maxWidth: 560, width: "100%", maxHeight: "85vh", overflowY: "auto", padding: "clamp(20px, 5vw, 32px)", boxShadow: "0 8px 40px rgba(0,0,0,0.25)", position: "relative" }}
         onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="Close"
-          style={{ position: "absolute", top: 16, right: 16, background: "#F5F0EA", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6B5B45" }}>
-          <X size={16} />
-        </button>
+        <div style={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 6 }}>
+          <button onClick={onToggleSave} aria-label={isSaved ? "Remove from saved" : "Save this entry"}
+            style={{ background: "#F5F0EA", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: isSaved ? "#1A6B3C" : "#6B5B45" }}>
+            <Bookmark size={15} fill={isSaved ? "#1A6B3C" : "none"} />
+          </button>
+          <button onClick={handleShare} aria-label="Copy link to this entry"
+            style={{ background: "#F5F0EA", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6B5B45" }}>
+            <Share2 size={15} />
+          </button>
+          <button onClick={onClose} aria-label="Close"
+            style={{ background: "#F5F0EA", border: "none", borderRadius: "50%", width: 32, height: 32, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#6B5B45" }}>
+            <X size={16} />
+          </button>
+        </div>
 
         {/* Header */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap", paddingRight: 36 }}>
+        <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap", paddingRight: 116 }}>
           <span style={{ background: `${word.dialectColor}16`, border: `1.5px solid ${word.dialectColor}50`, borderRadius: 20, padding: "3px 10px", fontSize: 11, color: word.dialectColor, fontWeight: 700, letterSpacing: 0.3 }}>
             {word.dialectName}
           </span>
@@ -78,6 +99,15 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
 
         {word.isCommunity && word.contributorName && (
           <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 16 }}>Contributed by {word.contributorName}</div>
+        )}
+
+        {reportStatus && (
+          <div style={{ fontSize: 12, color: REPORT_STATUS_COLORS[reportStatus.status] || "#D4860B", fontWeight: 600, marginBottom: 16 }}>
+            You reported this — {reportStatus.status}
+            {reportStatus.status === "rejected" && reportStatus.reviewNote && (
+              <span style={{ display: "block", fontStyle: "italic", fontWeight: 400, marginTop: 2 }}>Custodian note: {reportStatus.reviewNote}</span>
+            )}
+          </div>
         )}
 
         {/* Hear it */}
@@ -165,33 +195,29 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
 
         <VariantChips variants={word.variants} />
 
-        {word.wordId && (
-          <>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", marginTop: 12, paddingTop: 8, marginLeft: -8 }}>
-              <button onClick={() => onContribute(word, "correction")}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                Suggest an edit
-              </button>
-              <button onClick={() => onContribute(word, "usage_example")}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                Add example
-              </button>
-              {canRecord && (
-                <button onClick={() => onContribute(word, "pronunciation_audio")}
-                  style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
-                  <Mic size={12} /> Record pronunciation
-                </button>
-              )}
-              <button onClick={() => onContribute(word, "error_flag")}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                Flag issue
-              </button>
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <WordComments wordId={word.wordId} dialect={word.dialect} count={commentCount || 0} />
-            </div>
-          </>
-        )}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", marginTop: 12, paddingTop: 8, marginLeft: -8 }}>
+          <button onClick={() => onContribute(word, "correction")}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+            Suggest an edit
+          </button>
+          <button onClick={() => onContribute(word, "usage_example")}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+            Add example
+          </button>
+          {canRecord && (
+            <button onClick={() => onContribute(word, "pronunciation_audio")}
+              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <Mic size={12} /> Record pronunciation
+            </button>
+          )}
+          <button onClick={() => onContribute(word, "error_flag")}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+            Flag issue
+          </button>
+        </div>
+        <div style={{ marginTop: 8 }}>
+          <WordComments wordId={word.wordId} dialect={word.dialect} count={commentCount || 0} />
+        </div>
       </div>
     </div>,
     document.body

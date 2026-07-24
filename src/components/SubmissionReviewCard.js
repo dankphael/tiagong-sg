@@ -71,11 +71,20 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
         <div style={{ fontSize: 12, color: "#9B8B75" }}>Submitted by {submitterName}</div>
       </div>
 
-      {currentWord && (
+      {currentWord ? (
         <div style={{ fontSize: 13, color: "#1A1208", fontWeight: 600, marginBottom: 8 }}>
           {currentWord.phrase} · {currentWord.chinese} · {currentWord.meaning}
         </div>
-      )}
+      ) : submission.payload?.snapshot ? (
+        <div style={{ fontSize: 13, color: "#1A1208", fontWeight: 600, marginBottom: 8 }}>
+          {[submission.payload.snapshot.phrase, submission.payload.snapshot.chinese, submission.payload.snapshot.meaning].filter(Boolean).join(" · ")}
+          {submission.payload?.source && (
+            <span style={{ display: "inline-block", marginLeft: 8, fontSize: 10, background: "#F5F0EA", color: "#6B5B45", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>
+              {[submission.payload.source.gameMode, submission.payload.source.category].filter(Boolean).join(" · ")}
+            </span>
+          )}
+        </div>
+      ) : null}
 
       {submission.type === "correction" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 10 }}>
@@ -121,18 +130,6 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
       {submission.type === "error_flag" && (
         <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FDEDEC", marginBottom: 10, fontSize: 13, color: "#1A1208" }}>
           {submission.payload?.description}
-          {submission.payload?.snapshot && (
-            <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #E8DDD060" }}>
-              <div style={{ fontSize: 12, color: "#6B5B45" }}>
-                {[submission.payload.snapshot.phrase, submission.payload.snapshot.chinese, submission.payload.snapshot.meaning].filter(Boolean).join(" · ")}
-              </div>
-              {submission.payload?.source && (
-                <span style={{ display: "inline-block", marginTop: 4, fontSize: 10, background: "#F5F0EA", color: "#6B5B45", padding: "2px 8px", borderRadius: 8, fontWeight: 700 }}>
-                  Learn: {[submission.payload.source.gameMode, submission.payload.source.category].filter(Boolean).join(" · ")}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       )}
 
