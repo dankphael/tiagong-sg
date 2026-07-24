@@ -55,6 +55,7 @@ export function AppProvider({ children }) {
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [overlay, setOverlay] = useState({ variants: {}, newWords: [] });
   const [introDismissed, setIntroDismissed] = useState(false);
+  const [bookmarks, setBookmarks] = useState({}); // { [wordId]: true }
 
   const dialect = dialects.find(d => d.id === selectedDialect) || null;
 
@@ -99,6 +100,49 @@ export function AppProvider({ children }) {
     setToasts(t => t.filter(x => x.id !== id));
   }
 
+  function loadBookmarks(token) {
+    fetch("/api/bookmarks", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => {
+        const map = {};
+        for (const row of rows) map[row.word_id] = true;
+        setBookmarks(map);
+      })
+      .catch(() => {});
+  }
+
+  // Toggles a bookmark with an optimistic update; reverts on failure.
+  function toggleBookmark(wordId, dialect) {
+    if (!currentUser) {
+      showToast("Sign in to save entries", "error");
+      return;
+    }
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    const wasSaved = !!bookmarks[wordId];
+    setBookmarks(prev => {
+      const next = { ...prev };
+      if (wasSaved) delete next[wordId]; else next[wordId] = true;
+      return next;
+    });
+    const request = wasSaved
+      ? fetch(`/api/bookmarks?wordId=${encodeURIComponent(wordId)}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } })
+      : fetch("/api/bookmarks", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ wordId, dialect }) });
+    request
+      .then(res => {
+        if (res.status === 401) { handleSessionExpired(); return; }
+        if (!res.ok) throw new Error("failed");
+      })
+      .catch(() => {
+        setBookmarks(prev => {
+          const next = { ...prev };
+          if (wasSaved) next[wordId] = true; else delete next[wordId];
+          return next;
+        });
+        showToast("Couldn't update saved entries", "error");
+      });
+  }
+
   function handleGoogleSuccess(credentialResponse) {
     const credential = credentialResponse.credential;
     setAuthError(null);
@@ -129,6 +173,7 @@ export function AppProvider({ children }) {
             setDailyCompleted(data.user.lastDailyDate === today);
           }
           mergeGuestProgress();
+          loadBookmarks(data.token);
           setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
           setSuccessMessage(`Successfully signed in. Welcome, ${data.user.firstName}!`);
           setTimeout(() => setSuccessMessage(null), 4000);
@@ -159,6 +204,7 @@ export function AppProvider({ children }) {
         localStorage.setItem("auth_token", data.token);
         setCurrentUser(data.user);
         mergeGuestProgress();
+        loadBookmarks(data.token);
         setRegisteredUsers(prev => prev.some(u => u.id === data.user.id) ? prev : [...prev, data.user]);
         setPendingGoogle(null);
         return true;
@@ -228,6 +274,7 @@ export function AppProvider({ children }) {
     setKnownCards({});
     setProgress({});
     setSelectedDialect(null);
+    setBookmarks({});
   }
 
   // The JWT is valid for 30 days with no refresh; nothing else in the app
@@ -292,6 +339,7 @@ export function AppProvider({ children }) {
               const today = new Date().toISOString().split("T")[0];
               setDailyCompleted(data.user.lastDailyDate === today);
             }
+            loadBookmarks(token);
           } else {
             localStorage.removeItem("auth_token");
             restoreProgress(readGuestProgress());
@@ -386,6 +434,7 @@ export function AppProvider({ children }) {
   const value = {
     currentUser, setCurrentUser,
     registeredUsers, setRegisteredUsers, profilesLoading, overlay,
+    bookmarks, toggleBookmark,
     introDismissed, markIntroSeen,
     xp, setXp, streak, setStreak,
     dailyCompleted, setDailyCompleted, markDailyComplete, lastDailyDate,

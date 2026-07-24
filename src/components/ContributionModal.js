@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import AudioRecorder from "@/components/AudioRecorder";
+import { isSyntheticWordId } from "@/lib/wordId";
 
 const CORRECTION_FIELDS = [
   ["spelling", "Spelling / Chinese characters"],
@@ -58,10 +59,16 @@ export default function ContributionModal({ word, type, onClose }) {
     } else {
       if (!description.trim()) { showToast("Please describe the issue", "error"); return; }
       payload = { description: description.trim() };
-      if (!word.wordId) {
-        payload.snapshot = { phrase: word.phrase, chinese: word.chinese, meaning: word.meaning, romanisation: word.romanisation };
-        payload.source = { gameMode: word.gameMode, category: word.category, staticSource: word.staticSource };
-      }
+    }
+
+    // A custodian reviewing this in the queue can only look up the current
+    // entry by word_id in public/dictionary.json — that lookup misses both
+    // game-flashcard flags (no wordId at all) and static/community dictionary
+    // cards (a synthetic wordId, see src/lib/wordId.js), so give the reviewer
+    // a snapshot of what the submitter actually saw.
+    if (!word.wordId || isSyntheticWordId(word.wordId)) {
+      payload.snapshot = { phrase: word.phrase, chinese: word.chinese, meaning: word.meaning, romanisation: word.romanisation };
+      payload.source = { gameMode: word.gameMode, category: word.category, staticSource: word.staticSource };
     }
 
     setSubmitting(true);

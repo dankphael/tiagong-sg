@@ -140,6 +140,30 @@ CREATE TABLE word_comments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Up/down votes on pronunciation recordings (word_variants rows of
+-- variant_type = 'pronunciation'), so the community can gauge which
+-- recording is most accurate by weight of numbers.
+CREATE TABLE recording_votes (
+  id SERIAL PRIMARY KEY,
+  variant_id INT NOT NULL REFERENCES word_variants(id) ON DELETE CASCADE,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  value SMALLINT NOT NULL CHECK (value IN (-1, 1)),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(variant_id, user_id)
+);
+
+-- Saved/bookmarked dictionary entries, anchored the same way as comments —
+-- word_id covers real dictionary words, static lesson phrases, and
+-- community new-words alike.
+CREATE TABLE bookmarks (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  word_id VARCHAR(64) NOT NULL,
+  dialect VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, word_id)
+);
+
 -- Create indexes for better query performance
 CREATE INDEX idx_users_dialect_group ON users(dialect_group);
 CREATE INDEX idx_users_role ON users(role);
@@ -156,3 +180,6 @@ CREATE INDEX idx_audio_clips_contribution ON audio_clips(contribution_id);
 CREATE INDEX idx_xp_events_user_time ON xp_events(user_id, created_at);
 CREATE INDEX idx_xp_events_time ON xp_events(created_at);
 CREATE INDEX idx_word_comments_word ON word_comments(word_id);
+CREATE INDEX idx_recording_votes_variant ON recording_votes(variant_id);
+CREATE INDEX idx_bookmarks_user ON bookmarks(user_id);
+CREATE INDEX idx_bookmarks_word ON bookmarks(word_id);

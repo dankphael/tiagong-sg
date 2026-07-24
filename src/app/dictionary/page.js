@@ -7,11 +7,12 @@ import {
   Users, Heart, Home, Smile, Plane, Clock, Utensils, Briefcase, MapPin,
   PawPrint, Coffee, Languages, BookOpen, User, CupSoda, Handshake, Hash,
   Waves, Car, Palette, Ruler, Flag, PersonStanding, Package, Sparkles,
-  Repeat, MessageCircle, ScrollText, Mic,
+  Repeat, MessageCircle, ScrollText, Mic, Bookmark,
 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
+import { staticPhraseId, communityWordId } from "@/lib/wordId";
 import ContributionModal from "@/components/ContributionModal";
 import WordDetailModal from "@/components/WordDetailModal";
 import VariantChips from "@/components/VariantChips";
@@ -33,15 +34,17 @@ const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
   const router = useRouter();
-  const { apiWords, overlay, currentUser, showToast } = useApp();
+  const { apiWords, overlay, currentUser, showToast, bookmarks, toggleBookmark } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [wordModal, setWordModal] = useState(null); // flattened phrase object when viewing an entry
   const [canRecord, setCanRecord] = useState(false);
   const [commentCounts, setCommentCounts] = useState({});
+  const [myReports, setMyReports] = useState({}); // { [wordId]: { status, reviewNote } } — latest error_flag per word
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
   const [searchDialects, setSearchDialects] = useState(["hokkien", "cantonese", "teochew", "hakka", "hainanese"]);
   const [searchCategory, setSearchCategory] = useState("all");
+  const [savedOnly, setSavedOnly] = useState(false);
   const [searchFilterOpen, setSearchFilterOpen] = useState(false);
   const [searchPage, setSearchPage] = useState(1);
   const [searchSort, setSearchSort] = useState("relevance");
@@ -51,50 +54,55 @@ export default function DictionaryPage() {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchSort]);
+  useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchSort, savedOnly]);
 
   useEffect(() => {
     setCanRecord(!!(navigator.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== "undefined"));
   }, []);
 
-  // Deep-link support: /dictionary?word=<id> opens that entry's detail modal
-  // once the dictionary has loaded. Runs once (guarded) after apiWords is
-  // populated — before that, the target word can't be found yet.
+  // The signed-in caller's own error-flag reports, so a card can show
+  // "You reported this — pending/accepted/rejected" rather than the reporter
+  // submitting into a void.
   useEffect(() => {
-    if (apiWords.length === 0) return;
-    const id = new URLSearchParams(window.location.search).get('word');
-    if (!id) return;
-    const match = apiWords.find(w => w.id === id);
-    if (!match) return;
-    const dialectInfo = dialects.find(d => d.id === match.dialect);
-    setWordModal({
-      wordId: match.id,
-      phrase: match.headword?.romanized || "",
-      chinese: match.headword?.traditional || "",
-      meaning: match.definitions?.[0]?.english || "",
-      romanisation: match.headword?.romanized || "",
-      dialect: match.dialect,
-      dialectName: dialectInfo?.name || match.dialect,
-      dialectColor: dialectInfo?.color || "#666",
-      category: match.tags?.[0] || "other",
-      variants: overlay.variants[match.id] || [],
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiWords.length]);
+    if (!currentUser) { setMyReports({}); return; }
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    fetch("/api/contributions", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => {
+        const map = {};
+        for (const row of Array.isArray(rows) ? rows : []) {
+          if (row.type !== "error_flag" || !row.word_id) continue;
+          const existing = map[row.word_id];
+          if (!existing || new Date(row.created_at) > new Date(existing.createdAt)) {
+            map[row.word_id] = { status: row.status, reviewNote: row.review_note, createdAt: row.created_at };
+          }
+        }
+        setMyReports(map);
+      })
+      .catch(() => {});
+  }, [currentUser?.id]);
 
-  // Build flat, searchable phrase database across all dialects
+  // Build flat, searchable phrase database across all dialects. Every card
+  // gets a stable wordId — dictionary entries use their DB uuid, static
+  // lesson phrases and accepted community new-words get a deterministic
+  // synthetic id (src/lib/wordId.js) — so comments, error reports, suggested
+  // edits, and recordings can anchor to any card, not just DB-backed ones.
   const allPhrases = [];
   for (const [dialectId, dialectData] of Object.entries(lessons)) {
     const dialectInfo = dialects.find(d => d.id === dialectId);
     for (const [category, phrases] of Object.entries(dialectData)) {
       for (const p of phrases) {
+        const wordId = staticPhraseId(dialectId, category, p.phrase);
         allPhrases.push({
           ...p,
+          wordId,
           dialect: dialectId,
           dialectName: dialectInfo?.name || dialectId,
           dialectColor: dialectInfo?.color || "#666",
           dialectIcon: dialectInfo?.icon || "",
           category,
+          variants: overlay.variants[wordId] || [],
         });
       }
     }
@@ -118,8 +126,9 @@ export default function DictionaryPage() {
   }
   for (const nw of overlay.newWords || []) {
     const dialectInfo = dialects.find(d => d.id === nw.dialect);
+    const wordId = communityWordId(nw.id);
     allPhrases.push({
-      wordId: null,
+      wordId,
       phrase: nw.payload?.romanized || "",
       chinese: nw.payload?.traditional || "",
       meaning: nw.payload?.english || "",
@@ -129,15 +138,31 @@ export default function DictionaryPage() {
       dialectColor: dialectInfo?.color || "#666",
       dialectIcon: dialectInfo?.icon || "",
       category: nw.payload?.partOfSpeech || "other",
-      variants: [],
+      variants: overlay.variants[wordId] || [],
       isCommunity: true,
       contributorName: nw.contributor_name,
     });
   }
+
+  // Deep-link support: /dictionary?word=<id> opens that entry's detail modal
+  // once the dictionary has loaded — resolves against all three card
+  // namespaces (DB entries, static phrases, community new-words), so Share
+  // links work regardless of which kind of card was shared.
+  useEffect(() => {
+    if (allPhrases.length === 0) return;
+    const id = new URLSearchParams(window.location.search).get('word');
+    if (!id) return;
+    const match = allPhrases.find(p => p.wordId === id);
+    if (!match) return;
+    setWordModal(match);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allPhrases.length]);
+
   const q = searchDebouncedQuery.toLowerCase().trim();
   let filteredPhrases = allPhrases.filter(p => {
     if (!searchDialects.includes(p.dialect)) return false;
     if (searchCategory !== "all" && p.category !== searchCategory) return false;
+    if (savedOnly && !bookmarks[p.wordId]) return false;
     if (!q) return true;
     return (
       p.meaning.toLowerCase().includes(q) ||
@@ -212,6 +237,9 @@ export default function DictionaryPage() {
           onContribute={openContribution}
           canRecord={canRecord}
           commentCount={commentCounts[wordModal.wordId] || 0}
+          isSaved={!!bookmarks[wordModal.wordId]}
+          onToggleSave={() => toggleBookmark(wordModal.wordId, wordModal.dialect)}
+          reportStatus={myReports[wordModal.wordId] || null}
         />
       )}
 
@@ -339,7 +367,7 @@ export default function DictionaryPage() {
           </div>
 
           {/* Sort */}
-          <div>
+          <div style={{ marginBottom: 22 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Sort By</div>
             {[["relevance", "Relevance"], ["a-z", "A – Z"], ["z-a", "Z – A"]].map(([v, label]) => (
               <button key={v} onClick={() => setSearchSort(v)}
@@ -349,6 +377,20 @@ export default function DictionaryPage() {
               </button>
             ))}
           </div>
+
+          {/* Saved */}
+          {currentUser && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#8B7355", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8 }}>Saved</div>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 10px", borderRadius: 8, cursor: "pointer", background: savedOnly ? "#1A6B3C0d" : "transparent" }}>
+                <input type="checkbox" checked={savedOnly} onChange={() => setSavedOnly(v => !v)}
+                  aria-label="Show only saved entries"
+                  style={{ accentColor: "#1A6B3C", width: 15, height: 15, cursor: "pointer" }} />
+                <Bookmark size={15} color="#1A6B3C" fill={savedOnly ? "#1A6B3C" : "none"} />
+                <span style={{ fontSize: 13, color: "var(--color-text)", fontWeight: savedOnly ? 600 : 400 }}>Show saved only</span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* ── Results ── */}
@@ -387,8 +429,13 @@ export default function DictionaryPage() {
               <div className="search-results-grid">
                 {pageResults.map((p, i) => (
                   <div key={start + i} className="result-card btn-hover" onClick={() => openWordModal(p)}
-                    style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "pointer", transition: "all 0.2s" }}>
-                    <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                    style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
+                    <button onClick={e => { e.stopPropagation(); toggleBookmark(p.wordId, p.dialect); }}
+                      aria-label={bookmarks[p.wordId] ? "Remove from saved" : "Save this entry"}
+                      style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", cursor: "pointer", color: bookmarks[p.wordId] ? "#1A6B3C" : "#C0B0A0", padding: 4 }}>
+                      <Bookmark size={16} fill={bookmarks[p.wordId] ? "#1A6B3C" : "none"} />
+                    </button>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap", paddingRight: 26 }}>
                       <span style={{ background: `${p.dialectColor}16`, border: `1.5px solid ${p.dialectColor}50`, borderRadius: 20, padding: "3px 10px", fontSize: 11, color: p.dialectColor, fontWeight: 700, letterSpacing: 0.3 }}>
                         {p.dialectName}
                       </span>
@@ -410,42 +457,43 @@ export default function DictionaryPage() {
                     <div style={{ fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 3 }}>
                       {p.meaning}
                     </div>
-                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic", marginBottom: (p.wordId || p.isCommunity) ? 10 : 0 }}>
+                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic", marginBottom: 10 }}>
                       /{p.romanisation}/
                     </div>
                     {p.isCommunity && p.contributorName && (
                       <div style={{ fontSize: 11, color: "#9B8B75", marginBottom: 10 }}>Contributed by {p.contributorName}</div>
                     )}
+                    {myReports[p.wordId] && (
+                      <div style={{ fontSize: 11, color: myReports[p.wordId].status === "rejected" ? "#C0392B" : myReports[p.wordId].status === "accepted" ? "#1A6B3C" : "#D4860B", marginBottom: 10, fontWeight: 600 }}>
+                        You reported this — {myReports[p.wordId].status}
+                      </div>
+                    )}
                     <div onClick={e => e.stopPropagation()}>
                       <VariantChips variants={p.variants} />
                     </div>
-                    {p.wordId && (
-                      <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
-                        <button onClick={() => openContribution(p, "correction")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                          Suggest an edit
+                    <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
+                      <button onClick={() => openContribution(p, "correction")}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+                        Suggest an edit
+                      </button>
+                      <button onClick={() => openContribution(p, "usage_example")}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+                        Add example
+                      </button>
+                      {canRecord && (
+                        <button onClick={() => openContribution(p, "pronunciation_audio")}
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                          <Mic size={11} /> Record pronunciation
                         </button>
-                        <button onClick={() => openContribution(p, "usage_example")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                          Add example
-                        </button>
-                        {canRecord && (
-                          <button onClick={() => openContribution(p, "pronunciation_audio")}
-                            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
-                            <Mic size={11} /> Record pronunciation
-                          </button>
-                        )}
-                        <button onClick={() => openContribution(p, "error_flag")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                          Flag issue
-                        </button>
-                      </div>
-                    )}
-                    {p.wordId && (
-                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 4 }}>
-                        <WordComments wordId={p.wordId} dialect={p.dialect} count={commentCounts[p.wordId] || 0} />
-                      </div>
-                    )}
+                      )}
+                      <button onClick={() => openContribution(p, "error_flag")}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+                        Flag issue
+                      </button>
+                    </div>
+                    <div onClick={e => e.stopPropagation()} style={{ marginTop: 4 }}>
+                      <WordComments wordId={p.wordId} dialect={p.dialect} count={commentCounts[p.wordId] || 0} />
+                    </div>
                   </div>
                 ))}
               </div>
