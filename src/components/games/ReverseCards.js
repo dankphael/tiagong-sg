@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useApp } from "@/components/AppProvider";
-import { speak } from "@/lib/tts";
-import { ArrowLeft, ArrowRight, Repeat, Volume2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Repeat } from "lucide-react";
 import { XP_REWARDS } from "@/data/xpSystem";
 import { categories } from "@/data/staticData";
 import { buildReverseCards } from "@/lib/gameDecks";
+import { staticPhraseId } from "@/lib/wordId";
 import { ResultsScreen } from "@/components/games/GameShared";
 import ReportButton from "@/components/games/ReportButton";
+import HearItButton from "@/components/HearItButton";
 
 export default function ReverseCards({ dialect, dialectId, selectedCategory, onSelectCategory, autoStart, onSwitchMode }) {
   const { apiWords, awardXp } = useApp();
@@ -69,6 +70,7 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
   }
 
   const card = cards[index];
+  const cardWordId = card && (card.wordId || staticPhraseId(dialectId, selectedCategory, card.phrase));
 
   return (
     <div>
@@ -111,11 +113,11 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
             {card.ipa && <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>{card.ipa}</div>}
             {card.pos && <span style={{ fontSize: 10, background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)", padding: "2px 8px", borderRadius: 8, marginTop: 6, display: "inline-block" }}>{card.pos}</span>}
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 10 }}>Tap to go back</div>
-            <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, dialectId); }}
-              className="btn-tts"
-              style={{ marginTop: 10, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
-              <Volume2 size={15} /> Hear pronunciation
-            </button>
+            <span onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 10 }}>
+              <HearItButton wordId={cardWordId} dialect={dialectId} phrase={card.phrase} label="Hear pronunciation"
+                className="btn-tts" mutedColor="rgba(255,255,255,0.6)"
+                style={{ padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 20, color: "white" }} />
+            </span>
           </>
         )}
       </div>

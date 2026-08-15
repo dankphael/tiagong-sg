@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FolderOpen, Search, ArrowLeft, ArrowRight, ChevronUp, ChevronDown, Mic } from "lucide-react";
 import { singlishPhrases } from "@/data/staticData";
+import { ContributeCallout } from "@/components/ui";
 
 export default function SinglishPage() {
   const [disMode, setDisMode] = useState("cards"); // cards | search
@@ -34,13 +35,20 @@ export default function SinglishPage() {
       </div>
 
       {/* Mode Toggle */}
-      <div className="pill-toggle" style={{ maxWidth: 360, margin: "0 auto 36px" }}>
+      <div className="pill-toggle" style={{ maxWidth: 360, margin: "0 auto 24px" }}>
         {[["cards", FolderOpen, "Flashcards"],["search", Search, "Smart Search"]].map(([mode, Icon, label]) => (
           <button key={mode} className={disMode === mode ? "active" : ""} onClick={() => { setDisMode(mode); setDisCard(0); setDisFlipped(false); setDisExpanded(null); }}
             style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             <Icon size={16} /> {label}
           </button>
         ))}
+      </div>
+
+      <div style={{ maxWidth: 640, margin: "0 auto 36px" }}>
+        <ContributeCallout compact
+          title="Know a phrase we're missing?"
+          body="Singlish phrases with dialect roots are added by the community too."
+          href="/contribute" cta="Add a phrase →" />
       </div>
 
       {/* FLASHCARD MODE */}

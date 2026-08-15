@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useApp } from "@/components/AppProvider";
-import { speak } from "@/lib/tts";
-import { ArrowLeft, ArrowRight, Repeat, Volume2, Languages } from "lucide-react";
+import { ArrowLeft, ArrowRight, Repeat, Languages } from "lucide-react";
 import { lessons, categories } from "@/data/staticData";
 import { buildCardsForCategory } from "@/lib/gameDecks";
+import { staticPhraseId } from "@/lib/wordId";
 import { CATEGORY_ICONS } from "@/components/games/GameShared";
 import ReportButton from "@/components/games/ReportButton";
+import HearItButton from "@/components/HearItButton";
 
 export default function Flashcards({ dialect, dialectId, selectedCategory, onSelectCategory, onSwitchMode }) {
   const { apiWords, knownCards, setKnownCards, progress, setProgress } = useApp();
@@ -26,6 +27,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
 
   const safeCardIndex = cards.length > 0 ? Math.min(cardIndex, cards.length - 1) : 0;
   const currentCard = cards[safeCardIndex];
+  const currentWordId = currentCard && (currentCard.wordId || staticPhraseId(dialectId, selectedCategory, currentCard.phrase));
 
   function nextCard() {
     setFlipped(false);
@@ -114,11 +116,11 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 8, fontStyle: "italic" }}>
                   /{currentCard?.romanisation}/
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); speak(currentCard?.phrase, dialectId); }}
-                  className="btn-tts"
-                  style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
-                  <Volume2 size={15} /> Hear it
-                </button>
+                <span onClick={(e) => e.stopPropagation()} style={{ marginTop: 16 }}>
+                  <HearItButton wordId={currentWordId} dialect={dialectId} phrase={currentCard?.phrase}
+                    className="btn-tts" mutedColor="rgba(255,255,255,0.6)"
+                    style={{ padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white" }} />
+                </span>
               </div>
               <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px", overflowY: "auto" }}>
                 <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 10 }}>Meaning</div>
@@ -155,11 +157,11 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
                     ))}
                   </div>
                 )}
-                <button onClick={(e) => { e.stopPropagation(); speak(currentCard?.phrase, dialectId); }}
-                  className="btn-tts"
-                  style={{ marginTop: 12, padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: "var(--radius-pill)", color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
-                  <Volume2 size={15} /> Hear pronunciation
-                </button>
+                <span onClick={(e) => e.stopPropagation()} style={{ marginTop: 12 }}>
+                  <HearItButton wordId={currentWordId} dialect={dialectId} phrase={currentCard?.phrase} label="Hear pronunciation"
+                    className="btn-tts"
+                    style={{ padding: "8px 20px", background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, borderRadius: "var(--radius-pill)", color: dialect.color }} />
+                </span>
               </div>
             </div>
           </div>

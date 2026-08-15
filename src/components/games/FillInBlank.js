@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useApp } from "@/components/AppProvider";
-import { speak } from "@/lib/tts";
-import { ArrowRight, Repeat, Volume2 } from "lucide-react";
+import { ArrowRight, Repeat } from "lucide-react";
 import { buildSentenceExercises } from "@/lib/gameDecks";
 import { ResultsScreen } from "@/components/games/GameShared";
 import ReportButton from "@/components/games/ReportButton";
+import HearItButton from "@/components/HearItButton";
 
 export default function FillInBlank({ dialect, dialectId, onSwitchMode }) {
   const { apiWords } = useApp();
@@ -103,10 +103,8 @@ export default function FillInBlank({ dialect, dialectId, onSwitchMode }) {
         )}
       </div>
       <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <button onClick={() => speak(exercise.sentence.replace('___', exercise.options[exercise.correctIndex] || ''), dialectId)}
-          style={{ padding: "8px 20px", background: "white", border: `2px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Volume2 size={15} /> Hear full sentence
-        </button>
+        <HearItButton dialect={dialectId} phrase={exercise.sentence.replace('___', exercise.options[exercise.correctIndex] || '')} label="Hear full sentence"
+          style={{ padding: "8px 20px", background: "white", border: `2px solid ${dialect.color}40`, borderRadius: 20, color: dialect.color, display: "inline-flex" }} />
       </div>
 
       {/* Result feedback */}

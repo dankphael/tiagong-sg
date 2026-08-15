@@ -4,10 +4,13 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Flame, ArrowRight, BookOpen, X } from "lucide-react";
+import { Flame, ArrowRight, BookOpen, X, Sparkles, Mic, UserPlus, PenLine } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
+import { relativeTime } from "@/lib/time";
+
+const ACTIVITY_ICONS = { contribution: PenLine, pronunciation: Mic, new_member: UserPlus };
 
 const NUDGE_DISMISSED_KEY = 'tiagong_profile_nudge_dismissed';
 
@@ -72,7 +75,44 @@ function IntroPrompt({ mobile }) {
 // Light "the community is alive" signal on home — latest 3 activity items
 // with a link through to the full /community page. Renders nothing at all
 // if the fetch fails or there's no activity yet, so it never looks broken.
-function CommunityStrip() {}
+function CommunityStrip() {
+  const [activity, setActivity] = useState(null); // null = loading, [] = empty
+
+  useEffect(() => {
+    fetch('/api/community/activity')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setActivity(Array.isArray(data) ? data.slice(0, 3) : []))
+      .catch(() => setActivity([]));
+  }, []);
+
+  if (!activity || activity.length === 0) return null;
+
+  return (
+    <div className="card" style={{ padding: 20, marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", display: "flex", alignItems: "center", gap: 6 }}>
+          <Sparkles size={15} color="#C0392B" /> Just happened
+        </div>
+        <Link href="/community" style={{ fontSize: 12, fontWeight: 600, color: "#D4860B", textDecoration: "none" }}>See all →</Link>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {activity.map((item, i) => {
+          const Icon = ACTIVITY_ICONS[item.kind] || Sparkles;
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13 }}>
+              <Icon size={14} style={{ marginTop: 2, flexShrink: 0, color: "#8B7355" }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Link href={`/member/${item.userId}`} style={{ fontWeight: 600, color: "var(--color-text)", textDecoration: "none" }}>{item.name}</Link>
+                <span style={{ color: "var(--color-text-muted)" }}> {item.label}</span>
+                <span style={{ fontSize: 11, color: "var(--color-text-faint)" }}> · {relativeTime(item.at)}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function DialectPlatformContent() {
   const router = useRouter();
@@ -174,6 +214,19 @@ function DialectPlatformContent() {
               <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>{reviewDue} categories in progress · explore Cantonese, Teochew, Hakka and Hainanese too.</p>
             </div>
           </Link>
+          <Link href="/contribute" style={{ textDecoration: "none" }}>
+            <div className="card card-hover" style={{ padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <PenLine size={20} color="#C0392B" />
+                <div style={{ fontWeight: 700, color: "var(--color-text)" }}>Add what you know</div>
+              </div>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Every word here started as an AI draft — add a meaning, pronunciation, or correction from your own dialect.</p>
+            </div>
+          </Link>
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <CommunityStrip />
         </div>
       </div>
     );
@@ -198,6 +251,9 @@ function DialectPlatformContent() {
                 </p>
                 <p style={{ color: "#E8D4A8", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, maxWidth: 320 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
+                </p>
+                <p style={{ color: "#A08060", fontSize: 12, lineHeight: 1.6, marginTop: 10, maxWidth: 320 }}>
+                  Every word starts as an AI-drafted skeleton — native speakers correct, record and grow it from there.
                 </p>
                 <IntroPrompt />
               </div>
@@ -248,8 +304,11 @@ function DialectPlatformContent() {
                 <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 14 }}>
                   Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
-                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 20 }}>
+                <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 12 }}>
                   每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
+                </p>
+                <p style={{ color: "#7A6040", fontSize: 12, marginBottom: 20 }}>
+                  Every word starts as an AI-drafted skeleton — native speakers correct, record and grow it from there.
                 </p>
                 <IntroPrompt mobile />
               </div>

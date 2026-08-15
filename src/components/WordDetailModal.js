@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Volume2, Mic, Bookmark, Share2, PenLine, MessageSquarePlus, Flag } from "lucide-react";
-import { speak } from "@/lib/tts";
+import { X, Mic, Bookmark, Share2, PenLine, MessageSquarePlus, Flag } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import VariantChips from "@/components/VariantChips";
 import WordComments from "@/components/WordComments";
+import HearItButton from "@/components/HearItButton";
 
 const FREQUENCY_LABELS = { very_common: "Very common", common: "Common", uncommon: "Uncommon", rare: "Rare" };
 const REPORT_STATUS_COLORS = { pending: "#D4860B", accepted: "#1A6B3C", rejected: "#C0392B" };
@@ -111,10 +111,15 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
         )}
 
         {/* Hear it */}
-        <button onClick={() => speak(word.phrase, word.dialect)}
-          style={{ marginBottom: 16, padding: "10px 20px", background: `${word.dialectColor}12`, border: `1px solid ${word.dialectColor}40`, borderRadius: "var(--radius-pill)", color: word.dialectColor, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Volume2 size={15} /> Hear it
-        </button>
+        <div style={{ marginBottom: 16 }}>
+          <HearItButton
+            wordId={word.wordId}
+            dialect={word.dialect}
+            phrase={word.phrase}
+            onRecord={() => onContribute(word, "pronunciation_audio")}
+            style={{ padding: "10px 20px", background: `${word.dialectColor}12`, border: `1px solid ${word.dialectColor}40`, borderRadius: "var(--radius-pill)", color: word.dialectColor }}
+          />
+        </div>
 
         {pronunciations.length > 0 && (
           <div style={{ marginBottom: 16 }}>

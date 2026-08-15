@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Play, ChevronUp, ChevronDown } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
+import { playClip as playClipShared } from "@/lib/audioPlayback";
 
 const VARIANT_LABELS = {
   spelling: "Alternative spelling",
@@ -21,10 +22,6 @@ function variantValue(v) {
   if (v.variant_type === "interpretation") return v.payload?.meaning;
   return v.payload?.proposedValue;
 }
-
-// Shared Audio instance across all VariantChips instances on the page so
-// starting a new clip stops whichever one is already playing.
-let sharedAudio = null;
 
 // Renders the "Attested variants" section on a dictionary card — accepted
 // community corrections/examples/recordings that coexist with the original
@@ -75,10 +72,7 @@ export default function VariantChips({ variants }) {
   if (!Array.isArray(variants) || variants.length === 0) return null;
 
   function playClip(audioClipId) {
-    if (sharedAudio) { sharedAudio.pause(); sharedAudio = null; }
-    const audio = new Audio(`/api/audio/${audioClipId}`);
-    sharedAudio = audio;
-    audio.play().catch(() => showToast("Couldn't play this recording", "error"));
+    playClipShared(`/api/audio/${audioClipId}`).catch(() => showToast("Couldn't play this recording", "error"));
   }
 
   function castVote(variantId, value) {

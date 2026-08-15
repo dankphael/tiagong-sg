@@ -4,6 +4,7 @@ const KIND_LABELS = {
   new_word: 'added a word',
   usage_example: 'added a usage example',
   pronunciation: 'recorded a pronunciation',
+  interpretation: 'added an interpretation',
   spelling: 'suggested a correction',
   romanisation: 'suggested a correction',
   definition: 'suggested a correction',

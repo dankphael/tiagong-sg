@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { getLevel, getNextLevel, getLevelProgress } from "@/data/xpSystem";
 import { dialects } from "@/data/staticData";
+import { ContributeCallout } from "@/components/ui";
 import DialectSwitcher from "@/components/DialectSwitcher";
 import Flashcards from "@/components/games/Flashcards";
 import StoryQuiz from "@/components/games/StoryQuiz";
@@ -117,8 +118,15 @@ function LearnDialectContent() {
         <Review dialect={dialect} dialectId={dialectId} autoStart={autoStartMode === "review"} />
       )}
 
+      <div style={{ marginTop: 24 }}>
+        <ContributeCallout compact
+          title="Heard it differently at home?"
+          body={`Add your family's version of a ${dialect.name} word or phrase.`}
+          href="/contribute" cta="Add your version →" />
+      </div>
+
       {/* XP Bar */}
-      <div style={{ marginTop: 32, background: "white", borderRadius: 14, padding: "16px 20px", boxShadow: "0 2px 12px rgba(0,0,0,0.04)", border: "1px solid #F0E8DA" }}>
+      <div style={{ marginTop: 24, background: "white", borderRadius: 14, padding: "16px 20px", boxShadow: "0 2px 12px rgba(0,0,0,0.04)", border: "1px solid #F0E8DA" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 20 }}>{getLevel(xp).icon}</span>

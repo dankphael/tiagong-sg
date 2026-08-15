@@ -1,6 +1,7 @@
 // Shared UI components for tiagongSG
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 /* ── SealChip ──
    A carved Chinese seal (印章) for a dialect: a single representative
@@ -47,8 +48,7 @@ export function Badge({ children, color, style }) {
   return (
     <span
       className="badge"
-      style={color ? { background: `${color}14`, color, borderColor: `${color}40` } : undefined}
-      {...style}
+      style={{ ...(color ? { background: `${color}14`, color, borderColor: `${color}40` } : undefined), ...style }}
     >
       {children}
     </span>
@@ -184,6 +184,28 @@ export function DialectTooltip({ phrase, meaning, romanization, color = "#C0392B
         </div>
       )}
     </span>
+  );
+}
+
+// Nudges a visitor toward /contribute (or wherever `href` points), styled
+// like the home page's ProfileNudge — amber card, bold lead, arrow link.
+// tiagongSG's dictionary is an AI-drafted skeleton the community corrects,
+// records and grows (see about/page.js's "How are the phrases sourced?");
+// this is the recurring reminder of that, placed wherever someone is most
+// likely to have something to add. `compact` tightens the padding for
+// mid-page strips (e.g. between a game and its XP bar).
+export function ContributeCallout({ title, body, href = "/contribute", cta = "Contribute →", compact = false, style }) {
+  return (
+    <div className="card" style={{ padding: compact ? "14px 18px" : "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", background: "#FEF9E7", border: "1px solid #D4860B30", ...style }}>
+      <div style={{ fontSize: 13, color: "#6B5B45" }}>
+        {title && <strong style={{ color: "#1A1208" }}>{title}</strong>}
+        {title && body && " — "}
+        {body}
+      </div>
+      <Link href={href} style={{ fontSize: 13, fontWeight: 600, color: "#D4860B", textDecoration: "none", whiteSpace: "nowrap" }}>
+        {cta}
+      </Link>
+    </div>
   );
 }
 

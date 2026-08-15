@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useApp } from "@/components/AppProvider";
-import { speak } from "@/lib/tts";
-import { Star, Repeat, Volume2 } from "lucide-react";
+import { Star, Repeat } from "lucide-react";
 import { XP_REWARDS } from "@/data/xpSystem";
 import { buildReviewQueue } from "@/lib/gameDecks";
+import { staticPhraseId } from "@/lib/wordId";
 import ReportButton from "@/components/games/ReportButton";
+import HearItButton from "@/components/HearItButton";
 
 export default function Review({ dialect, dialectId, autoStart }) {
   const { apiWords, knownCards, setKnownCards, awardXp } = useApp();
@@ -61,6 +62,7 @@ export default function Review({ dialect, dialectId, autoStart }) {
 
   const item = queue[pos];
   const card = item.card;
+  const cardWordId = card.wordId || staticPhraseId(dialectId, item.category, card.phrase);
 
   return (
     <div>
@@ -81,11 +83,11 @@ export default function Review({ dialect, dialectId, autoStart }) {
             <div style={{ fontSize: 10, letterSpacing: 3, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 14 }}>Tap to reveal meaning</div>
             <div className="romanized" style={{ fontSize: "clamp(28px, 9vw, 44px)", fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>{card.phrase}</div>
             <div style={{ fontFamily: "var(--font-chinese)", fontSize: 26, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>{card.chinese}</div>
-            <button onClick={(e) => { e.stopPropagation(); speak(card.phrase, dialectId); }}
-              className="btn-tts"
-              style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
-              <Volume2 size={15} /> Hear it
-            </button>
+            <span onClick={(e) => e.stopPropagation()} style={{ marginTop: 16 }}>
+              <HearItButton wordId={cardWordId} dialect={dialectId} phrase={card.phrase}
+                className="btn-tts" mutedColor="rgba(255,255,255,0.6)"
+                style={{ padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white" }} />
+            </span>
           </div>
           <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px" }}>
             <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>{card.meaning}</div>

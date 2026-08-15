@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from "react";
-import { speak } from "@/lib/tts";
 import { AnnotatedText, DialectTooltip } from "@/components/ui";
-import { ArrowRight, MessageCircle, Repeat, Volume2 } from "lucide-react";
+import { ArrowRight, MessageCircle, Repeat } from "lucide-react";
 import { situationalQuizzes } from "@/data/staticData";
 import { ResultsScreen } from "@/components/games/GameShared";
 import ReportButton from "@/components/games/ReportButton";
+import HearItButton from "@/components/HearItButton";
 
 export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
   const [quizIndex, setQuizIndex] = useState(0);
@@ -123,10 +123,10 @@ export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
                 <DialectTooltip phrase={dialogue.phrase} meaning={dialogue.meaning} color={dialect.color} />
               </div>
               <div style={{ fontSize: 12, opacity: 0.65 }}>"{dialogue.meaning}"</div>
-              <span role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); speak(dialogue.phrase, dialectId); }}
-                className="btn-tts"
-                style={{ marginTop: 6, padding: "4px 12px", background: `${dialect.color}10`, border: `1px solid ${dialect.color}30`, borderRadius: 12, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <Volume2 size={15} /> Hear
+              <span onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 6 }}>
+                <HearItButton dialect={dialectId} phrase={dialogue.phrase} label="Hear" compact as="span" hideDisclaimer
+                  className="btn-tts"
+                  style={{ padding: "4px 12px", background: `${dialect.color}10`, border: `1px solid ${dialect.color}30`, borderRadius: 12, color: dialect.color }} />
               </span>
               {showResult && isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✓</span>}
               {showResult && isSelected && !isCorrect && <span style={{ float: "right", fontSize: 18, marginTop: -20 }}>✗</span>}

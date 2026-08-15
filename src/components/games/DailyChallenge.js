@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useApp } from "@/components/AppProvider";
-import { speak } from "@/lib/tts";
-import { Trophy, ArrowRight, Repeat, Volume2, Flame } from "lucide-react";
+import { Trophy, ArrowRight, Repeat, Flame } from "lucide-react";
 import { XP_REWARDS } from "@/data/xpSystem";
 import { buildDailyQuestions } from "@/lib/gameDecks";
 import { ResultsScreen } from "@/components/games/GameShared";
 import ReportButton from "@/components/games/ReportButton";
+import HearItButton from "@/components/HearItButton";
 
 export default function DailyChallenge({ dialect, dialectId, autoStart }) {
   const { apiWords, awardXp, streak, xp, dailyCompleted, markDailyComplete } = useApp();
@@ -103,10 +103,8 @@ export default function DailyChallenge({ dialect, dialectId, autoStart }) {
         {q.chinese && <div style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "rgba(255,255,255,0.7)", marginTop: 8 }}>{q.chinese}</div>}
       </div>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <button onClick={() => speak(q.options[q.correctIndex] || '', dialectId)}
-          style={{ padding: "6px 16px", background: "white", border: `2px solid ${dialect.color}30`, borderRadius: 16, color: dialect.color, fontSize: 12, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
-          <Volume2 size={15} /> Hear answer
-        </button>
+        <HearItButton wordId={q.wordId} dialect={dialectId} phrase={q.options[q.correctIndex] || ''} label="Hear answer"
+          style={{ padding: "6px 16px", background: "white", border: `2px solid ${dialect.color}30`, borderRadius: 16, color: dialect.color, display: "inline-flex" }} />
       </div>
 
       {/* Options */}

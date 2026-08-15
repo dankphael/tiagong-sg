@@ -10,7 +10,7 @@ import {
   Repeat, MessageCircle, ScrollText, Mic, Bookmark,
 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
-import { SealChip } from "@/components/ui";
+import { SealChip, ContributeCallout } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
 import { staticPhraseId, communityWordId } from "@/lib/wordId";
 import ContributionModal from "@/components/ContributionModal";
@@ -392,7 +392,7 @@ export default function DictionaryPage() {
           <div style={{ marginBottom: 14, fontSize: 13, color: "#8B7355", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span>
               {filteredPhrases.length === 0
-                ? "No results found"
+                ? "Not in the dictionary yet"
                 : <><strong style={{ color: "#1A1208" }}>{start + 1}–{end}</strong> of <strong style={{ color: "#1A1208" }}>{filteredPhrases.length}</strong> phrase{filteredPhrases.length !== 1 ? "s" : ""}</>
               }
               {q && <> for "<em>{q}</em>"</>}
@@ -415,6 +415,16 @@ export default function DictionaryPage() {
               {searchDialects.length === 0 && (
                 <div style={{ marginTop: 16, fontSize: 13, color: "#C0392B", fontWeight: 600 }}>
                    No dialects selected — check at least one dialect in the filter panel.
+                </div>
+              )}
+              {q && (
+                <div style={{ marginTop: 24, maxWidth: 460, marginLeft: "auto", marginRight: "auto", textAlign: "left" }}>
+                  <ContributeCallout
+                    title="Know this word?"
+                    body="It's not in the dictionary yet — add it and it'll be here for the next person."
+                    href={`/contribute?type=new_word&q=${encodeURIComponent(q)}`}
+                    cta="Add a new word →"
+                  />
                 </div>
               )}
             </div>

@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
-import { ArrowRight, Volume2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
-import { speak } from "@/lib/tts";
 import { SealChip } from "@/components/ui";
 import { dialects, lessons } from "@/data/staticData";
+import { staticPhraseId } from "@/lib/wordId";
+import HearItButton from "@/components/HearItButton";
 
 const STEPS = ["pick", "micro-lesson", "done"];
 
@@ -120,11 +121,13 @@ export default function WelcomePage() {
                 <div style={{ fontFamily: "var(--font-chinese)", fontSize: 22, color: "rgba(255,255,255,0.75)", marginTop: 8 }}>
                   {microCards[cardIndex]?.chinese}
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); speak(microCards[cardIndex]?.phrase, dialect.id); }}
-                  className="btn-tts"
-                  style={{ marginTop: 16, padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
-                  <Volume2 size={15} /> Hear it
-                </button>
+                <span onClick={(e) => e.stopPropagation()} style={{ marginTop: 16 }}>
+                  <HearItButton
+                    wordId={staticPhraseId(dialect.id, "greetings", microCards[cardIndex]?.phrase || "")}
+                    dialect={dialect.id} phrase={microCards[cardIndex]?.phrase}
+                    className="btn-tts" mutedColor="rgba(255,255,255,0.6)"
+                    style={{ padding: "8px 20px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "var(--radius-pill)", color: "white" }} />
+                </span>
               </div>
               <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px" }}>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 700, color: "var(--color-text)", textAlign: "center" }}>
