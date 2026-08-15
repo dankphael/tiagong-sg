@@ -3,11 +3,18 @@ import { requireAuth } from '@/lib/auth';
 import { dialects } from '@/data/staticData';
 
 const VALID_DIALECTS = dialects.map(d => d.id);
-const VALID_TYPES = ['correction', 'new_word', 'usage_example', 'error_flag', 'pronunciation_audio'];
+const VALID_TYPES = ['correction', 'new_word', 'usage_example', 'error_flag', 'pronunciation_audio', 'interpretation'];
 const VALID_CORRECTION_FIELDS = ['spelling', 'romanisation', 'definition', 'usage_context'];
-const VALID_AUDIO_MIME_TYPES = ['audio/webm', 'audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus'];
-const MAX_AUDIO_BASE64_CHARS = 400_000; // ~300KB decoded, generous for a ~10s clip
+// Base audio types accepted from either MediaRecorder or a user-picked file;
+// a `;codecs=…` parameter (as MediaRecorder produces) is stripped before
+// comparing, so e.g. "audio/webm;codecs=opus" matches "audio/webm" here.
+const VALID_AUDIO_BASE_TYPES = ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/aac', 'audio/x-m4a', 'audio/wav', 'audio/x-wav', 'audio/flac'];
+const MAX_AUDIO_BASE64_CHARS = 1_400_000; // ~1MB decoded — generous for a ~10s clip, recorded or uploaded
 const MAX_AUDIO_DURATION_MS = 11_000;
+
+function normalizeAudioMimeType(mimeType) {
+  return typeof mimeType === 'string' ? mimeType.split(';')[0].trim().toLowerCase() : '';
+}
 
 function validatePayload(type, payload) {
   if (!payload || typeof payload !== 'object') return 'Missing payload';
@@ -20,6 +27,8 @@ function validatePayload(type, payload) {
     if (!payload.exampleText) return 'exampleText is required';
   } else if (type === 'error_flag') {
     if (!payload.description) return 'description is required';
+  } else if (type === 'interpretation') {
+    if (!payload.meaning) return 'meaning is required';
   }
   // pronunciation_audio: payload only carries an optional contextNote —
   // the actual audio is validated separately in POST (audioData/
@@ -30,8 +39,12 @@ function validatePayload(type, payload) {
 function validateAudioFields(audioData, audioMimeType, durationMs) {
   if (typeof audioData !== 'string' || audioData.length === 0) return 'audioData is required';
   if (audioData.length > MAX_AUDIO_BASE64_CHARS) return 'Recording is too large (max ~10 seconds)';
-  if (!VALID_AUDIO_MIME_TYPES.includes(audioMimeType)) return 'Invalid audio format';
-  if (typeof durationMs !== 'number' || durationMs <= 0 || durationMs > MAX_AUDIO_DURATION_MS) return 'Invalid recording duration';
+  if (!VALID_AUDIO_BASE_TYPES.includes(normalizeAudioMimeType(audioMimeType))) return 'Invalid audio format';
+  // Uploaded files may not carry a known duration (readAudioDuration can
+  // return null for some containers) — only range-check when one is given.
+  if (durationMs != null) {
+    if (typeof durationMs !== 'number' || durationMs <= 0 || durationMs > MAX_AUDIO_DURATION_MS) return 'Invalid recording duration';
+  }
   return null;
 }
 
@@ -80,7 +93,7 @@ export async function POST(req) {
 
         const clipResult = await query(
           `INSERT INTO audio_clips (contribution_id, mime_type, data, duration_ms) VALUES ($1, $2, $3, $4) RETURNING id`,
-          [contributionId, audioMimeType, audioData, Math.round(durationMs)]
+          [contributionId, normalizeAudioMimeType(audioMimeType), audioData, durationMs != null ? Math.round(durationMs) : null]
         );
         const audioClipId = clipResult.rows[0].id;
 

@@ -1,10 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { Mic, Square, Play, Pause, RotateCcw } from "lucide-react";
+import { Mic, Square, Play, Pause, RotateCcw, Upload } from "lucide-react";
 
 const MAX_DURATION_MS = 10_000;
+const MAX_BASE64_CHARS = 1_400_000; // keep in sync with server's MAX_AUDIO_BASE64_CHARS
 const MIME_CANDIDATES = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
+const EXTENSION_MIME_TYPES = {
+  mp3: "audio/mpeg", m4a: "audio/mp4", aac: "audio/aac",
+  wav: "audio/wav", flac: "audio/flac", ogg: "audio/ogg", webm: "audio/webm",
+};
 
 function pickMimeType() {
   if (typeof MediaRecorder === "undefined") return null;
@@ -14,15 +19,44 @@ function pickMimeType() {
   return "";
 }
 
-// In-browser pronunciation recorder: record (max 10s) → preview → re-record.
-// Calls onAudioReady({ base64, mimeType, durationMs }) once a recording is
-// captured, and onClear() when the user discards it.
+function detectRecordSupport() {
+  return !!(navigator.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== "undefined");
+}
+
+function guessMimeType(file) {
+  if (file.type) return file.type;
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  return EXTENSION_MIME_TYPES[ext] || "audio/mpeg";
+}
+
+// Reads a file/blob's playback duration via a detached <audio> element.
+// Some containers never report a finite duration — callers should treat a
+// null result as "unknown" rather than a validation failure.
+function readAudioDuration(url) {
+  return new Promise(resolve => {
+    const probe = document.createElement("audio");
+    probe.preload = "metadata";
+    probe.onloadedmetadata = () => resolve(Number.isFinite(probe.duration) ? probe.duration * 1000 : null);
+    probe.onerror = () => resolve(null);
+    probe.src = url;
+  });
+}
+
+// In-browser pronunciation contributor: record (max 10s) or upload an audio
+// file, then preview → re-record/choose another. Calls
+// onAudioReady({ base64, mimeType, durationMs }) once a clip is ready, and
+// onClear() when the user discards it. Recording needs getUserMedia +
+// MediaRecorder; uploading works on every device, so it's always offered.
 export default function AudioRecorder({ onAudioReady, onClear }) {
-  const [supported, setSupported] = useState(true);
+  // Starts false to match server-rendered markup (recording needs browser
+  // APIs unavailable during SSR), then flips after mount once we can check.
+  const [recordSupported, setRecordSupported] = useState(false);
   const [permissionError, setPermissionError] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
   const [recording, setRecording] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [audioSource, setAudioSource] = useState(null); // 'record' | 'upload'
   const [isPlaying, setIsPlaying] = useState(false);
 
   const mediaRecorderRef = useRef(null);
@@ -31,11 +65,10 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
   const timerRef = useRef(null);
   const startTimeRef = useRef(0);
   const audioElRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (!navigator.mediaDevices?.getUserMedia || typeof window.MediaRecorder === "undefined") {
-      setSupported(false);
-    }
+    setRecordSupported(detectRecordSupport());
     return () => {
       stopStream();
       if (timerRef.current) clearInterval(timerRef.current);
@@ -53,8 +86,9 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
 
   async function startRecording() {
     setPermissionError(null);
+    setUploadError(null);
     const mimeType = pickMimeType();
-    if (mimeType === null) { setSupported(false); return; }
+    if (mimeType === null) return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -69,6 +103,7 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || mimeType || "audio/webm" });
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
+        setAudioSource("record");
         stopStream();
 
         const reader = new FileReader();
@@ -105,9 +140,54 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
   function reRecord() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
+    setAudioSource(null);
     setIsPlaying(false);
     onClear?.();
     startRecording();
+  }
+
+  function chooseAnotherFile() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setAudioSource(null);
+    setIsPlaying(false);
+    onClear?.();
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file
+    if (!file) return;
+
+    setPermissionError(null);
+    setUploadError(null);
+
+    const url = URL.createObjectURL(file);
+    const durationMs = await readAudioDuration(url);
+    if (durationMs != null && durationMs > MAX_DURATION_MS) {
+      URL.revokeObjectURL(url);
+      setUploadError(`This clip is ${(durationMs / 1000).toFixed(1)}s — please choose one under ${MAX_DURATION_MS / 1000}s.`);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = String(reader.result).split(",")[1] || "";
+      if (base64.length > MAX_BASE64_CHARS) {
+        URL.revokeObjectURL(url);
+        setUploadError("This file is too large — please choose a shorter or more compressed clip.");
+        return;
+      }
+      setPreviewUrl(url);
+      setAudioSource("upload");
+      onAudioReady({ base64, mimeType: guessMimeType(file), durationMs });
+    };
+    reader.onerror = () => {
+      URL.revokeObjectURL(url);
+      setUploadError("Couldn't read that file — please try another.");
+    };
+    reader.readAsDataURL(file);
   }
 
   function togglePlay() {
@@ -119,27 +199,46 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
     }
   }
 
-  if (!supported) {
-    return (
-      <div style={{ padding: "12px 14px", borderRadius: 10, background: "#FEF3E2", color: "#8B6020", fontSize: 13 }}>
-        Recording isn't supported in this browser. Try a recent version of Chrome, Firefox, or Safari.
-      </div>
-    );
-  }
-
   return (
     <div style={{ marginBottom: 16 }}>
+      <input ref={fileInputRef} type="file" accept="audio/*" onChange={handleFileChange} style={{ display: "none" }} />
+
       {permissionError && (
         <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", fontSize: 12, marginBottom: 10 }}>
           {permissionError}
         </div>
       )}
+      {uploadError && (
+        <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FDEDEC", color: "#C0392B", fontSize: 12, marginBottom: 10 }}>
+          {uploadError}
+        </div>
+      )}
 
       {!previewUrl && !recording && (
-        <button type="button" onClick={startRecording}
-          style={{ width: "100%", padding: "14px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-          <Mic size={16} /> Start Recording
-        </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {recordSupported && (
+            <button type="button" onClick={startRecording}
+              style={{ width: "100%", padding: "14px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <Mic size={16} /> Start Recording
+            </button>
+          )}
+          {!recordSupported && (
+            <div style={{ fontSize: 12, color: "#8B7355" }}>
+              Recording isn't available in this browser — you can still upload a clip.
+            </div>
+          )}
+          <button type="button" onClick={() => fileInputRef.current?.click()}
+            style={{
+              width: "100%", padding: "14px", borderRadius: 10,
+              background: recordSupported ? "#F5F0EA" : "#C0392B",
+              color: recordSupported ? "#6B5B45" : "white",
+              border: recordSupported ? "1px solid #E8DDD0" : "none",
+              fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}>
+            <Upload size={16} /> Upload an audio file
+          </button>
+        </div>
       )}
 
       {recording && (
@@ -157,10 +256,17 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
               style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#EAFAF1", color: "#1A6B3C", border: "1px solid #1A6B3C40", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
               {isPlaying ? <Pause size={14} /> : <Play size={14} />} {isPlaying ? "Playing" : "Preview"}
             </button>
-            <button type="button" onClick={reRecord}
-              style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#F5F0EA", color: "#6B5B45", border: "1px solid #E8DDD0", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-              <RotateCcw size={14} /> Re-record
-            </button>
+            {audioSource === "upload" ? (
+              <button type="button" onClick={chooseAnotherFile}
+                style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#F5F0EA", color: "#6B5B45", border: "1px solid #E8DDD0", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <Upload size={14} /> Choose a different file
+              </button>
+            ) : (
+              <button type="button" onClick={reRecord}
+                style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#F5F0EA", color: "#6B5B45", border: "1px solid #E8DDD0", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                <RotateCcw size={14} /> Re-record
+              </button>
+            )}
           </div>
         </div>
       )}

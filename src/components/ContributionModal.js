@@ -13,14 +13,18 @@ const CORRECTION_FIELDS = [
   ["usage_context", "Usage context"],
 ];
 
-// Single modal handling 'correction', 'usage_example', and 'error_flag'
-// submissions against an existing dictionary word. New-word submissions
-// are handled by the /contribute page form instead.
+// Single modal handling 'correction', 'usage_example', 'interpretation',
+// 'pronunciation_audio', and 'error_flag' submissions against an existing
+// dictionary word. New-word submissions are handled by the /contribute page
+// form instead. Every type but 'error_flag' is additive — an accepted
+// submission is published as a variant alongside the existing entry rather
+// than replacing it (see db/schema.sql: word_variants).
 export default function ContributionModal({ word, type, onClose }) {
   const router = useRouter();
   const { currentUser, showToast } = useApp();
   const [field, setField] = useState("definition");
   const [proposedValue, setProposedValue] = useState("");
+  const [meaning, setMeaning] = useState("");
   const [exampleText, setExampleText] = useState("");
   const [translation, setTranslation] = useState("");
   const [description, setDescription] = useState("");
@@ -33,7 +37,8 @@ export default function ContributionModal({ word, type, onClose }) {
 
   const title = type === "correction" ? "Suggest an Edit"
     : type === "usage_example" ? "Add a Usage Example"
-    : type === "pronunciation_audio" ? "Record Pronunciation"
+    : type === "pronunciation_audio" ? "Add a Pronunciation"
+    : type === "interpretation" ? "Add Your Interpretation"
     : "Flag an Issue";
 
   async function handleSubmit() {
@@ -52,6 +57,9 @@ export default function ContributionModal({ word, type, onClose }) {
     } else if (type === "usage_example") {
       if (!exampleText.trim()) { showToast("Please enter an example sentence", "error"); return; }
       payload = { exampleText: exampleText.trim(), translation: translation.trim(), contextNote: contextNote.trim() };
+    } else if (type === "interpretation") {
+      if (!meaning.trim()) { showToast("Please share your interpretation", "error"); return; }
+      payload = { meaning: meaning.trim(), contextNote: contextNote.trim() };
     } else if (type === "pronunciation_audio") {
       if (!audioClip) { showToast("Record a clip first", "error"); return; }
       payload = { contextNote: contextNote.trim() };
@@ -107,11 +115,25 @@ export default function ContributionModal({ word, type, onClose }) {
       <div style={{ background: "white", borderRadius: 20, padding: "clamp(20px, 5vw, 32px)", maxWidth: 460, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}
         onClick={e => e.stopPropagation()}>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 4 }}>{title}</div>
-        <div style={{ fontSize: 13, color: "#9B8B75", marginBottom: 20 }}>{word.phrase} · {word.meaning}</div>
+        <div style={{ fontSize: 13, color: "#9B8B75", marginBottom: 8 }}>{word.phrase} · {word.meaning}</div>
+        {type !== "error_flag" && (
+          <div style={{ fontSize: 12, color: "#8B7355", background: "#FAF6F0", border: "1px solid #F0E8DA", borderRadius: 8, padding: "8px 12px", marginBottom: 16 }}>
+            Accepted submissions are added alongside the existing entry — they don't replace it. A Language Custodian reviews each one.
+          </div>
+        )}
+
+        {type === "interpretation" && (
+          <>
+            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What does this word mean to you?</label>
+            <textarea value={meaning} onChange={e => setMeaning(e.target.value)} rows={3}
+              placeholder="How your family or your community uses it — even if it differs from the entry above"
+              className="input" style={{ marginBottom: 16, resize: "vertical", padding: 12 }} />
+          </>
+        )}
 
         {type === "correction" && (
           <>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What's wrong?</label>
+            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Which part would you change?</label>
             <select value={field} onChange={e => setField(e.target.value)} className="input" style={{ height: 44, marginBottom: 16 }}>
               {CORRECTION_FIELDS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
             </select>

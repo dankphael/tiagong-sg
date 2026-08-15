@@ -9,6 +9,7 @@ const TYPE_LABELS = {
   usage_example: "Usage Example",
   error_flag: "Error Flag",
   pronunciation_audio: "Pronunciation Recording",
+  interpretation: "Community Interpretation",
 };
 
 // Renders one pending contribution in the custodian review queue, with
@@ -124,6 +125,12 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
           {submission.duration_ms && (
             <span style={{ fontSize: 12, color: "#6B5B45" }}>{(submission.duration_ms / 1000).toFixed(1)}s</span>
           )}
+        </div>
+      )}
+
+      {submission.type === "interpretation" && (
+        <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FAF6F0", marginBottom: 10, fontSize: 13, color: "#1A1208" }}>
+          {submission.payload?.meaning}
         </div>
       )}
 

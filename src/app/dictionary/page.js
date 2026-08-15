@@ -37,7 +37,6 @@ export default function DictionaryPage() {
   const { apiWords, overlay, currentUser, showToast, bookmarks, toggleBookmark } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [wordModal, setWordModal] = useState(null); // flattened phrase object when viewing an entry
-  const [canRecord, setCanRecord] = useState(false);
   const [commentCounts, setCommentCounts] = useState({});
   const [myReports, setMyReports] = useState({}); // { [wordId]: { status, reviewNote } } — latest error_flag per word
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,10 +54,6 @@ export default function DictionaryPage() {
   }, [searchQuery]);
 
   useEffect(() => { setSearchPage(1); }, [searchDebouncedQuery, searchDialects, searchCategory, searchSort, savedOnly]);
-
-  useEffect(() => {
-    setCanRecord(!!(navigator.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== "undefined"));
-  }, []);
 
   // The signed-in caller's own error-flag reports, so a card can show
   // "You reported this — pending/accepted/rejected" rather than the reporter
@@ -235,7 +230,6 @@ export default function DictionaryPage() {
           fullWord={apiWords.find(w => w.id === wordModal.wordId) || null}
           onClose={closeWordModal}
           onContribute={openContribution}
-          canRecord={canRecord}
           commentCount={commentCounts[wordModal.wordId] || 0}
           isSaved={!!bookmarks[wordModal.wordId]}
           onToggleSave={() => toggleBookmark(wordModal.wordId, wordModal.dialect)}
@@ -472,20 +466,22 @@ export default function DictionaryPage() {
                       <VariantChips variants={p.variants} />
                     </div>
                     <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
-                      <button onClick={() => openContribution(p, "correction")}
+                      <button onClick={() => openContribution(p, "interpretation")}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-                        Suggest an edit
+                        Add your meaning
+                      </button>
+                      <button onClick={() => openContribution(p, "pronunciation_audio")}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                        <Mic size={11} /> Add pronunciation
                       </button>
                       <button onClick={() => openContribution(p, "usage_example")}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                         Add example
                       </button>
-                      {canRecord && (
-                        <button onClick={() => openContribution(p, "pronunciation_audio")}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
-                          <Mic size={11} /> Record pronunciation
-                        </button>
-                      )}
+                      <button onClick={() => openContribution(p, "correction")}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+                        Suggest an edit
+                      </button>
                       <button onClick={() => openContribution(p, "error_flag")}
                         style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
                         Flag issue

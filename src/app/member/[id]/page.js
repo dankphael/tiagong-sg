@@ -15,6 +15,7 @@ const CONTRIB_LABELS = {
   usage_example: 'examples added',
   pronunciation_audio: 'recordings made',
   correction: 'corrections',
+  interpretation: 'interpretations added',
 };
 
 export default function MemberPage() {

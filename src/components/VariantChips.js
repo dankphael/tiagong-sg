@@ -12,11 +12,13 @@ const VARIANT_LABELS = {
   usage_example: "Example",
   new_word: "Community submission",
   pronunciation: "Pronunciation recording",
+  interpretation: "Community interpretation",
 };
 
 function variantValue(v) {
   if (v.variant_type === "usage_example") return v.payload?.exampleText;
   if (v.variant_type === "new_word") return v.payload?.english;
+  if (v.variant_type === "interpretation") return v.payload?.meaning;
   return v.payload?.proposedValue;
 }
 
@@ -107,7 +109,7 @@ export default function VariantChips({ variants }) {
   return (
     <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #F0E8DA" }}>
       <div style={{ fontSize: 10, fontWeight: 700, color: "#8B7355", textTransform: "uppercase", letterSpacing: 0.6, marginBottom: 6 }}>
-        Attested Variants
+        Community Contributions ({variants.length})
       </div>
 
       {sortedPronunciations.length > 0 && (

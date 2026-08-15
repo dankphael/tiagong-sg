@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Volume2, Mic, Bookmark, Share2 } from "lucide-react";
+import { X, Volume2, Mic, Bookmark, Share2, PenLine, MessageSquarePlus, Flag } from "lucide-react";
 import { speak } from "@/lib/tts";
 import { useApp } from "@/components/AppProvider";
 import VariantChips from "@/components/VariantChips";
@@ -17,7 +17,7 @@ const REPORT_STATUS_COLORS = { pending: "#D4860B", accepted: "#1A6B3C", rejected
 // raw dictionary.json entry when this word is DB-backed (null otherwise),
 // which unlocks multiple definitions, example sentences, pronunciations,
 // etymology, and synonyms.
-export default function WordDetailModal({ word, fullWord, onClose, onContribute, canRecord, commentCount, isSaved, onToggleSave, reportStatus }) {
+export default function WordDetailModal({ word, fullWord, onClose, onContribute, commentCount, isSaved, onToggleSave, reportStatus }) {
   const { showToast } = useApp();
 
   function handleShare() {
@@ -195,25 +195,35 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
 
         <VariantChips variants={word.variants} />
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", marginTop: 12, paddingTop: 8, marginLeft: -8 }}>
-          <button onClick={() => onContribute(word, "correction")}
-            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-            Suggest an edit
-          </button>
-          <button onClick={() => onContribute(word, "usage_example")}
-            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-            Add example
-          </button>
-          {canRecord && (
-            <button onClick={() => onContribute(word, "pronunciation_audio")}
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
-              <Mic size={12} /> Record pronunciation
+        <div style={{ marginTop: 16, padding: 16, borderRadius: 12, background: "#FAF6F0", border: "1px solid #F0E8DA" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>Community-sourced — add your version</div>
+          <div style={{ fontSize: 12, color: "#8B7355", marginBottom: 12 }}>
+            Anyone can contribute a meaning or pronunciation here — yours is added alongside the entry above, not a replacement for it.
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+            <button onClick={() => onContribute(word, "interpretation")}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 10, background: "white", border: "1.5px solid #1A6B3C40", color: "#1A6B3C", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              <PenLine size={13} /> Add your interpretation
             </button>
-          )}
-          <button onClick={() => onContribute(word, "error_flag")}
-            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
-            Flag issue
-          </button>
+            <button onClick={() => onContribute(word, "pronunciation_audio")}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 10, background: "white", border: "1.5px solid #1A6B3C40", color: "#1A6B3C", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              <Mic size={13} /> Add a pronunciation
+            </button>
+            <button onClick={() => onContribute(word, "usage_example")}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 10, background: "white", border: "1.5px solid #1A6B3C40", color: "#1A6B3C", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+              <MessageSquarePlus size={13} /> Add an example
+            </button>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginLeft: -8 }}>
+            <button onClick={() => onContribute(word, "correction")}
+              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#8B7355", fontWeight: 600, padding: "8px", fontFamily: "inherit" }}>
+              Suggest an edit
+            </button>
+            <button onClick={() => onContribute(word, "error_flag")}
+              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", fontWeight: 600, padding: "8px", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <Flag size={12} /> Flag issue
+            </button>
+          </div>
         </div>
         <div style={{ marginTop: 8 }}>
           <WordComments wordId={word.wordId} dialect={word.dialect} count={commentCount || 0} />

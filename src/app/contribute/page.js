@@ -18,6 +18,7 @@ const TYPE_LABELS = {
   usage_example: "Usage Example",
   error_flag: "Error Flag",
   pronunciation_audio: "Pronunciation",
+  interpretation: "Interpretation",
 };
 
 export default function ContributePage() {
@@ -135,8 +136,10 @@ export default function ContributePage() {
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 42, color: "#1A1208", marginBottom: 12 }}>Contribute</h1>
         <p style={{ color: "#8B7355", fontSize: 15, maxWidth: 560, margin: "0 auto" }}>
           Language is alive. Spellings, meanings, and everyday usage shift between generations and families —
-          help us keep the dictionary honest by proposing new words and corrections. Language Custodians,
-          our dialect experts, review every submission.
+          this dictionary is written by everyone who speaks it. Add your own interpretation of a meaning,
+          contribute a pronunciation — recorded or uploaded, on any device — propose new words, or correct
+          what's here. Every accepted submission is published alongside the original entry, credited to you.
+          Language Custodians, our dialect experts, review every submission.
         </p>
       </div>
 
@@ -220,6 +223,7 @@ export default function ContributePage() {
                       {s.payload?.romanized && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.romanized} — {s.payload.english}</div>}
                       {s.payload?.exampleText && <div style={{ fontSize: 13, color: "#6B5B45" }}>"{s.payload.exampleText}"</div>}
                       {s.payload?.description && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.description}</div>}
+                      {s.payload?.meaning && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.meaning}</div>}
                       {s.type === "pronunciation_audio" && (
                         <div style={{ fontSize: 13, color: "#6B5B45" }}>Pronunciation recording{s.duration_ms ? ` (${(s.duration_ms / 1000).toFixed(1)}s)` : ""}</div>
                       )}
