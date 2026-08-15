@@ -69,7 +69,7 @@ export default function CustodianPage() {
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>Custodian Access Required</div>
         <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>
-          This page is for Language Custodians reviewing community submissions. Apply on the Contribute page if you're a fluent dialect speaker.
+          This page is for Language Custodians approving new-word submissions and handling flagged issues. Apply on the Contribute page if you're a fluent dialect speaker.
         </p>
         <Link href="/contribute" className="btn-primary" style={{ display: "inline-block", textDecoration: "none" }}>
           Go to Contribute
@@ -83,15 +83,18 @@ export default function CustodianPage() {
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 11, letterSpacing: 4, color: "#C0392B", textTransform: "uppercase", marginBottom: 8 }}>Custodian Console</div>
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 36, color: "#1A1208", marginBottom: 8 }}>Review Queue</h1>
-        <p style={{ color: "#8B7355", fontSize: 14 }}>
+        <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 4 }}>
           Reviewing for: {currentUser.custodianDialects?.length > 0 ? currentUser.custodianDialects.join(", ") : "All dialects (admin)"} · {queue.length} pending
+        </p>
+        <p style={{ color: "#9B8B75", fontSize: 12 }}>
+          Pronunciations, meanings, examples, and corrections now publish instantly and are decided by community votes — this queue is just new-word submissions (which mint a new dictionary card) and flagged issues. You can also remove any published contribution directly from its entry in the Dictionary.
         </p>
       </div>
 
       {queue.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>All caught up</div>
-          <p style={{ fontSize: 14 }}>No pending submissions for your dialects right now.</p>
+          <p style={{ fontSize: 14 }}>No new words or flagged issues waiting for your dialects right now.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

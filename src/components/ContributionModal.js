@@ -13,15 +13,19 @@ const CORRECTION_FIELDS = [
   ["usage_context", "Usage context"],
 ];
 
+// Every type this modal handles except 'error_flag' publishes instantly —
+// see api/contributions/route.js — and is added as a variant alongside the
+// existing entry rather than replacing it (db/schema.sql: word_variants).
+const INSTANT_PUBLISH_TYPES = ["correction", "usage_example", "pronunciation_audio", "interpretation"];
+
 // Single modal handling 'correction', 'usage_example', 'interpretation',
 // 'pronunciation_audio', and 'error_flag' submissions against an existing
 // dictionary word. New-word submissions are handled by the /contribute page
-// form instead. Every type but 'error_flag' is additive — an accepted
-// submission is published as a variant alongside the existing entry rather
-// than replacing it (see db/schema.sql: word_variants).
+// form instead, since they still go through custodian review rather than
+// publishing instantly.
 export default function ContributionModal({ word, type, onClose }) {
   const router = useRouter();
-  const { currentUser, showToast } = useApp();
+  const { currentUser, showToast, refreshOverlay } = useApp();
   const [field, setField] = useState("definition");
   const [proposedValue, setProposedValue] = useState("");
   const [meaning, setMeaning] = useState("");
@@ -91,7 +95,12 @@ export default function ContributionModal({ word, type, onClose }) {
       if (!res.ok) {
         showToast(data.error || "Failed to submit", "error");
       } else {
-        showToast("Thanks! A Language Custodian will review your submission.", "success");
+        if (INSTANT_PUBLISH_TYPES.includes(type)) {
+          showToast("Published! The community can now see and vote on it.", "success");
+          refreshOverlay();
+        } else {
+          showToast("Thanks! A Language Custodian will review your submission.", "success");
+        }
         onClose();
       }
     } catch (e) {
@@ -118,7 +127,7 @@ export default function ContributionModal({ word, type, onClose }) {
         <div style={{ fontSize: 13, color: "#9B8B75", marginBottom: 8 }}>{word.phrase} · {word.meaning}</div>
         {type !== "error_flag" && (
           <div style={{ fontSize: 12, color: "#8B7355", background: "#FAF6F0", border: "1px solid #F0E8DA", borderRadius: 8, padding: "8px 12px", marginBottom: 16 }}>
-            Accepted submissions are added alongside the existing entry — they don't replace it. A Language Custodian reviews each one.
+            This goes live right away, added alongside the existing entry — it doesn't replace it. The community votes on it from there; a custodian can still remove anything that shouldn't be up.
           </div>
         )}
 
@@ -179,7 +188,7 @@ export default function ContributionModal({ word, type, onClose }) {
 
         <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Why do you think this is right? (optional)</label>
         <textarea value={reason} onChange={e => setReason(e.target.value)} rows={2}
-          placeholder="Any evidence or background that helps the custodian review this"
+          placeholder={type === "error_flag" ? "Any evidence or background that helps a custodian review this" : "Any evidence or background that helps others judge this"}
           className="input" style={{ marginBottom: 24, resize: "vertical", padding: 12 }} />
 
         <div style={{ display: "flex", gap: 12 }}>

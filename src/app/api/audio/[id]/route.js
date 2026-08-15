@@ -1,11 +1,11 @@
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 
-// GET — serve an audio clip. Accepted (i.e. its contribution has been
-// approved by a custodian) clips are public with long-lived caching, since
-// they're already visible to everyone on the dictionary page. Pending/
-// rejected clips are only visible to the submitter, a custodian of that
-// dialect, or an admin — reviewers need to hear a clip before approving it.
+// GET — serve an audio clip. Published clips are public — either a
+// custodian approved the contribution ('accepted') or it went live
+// instantly and the community is voting on it ('published'), see
+// api/contributions/route.js. Pending/rejected/removed clips are only
+// visible to the submitter, a custodian of that dialect, or an admin.
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
@@ -23,12 +23,16 @@ export async function GET(req, { params }) {
     }
     const clip = result.rows[0];
 
-    if (clip.status === 'accepted') {
+    if (clip.status === 'accepted' || clip.status === 'published') {
       return new Response(Buffer.from(clip.data, 'base64'), {
         status: 200,
         headers: {
           'Content-Type': clip.mime_type,
-          'Cache-Control': 'public, max-age=31536000, immutable',
+          // Not immutable/year-long: instant-publish clips can be taken
+          // down by a custodian (DELETE /api/variants/[id]) with no review
+          // step beforehand, so a takedown needs to actually take effect
+          // within the hour rather than surviving in caches for a year.
+          'Cache-Control': 'public, max-age=3600',
         },
       });
     }

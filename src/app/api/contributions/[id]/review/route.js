@@ -1,12 +1,18 @@
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { XP_REWARDS } from '@/data/xpSystem';
+import { insertVariant, resolveContributorName } from '@/lib/variants';
 
 // PATCH {action: 'accept'|'reject', note} — a custodian reviews a pending
-// contribution. Accept inserts a word_variants row (variants coexist with
-// the original — they never replace it) and awards XP to the submitter;
-// this XP grant is the one server-authoritative exception in the app,
-// since the submitter is offline at review time.
+// contribution. Only 'new_word' (mints a brand-new dictionary card) and
+// 'error_flag' (a takedown report) still reach this queue — every other
+// contribution type now publishes instantly on submit, see
+// api/contributions/route.js. Accept inserts a word_variants row (variants
+// coexist with the original — they never replace it) and awards XP to the
+// submitter; this XP grant is the one server-authoritative exception for
+// new_word/error_flag, since the submitter is offline at review time.
+// (Other types award XP when the community upvotes them — see
+// api/recordings/vote/route.js.)
 export async function PATCH(req, { params }) {
   const { error, status, decoded } = requireAuth(req);
   if (error) return Response.json({ error }, { status });
@@ -46,24 +52,11 @@ export async function PATCH(req, { params }) {
 
     if (action === 'accept') {
       if (contribution.type !== 'error_flag') {
-        const variantTypeMap = { correction: contribution.payload?.field, new_word: 'new_word', usage_example: 'usage_example', pronunciation_audio: 'pronunciation', interpretation: 'interpretation' };
-        const submitterResult = await query(`SELECT first_name, last_name FROM users WHERE id = $1`, [contribution.user_id]);
-        const submitter = submitterResult.rows[0];
-        const contributorName = submitter ? `${submitter.first_name || ''} ${submitter.last_name || ''}`.trim() || 'A community member' : 'A community member';
-
-        await query(
-          `INSERT INTO word_variants (contribution_id, word_id, dialect, variant_type, payload, contributor_name, context_note)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [
-            contribution.id,
-            contribution.word_id,
-            contribution.dialect,
-            variantTypeMap[contribution.type] || contribution.type,
-            JSON.stringify(contribution.payload || {}),
-            contributorName,
-            contribution.payload?.contextNote || null,
-          ]
-        );
+        const contributorName = await resolveContributorName(contribution.user_id);
+        // xpAwarded: true — the unconditional XP grant below already pays
+        // out for this variant, so the vote route must not pay it again if
+        // it also crosses the upvote threshold.
+        await insertVariant(contribution, contributorName, { xpAwarded: true });
       }
 
       await query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, contribution.user_id]);

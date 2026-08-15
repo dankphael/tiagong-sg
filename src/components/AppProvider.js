@@ -300,6 +300,21 @@ export function AppProvider({ children }) {
     setIntroDismissed(true);
   }
 
+  // Re-fetch the community overlay (accepted/published variants). Exposed
+  // as refreshOverlay so a component can pull a just-submitted contribution
+  // in immediately, rather than waiting out the cache TTL — most
+  // contribution types now publish instantly (see api/contributions/route.js).
+  const refreshOverlay = useCallback(() => {
+    return fetch("/api/contributions/overlay")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.variants) {
+          setOverlay({ variants: data.variants || {}, newWords: Array.isArray(data.newWords) ? data.newWords : [] });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Bootstrap: dictionary, community profiles, session restore
   useEffect(() => {
     setIntroDismissed(localStorage.getItem("tiagong_onboarded") === "1");
@@ -309,14 +324,7 @@ export function AppProvider({ children }) {
       .then(data => setApiWords(data.words || []))
       .catch(() => {});
 
-    fetch("/api/contributions/overlay")
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data && data.variants) {
-          setOverlay({ variants: data.variants || {}, newWords: Array.isArray(data.newWords) ? data.newWords : [] });
-        }
-      })
-      .catch(() => {});
+    refreshOverlay();
 
     fetch("/api/users/profiles")
       .then(r => r.json())
@@ -433,7 +441,7 @@ export function AppProvider({ children }) {
 
   const value = {
     currentUser, setCurrentUser,
-    registeredUsers, setRegisteredUsers, profilesLoading, overlay,
+    registeredUsers, setRegisteredUsers, profilesLoading, overlay, refreshOverlay,
     bookmarks, toggleBookmark,
     introDismissed, markIntroSeen,
     xp, setXp, streak, setStreak,

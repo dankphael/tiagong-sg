@@ -92,6 +92,11 @@ CREATE TABLE word_variants (
   payload JSONB DEFAULT '{}',
   contributor_name VARCHAR(200),
   context_note TEXT,
+  -- Set once the community upvotes this variant to a net score of +1 or
+  -- more, at which point the submitter's XP is credited (see
+  -- api/recordings/vote/route.js). Acts as the idempotency guard for that
+  -- one-time award — new_word/error_flag are still XP'd on custodian accept.
+  xp_awarded BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

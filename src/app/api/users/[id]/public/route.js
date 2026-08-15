@@ -22,8 +22,11 @@ export async function GET(req, { params }) {
     }
     const u = result.rows[0];
 
+    // 'accepted' = a custodian approved it (new_word/error_flag); 'published'
+    // = it went live instantly and the community is voting on it (every
+    // other type) — both count as a real contribution for badges/profile.
     const contribResult = await query(
-      `SELECT type, COUNT(*) AS n FROM contributions WHERE user_id = $1 AND status = 'accepted' GROUP BY type`,
+      `SELECT type, COUNT(*) AS n FROM contributions WHERE user_id = $1 AND status IN ('accepted', 'published') GROUP BY type`,
       [userId]
     );
     const contributions = {};

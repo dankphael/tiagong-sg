@@ -3,14 +3,17 @@
 import { Play, Volume2 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
 import { playClip, playSynthetic } from "@/lib/audioPlayback";
+import { HIDDEN_SCORE_THRESHOLD } from "@/components/VariantChips";
 
-// Picks the highest-scored pronunciation variant for a word. The overlay API
-// already returns pronunciation variants sorted by score descending
-// (api/contributions/overlay/route.js), so [0] is normally enough — the
-// max-by-score fallback just keeps this safe if it's ever handed an
-// unsorted list.
+// Picks the highest-scored pronunciation variant for a word, skipping any
+// the community has downvoted into hidden territory (VariantChips applies
+// the same threshold) — "Hear it" shouldn't default to a clip nobody wants
+// played. The overlay API already returns pronunciation variants sorted by
+// score descending (api/contributions/overlay/route.js), so the first
+// surviving one is normally enough — the max-by-score fallback just keeps
+// this safe if it's ever handed an unsorted list.
 function topPronunciation(variants) {
-  const clips = (variants || []).filter(v => v.variant_type === "pronunciation" && v.payload?.audioClipId);
+  const clips = (variants || []).filter(v => v.variant_type === "pronunciation" && v.payload?.audioClipId && (v.score || 0) > HIDDEN_SCORE_THRESHOLD);
   if (clips.length === 0) return null;
   return clips.reduce((best, v) => ((v.score || 0) > (best.score || 0) ? v : best), clips[0]);
 }

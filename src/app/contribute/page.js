@@ -9,7 +9,9 @@ import { XP_REWARDS } from "@/data/xpSystem";
 const STATUS_COLORS = {
   pending: { bg: "#FEF3E2", color: "#D4860B" },
   accepted: { bg: "#EAFAF1", color: "#1A6B3C" },
+  published: { bg: "#EAFAF1", color: "#1A6B3C" },
   rejected: { bg: "#FDEDEC", color: "#C0392B" },
+  removed: { bg: "#FDEDEC", color: "#C0392B" },
 };
 
 const TYPE_LABELS = {
@@ -137,9 +139,9 @@ export default function ContributePage() {
         <p style={{ color: "#8B7355", fontSize: 15, maxWidth: 560, margin: "0 auto" }}>
           Language is alive. Spellings, meanings, and everyday usage shift between generations and families —
           this dictionary is written by everyone who speaks it. Add your own interpretation of a meaning,
-          contribute a pronunciation — recorded or uploaded, on any device — propose new words, or correct
-          what's here. Every accepted submission is published alongside the original entry, credited to you.
-          Language Custodians, our dialect experts, review every submission.
+          contribute a pronunciation — recorded or uploaded, on any device — or correct what's here, and it
+          goes live immediately, credited to you, alongside the original entry. The community votes on it from
+          there. New words are the one thing a Language Custodian still reviews before they join the dictionary.
         </p>
       </div>
 
@@ -233,6 +235,18 @@ export default function ContributePage() {
                       {s.status === "accepted" && (
                         <div style={{ fontSize: 12, color: "#1A6B3C", marginTop: 6 }}>+{XP_REWARDS.contributionAccepted} XP awarded</div>
                       )}
+                      {s.status === "published" && (
+                        s.xp_awarded ? (
+                          <div style={{ fontSize: 12, color: "#1A6B3C", marginTop: 6 }}>+{XP_REWARDS.contributionAccepted} XP awarded — the community upvoted this</div>
+                        ) : (
+                          <div style={{ fontSize: 12, color: "#8B7355", marginTop: 6 }}>
+                            Live now{s.score != null ? ` · score ${s.score > 0 ? "+" : ""}${s.score}` : ""} — earns +{XP_REWARDS.contributionAccepted} XP once the community upvotes it
+                          </div>
+                        )
+                      )}
+                      {s.status === "removed" && (
+                        <div style={{ fontSize: 12, color: "#C0392B", marginTop: 6, fontStyle: "italic" }}>Removed by a custodian</div>
+                      )}
                     </div>
                   );
                 })}
@@ -244,14 +258,14 @@ export default function ContributePage() {
           <div className="card" style={{ padding: 28 }}>
             <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 8 }}>Become a Language Custodian</div>
             <p style={{ fontSize: 14, color: "#8B7355", marginBottom: 20 }}>
-              Custodians are trusted dialect experts who review community submissions for their dialect(s).
+              Custodians are trusted dialect experts who approve new-word submissions for their dialect(s), handle flagged issues, and can remove any published contribution that shouldn't be up.
             </p>
 
             {applicationLoading ? (
               <div className="shimmer" style={{ background: "#F0E8DA", borderRadius: 10, height: 56 }} />
             ) : isCustodian ? (
               <div style={{ padding: "14px 16px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 14, color: "#1A6B3C", fontWeight: 600 }}>
-                You're a Language Custodian for {currentUser.custodianDialects.join(", ")}. Visit the Custodian console to review submissions.
+                You're a Language Custodian for {currentUser.custodianDialects.join(", ")}. Visit the Custodian console to review new words and flagged issues.
               </div>
             ) : application ? (
               <div style={{ padding: "14px 16px", borderRadius: 10, background: STATUS_COLORS[application.status]?.bg || "#FEF3E2", border: "1px solid #E8DDD0", fontSize: 14, color: STATUS_COLORS[application.status]?.color || "#D4860B", fontWeight: 600 }}>

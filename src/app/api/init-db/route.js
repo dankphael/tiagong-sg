@@ -117,9 +117,11 @@ export async function GET(req) {
         payload JSONB DEFAULT '{}',
         contributor_name VARCHAR(200),
         context_note TEXT,
+        xp_awarded BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await query(`ALTER TABLE word_variants ADD COLUMN IF NOT EXISTS xp_awarded BOOLEAN DEFAULT false`);
 
     await query(`
       CREATE TABLE IF NOT EXISTS custodian_applications (

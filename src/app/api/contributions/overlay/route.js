@@ -1,10 +1,11 @@
 import { query } from '@/lib/db';
 
-// GET — public overlay of accepted community variants, merged client-side
-// over public/dictionary.json. Grouped by word_id; entries with a null
-// word_id are accepted brand-new words. Pronunciation variants carry
-// aggregate up/down vote tallies so the client can sort recordings by
-// community-judged accuracy.
+// GET — public overlay of published/accepted community variants, merged
+// client-side over public/dictionary.json. Grouped by word_id; entries with
+// a null word_id are new words. Every variant carries an aggregate up/down
+// tally and score — not just recordings — since the community's votes now
+// decide what's shown for every contribution type (see
+// api/recordings/vote/route.js).
 export async function GET() {
   try {
     const result = await query(
@@ -23,11 +24,9 @@ export async function GET() {
     const variants = {};
     const newWords = [];
     for (const row of result.rows) {
-      if (row.variant_type === 'pronunciation') {
-        row.up = Number(row.up);
-        row.down = Number(row.down);
-        row.score = row.up - row.down;
-      }
+      row.up = Number(row.up);
+      row.down = Number(row.down);
+      row.score = row.up - row.down;
       if (row.word_id) {
         if (!variants[row.word_id]) variants[row.word_id] = [];
         variants[row.word_id].push(row);
@@ -36,17 +35,15 @@ export async function GET() {
       }
     }
     for (const wordId of Object.keys(variants)) {
-      variants[wordId].sort((a, b) => {
-        if (a.variant_type === 'pronunciation' && b.variant_type === 'pronunciation') {
-          return (b.score || 0) - (a.score || 0);
-        }
-        return 0;
-      });
+      variants[wordId].sort((a, b) => (b.score || 0) - (a.score || 0));
     }
 
     return Response.json({ variants, newWords }, {
       status: 200,
-      headers: { 'Cache-Control': 'public, max-age=300' },
+      // Short TTL — most contribution types now publish instantly (see
+      // api/contributions/route.js), and a submitter should see their own
+      // work land without waiting minutes for a stale cache to expire.
+      headers: { 'Cache-Control': 'public, max-age=30' },
     });
   } catch (error) {
     console.error('Error fetching overlay:', error);

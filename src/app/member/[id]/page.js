@@ -142,12 +142,12 @@ export default function MemberPage() {
         <div className="card" style={{ padding: 20 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Contributing</div>
           {totalContributions === 0 ? (
-            <div style={{ fontSize: 13, color: 'var(--color-text-faint)' }}>No accepted contributions yet.</div>
+            <div style={{ fontSize: 13, color: 'var(--color-text-faint)' }}>No contributions yet.</div>
           ) : (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <PenLine size={16} color="#C0392B" />
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text)' }}>{totalContributions} accepted</div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-text)' }}>{totalContributions} published</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 {contribEntries.map(([type, n]) => (

@@ -1,10 +1,18 @@
 import { query } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { dialects } from '@/data/staticData';
+import { insertVariant, resolveContributorName } from '@/lib/variants';
 
 const VALID_DIALECTS = dialects.map(d => d.id);
 const VALID_TYPES = ['correction', 'new_word', 'usage_example', 'error_flag', 'pronunciation_audio', 'interpretation'];
 const VALID_CORRECTION_FIELDS = ['spelling', 'romanisation', 'definition', 'usage_context'];
+// These four are additive — they coexist with the entry rather than
+// replacing it — so the community's votes decide their fate instead of a
+// custodian queue: they publish (word_variants + status='published')
+// immediately on submit. 'new_word' mints a brand-new dictionary card and
+// 'error_flag' is a takedown report, so both still need a human at
+// api/contributions/[id]/review/route.js.
+const INSTANT_PUBLISH_TYPES = ['correction', 'usage_example', 'pronunciation_audio', 'interpretation'];
 // Base audio types accepted from either MediaRecorder or a user-picked file;
 // a `;codecs=…` parameter (as MediaRecorder produces) is stripped before
 // comparing, so e.g. "audio/webm;codecs=opus" matches "audio/webm" here.
@@ -48,7 +56,8 @@ function validateAudioFields(audioData, audioMimeType, durationMs) {
   return null;
 }
 
-// POST — submit a contribution (correction, new word, usage example, or error flag)
+// POST — submit a contribution (correction, new word, usage example, error
+// flag, pronunciation, or interpretation)
 export async function POST(req) {
   const { error, status, decoded } = requireAuth(req);
   if (error) return Response.json({ error }, { status });
@@ -78,14 +87,14 @@ export async function POST(req) {
 
       // Server builds the payload itself — only contextNote comes from the
       // client; audioClipId is set after the clip is inserted, never trusted
-      // from the request. Sequential statements on the same pooled
-      // connection (pg Pool max:1) so this is effectively transactional;
-      // wrapped in BEGIN/COMMIT/ROLLBACK to avoid an orphaned clip on error.
+      // from the request. pronunciation_audio always publishes instantly
+      // (it's in INSTANT_PUBLISH_TYPES), so the word_variants row is created
+      // in the same transaction as the contribution + clip, never orphaned.
       await query('BEGIN');
       try {
         const contributionResult = await query(
-          `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason)
-           VALUES ($1, $2, $3, $4, $5, $6)
+          `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason, status)
+           VALUES ($1, $2, $3, $4, $5, $6, 'published')
            RETURNING id`,
           [decoded.userId, type, wordId, dialect, JSON.stringify({ contextNote: payload?.contextNote || null }), reason || null]
         );
@@ -102,22 +111,44 @@ export async function POST(req) {
            RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
           [JSON.stringify({ audioClipId }), contributionId]
         );
+        const contribution = updated.rows[0];
+
+        const contributorName = await resolveContributorName(decoded.userId);
+        await insertVariant(contribution, contributorName);
+
         await query('COMMIT');
-        return Response.json(updated.rows[0], { status: 201 });
+        return Response.json(contribution, { status: 201 });
       } catch (txErr) {
         await query('ROLLBACK');
         throw txErr;
       }
     }
 
-    const result = await query(
-      `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
-      [decoded.userId, type, wordId || null, dialect, JSON.stringify(payload || {}), reason || null]
-    );
+    const isInstant = INSTANT_PUBLISH_TYPES.includes(type);
 
-    return Response.json(result.rows[0], { status: 201 });
+    // Wrapped in a transaction so an instant-publish contribution never
+    // exists without its word_variants row (mirrors the audio branch above).
+    await query('BEGIN');
+    try {
+      const result = await query(
+        `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
+        [decoded.userId, type, wordId || null, dialect, JSON.stringify(payload || {}), reason || null, isInstant ? 'published' : 'pending']
+      );
+      const contribution = result.rows[0];
+
+      if (isInstant) {
+        const contributorName = await resolveContributorName(decoded.userId);
+        await insertVariant(contribution, contributorName);
+      }
+
+      await query('COMMIT');
+      return Response.json(contribution, { status: 201 });
+    } catch (txErr) {
+      await query('ROLLBACK');
+      throw txErr;
+    }
   } catch (err) {
     console.error('Error creating contribution:', err);
     return Response.json({ error: 'Failed to submit contribution' }, { status: 500 });
@@ -130,10 +161,22 @@ export async function GET(req) {
   if (error) return Response.json({ error }, { status });
 
   try {
+    // wv.xp_awarded/score: a 'published' contribution doesn't earn XP until
+    // the community upvotes it to net +1 (api/recordings/vote/route.js), so
+    // the caller's own submissions list needs this to show real status
+    // rather than assuming "published" means "paid out".
     const result = await query(
-      `SELECT c.id, c.type, c.word_id, c.dialect, c.payload, c.reason, c.status, c.review_note, c.reviewed_at, c.created_at, ac.duration_ms
+      `SELECT c.id, c.type, c.word_id, c.dialect, c.payload, c.reason, c.status, c.review_note, c.reviewed_at, c.created_at, ac.duration_ms,
+              wv.xp_awarded, COALESCE(rv.up, 0) - COALESCE(rv.down, 0) AS score
        FROM contributions c
        LEFT JOIN audio_clips ac ON ac.contribution_id = c.id
+       LEFT JOIN word_variants wv ON wv.contribution_id = c.id
+       LEFT JOIN (
+         SELECT variant_id,
+                COUNT(*) FILTER (WHERE value = 1) AS up,
+                COUNT(*) FILTER (WHERE value = -1) AS down
+         FROM recording_votes GROUP BY variant_id
+       ) rv ON rv.variant_id = wv.id
        WHERE c.user_id = $1 ORDER BY c.created_at DESC`,
       [decoded.userId]
     );

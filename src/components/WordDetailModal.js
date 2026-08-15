@@ -17,8 +17,9 @@ const REPORT_STATUS_COLORS = { pending: "#D4860B", accepted: "#1A6B3C", rejected
 // raw dictionary.json entry when this word is DB-backed (null otherwise),
 // which unlocks multiple definitions, example sentences, pronunciations,
 // etymology, and synonyms.
-export default function WordDetailModal({ word, fullWord, onClose, onContribute, commentCount, isSaved, onToggleSave, reportStatus }) {
-  const { showToast } = useApp();
+export default function WordDetailModal({ word, fullWord, onClose, onContribute, onRemoveVariant, commentCount, isSaved, onToggleSave, reportStatus }) {
+  const { showToast, currentUser } = useApp();
+  const canModerate = !!currentUser && (currentUser.accountType === 'admin' || (currentUser.custodianDialects || []).includes(word?.dialect));
 
   function handleShare() {
     const url = `${window.location.origin}/dictionary?word=${encodeURIComponent(word.wordId)}`;
@@ -198,7 +199,7 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
           </div>
         )}
 
-        <VariantChips variants={word.variants} />
+        <VariantChips variants={word.variants} canModerate={canModerate} onRemove={onRemoveVariant} />
 
         <div style={{ marginTop: 16, padding: 16, borderRadius: 12, background: "#FAF6F0", border: "1px solid #F0E8DA" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1A1208", marginBottom: 2 }}>Community-sourced — add your version</div>

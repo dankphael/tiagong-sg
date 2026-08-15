@@ -4,9 +4,12 @@ import { extractToken, verifyToken } from '@/lib/auth';
 const SGT_OFFSET_MS = 8 * 60 * 60 * 1000;
 
 // Monday 00:00 Singapore time, expressed as a true UTC instant. Assumes
-// created_at/reviewed_at are stored as UTC timestamps (Postgres default
+// created_at is stored as a UTC timestamp (Postgres default
 // CURRENT_TIMESTAMP behavior) — good enough for a weekly leaderboard, not
-// meant to be to-the-second precise.
+// meant to be to-the-second precise. The Builders board windows on
+// contributions.created_at rather than reviewed_at: most contribution types
+// now publish instantly and are never explicitly "reviewed" (see
+// api/contributions/route.js), so reviewed_at is NULL for them.
 function weekStartUtc(offsetWeeks = 0) {
   const nowSgt = new Date(Date.now() + SGT_OFFSET_MS);
   const day = nowSgt.getUTCDay();
@@ -41,7 +44,7 @@ async function fetchBoard(board, dialect, weekStart) {
               COUNT(c.id) AS score,
               RANK() OVER (ORDER BY COUNT(c.id) DESC) AS rank
        FROM users u
-       JOIN contributions c ON c.user_id = u.id AND c.status = 'accepted' AND c.reviewed_at >= $1 ${dialectClause}
+       JOIN contributions c ON c.user_id = u.id AND c.status IN ('accepted', 'published') AND c.created_at >= $1 ${dialectClause}
        WHERE NOT COALESCE(u.leaderboard_opt_out, false) AND NOT COALESCE(u.deactivated, false)
        GROUP BY u.id
        ORDER BY score DESC`,
@@ -93,7 +96,7 @@ export async function GET(req) {
           `SELECT u.id, u.first_name, u.last_name, u.gender, u.role, u.verified,
                   COUNT(c.id) AS score, RANK() OVER (ORDER BY COUNT(c.id) DESC) AS rank
            FROM users u
-           JOIN contributions c ON c.user_id = u.id AND c.status = 'accepted' AND c.reviewed_at >= $1 AND c.reviewed_at < $2 ${champDialectClause}
+           JOIN contributions c ON c.user_id = u.id AND c.status IN ('accepted', 'published') AND c.created_at >= $1 AND c.created_at < $2 ${champDialectClause}
            WHERE NOT COALESCE(u.leaderboard_opt_out, false) AND NOT COALESCE(u.deactivated, false)
            GROUP BY u.id ORDER BY score DESC LIMIT 3`,
           champParams

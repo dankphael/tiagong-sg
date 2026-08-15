@@ -13,9 +13,13 @@ const TYPE_LABELS = {
 };
 
 // Renders one pending contribution in the custodian review queue, with
-// Accept / Reject actions. `currentWord` is the existing dictionary entry
-// (from apiWords), resolved by word_id, used to show current-vs-proposed
-// for corrections.
+// Accept / Reject actions. Only 'new_word' and 'error_flag' still reach
+// this queue — every other contribution type now publishes instantly and
+// is decided by community votes (see api/contributions/route.js) — but the
+// per-type render branches below are kept for the rare pre-existing
+// pending row from before that change. `currentWord` is the existing
+// dictionary entry (from apiWords), resolved by word_id, used to show
+// current-vs-proposed for corrections.
 export default function SubmissionReviewCard({ submission, currentWord, onReview }) {
   const [rejecting, setRejecting] = useState(false);
   const [note, setNote] = useState("");
@@ -137,6 +141,15 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
       {submission.type === "error_flag" && (
         <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FDEDEC", marginBottom: 10, fontSize: 13, color: "#1A1208" }}>
           {submission.payload?.description}
+          {submission.word_id && (
+            <div style={{ marginTop: 8 }}>
+              <a href={`/dictionary?word=${encodeURIComponent(submission.word_id)}`} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: 12, fontWeight: 600, color: "#C0392B" }}>
+                View reported entry →
+              </a>
+              <span style={{ fontSize: 11, color: "#8B7355" }}> — remove any contribution directly from there if it needs to come down</span>
+            </div>
+          )}
         </div>
       )}
 

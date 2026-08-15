@@ -34,7 +34,7 @@ const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
   const router = useRouter();
-  const { apiWords, overlay, currentUser, showToast, bookmarks, toggleBookmark } = useApp();
+  const { apiWords, overlay, currentUser, showToast, bookmarks, toggleBookmark, refreshOverlay } = useApp();
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [wordModal, setWordModal] = useState(null); // flattened phrase object when viewing an entry
   const [commentCounts, setCommentCounts] = useState({});
@@ -193,6 +193,25 @@ export default function DictionaryPage() {
     setContributionModal({ word, type });
   }
 
+  function canModerateDialect(dialect) {
+    return !!currentUser && (currentUser.accountType === 'admin' || (currentUser.custodianDialects || []).includes(dialect));
+  }
+
+  // Custodian/admin takedown of a published community contribution —
+  // separate from the community's own up/down votes, which sink and hide a
+  // variant on their own (VariantChips.HIDDEN_SCORE_THRESHOLD).
+  async function handleRemoveVariant(variant) {
+    const token = localStorage.getItem("auth_token");
+    try {
+      const res = await fetch(`/api/variants/${variant.id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error();
+      showToast("Removed", "success");
+      refreshOverlay();
+    } catch {
+      showToast("Couldn't remove this contribution", "error");
+    }
+  }
+
   function openWordModal(word) {
     setWordModal(word);
     if (word.wordId) {
@@ -230,6 +249,7 @@ export default function DictionaryPage() {
           fullWord={apiWords.find(w => w.id === wordModal.wordId) || null}
           onClose={closeWordModal}
           onContribute={openContribution}
+          onRemoveVariant={handleRemoveVariant}
           commentCount={commentCounts[wordModal.wordId] || 0}
           isSaved={!!bookmarks[wordModal.wordId]}
           onToggleSave={() => toggleBookmark(wordModal.wordId, wordModal.dialect)}
@@ -473,7 +493,7 @@ export default function DictionaryPage() {
                       </div>
                     )}
                     <div onClick={e => e.stopPropagation()}>
-                      <VariantChips variants={p.variants} />
+                      <VariantChips variants={p.variants} canModerate={canModerateDialect(p.dialect)} onRemove={handleRemoveVariant} />
                     </div>
                     <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
                       <button onClick={() => openContribution(p, "interpretation")}
