@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
+import { assertUnderLimit } from '@/lib/rateLimit';
 
 const RATE_LIMIT_MS = 10_000;
 
@@ -52,7 +53,7 @@ export async function GET(req) {
 // POST {wordId, dialect, body} — post a comment on a word. Lightly
 // rate-limited: at most one comment per 10s per user.
 export async function POST(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
@@ -65,19 +66,13 @@ export async function POST(req) {
       return Response.json({ error: 'Comment must be between 3 and 500 characters' }, { status: 400 });
     }
 
-    const recent = await query(
-      `SELECT created_at FROM word_comments WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [decoded.userId]
-    );
-    if (recent.rows[0] && Date.now() - new Date(recent.rows[0].created_at).getTime() < RATE_LIMIT_MS) {
-      return Response.json({ error: 'You are posting too quickly — please wait a moment' }, { status: 429 });
-    }
+    const rateLimited = await assertUnderLimit({
+      userId: decoded.userId, table: 'word_comments', windowMs: RATE_LIMIT_MS, max: 1,
+    });
+    if (rateLimited) return Response.json({ error: 'You are posting too quickly — please wait a moment' }, { status: 429 });
 
-    const userResult = await query(`SELECT deactivated, first_name, last_name FROM users WHERE id = $1`, [decoded.userId]);
+    const userResult = await query(`SELECT first_name, last_name FROM users WHERE id = $1`, [decoded.userId]);
     const user = userResult.rows[0];
-    if (!user || user.deactivated) {
-      return Response.json({ error: 'Account unavailable' }, { status: 403 });
-    }
 
     const inserted = await query(
       `INSERT INTO word_comments (word_id, dialect, user_id, body) VALUES ($1, $2, $3, $4)

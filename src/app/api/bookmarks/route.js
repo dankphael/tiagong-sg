@@ -1,5 +1,5 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireActiveAuth } from '@/lib/auth';
 
 // GET — the caller's saved word ids (dictionary entries, static lesson
 // phrases, and community new-words alike — all addressed by the same
@@ -22,7 +22,7 @@ export async function GET(req) {
 
 // POST {wordId, dialect} — save a word.
 export async function POST(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
@@ -46,7 +46,7 @@ export async function POST(req) {
 
 // DELETE ?wordId= — remove a saved word.
 export async function DELETE(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

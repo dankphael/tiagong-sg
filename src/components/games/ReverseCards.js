@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useApp } from "@/components/AppProvider";
 import { ArrowLeft, ArrowRight, Repeat } from "lucide-react";
-import { XP_REWARDS } from "@/data/xpSystem";
 import { categories } from "@/data/staticData";
 import { buildReverseCards } from "@/lib/gameDecks";
 import { staticPhraseId } from "@/lib/wordId";
@@ -137,7 +136,7 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
             const key = `${dialectId}-reverse-${card.cardIndex}`;
             setKnown(prev => ({ ...prev, [key]: true }));
             setSessionKnownCount(c => c + 1);
-            awardXp(XP_REWARDS.correctAnswer, 'correct');
+            awardXp('correctAnswer', 'correct');
             setFlipped(false);
             setTimeout(() => {
               if (index < cards.length - 1) {

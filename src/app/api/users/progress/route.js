@@ -1,8 +1,8 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 
 export async function PATCH(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

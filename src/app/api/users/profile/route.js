@@ -1,5 +1,5 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 import { INTENTS, AVAILABILITY_SLOTS, FORMATS, REGIONS, PROFICIENCY_LEVELS } from '@/lib/matching';
 
 const VALID_INTENTS = INTENTS.map(i => i.id);
@@ -9,7 +9,7 @@ const VALID_REGIONS = REGIONS.map(r => r.id);
 const VALID_PROFICIENCY = PROFICIENCY_LEVELS.map(p => p.id);
 
 export async function PATCH(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

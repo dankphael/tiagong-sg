@@ -78,8 +78,8 @@ export default function NetworkPage() {
     if (!token) return;
     try {
       const [a, b] = await Promise.all([
-        fetch(`/api/connections?userId=${currentUser.id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
-        fetch(`/api/connections/pending?userId=${currentUser.id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch(`/api/connections`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+        fetch(`/api/connections/pending`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
       ]);
       if (!Array.isArray(a) || !Array.isArray(b)) {
         if (!connectionsErrorShownRef.current) { connectionsErrorShownRef.current = true; showToast("Couldn't load your connections", "error"); }
@@ -108,7 +108,7 @@ export default function NetworkPage() {
       const res = await fetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ requesterId: currentUser.id, receiverId: targetUserId, message }),
+        body: JSON.stringify({ receiverId: targetUserId, message }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

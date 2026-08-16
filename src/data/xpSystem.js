@@ -43,6 +43,7 @@ export const XP_REWARDS = {
   speedRoundCorrect: 15,
   storyComplete: 40,
   contributionAccepted: 40,
+  greetingLearned: 10,
 };
 
 export function calculateStreak(completedDates) {

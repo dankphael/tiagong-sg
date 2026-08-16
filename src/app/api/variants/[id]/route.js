@@ -1,5 +1,5 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 
 // DELETE — an admin or a custodian of the variant's dialect removes a
 // published community contribution (audio, correction, example,
@@ -10,7 +10,7 @@ import { requireAuth } from '@/lib/auth';
 // (cascading its recording_votes) and marks the parent contribution
 // 'removed' so api/audio/[id] stops serving any attached clip publicly.
 export async function DELETE(req, { params }) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

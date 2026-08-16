@@ -1,5 +1,5 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 import { XP_REWARDS } from '@/data/xpSystem';
 import { insertVariant, resolveContributorName } from '@/lib/variants';
 
@@ -14,7 +14,7 @@ import { insertVariant, resolveContributorName } from '@/lib/variants';
 // (Other types award XP when the community upvotes them — see
 // api/recordings/vote/route.js.)
 export async function PATCH(req, { params }) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

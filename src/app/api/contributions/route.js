@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireActiveAuth } from '@/lib/auth';
+import { assertUnderLimit } from '@/lib/rateLimit';
 import { dialects } from '@/data/staticData';
 import { insertVariant, resolveContributorName } from '@/lib/variants';
 
@@ -48,18 +49,14 @@ function validateAudioFields(audioData, audioMimeType, durationMs) {
   if (typeof audioData !== 'string' || audioData.length === 0) return 'audioData is required';
   if (audioData.length > MAX_AUDIO_BASE64_CHARS) return 'Recording is too large (max ~10 seconds)';
   if (!VALID_AUDIO_BASE_TYPES.includes(normalizeAudioMimeType(audioMimeType))) return 'Invalid audio format';
-  // Uploaded files may not carry a known duration (readAudioDuration can
-  // return null for some containers) — only range-check when one is given.
-  if (durationMs != null) {
-    if (typeof durationMs !== 'number' || durationMs <= 0 || durationMs > MAX_AUDIO_DURATION_MS) return 'Invalid recording duration';
-  }
+  if (typeof durationMs !== 'number' || durationMs <= 0 || durationMs > MAX_AUDIO_DURATION_MS) return 'Invalid recording duration';
   return null;
 }
 
 // POST — submit a contribution (correction, new word, usage example, error
 // flag, pronunciation, or interpretation)
 export async function POST(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
@@ -79,7 +76,18 @@ export async function POST(req) {
       return Response.json({ error: payloadError }, { status: 400 });
     }
 
+    const rateLimited = await assertUnderLimit({
+      userId: decoded.userId, table: 'contributions', windowMs: 60 * 60 * 1000, max: 20,
+    });
+    if (rateLimited) return Response.json({ error: rateLimited.error }, { status: rateLimited.status });
+
     if (type === 'pronunciation_audio') {
+      const audioRateLimited = await assertUnderLimit({
+        userId: decoded.userId, table: 'contributions', windowMs: 60 * 60 * 1000, max: 5,
+        extraWhere: 'AND type = $3', extraParams: ['pronunciation_audio'],
+      });
+      if (audioRateLimited) return Response.json({ error: audioRateLimited.error }, { status: audioRateLimited.status });
+
       const audioError = validateAudioFields(audioData, audioMimeType, durationMs);
       if (audioError) {
         return Response.json({ error: audioError }, { status: 400 });
@@ -102,7 +110,7 @@ export async function POST(req) {
 
         const clipResult = await query(
           `INSERT INTO audio_clips (contribution_id, mime_type, data, duration_ms) VALUES ($1, $2, $3, $4) RETURNING id`,
-          [contributionId, normalizeAudioMimeType(audioMimeType), audioData, durationMs != null ? Math.round(durationMs) : null]
+          [contributionId, normalizeAudioMimeType(audioMimeType), audioData, Math.round(durationMs)]
         );
         const audioClipId = clipResult.rows[0].id;
 

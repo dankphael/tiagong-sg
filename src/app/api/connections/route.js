@@ -1,17 +1,22 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireActiveAuth } from '@/lib/auth';
 
 // POST: Send a connection request
 export async function POST(req) {
   try {
-    const auth = requireAuth(req);
+    const auth = await requireActiveAuth(req);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { requesterId, receiverId, message } = await req.json();
+    const { receiverId, message } = await req.json();
+    // requesterId always comes from the authenticated caller, never the
+    // request body — accepting a client-supplied requesterId let any
+    // signed-in user send connection requests that appeared to come from
+    // someone else.
+    const requesterId = auth.decoded.userId;
 
-    if (!requesterId || !receiverId) {
+    if (!receiverId) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -70,12 +75,7 @@ export async function GET(req) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return Response.json({ error: 'userId is required' }, { status: 400 });
-    }
+    const userId = auth.decoded.userId;
 
     // Get all connections for this user (both as requester and receiver)
     const result = await query(

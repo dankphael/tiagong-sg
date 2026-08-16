@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireActiveAuth } from '@/lib/auth';
+import { assertUnderLimit } from '@/lib/rateLimit';
 
 const VALID_TYPES = ['text', 'meetup_proposal'];
 
@@ -64,7 +65,7 @@ export async function GET(req) {
 
 // POST {connectionId, type, body, metadata} — send a message or meetup proposal.
 export async function POST(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
@@ -79,6 +80,11 @@ export async function POST(req) {
     if (body != null && body.length > 1000) {
       return Response.json({ error: 'Message body too long (max 1000 characters)' }, { status: 400 });
     }
+
+    const rateLimited = await assertUnderLimit({
+      userId: decoded.userId, table: 'messages', windowMs: 60 * 60 * 1000, max: 200, userColumn: 'sender_id',
+    });
+    if (rateLimited) return Response.json({ error: rateLimited.error }, { status: rateLimited.status });
 
     const connection = await getConnectionIfParticipant(connectionId, decoded.userId);
     if (!connection) {

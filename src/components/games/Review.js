@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Star, Repeat } from "lucide-react";
-import { XP_REWARDS } from "@/data/xpSystem";
 import { buildReviewQueue } from "@/lib/gameDecks";
 import { staticPhraseId } from "@/lib/wordId";
 import ReportButton from "@/components/games/ReportButton";
@@ -107,7 +106,7 @@ export default function Review({ dialect, dialectId, autoStart }) {
         <button className="btn-hover" onClick={() => {
           hasInteractedRef.current = true;
           setKnownCards(prev => ({ ...prev, [item.key]: true }));
-          awardXp(XP_REWARDS.correctAnswer, 'reviewed');
+          awardXp('correctAnswer', 'reviewed');
           setFlipped(false);
           setTimeout(() => {
             const nextQueue = queue.filter((_, i) => i !== pos);

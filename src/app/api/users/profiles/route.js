@@ -1,8 +1,19 @@
 import { query } from '@/lib/db';
 import { getAvatar } from '@/lib/avatar';
+import { requireAuth } from '@/lib/auth';
 
+// Directory of members for the mentor-matching network. Requires a signed-in
+// session — age/occupation are shown here (unlike the public profile at
+// /api/users/[id]/public) because they're what the mentor filters match on,
+// but that's still member-to-member info, not something anyone on the
+// internet should be able to scrape without an account.
 export async function GET(req) {
   try {
+    const auth = requireAuth(req);
+    if (auth.error) {
+      return Response.json({ error: auth.error }, { status: auth.status });
+    }
+
     const { searchParams } = new URL(req.url);
     const role = searchParams.get('role');
     const dialectGroup = searchParams.get('dialect');

@@ -8,18 +8,13 @@ export async function GET(req) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return Response.json({ error: 'userId is required' }, { status: 400 });
-    }
+    const userId = auth.decoded.userId;
 
     // Get pending requests where current user is the receiver
     const result = await query(
       `SELECT
         c.id, c.requester_id, c.receiver_id, c.status, c.message, c.created_at,
-        u.first_name, u.last_name, u.email, u.role, u.age, u.occupation,
+        u.first_name, u.last_name, u.role, u.age, u.occupation,
         u.dialect_group as language_interest,
         u.first_name || ' ' || u.last_name as requester_name
        FROM connections c

@@ -37,7 +37,7 @@ export default function WelcomePage() {
 
   function onKnowCard() {
     setEarnedXp(x => x + 10);
-    awardXp(10, 'greeting learned');
+    awardXp('greetingLearned', 'greeting learned');
     if (cardIndex < microCards.length - 1) {
       setFlipped(false);
       setTimeout(() => setCardIndex(i => i + 1), 150);

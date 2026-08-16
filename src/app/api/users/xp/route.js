@@ -1,72 +1,82 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
+import { XP_REWARDS } from '@/data/xpSystem';
 
-export async function PATCH(req) {
-  const { error, status, decoded } = requireAuth(req);
+// Sources a client is allowed to claim XP for directly — exactly the
+// gameplay events wired to awardXp() in src/components/AppProvider.js.
+// 'contributionAccepted' is deliberately excluded: that's granted
+// server-side only, by api/contributions/[id]/review and
+// api/recordings/vote, never by client request.
+const CLIENT_XP_SOURCES = ['correctAnswer', 'dailyComplete', 'speedRoundCorrect', 'greetingLearned'];
+// Soft anti-grind ceiling — not real anti-cheat (that needs server-side game
+// state), just enough to turn "any number, instantly" into "rate-limited".
+const MAX_XP_PER_24H = 2000;
+
+// POST { source } — award XP for a single gameplay event. The server looks
+// up the amount from XP_REWARDS; the client never names a number. Replaces
+// the old contract where the client PATCHed its current absolute xp total,
+// which had no validation at all and let any signed-in user set their own
+// XP to anything.
+export async function POST(req) {
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
-    const { xp, streak, lastDailyDate } = await req.json();
+    const { source } = await req.json();
+    if (!CLIENT_XP_SOURCES.includes(source)) {
+      return Response.json({ error: 'Invalid XP source' }, { status: 400 });
+    }
+    const amount = XP_REWARDS[source];
 
-    const updates = [];
-    const params = [];
-    let paramCount = 1;
-
-    if (xp != null) {
-      // Client sends the new absolute total (debounced); log only the
-      // positive delta as a weekly-leaderboard event. Reads-then-writes
-      // are fine here — this endpoint isn't called concurrently per user
-      // (debounced client-side), and a missed race just under-counts one
-      // leaderboard event, never corrupts the authoritative xp total below.
-      const current = await query(`SELECT xp FROM users WHERE id = $1`, [decoded.userId]);
-      const prevXp = current.rows[0]?.xp || 0;
-      const delta = xp - prevXp;
-      if (delta > 0) {
-        await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'sync')`, [decoded.userId, delta]);
-      }
-      updates.push(`xp = $${paramCount}`);
-      params.push(xp);
-      paramCount++;
+    const recent = await query(
+      `SELECT COALESCE(SUM(amount), 0) AS total FROM xp_events WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '24 hours'`,
+      [decoded.userId]
+    );
+    if (Number(recent.rows[0].total) + amount > MAX_XP_PER_24H) {
+      return Response.json({ error: 'Daily XP limit reached' }, { status: 429 });
     }
 
-    if (lastDailyDate != null) {
-      // Completing the daily challenge is the one place streak changes.
-      // Compute it here, server-side, keyed off the PREVIOUS last_daily_date,
-      // so re-sending the same date (e.g. a replayed "Try Again" run, or a
-      // retried request) can never bump the streak twice in one day.
-      updates.push(`last_daily_date = $${paramCount}`);
-      params.push(lastDailyDate);
-      paramCount++;
-      updates.push(`streak = CASE
-        WHEN last_daily_date = $${paramCount} THEN streak
-        WHEN last_daily_date = ($${paramCount}::date - INTERVAL '1 day')::text THEN streak + 1
-        ELSE 1
-      END`);
-      params.push(lastDailyDate);
-      paramCount++;
-    } else if (streak != null) {
-      // Plain xp/streak sync (no daily-completion event) — trust the client
-      // value as before.
-      updates.push(`streak = $${paramCount}`);
-      params.push(streak);
-      paramCount++;
-    }
+    await query(`UPDATE users SET xp = xp + $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, [amount, decoded.userId]);
+    await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, $3)`, [decoded.userId, amount, source]);
 
-    if (updates.length === 0) {
-      return Response.json({ error: 'No fields to update' }, { status: 400 });
-    }
+    return Response.json({ amount }, { status: 200 });
+  } catch (err) {
+    console.error('Error awarding XP:', err);
+    return Response.json({ error: 'Failed to award XP' }, { status: 500 });
+  }
+}
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
-    params.push(decoded.userId);
+// PATCH { lastDailyDate } — the one place streak changes: completing the
+// daily challenge. Streak is computed here, server-side, keyed off the
+// PREVIOUS last_daily_date, so replaying the same date can never bump the
+// streak twice in one day. This route no longer accepts a client-supplied
+// xp or streak value.
+export async function PATCH(req) {
+  const { error, status, decoded } = await requireActiveAuth(req);
+  if (error) return Response.json({ error }, { status });
+
+  try {
+    const { lastDailyDate } = await req.json();
+    if (lastDailyDate == null) {
+      return Response.json({ error: 'lastDailyDate is required' }, { status: 400 });
+    }
 
     await query(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount}`,
-      params
+      `UPDATE users SET
+         streak = CASE
+           WHEN last_daily_date = $1 THEN streak
+           WHEN last_daily_date = ($1::date - INTERVAL '1 day')::text THEN streak + 1
+           ELSE 1
+         END,
+         last_daily_date = $1,
+         updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2`,
+      [lastDailyDate, decoded.userId]
     );
 
     return Response.json({ ok: true }, { status: 200 });
   } catch (err) {
-    console.error('Error updating XP:', err);
-    return Response.json({ error: 'Failed to update XP' }, { status: 500 });
+    console.error('Error updating streak:', err);
+    return Response.json({ error: 'Failed to update streak' }, { status: 500 });
   }
 }

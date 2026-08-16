@@ -1,9 +1,9 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 
 export async function PATCH(req, { params }) {
   try {
-    const auth = requireAuth(req);
+    const auth = await requireActiveAuth(req);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }
@@ -51,7 +51,7 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const auth = requireAuth(req);
+    const auth = await requireActiveAuth(req);
     if (auth.error) {
       return Response.json({ error: auth.error }, { status: auth.status });
     }

@@ -1,11 +1,11 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 
 // PATCH {action: 'accept_meetup'|'decline_meetup'} — respond to a meetup
 // proposal. Only the non-sender participant may respond, and only while
 // the proposal is still 'proposed'.
 export async function PATCH(req, { params }) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

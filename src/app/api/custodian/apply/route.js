@@ -1,5 +1,5 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireActiveAuth } from '@/lib/auth';
 import { dialects } from '@/data/staticData';
 
 const VALID_DIALECTS = dialects.map(d => d.id);
@@ -8,7 +8,7 @@ const VALID_DIALECTS = dialects.map(d => d.id);
 // approves by setting users.custodian_dialects directly in the DB — no
 // admin UI in v1.
 export async function POST(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

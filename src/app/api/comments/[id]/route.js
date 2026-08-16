@@ -1,11 +1,11 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireActiveAuth } from '@/lib/auth';
 
 // DELETE — soft-delete a comment. Allowed for the author, a custodian of
 // that comment's dialect, or an admin (same permission pattern as the
 // contribution review route).
 export async function DELETE(req, { params }) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {

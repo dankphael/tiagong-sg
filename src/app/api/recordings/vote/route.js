@@ -1,5 +1,6 @@
 import { query } from '@/lib/db';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireActiveAuth } from '@/lib/auth';
+import { assertUnderLimit } from '@/lib/rateLimit';
 import { XP_REWARDS } from '@/data/xpSystem';
 
 // Net score at which a variant's submitter earns XP for it — the community
@@ -48,7 +49,7 @@ export async function GET(req) {
 // `query()` calls the way a single transaction does — see the same
 // reasoning in api/contributions/route.js's audio insert.
 export async function POST(req) {
-  const { error, status, decoded } = requireAuth(req);
+  const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
 
   try {
@@ -60,6 +61,11 @@ export async function POST(req) {
     if (value !== 1 && value !== -1) {
       return Response.json({ error: 'value must be 1 or -1' }, { status: 400 });
     }
+
+    const rateLimited = await assertUnderLimit({
+      userId: decoded.userId, table: 'recording_votes', windowMs: 60 * 60 * 1000, max: 100,
+    });
+    if (rateLimited) return Response.json({ error: rateLimited.error }, { status: rateLimited.status });
 
     await query('BEGIN');
     try {
@@ -111,7 +117,11 @@ export async function POST(req) {
         if (claim.rows.length > 0 && claim.rows[0].contribution_id != null) {
           const contributionResult = await query(`SELECT user_id FROM contributions WHERE id = $1`, [claim.rows[0].contribution_id]);
           const submitterId = contributionResult.rows[0]?.user_id;
-          if (submitterId != null) {
+          // The flag is claimed above regardless — only the award itself is
+          // skipped for a self-vote, so a submitter can't upvote their own
+          // work for XP, but a later upvote from someone else still doesn't
+          // re-trigger it (xp_awarded is already true).
+          if (submitterId != null && submitterId !== decoded.userId) {
             await query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, submitterId]);
             await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'contribution_upvoted')`, [submitterId, XP_REWARDS.contributionAccepted]);
           }

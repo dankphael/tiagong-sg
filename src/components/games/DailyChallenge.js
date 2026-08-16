@@ -122,7 +122,7 @@ export default function DailyChallenge({ dialect, dialectId, autoStart }) {
               setShowResult(true);
               if (idx === q.correctIndex) {
                 setScore(s => s + 1);
-                if (countsForReward) awardXp(XP_REWARDS.correctAnswer, 'correct');
+                if (countsForReward) awardXp('correctAnswer', 'correct');
               }
             }}
               style={{ padding: "14px 16px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, cursor: showResult ? "default" : "pointer", color, fontFamily: "inherit", textAlign: "left", transition: "all 0.2s" }}>
@@ -141,7 +141,7 @@ export default function DailyChallenge({ dialect, dialectId, autoStart }) {
             setShowResult(false);
           } else {
             if (countsForReward) {
-              awardXp(XP_REWARDS.dailyComplete, 'daily challenge complete');
+              awardXp('dailyComplete', 'daily challenge complete');
               markDailyComplete();
             }
             setDone(true);

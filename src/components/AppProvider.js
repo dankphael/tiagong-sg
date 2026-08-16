@@ -68,24 +68,43 @@ export function AppProvider({ children }) {
 
   // Called right after sign-in: folds any progress made as a guest on this
   // device into the now-current account, so learning done before signing in
-  // isn't lost. Known-cards/categories union together; xp/streak take the
-  // higher of the two (never lose guest progress, never double-award).
+  // isn't lost. Known-cards/categories union together; xp/streak are
+  // deliberately NOT merged — they're unvalidated client-side numbers (a
+  // guest can edit localStorage to anything), and the account's real xp is
+  // the server's, earned via awardXp()'s POST to /api/users/xp.
   function mergeGuestProgress() {
     const guest = readGuestProgress();
     if (!guest) return;
     if (guest.knownCards) setKnownCards(prev => ({ ...guest.knownCards, ...prev }));
     if (guest.completedCategories) setProgress(prev => ({ ...guest.completedCategories, ...prev }));
-    if (guest.xp != null) setXp(prev => Math.max(prev, guest.xp));
-    if (guest.streak != null) setStreak(prev => Math.max(prev, guest.streak));
     if (guest.lastDialect) setSelectedDialect(prev => prev || guest.lastDialect);
     localStorage.removeItem(GUEST_KEY);
   }
 
-  const awardXp = useCallback((amount, label) => {
+  // Awards XP for a gameplay event. `source` must be a key of XP_REWARDS
+  // that api/users/xp's POST handler will also accept (CLIENT_XP_SOURCES
+  // there) — the amount is looked up locally for the optimistic update and
+  // toast, but the server independently looks it up again from `source`
+  // and is what actually persists; the client never sends a raw number.
+  const awardXp = useCallback((source, label) => {
+    const amount = XP_REWARDS[source];
+    if (!amount) return;
     setXp(x => x + amount);
     const id = ++toastId;
     setToasts(t => [...t, { id, text: `+${amount} XP${label ? ` — ${label}` : ""}`, type: "xp" }]);
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 1800);
+
+    // No-op for guests (no token yet) — their XP stays purely local until
+    // they sign in, at which point it is NOT merged in (see
+    // mergeGuestProgress above); only real server-awarded XP counts.
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      fetch("/api/users/xp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ source }),
+      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
+    }
   }, []);
 
   // Generic feedback toast — 'success' | 'error' | 'xp'. Reuses the same
@@ -249,7 +268,7 @@ export function AppProvider({ children }) {
           heritageStory, leaderboardOptOut,
           avatar: getAvatar(gender, role),
         }));
-        fetch("/api/users/profiles")
+        fetch("/api/users/profiles", { headers: { Authorization: `Bearer ${token}` } })
           .then(r => r.json())
           .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
           .catch(err => console.error("Failed to refresh profiles:", err));
@@ -326,13 +345,17 @@ export function AppProvider({ children }) {
 
     refreshOverlay();
 
-    fetch("/api/users/profiles")
-      .then(r => r.json())
-      .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
-      .catch(err => console.error("Failed to load profiles:", err))
-      .finally(() => setProfilesLoading(false));
-
     const token = localStorage.getItem("auth_token");
+    if (token) {
+      fetch("/api/users/profiles", { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
+        .catch(err => console.error("Failed to load profiles:", err))
+        .finally(() => setProfilesLoading(false));
+    } else {
+      setProfilesLoading(false);
+    }
+
     if (token) {
       fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.ok ? r.json() : null)
@@ -390,24 +413,16 @@ export function AppProvider({ children }) {
     return () => clearTimeout(tid);
   }, [knownCards, progress, selectedDialect, currentUser]);
 
-  // Debounced XP/streak persistence
-  useEffect(() => {
-    if (!currentUser) return;
-    const token = localStorage.getItem("auth_token");
-    if (!token) return;
-    const tid = setTimeout(() => {
-      fetch("/api/users/xp", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ xp, streak }),
-      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
-    }, 1500);
-    return () => clearTimeout(tid);
-  }, [xp, streak, currentUser]);
+  // XP and streak are no longer synced here as a blind "current total" PATCH
+  // — that accepted any client-supplied absolute number with no validation.
+  // xp is now persisted per-event by awardXp() (POST /api/users/xp, amount
+  // looked up server-side from a fixed source); streak is persisted by
+  // markDailyComplete() (PATCH /api/users/xp, computed server-side).
 
   // Guest persistence: mirror the same progress/xp/streak into localStorage
-  // when nobody's signed in, so it survives a reload and can be merged into
-  // an account later (mergeGuestProgress).
+  // when nobody's signed in, so it survives a reload. xp/streak here are
+  // guest-local convenience only — mergeGuestProgress deliberately does NOT
+  // carry them into an account on sign-in, since they're unvalidated.
   useEffect(() => {
     if (currentUser) return;
     const tid = setTimeout(() => {

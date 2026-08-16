@@ -126,7 +126,7 @@ export default function SpeedRound({ dialect, dialectId }) {
             const correct = idx === q.correctIndex;
             if (correct) {
               setScore(s => s + 1);
-              awardXp(XP_REWARDS.speedRoundCorrect, 'speed round');
+              awardXp('speedRoundCorrect', 'speed round');
             }
             setQuestionIdx(i => i + 1);
           }}

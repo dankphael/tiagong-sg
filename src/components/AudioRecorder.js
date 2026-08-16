@@ -165,7 +165,12 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
 
     const url = URL.createObjectURL(file);
     const durationMs = await readAudioDuration(url);
-    if (durationMs != null && durationMs > MAX_DURATION_MS) {
+    if (durationMs == null) {
+      URL.revokeObjectURL(url);
+      setUploadError("Couldn't read this file's length — please try a different format.");
+      return;
+    }
+    if (durationMs > MAX_DURATION_MS) {
       URL.revokeObjectURL(url);
       setUploadError(`This clip is ${(durationMs / 1000).toFixed(1)}s — please choose one under ${MAX_DURATION_MS / 1000}s.`);
       return;
