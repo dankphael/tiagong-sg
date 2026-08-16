@@ -94,7 +94,9 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
 
       {/* Card */}
       <div style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, borderRadius: 20, padding: "30px 28px", textAlign: "center", marginBottom: 24, cursor: "pointer", position: "relative" }}
-        onClick={() => setFlipped(!flipped)}>
+        onClick={() => setFlipped(!flipped)}
+        role="button" tabIndex={0} aria-label="Flip card"
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(!flipped); } }}>
         <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
           <ReportButton dialectId={dialectId} card={card} gameMode="reverse-cards" category={selectedCategory} />
         </div>
@@ -152,7 +154,7 @@ export default function ReverseCards({ dialect, dialectId, selectedCategory, onS
       ) : (
         <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
           <button className="btn-hover" onClick={() => setIndex(i => Math.max(0, i - 1))} disabled={index === 0}
-            style={{ flex: 1, padding: "13px", background: index === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: index === 0 ? "default" : "pointer", color: index === 0 ? "#C0B0A0" : "#1A1208", fontFamily: "inherit" }}>
+            style={{ flex: 1, padding: "13px", background: index === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: index === 0 ? "default" : "pointer", color: index === 0 ? "#8A7866" : "#1A1208", fontFamily: "inherit" }}>
             <ArrowLeft size={15} /> Prev
           </button>
           <button className="btn-hover" onClick={() => {

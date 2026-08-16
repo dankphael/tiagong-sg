@@ -68,11 +68,11 @@ function SearchableSelect({ value, onChange, options, placeholder = "— Not spe
       {open && (
         <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 20, maxHeight: 220, overflowY: "auto", background: "var(--color-surface)", border: "1.5px solid var(--color-border)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-md, 0 4px 16px rgba(0,0,0,0.1))" }}>
           <button type="button" onClick={() => pick(null)}
-            style={{ display: "block", width: "100%", textAlign: "left", padding: "9px 14px", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, color: "#9B8B75" }}>
+            style={{ display: "block", width: "100%", textAlign: "left", padding: "9px 14px", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, color: "var(--color-text-muted)" }}>
             {placeholder}
           </button>
           {filtered.length === 0 && (
-            <div style={{ padding: "9px 14px", fontSize: 13, color: "#9B8B75" }}>No matches</div>
+            <div style={{ padding: "9px 14px", fontSize: 13, color: "var(--color-text-muted)" }}>No matches</div>
           )}
           {filtered.map(opt => (
             <button key={opt.id} type="button" onClick={() => pick(opt)}
@@ -86,11 +86,16 @@ function SearchableSelect({ value, onChange, options, placeholder = "— Not spe
   );
 }
 
+// children here is sometimes a single custom control (SearchableSelect) and
+// sometimes a group of toggle buttons (PillGroup) — neither is a native form
+// element a <label htmlFor> could point at, so this associates the caption
+// via aria-labelledby on a group wrapper instead.
 function Field({ label, children }) {
+  const labelId = `field-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   return (
     <div style={{ marginBottom: 20 }}>
-      <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>{label}</label>
-      {children}
+      <div id={labelId} style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>{label}</div>
+      <div role="group" aria-labelledby={labelId}>{children}</div>
     </div>
   );
 }
@@ -158,7 +163,7 @@ export default function MatchPreferencesFields({ form, setForm }) {
         <textarea value={form.bio || ""} onChange={e => setForm(f => ({ ...f, bio: e.target.value.slice(0, 500) }))} className="input"
           placeholder="Share a bit about your dialect journey or what you're hoping to find here..."
           style={{ minHeight: 90, resize: "vertical", fontFamily: "inherit", padding: 12 }} />
-        <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 4, textAlign: "right" }}>{(form.bio || "").length}/500</div>
+        <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 4, textAlign: "right" }}>{(form.bio || "").length}/500</div>
       </Field>
     </div>
   );

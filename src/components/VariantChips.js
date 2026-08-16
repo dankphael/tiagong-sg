@@ -132,14 +132,14 @@ export default function VariantChips({ variants, canModerate, onRemove, voteMap 
       <div key={v.id} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "4px 0" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 2, flexShrink: 0, paddingTop: isPronunciation ? 0 : 1 }}>
           <button onClick={() => castVote(v.id, 1)} aria-label="Upvote this contribution"
-            style={{ display: "inline-flex", alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 2, color: vs.myVote === 1 ? "#1A6B3C" : "#C0B0A0" }}>
+            style={{ display: "inline-flex", alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 2, color: vs.myVote === 1 ? "#1A6B3C" : "#8A7866" }}>
             <ChevronUp size={16} />
           </button>
-          <span style={{ fontSize: 11, fontWeight: 700, color: vs.score > 0 ? "#1A6B3C" : vs.score < 0 ? "#C0392B" : "#9B8B75", minWidth: 14, textAlign: "center" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: vs.score > 0 ? "#1A6B3C" : vs.score < 0 ? "#C0392B" : "var(--color-text-muted)", minWidth: 14, textAlign: "center" }}>
             {vs.score}
           </span>
           <button onClick={() => castVote(v.id, -1)} aria-label="Downvote this contribution"
-            style={{ display: "inline-flex", alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 2, color: vs.myVote === -1 ? "#C0392B" : "#C0B0A0" }}>
+            style={{ display: "inline-flex", alignItems: "center", background: "none", border: "none", cursor: "pointer", padding: 2, color: vs.myVote === -1 ? "#C0392B" : "#8A7866" }}>
             <ChevronDown size={16} />
           </button>
         </div>
@@ -155,7 +155,7 @@ export default function VariantChips({ variants, canModerate, onRemove, voteMap 
               <span style={{ fontWeight: 600, color: "#1A6B3C" }}>{VARIANT_LABELS[v.variant_type] || v.variant_type}:</span>{" "}
               {variantValue(v)}
               {v.context_note && <span style={{ color: "#8B7355", fontStyle: "italic" }}> — "{v.context_note}"</span>}
-              {v.contributor_name && <div style={{ fontSize: 11, color: "#9B8B75" }}>Contributed by {v.contributor_name}</div>}
+              {v.contributor_name && <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Contributed by {v.contributor_name}</div>}
             </div>
           )}
         </div>
@@ -183,7 +183,7 @@ export default function VariantChips({ variants, canModerate, onRemove, voteMap 
       {hidden.length > 0 && (
         <div style={{ marginTop: 4 }}>
           <button onClick={() => setShowHidden(s => !s)}
-            style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#9B8B75", fontWeight: 600, padding: "4px 0", fontFamily: "inherit" }}>
+            style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "var(--color-text-muted)", fontWeight: 600, padding: "4px 0", fontFamily: "inherit" }}>
             <ChevronsDown size={12} />
             {showHidden ? "Hide" : `Show ${hidden.length} hidden contribution${hidden.length !== 1 ? "s" : ""}`}
           </button>

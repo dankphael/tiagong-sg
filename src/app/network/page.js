@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { GraduationCap, UserCheck, ArrowRight, Handshake, Sprout, BadgeCheck, MessageCircle, Search } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
+import { useModalA11y } from "@/lib/useModalA11y";
 import { rankSinSehs, INTENTS } from "@/lib/matching";
 import { huayKuan } from "@/data/staticData";
 import ChatPanel from "@/components/ChatPanel";
@@ -13,7 +14,7 @@ const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
 export default function NetworkPage() {
   const router = useRouter();
-  const { currentUser, registeredUsers, profilesLoading, loadProfiles, showToast } = useApp();
+  const { currentUser, registeredUsers, profilesLoading, profilesError, loadProfiles, showToast } = useApp();
   useEffect(() => { loadProfiles(); }, [loadProfiles, currentUser?.id]);
 
   const [networkView, setNetworkView] = useState("directory");
@@ -226,7 +227,7 @@ export default function NetworkPage() {
     return 'none';
   }
 
-  const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
+  const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#A96A08", Hainanese: "#1A7EA6" };
 
   const { filtered: sinSehsFiltered, sorted: sinSehsSorted } = useMemo(() => {
     const sinSehs = registeredUsers.filter(u => (u.role === "mentor" || u.role === "both") && u.id !== currentUser?.id);
@@ -282,6 +283,11 @@ export default function NetworkPage() {
     });
   }, [registeredUsers, everyoneSearch, networkFilter, everyoneDialectFilter, everyoneGenderFilter, everyoneAgeFilter]);
 
+  const closeRequestModal = () => { setRequestModal(null); setRequestMessage(""); setConnectError(null); };
+  const { containerRef: requestModalRef, titleId: requestModalTitleId } = useModalA11y(closeRequestModal, { active: !!requestModal });
+  const closeRemoveConfirm = () => setRemoveConfirm(null);
+  const { containerRef: removeConfirmRef, titleId: removeConfirmTitleId } = useModalA11y(closeRemoveConfirm, { active: !!removeConfirm });
+
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
       <div style={{ textAlign: "center", marginBottom: 40 }}>
@@ -312,17 +318,21 @@ export default function NetworkPage() {
 
       {/* Request modal overlay — shared by directory & mentorships views */}
       {requestModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 480, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+          onClick={closeRequestModal}>
+          <div ref={requestModalRef} role="dialog" aria-modal="true" aria-labelledby={requestModalTitleId} tabIndex={-1}
+            style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 480, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 8px 40px rgba(0,0,0,0.2)", outline: "none" }}
+            onClick={e => e.stopPropagation()}>
             <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 24 }}>
               <div style={{ fontSize: 36 }}>{requestModal.avatar}</div>
               <div>
-                <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208" }}>Request {requestModal.firstName}</div>
-                <div style={{ fontSize: 13, color: "#9B8B75" }}>Sin Seh · {requestModal.languageInterest}</div>
+                <div id={requestModalTitleId} style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208" }}>Request {requestModal.firstName}</div>
+                <div style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Sin Seh · {requestModal.languageInterest}</div>
               </div>
             </div>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Introduction (optional)</label>
+            <label htmlFor="request-message" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Introduction (optional)</label>
             <textarea
+              id="request-message"
               value={requestMessage}
               onChange={e => setRequestMessage(e.target.value)}
               maxLength={500}
@@ -351,9 +361,12 @@ export default function NetworkPage() {
 
       {/* Remove-confirm modal overlay — shared */}
       {removeConfirm && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <div style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 420, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}>
-            <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+          onClick={closeRemoveConfirm}>
+          <div ref={removeConfirmRef} role="dialog" aria-modal="true" aria-labelledby={removeConfirmTitleId} tabIndex={-1}
+            style={{ background: "white", borderRadius: 20, padding: 36, maxWidth: 420, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 8px 40px rgba(0,0,0,0.2)", outline: "none" }}
+            onClick={e => e.stopPropagation()}>
+            <div id={removeConfirmTitleId} style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 12 }}>Remove Connection?</div>
             <p style={{ fontSize: 14, color: "#6B5B45", marginBottom: 24, lineHeight: 1.6 }}>
               This will disconnect you from <strong>{removeConfirm.name}</strong> and permanently delete your chat history with them. You can always send a new connection request later, but the conversation cannot be recovered.
             </p>
@@ -467,8 +480,18 @@ export default function NetworkPage() {
                   <div key={i} className="card shimmer" style={{ padding: 28, height: 180, background: "#F0E8DA" }} />
                 ))}
               </div>
+            ) : profilesError ? (
+              <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "#C0392B" }}><UserCheck size={40} /></div>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Couldn't load Sin Sehs</div>
+                <p style={{ fontSize: 14, marginBottom: 20 }}>Something went wrong on our end — try again.</p>
+                <button className="btn-hover" onClick={loadProfiles}
+                  style={{ padding: "10px 24px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                  Retry
+                </button>
+              </div>
             ) : filtered.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+              <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><UserCheck size={40} /></div>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No Sin Sehs found</div>
                 <p style={{ fontSize: 14 }}>{sinSehDialectFilter !== "All" || sinsehSearch || sinSehGenderFilter !== "All" || sinSehAgeFilter !== "All" || sinSehIntentFilter !== "All" ? "No mentors match your filters — try adjusting them." : sinSehDialectFilter !== "All" ? `No mentors available for ${sinSehDialectFilter} yet.` : "Be the first — set your role to Mentor in your Profile."}</p>
@@ -499,16 +522,16 @@ export default function NetworkPage() {
                             <Link href={`/member/${m.id}`} style={{ color: "inherit", textDecoration: "none" }} onClick={e => e.stopPropagation()}>
                               {m.firstName} {m.lastName}
                             </Link>
-                            {m.verified && <span title="Verified Sin Seh" style={{ display: "inline-flex", color: "#D4860B" }}><BadgeCheck size={16} /></span>}
+                            {m.verified && <span title="Verified Sin Seh" style={{ display: "inline-flex", color: "#A96A08" }}><BadgeCheck size={16} /></span>}
                           </div>
                           {m.username && <div style={{ fontSize: 11, color: "#B8A898" }}>@{m.username}</div>}
-                          <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
+                          <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Age {m.age} · {m.occupation}</div>
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 12, background: dialectColor + "18", color: dialectColor, padding: "4px 12px", borderRadius: 12, fontWeight: 600 }}>{m.languageInterest}</span>
                         {m.gender && <span style={{ fontSize: 11, background: m.gender === "male" ? "#EEF2FF" : "#FDEDEC", color: m.gender === "male" ? "#3B5998" : "#C0392B", padding: "4px 10px", borderRadius: 8, fontWeight: 600, textTransform: "capitalize" }}>{m.gender}</span>}
-                        <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Sin Seh</span>
+                        <span style={{ fontSize: 11, background: "#FEF3E2", color: "#A96A08", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Sin Seh</span>
                         {m.menteeCount > 0 && (
                           <span style={{ fontSize: 11, background: "#F5F0EA", color: "#6B5B45", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>{m.menteeCount} mentee{m.menteeCount > 1 ? "s" : ""}</span>
                         )}
@@ -534,7 +557,7 @@ export default function NetworkPage() {
                           <MessageCircle size={15} /> Open Chat
                         </button>
                       ) : status === 'sent' ? (
-                        <div style={{ padding: "12px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
+                        <div style={{ padding: "12px", borderRadius: 10, background: "#FEF3E2", color: "#A96A08", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
                           Request Sent ✓
                         </div>
                       ) : status === 'received' ? (
@@ -608,7 +631,7 @@ export default function NetworkPage() {
                   </div>
                 )}
                 {!currentUser ? (
-                  <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                  <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
                     <div style={{ fontSize: 48, marginBottom: 16 }}><Handshake size={40} /></div>
                     <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 16 }}>Sign in to view your mentorships</div>
                     <Link href={`/signin?next=${encodeURIComponent("/network")}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
@@ -622,7 +645,7 @@ export default function NetworkPage() {
                     ))}
                   </div>
                 ) : !hasAny ? (
-                  <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                  <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
                     <div style={{ fontSize: 48, marginBottom: 16 }}><Sprout size={40} /></div>
                     <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No mentorships yet</div>
                     <p style={{ fontSize: 14, marginBottom: 24 }}>Browse Sin Sehs and send a request to get started.</p>
@@ -643,7 +666,7 @@ export default function NetworkPage() {
                               <div key={r.id} className="card" style={{ padding: "20px 24px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
                                 <div style={{ flex: 1, minWidth: 200 }}>
                                   <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{r.first_name} {r.last_name}</div>
-                                  <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 8 }}>Age {r.age} · {r.occupation}</div>
+                                  <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: 8 }}>Age {r.age} · {r.occupation}</div>
                                   <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{r.language_interest}</span>
                                   <span style={{ fontSize: 11, background: "#EEF2FF", color: "#5B21B6", padding: "3px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize", marginLeft: 6 }}>{r.role}</span>
                                   {r.message && (
@@ -674,10 +697,10 @@ export default function NetworkPage() {
                             <div key={c.id} className="card" style={{ padding: "20px 24px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", background: "#FEF9F0", borderColor: "#D4860B30" }}>
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
-                                <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "3px 8px", borderRadius: 8, fontWeight: 700 }}>Sin Seh · {c.connected_user_dialect}</span>
+                                <span style={{ fontSize: 11, background: "#FEF3E2", color: "#A96A08", padding: "3px 8px", borderRadius: 8, fontWeight: 700 }}>Sin Seh · {c.connected_user_dialect}</span>
                                 {c.message && <div style={{ marginTop: 8, fontSize: 13, color: "#6B5B45", fontStyle: "italic" }}>"{c.message}"</div>}
                               </div>
-                              <div style={{ fontSize: 13, color: "#D4860B", fontWeight: 600 }}>Awaiting response…</div>
+                              <div style={{ fontSize: 13, color: "#A96A08", fontWeight: 600 }}>Awaiting response…</div>
                             </div>
                           ))}
                         </div>
@@ -704,7 +727,7 @@ export default function NetworkPage() {
                                     <div key={c.id} className="card" style={{ padding: 24 }}>
                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                                         <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
-                                        <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                                        <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#A96A08" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
                                           {c.connected_user_role}
                                         </span>
                                       </div>
@@ -738,7 +761,7 @@ export default function NetworkPage() {
                                     <div key={c.id} className="card" style={{ padding: 24, opacity: 0.7 }}>
                                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                                         <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
-                                        <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#D4860B" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                                        <span style={{ fontSize: 11, background: c.connected_user_role === "mentor" ? "#FEF3E2" : "#EEF2FF", color: c.connected_user_role === "mentor" ? "#A96A08" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
                                           {c.connected_user_role}
                                         </span>
                                       </div>
@@ -773,7 +796,7 @@ export default function NetworkPage() {
       {networkView === "chats" && (
         <div>
           {!currentUser ? (
-            <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><MessageCircle size={40} /></div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 16 }}>Sign in to view your chats</div>
               <Link href={`/signin?next=${encodeURIComponent("/network")}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-block" }}>
@@ -841,8 +864,18 @@ export default function NetworkPage() {
                 <div key={i} className="card shimmer" style={{ padding: 24, height: 150, background: "#F0E8DA" }} />
               ))}
             </div>
+          ) : profilesError ? (
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "#C0392B" }}><Sprout size={40} /></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Couldn't load the member directory</div>
+              <p style={{ fontSize: 14, marginBottom: 20 }}>Something went wrong on our end — try again.</p>
+              <button className="btn-hover" onClick={loadProfiles}
+                style={{ padding: "10px 24px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                Retry
+              </button>
+            </div>
           ) : registeredUsers.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+            <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-primary)" }}><Sprout size={40} /></div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>No members yet</div>
               <p style={{ fontSize: 14 }}>Be the first to join the community and connect with fellow dialect learners.</p>
@@ -851,7 +884,7 @@ export default function NetworkPage() {
             const filtered = everyoneFiltered;
             if (filtered.length === 0) {
               return (
-                <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+                <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
                   <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}><Search size={40} /></div>
                   <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>No matching members</div>
                   <p style={{ fontSize: 14 }}>Try clearing some filters or adjusting your search.</p>
@@ -875,10 +908,10 @@ export default function NetworkPage() {
                               <Link href={`/member/${m.id}`} style={{ color: "inherit", textDecoration: "none" }}>{m.firstName} {m.lastName}</Link>
                             </div>
                             {m.username && <div style={{ fontSize: 11, color: "#B8A898" }}>@{m.username}</div>}
-                            <div style={{ fontSize: 12, color: "#9B8B75" }}>Age {m.age} · {m.occupation}</div>
+                            <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Age {m.age} · {m.occupation}</div>
                           </div>
                         </div>
-                        <div style={{ fontSize: 11, background: m.role === "mentor" ? "#FEF3E2" : m.role === "both" ? "#E8D5F2" : m.role === "none" ? "#F0E8DA" : "#EEF2FF", color: m.role === "mentor" ? "#D4860B" : m.role === "both" ? "#6B21A8" : m.role === "none" ? "#6B5B45" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
+                        <div style={{ fontSize: 11, background: m.role === "mentor" ? "#FEF3E2" : m.role === "both" ? "#E8D5F2" : m.role === "none" ? "#F0E8DA" : "#EEF2FF", color: m.role === "mentor" ? "#A96A08" : m.role === "both" ? "#6B21A8" : m.role === "none" ? "#6B5B45" : "#5B21B6", padding: "4px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
                           {m.role}
                         </div>
                       </div>
@@ -892,7 +925,7 @@ export default function NetworkPage() {
                           <MessageCircle size={15} /> Open Chat
                         </button>
                       ) : isCurrentUser ? (
-                        <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "#9B8B75", fontSize: 13, textAlign: "center" }}>
+                        <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#F5F0EA", color: "var(--color-text-muted)", fontSize: 13, textAlign: "center" }}>
                           This is you
                         </div>
                       ) : !currentUser ? (
@@ -901,7 +934,7 @@ export default function NetworkPage() {
                           Register to Connect
                         </button>
                       ) : connStatus === 'sent' ? (
-                        <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#FEF3E2", color: "#D4860B", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
+                        <div style={{ marginTop: 4, padding: "10px", borderRadius: 10, background: "#FEF3E2", color: "#A96A08", fontSize: 13, fontWeight: 600, textAlign: "center", border: "1px solid #D4860B40" }}>
                           Request Sent ✓
                         </div>
                       ) : connStatus === 'received' ? (

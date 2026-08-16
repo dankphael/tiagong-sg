@@ -69,7 +69,7 @@ export function Nav() {
         </div>
       </Link>
 
-      <div className={`nav-links${open ? " open" : ""}`}>
+      <div id="nav-links" className={`nav-links${open ? " open" : ""}`}>
         <Link href={learnHref} className={`nav-link${activeScreen === "learn" ? " active" : ""}`} onClick={() => setOpen(false)}>
           Learn
         </Link>
@@ -96,6 +96,11 @@ export function Nav() {
             Admin
           </Link>
         )}
+        {currentUser && (
+          <button onClick={() => { handleLogout(); setOpen(false); }} className="nav-link nav-signout">
+            Sign Out
+          </button>
+        )}
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -115,16 +120,14 @@ export function Nav() {
             <button onClick={() => { router.push("/profile"); setOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal", background: "none", border: "none", cursor: "pointer" }}>
               <User size={16} /> {currentUser.firstName}
             </button>
-            <button onClick={handleLogout} className="btn-secondary nav-signout" style={{ padding: "7px 14px", fontSize: 12 }}>
-              Sign Out
-            </button>
           </div>
         ) : (
           <Link href={`/signin?next=${encodeURIComponent(pathname)}`} className="btn-primary" style={{ padding: "7px 14px", fontSize: 12, textDecoration: "none" }}>
             Sign In
           </Link>
         )}
-        <button className="nav-hamburger" onClick={() => setOpen(o => !o)} aria-label="Toggle menu">
+        <button className="nav-hamburger" onClick={() => setOpen(o => !o)} aria-label="Toggle menu"
+          aria-expanded={open} aria-controls="nav-links">
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>

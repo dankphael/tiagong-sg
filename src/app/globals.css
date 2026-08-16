@@ -535,10 +535,6 @@ html {
 @media (max-width: 480px) {
   .search-results-grid { grid-template-columns: 1fr; }
   .hero-title { font-size: 40px; }
-
-  /* Nav: drop Sign Out from the bar on the smallest screens — still
-     reachable via the profile page. */
-  .nav-signout { display: none; }
 }
 
 @media (max-width: 420px) {

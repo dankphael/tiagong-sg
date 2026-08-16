@@ -77,7 +77,7 @@ export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
             <ReportButton dialectId={dialectId} card={{ phrase: cue.context, meaning: quiz.title, staticSource: "storyQuizzes" }} gameMode="story-quiz"
               style={{ background: `${dialect.color}15`, border: `1px solid ${dialect.color}40`, color: dialect.color }} />
           </div>
-          <div style={{ fontSize: 12, color: "#9B8B75", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}><MessageCircle size={13} /> WHAT WOULD YOU SAY?</div>
+          <div style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 700, marginBottom: 8, letterSpacing: 0.5 }}><MessageCircle size={13} /> WHAT WOULD YOU SAY?</div>
           <div style={{ fontSize: 15, color: "#1A1208", lineHeight: 1.6 }}>
             <AnnotatedText text={cue.context} dialectColor={dialect.color} />
           </div>
@@ -142,7 +142,7 @@ export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
           if (correct) setScore(s => s + 1);
           setShowResult(true);
         }} disabled={selectedAnswer === null}
-          style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "#9B8B75", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
+          style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "var(--color-text-muted)", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
           Check Answer
         </button>
       ) : (

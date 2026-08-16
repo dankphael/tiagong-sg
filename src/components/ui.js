@@ -143,8 +143,14 @@ export function DialectTooltip({ phrase, meaning, romanization, color = "#C0392B
   };
 
   return (
+    // Stays a span with role="button" rather than a real <button> — this
+    // component is sometimes rendered inside another button (e.g. a quiz
+    // answer choice in StoryQuiz.js), and nesting a real <button> inside
+    // one is invalid HTML that browsers will silently break.
     <span
       ref={ref}
+      role="button"
+      tabIndex={0}
       style={{
         cursor: "help",
         color: color,
@@ -153,6 +159,9 @@ export function DialectTooltip({ phrase, meaning, romanization, color = "#C0392B
       onMouseEnter={handleShow}
       onMouseLeave={() => setShowTooltip(false)}
       onClick={handleShow}
+      onFocus={handleShow}
+      onBlur={() => setShowTooltip(false)}
+      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleShow(); } }}
     >
       {phrase}
       {showTooltip && (
@@ -202,7 +211,7 @@ export function ContributeCallout({ title, body, href = "/contribute", cta = "Co
         {title && body && " — "}
         {body}
       </div>
-      <Link href={href} style={{ fontSize: 13, fontWeight: 600, color: "#D4860B", textDecoration: "none", whiteSpace: "nowrap" }}>
+      <Link href={href} style={{ fontSize: 13, fontWeight: 600, color: "#A96A08", textDecoration: "none", whiteSpace: "nowrap" }}>
         {cta}
       </Link>
     </div>

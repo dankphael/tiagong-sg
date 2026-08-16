@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { useModalA11y } from "@/lib/useModalA11y";
 import AudioRecorder from "@/components/AudioRecorder";
 import { isSyntheticWordId } from "@/lib/wordId";
 
@@ -36,6 +37,8 @@ export default function ContributionModal({ word, type, onClose }) {
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [audioClip, setAudioClip] = useState(null); // { base64, mimeType, durationMs }
+
+  const { containerRef, titleId } = useModalA11y(onClose, { active: !!word });
 
   if (!word) return null;
 
@@ -121,10 +124,11 @@ export default function ContributionModal({ word, type, onClose }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(12px, 4vw, 24px)" }}
       onClick={onClose}>
-      <div style={{ background: "white", borderRadius: 20, padding: "clamp(20px, 5vw, 32px)", maxWidth: 460, width: "100%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }}
+      <div ref={containerRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
+        style={{ background: "white", borderRadius: 20, padding: "clamp(20px, 5vw, 32px)", maxWidth: 460, width: "100%", maxHeight: "85vh", overflowY: "auto", boxShadow: "0 8px 40px rgba(0,0,0,0.2)", outline: "none" }}
         onClick={e => e.stopPropagation()}>
-        <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 4 }}>{title}</div>
-        <div style={{ fontSize: 13, color: "#9B8B75", marginBottom: 8 }}>{word.phrase} · {word.meaning}</div>
+        <div id={titleId} style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 4 }}>{title}</div>
+        <div style={{ fontSize: 13, color: "var(--color-text-muted)", marginBottom: 8 }}>{word.phrase} · {word.meaning}</div>
         {type !== "error_flag" && (
           <div style={{ fontSize: 12, color: "#8B7355", background: "#FAF6F0", border: "1px solid #F0E8DA", borderRadius: 8, padding: "8px 12px", marginBottom: 16 }}>
             This goes live right away, added alongside the existing entry — it doesn't replace it. The community votes on it from there; a custodian can still remove anything that shouldn't be up.
@@ -133,8 +137,8 @@ export default function ContributionModal({ word, type, onClose }) {
 
         {type === "interpretation" && (
           <>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What does this word mean to you?</label>
-            <textarea value={meaning} onChange={e => setMeaning(e.target.value)} rows={3}
+            <label htmlFor="cm-meaning" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What does this word mean to you?</label>
+            <textarea id="cm-meaning" value={meaning} onChange={e => setMeaning(e.target.value)} rows={3}
               placeholder="How your family or your community uses it — even if it differs from the entry above"
               className="input" style={{ marginBottom: 16, resize: "vertical", padding: 12 }} />
           </>
@@ -142,12 +146,12 @@ export default function ContributionModal({ word, type, onClose }) {
 
         {type === "correction" && (
           <>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Which part would you change?</label>
-            <select value={field} onChange={e => setField(e.target.value)} className="input" style={{ height: 44, marginBottom: 16 }}>
+            <label htmlFor="cm-field" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Which part would you change?</label>
+            <select id="cm-field" value={field} onChange={e => setField(e.target.value)} className="input" style={{ height: 44, marginBottom: 16 }}>
               {CORRECTION_FIELDS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
             </select>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Your proposed value</label>
-            <input type="text" value={proposedValue} onChange={e => setProposedValue(e.target.value)}
+            <label htmlFor="cm-proposed-value" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Your proposed value</label>
+            <input id="cm-proposed-value" type="text" value={proposedValue} onChange={e => setProposedValue(e.target.value)}
               placeholder={currentFieldValue() ? `Current: ${currentFieldValue()}` : "Enter your proposed value"}
               className="input" style={{ marginBottom: 16 }} />
           </>
@@ -155,12 +159,12 @@ export default function ContributionModal({ word, type, onClose }) {
 
         {type === "usage_example" && (
           <>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Example sentence</label>
-            <textarea value={exampleText} onChange={e => setExampleText(e.target.value)} rows={2}
+            <label htmlFor="cm-example-text" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Example sentence</label>
+            <textarea id="cm-example-text" value={exampleText} onChange={e => setExampleText(e.target.value)} rows={2}
               placeholder="e.g. how this word is used in a real sentence"
               className="input" style={{ marginBottom: 16, resize: "vertical", padding: 12 }} />
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Translation (optional)</label>
-            <input type="text" value={translation} onChange={e => setTranslation(e.target.value)} className="input" style={{ marginBottom: 16 }} />
+            <label htmlFor="cm-translation" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Translation (optional)</label>
+            <input id="cm-translation" type="text" value={translation} onChange={e => setTranslation(e.target.value)} className="input" style={{ marginBottom: 16 }} />
           </>
         )}
 
@@ -170,8 +174,8 @@ export default function ContributionModal({ word, type, onClose }) {
 
         {type === "error_flag" && (
           <>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What's wrong with this entry?</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
+            <label htmlFor="cm-description" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What's wrong with this entry?</label>
+            <textarea id="cm-description" value={description} onChange={e => setDescription(e.target.value)} rows={3}
               placeholder="Describe the issue you noticed..."
               className="input" style={{ marginBottom: 16, resize: "vertical", padding: 12 }} />
           </>
@@ -179,15 +183,15 @@ export default function ContributionModal({ word, type, onClose }) {
 
         {type !== "error_flag" && (
           <>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Context note (optional)</label>
-            <input type="text" value={contextNote} onChange={e => setContextNote(e.target.value)}
+            <label htmlFor="cm-context-note" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Context note (optional)</label>
+            <input id="cm-context-note" type="text" value={contextNote} onChange={e => setContextNote(e.target.value)}
               placeholder={`e.g. "This is how my grandma from Penang says it"`}
               className="input" style={{ marginBottom: 16 }} />
           </>
         )}
 
-        <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Why do you think this is right? (optional)</label>
-        <textarea value={reason} onChange={e => setReason(e.target.value)} rows={2}
+        <label htmlFor="cm-reason" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Why do you think this is right? (optional)</label>
+        <textarea id="cm-reason" value={reason} onChange={e => setReason(e.target.value)} rows={2}
           placeholder={type === "error_flag" ? "Any evidence or background that helps a custodian review this" : "Any evidence or background that helps others judge this"}
           className="input" style={{ marginBottom: 24, resize: "vertical", padding: 12 }} />
 

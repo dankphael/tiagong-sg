@@ -27,7 +27,7 @@ export default function AssociationsPage() {
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>Directory</h2>
         <p style={{ fontSize: 13, color: "#8B7355" }}>Full contact and background information for each huay kuan</p>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(340px, 100%), 1fr))", gap: 20 }}>
         {huayKuan.map(hk => (
           <div key={hk.id}
             style={{ background: "white", borderRadius: 18, border: "1.5px solid #E8DDD0", padding: "22px 24px", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 0.2s" }}

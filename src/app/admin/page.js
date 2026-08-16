@@ -174,7 +174,7 @@ export default function AdminPage() {
 
       {tab === "applications" && (
         applications.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+          <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
             <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>No pending applications</div>
           </div>
         ) : (
@@ -184,9 +184,9 @@ export default function AdminPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 15, color: "#1A1208" }}>{app.first_name} {app.last_name}</div>
-                    <div style={{ fontSize: 12, color: "#9B8B75" }}>{app.email}</div>
+                    <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{app.email}</div>
                   </div>
-                  <div style={{ fontSize: 11, color: "#9B8B75" }}>{new Date(app.created_at).toLocaleDateString()}</div>
+                  <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{new Date(app.created_at).toLocaleDateString()}</div>
                 </div>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                   {(Array.isArray(app.dialects) ? app.dialects : []).map(d => (
@@ -242,7 +242,7 @@ export default function AdminPage() {
           </div>
 
           {!Array.isArray(users) || users.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "40px 24px", color: "#9B8B75" }}>
+            <div style={{ textAlign: "center", padding: "40px 24px", color: "var(--color-text-muted)" }}>
               <p style={{ fontSize: 14 }}>No users found.</p>
             </div>
           ) : (
@@ -255,7 +255,7 @@ export default function AdminPage() {
                       {u.account_type === "admin" && <span style={{ marginLeft: 8, fontSize: 10, background: "#1A1208", color: "#F5E6C8", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>ADMIN</span>}
                       {u.deactivated && <span style={{ marginLeft: 8, fontSize: 10, background: "#FDEDEC", color: "#C0392B", padding: "2px 8px", borderRadius: 6, fontWeight: 700 }}>DEACTIVATED</span>}
                     </div>
-                    <div style={{ fontSize: 12, color: "#9B8B75" }}>{u.email} · {u.role}</div>
+                    <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{u.email} · {u.role}</div>
                     {Array.isArray(u.custodian_dialects) && u.custodian_dialects.length > 0 && (
                       <div style={{ fontSize: 11, color: "#6B5B45", marginTop: 2 }}>Custodian: {u.custodian_dialects.join(", ")}</div>
                     )}

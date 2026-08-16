@@ -74,7 +74,9 @@ export default function SinglishPage() {
           </div>
 
           {/* Flashcard */}
-          <div className="card-3d" style={{ height: 320, marginBottom: 20, cursor: "pointer" }} onClick={() => setDisFlipped(!disFlipped)}>
+          <button type="button" className="card-3d"
+            style={{ height: 320, marginBottom: 20, cursor: "pointer", display: "block", width: "100%", padding: 0, border: "none", background: "none", textAlign: "left", font: "inherit", color: "inherit" }}
+            onClick={() => setDisFlipped(!disFlipped)}>
             <div className={"card-inner" + (disFlipped ? " flipped" : "")} style={{ height: "100%", width: "100%" }}>
               {/* Front */}
               <div className="card-face" style={{ background: "linear-gradient(135deg, #1A1208 0%, #3D1F10 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center" }}>
@@ -94,12 +96,12 @@ export default function SinglishPage() {
                 <div style={{ fontSize: 12, color: "#C0392B", fontStyle: "italic", fontWeight: 600 }}>"{cardPhrase.examples[0]}"</div>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* Nav + Expand */}
           <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
             <button className="btn-hover" onClick={() => { setDisFlipped(false); setTimeout(() => setDisCard(Math.max(0, disCard - 1)), 150); }} disabled={disCard === 0}
-              style={{ flex: 1, padding: "13px", background: disCard === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 15, cursor: disCard === 0 ? "default" : "pointer", color: disCard === 0 ? "#C0B0A0" : "#1A1208" }}>
+              style={{ flex: 1, padding: "13px", background: disCard === 0 ? "#E8DDD0" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 15, cursor: disCard === 0 ? "default" : "pointer", color: disCard === 0 ? "#8A7866" : "#1A1208" }}>
               <ArrowLeft size={15} /> Prev
             </button>
             <button className="btn-hover" onClick={() => setDisExpanded(disExpanded === cardPhrase.id ? null : cardPhrase.id)}
@@ -107,7 +109,7 @@ export default function SinglishPage() {
               {disExpanded === cardPhrase.id ? <><ChevronUp size={14} /> Less</> : <><ChevronDown size={14} /> Full Details</>}
             </button>
             <button className="btn-hover" onClick={() => { setDisFlipped(false); setTimeout(() => setDisCard(Math.min(filtered.length - 1, disCard + 1)), 150); }} disabled={disCard >= filtered.length - 1}
-              style={{ flex: 1, padding: "13px", background: disCard >= filtered.length - 1 ? "#E8DDD0" : "#1A1208", color: disCard >= filtered.length - 1 ? "#C0B0A0" : "#F5E6C8", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: disCard >= filtered.length - 1 ? "default" : "pointer" }}>
+              style={{ flex: 1, padding: "13px", background: disCard >= filtered.length - 1 ? "#E8DDD0" : "#1A1208", color: disCard >= filtered.length - 1 ? "#8A7866" : "#F5E6C8", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: disCard >= filtered.length - 1 ? "default" : "pointer" }}>
               Next <ArrowRight size={15} />
             </button>
           </div>
@@ -119,7 +121,7 @@ export default function SinglishPage() {
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, background: cardPhrase.dialectColor + "18", color: cardPhrase.dialectColor, padding: "5px 14px", borderRadius: 20, fontWeight: 700 }}><Mic size={13} /> {cardPhrase.dialect}</span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, background: "#F0E8DA", color: "#6B5B45", padding: "5px 14px", borderRadius: 20 }}><FolderOpen size={13} /> {cardPhrase.category}</span>
               </div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{cardPhrase.phrase} <span style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "#9B8B75" }}>{cardPhrase.chinese}</span></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{cardPhrase.phrase} <span style={{ fontFamily: "var(--font-chinese)", fontSize: 18, color: "var(--color-text-muted)" }}>{cardPhrase.chinese}</span></div>
               <div style={{ fontSize: 15, color: "#C0392B", fontWeight: 600, marginBottom: 12 }}>{cardPhrase.meaning}</div>
               <div style={{ fontSize: 14, color: "#6B5B45", lineHeight: 1.8, marginBottom: 20 }}>{cardPhrase.fullExplanation}</div>
               <div style={{ fontSize: 13, color: "#8B7355", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Examples in use:</div>
@@ -129,7 +131,7 @@ export default function SinglishPage() {
                 </div>
               ))}
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 16 }}>
-                {cardPhrase.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "#9B8B75", padding: "4px 10px", borderRadius: 8 }}>#{t}</span>)}
+                {cardPhrase.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "var(--color-text-muted)", padding: "4px 10px", borderRadius: 8 }}>#{t}</span>)}
               </div>
             </div>
           )}
@@ -174,14 +176,14 @@ export default function SinglishPage() {
               <div style={{ color: "#8B7355", fontSize: 14 }}>Try a different search or clear the filters</div>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(320px, 100%), 1fr))", gap: 16 }}>
               {filtered.map(p => (
-                <div key={p.id} style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.05)", border: "1px solid " + (disExpanded === p.id ? "#C0392B" : "#F0E8DA"), cursor: "pointer", transition: "all 0.2s" }}
+                <button key={p.id} type="button" style={{ background: "white", borderRadius: 18, padding: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.05)", border: "1px solid " + (disExpanded === p.id ? "#C0392B" : "#F0E8DA"), cursor: "pointer", transition: "all 0.2s", font: "inherit", color: "inherit" }}
                   className="dialect-card" onClick={() => setDisExpanded(disExpanded === p.id ? null : p.id)}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                     <div>
                       <div className="romanized" style={{ fontSize: 26, fontWeight: 700, color: "#1A1208", lineHeight: 1 }}>{p.phrase}</div>
-                      <div style={{ fontFamily: "var(--font-chinese)", fontSize: 14, color: "#9B8B75", marginTop: 2 }}>{p.chinese}</div>
+                      <div style={{ fontFamily: "var(--font-chinese)", fontSize: 14, color: "var(--color-text-muted)", marginTop: 2 }}>{p.chinese}</div>
                     </div>
                     <span style={{ fontSize: 11, background: p.dialectColor + "18", color: p.dialectColor, padding: "4px 10px", borderRadius: 10, fontWeight: 700, whiteSpace: "nowrap", marginLeft: 8 }}>{p.dialect}</span>
                   </div>
@@ -200,12 +202,12 @@ export default function SinglishPage() {
                       ))}
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, background: "#F0E8DA", color: "#8B7355", padding: "3px 10px", borderRadius: 8 }}><FolderOpen size={11} /> {p.category}</span>
-                        {p.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "#9B8B75", padding: "3px 8px", borderRadius: 8 }}>#{t}</span>)}
+                        {p.tags.map(t => <span key={t} style={{ fontSize: 11, background: "#F5F0EA", color: "var(--color-text-muted)", padding: "3px 8px", borderRadius: 8 }}>#{t}</span>)}
                       </div>
                     </div>
                   )}
                   <div style={{ marginTop: 12, fontSize: 12, color: "var(--color-text-faint)", textAlign: "right", display: "inline-flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>{disExpanded === p.id ? <><ChevronUp size={12} /> Collapse</> : <><ChevronDown size={12} /> Expand</>}</div>
-                </div>
+                </button>
               ))}
             </div>
           )}

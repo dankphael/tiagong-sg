@@ -7,7 +7,7 @@ import { dialects } from "@/data/staticData";
 import { XP_REWARDS } from "@/data/xpSystem";
 
 const STATUS_COLORS = {
-  pending: { bg: "#FEF3E2", color: "#D4860B" },
+  pending: { bg: "#FEF3E2", color: "#A96A08" },
   accepted: { bg: "#EAFAF1", color: "#1A6B3C" },
   published: { bg: "#EAFAF1", color: "#1A6B3C" },
   rejected: { bg: "#FDEDEC", color: "#C0392B" },
@@ -157,43 +157,43 @@ export default function ContributePage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
               <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect</label>
-                <select value={newWordForm.dialect} onChange={e => setNewWordForm(f => ({ ...f, dialect: e.target.value }))} className="input" style={{ height: 44 }}>
+                <label htmlFor="nw-dialect" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect</label>
+                <select id="nw-dialect" value={newWordForm.dialect} onChange={e => setNewWordForm(f => ({ ...f, dialect: e.target.value }))} className="input" style={{ height: 44 }}>
                   {dialects.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Part of speech (optional)</label>
-                <input type="text" value={newWordForm.partOfSpeech} onChange={e => setNewWordForm(f => ({ ...f, partOfSpeech: e.target.value }))}
+                <label htmlFor="nw-part-of-speech" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Part of speech (optional)</label>
+                <input id="nw-part-of-speech" type="text" value={newWordForm.partOfSpeech} onChange={e => setNewWordForm(f => ({ ...f, partOfSpeech: e.target.value }))}
                   placeholder="e.g. verb, noun" className="input" />
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
               <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Romanized spelling</label>
-                <input type="text" value={newWordForm.romanized} onChange={e => setNewWordForm(f => ({ ...f, romanized: e.target.value }))} className="input" />
+                <label htmlFor="nw-romanized" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Romanized spelling</label>
+                <input id="nw-romanized" type="text" value={newWordForm.romanized} onChange={e => setNewWordForm(f => ({ ...f, romanized: e.target.value }))} className="input" />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Chinese characters</label>
-                <input type="text" value={newWordForm.traditional} onChange={e => setNewWordForm(f => ({ ...f, traditional: e.target.value }))} className="input" />
+                <label htmlFor="nw-traditional" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Chinese characters</label>
+                <input id="nw-traditional" type="text" value={newWordForm.traditional} onChange={e => setNewWordForm(f => ({ ...f, traditional: e.target.value }))} className="input" />
               </div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>English meaning</label>
-              <input type="text" value={newWordForm.english} onChange={e => setNewWordForm(f => ({ ...f, english: e.target.value }))} className="input" />
+              <label htmlFor="nw-english" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>English meaning</label>
+              <input id="nw-english" type="text" value={newWordForm.english} onChange={e => setNewWordForm(f => ({ ...f, english: e.target.value }))} className="input" />
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Context note (optional)</label>
-              <input type="text" value={newWordForm.contextNote} onChange={e => setNewWordForm(f => ({ ...f, contextNote: e.target.value }))}
+              <label htmlFor="nw-context-note" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Context note (optional)</label>
+              <input id="nw-context-note" type="text" value={newWordForm.contextNote} onChange={e => setNewWordForm(f => ({ ...f, contextNote: e.target.value }))}
                 placeholder="When/how is this word used?" className="input" />
             </div>
 
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Why should this be added? (optional)</label>
-              <textarea value={newWordForm.reason} onChange={e => setNewWordForm(f => ({ ...f, reason: e.target.value }))} rows={2}
+              <label htmlFor="nw-reason" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Why should this be added? (optional)</label>
+              <textarea id="nw-reason" value={newWordForm.reason} onChange={e => setNewWordForm(f => ({ ...f, reason: e.target.value }))} rows={2}
                 className="input" style={{ resize: "vertical", padding: 12 }} />
             </div>
 
@@ -210,7 +210,7 @@ export default function ContributePage() {
                 {[0, 1].map(i => <div key={i} className="shimmer" style={{ background: "#F0E8DA", borderRadius: 10, height: 56 }} />)}
               </div>
             ) : !Array.isArray(submissions) || submissions.length === 0 ? (
-              <p style={{ fontSize: 14, color: "#9B8B75" }}>You haven't submitted anything yet. Add a new word above, or suggest an edit from the Dictionary.</p>
+              <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>You haven't submitted anything yet. Add a new word above, or suggest an edit from the Dictionary.</p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {submissions.map(s => {
@@ -268,14 +268,14 @@ export default function ContributePage() {
                 You're a Language Custodian for {currentUser.custodianDialects.join(", ")}. Visit the Custodian console to review new words and flagged issues.
               </div>
             ) : application ? (
-              <div style={{ padding: "14px 16px", borderRadius: 10, background: STATUS_COLORS[application.status]?.bg || "#FEF3E2", border: "1px solid #E8DDD0", fontSize: 14, color: STATUS_COLORS[application.status]?.color || "#D4860B", fontWeight: 600 }}>
+              <div style={{ padding: "14px 16px", borderRadius: 10, background: STATUS_COLORS[application.status]?.bg || "#FEF3E2", border: "1px solid #E8DDD0", fontSize: 14, color: STATUS_COLORS[application.status]?.color || "#A96A08", fontWeight: 600 }}>
                 Your application is {application.status}.
               </div>
             ) : (
               <>
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects you're an expert in</label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <div id="ca-dialects-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects you're an expert in</div>
+                  <div role="group" aria-labelledby="ca-dialects-label" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {dialects.map(d => {
                       const checked = applicationForm.dialects.includes(d.id);
                       return (
@@ -289,18 +289,18 @@ export default function ContributePage() {
                   </div>
                 </div>
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Your dialect background</label>
-                  <textarea value={applicationForm.background} onChange={e => setApplicationForm(f => ({ ...f, background: e.target.value }))} rows={3}
+                  <label htmlFor="ca-background" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Your dialect background</label>
+                  <textarea id="ca-background" value={applicationForm.background} onChange={e => setApplicationForm(f => ({ ...f, background: e.target.value }))} rows={3}
                     placeholder="e.g. native speaker, grew up speaking this at home, studied linguistics..."
                     className="input" style={{ resize: "vertical", padding: 12 }} />
                 </div>
                 <div style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Credentials (optional)</label>
-                  <input type="text" value={applicationForm.credentials} onChange={e => setApplicationForm(f => ({ ...f, credentials: e.target.value }))} className="input" />
+                  <label htmlFor="ca-credentials" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Credentials (optional)</label>
+                  <input id="ca-credentials" type="text" value={applicationForm.credentials} onChange={e => setApplicationForm(f => ({ ...f, credentials: e.target.value }))} className="input" />
                 </div>
                 <div style={{ marginBottom: 20 }}>
-                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Huay kuan affiliation (optional)</label>
-                  <input type="text" value={applicationForm.huayKuan} onChange={e => setApplicationForm(f => ({ ...f, huayKuan: e.target.value }))} className="input" />
+                  <label htmlFor="ca-huay-kuan" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Huay kuan affiliation (optional)</label>
+                  <input id="ca-huay-kuan" type="text" value={applicationForm.huayKuan} onChange={e => setApplicationForm(f => ({ ...f, huayKuan: e.target.value }))} className="input" />
                 </div>
                 <button className="btn-primary" onClick={submitApplication} disabled={submittingApplication} style={{ width: "100%" }}>
                   {submittingApplication ? "Submitting..." : "Apply to Become a Custodian"}

@@ -4,7 +4,7 @@ export const LEVELS = [
   { name: "Beginner", minXP: 0, icon: "🌱", color: "#8B7355" },
   { name: "Learner", minXP: 100, icon: "📖", color: "#2980B9" },
   { name: "Apprentice", minXP: 300, icon: "🎓", color: "#1A7EA6" },
-  { name: "Speaker", minXP: 600, icon: "🗣️", color: "#D4860B" },
+  { name: "Speaker", minXP: 600, icon: "🗣️", color: "#A96A08" },
   { name: "Conversational", minXP: 1000, icon: "💬", color: "#8E44AD" },
   { name: "Fluent", minXP: 1500, icon: "🌟", color: "#C0392B" },
   { name: "Dialect Master", minXP: 2500, icon: "🏆", color: "#F39C12" },

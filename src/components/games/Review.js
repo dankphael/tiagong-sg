@@ -73,7 +73,9 @@ export default function Review({ dialect, dialectId, autoStart }) {
         <div className="progress-fill" style={{ width: `${((pos + 1) / queue.length) * 100}%`, background: dialect.color }} />
       </div>
 
-      <div className="card-3d flashcard" style={{ marginBottom: 20, position: "relative" }} onClick={() => setFlipped(!flipped)}>
+      <div className="card-3d flashcard" style={{ marginBottom: 20, position: "relative" }} onClick={() => setFlipped(!flipped)}
+        role="button" tabIndex={0} aria-label="Flip card"
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(!flipped); } }}>
         <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
           <ReportButton dialectId={dialectId} card={card} gameMode="review" category={item.category} />
         </div>

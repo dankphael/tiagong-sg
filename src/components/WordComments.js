@@ -77,7 +77,7 @@ export default function WordComments({ wordId, dialect, count = 0 }) {
       {open && (
         <div style={{ marginTop: 8, padding: "12px 14px", background: "#FAF6F0", borderRadius: 10, border: "1px solid #F0E8DA" }}>
           {loading ? (
-            <div style={{ fontSize: 12, color: "#9B8B75" }}>Loading…</div>
+            <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Loading…</div>
           ) : comments && comments.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
               {comments.map(c => (
@@ -85,7 +85,7 @@ export default function WordComments({ wordId, dialect, count = 0 }) {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
                     <div>
                       <Link href={`/member/${c.authorId}`} style={{ fontWeight: 700, color: "#1A1208", textDecoration: "none" }}>{c.authorName}</Link>
-                      <span style={{ color: "#9B8B75", marginLeft: 6 }}>{relativeTime(c.createdAt)}</span>
+                      <span style={{ color: "var(--color-text-muted)", marginLeft: 6 }}>{relativeTime(c.createdAt)}</span>
                     </div>
                     {(currentUser?.id === c.authorId || isCustodian) && (
                       <button onClick={() => remove(c.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 11, fontFamily: "inherit", padding: 0 }}>
@@ -98,7 +98,7 @@ export default function WordComments({ wordId, dialect, count = 0 }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 10 }}>No comments yet — start the conversation.</div>
+            <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: 10 }}>No comments yet — start the conversation.</div>
           )}
 
           {currentUser ? (
@@ -112,7 +112,7 @@ export default function WordComments({ wordId, dialect, count = 0 }) {
               </button>
             </div>
           ) : (
-            <div style={{ fontSize: 12, color: "#9B8B75" }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
               <Link href={`/signin?next=${encodeURIComponent("/dictionary")}`} style={{ color: "#C0392B", fontWeight: 600, textDecoration: "none" }}>
                 Sign in
               </Link> to join the conversation.

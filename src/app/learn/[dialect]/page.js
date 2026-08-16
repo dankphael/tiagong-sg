@@ -143,7 +143,7 @@ function LearnDialectContent() {
           <div style={{ width: `${getLevelProgress(xp)}%`, height: "100%", background: getLevel(xp).color, borderRadius: 4, transition: "width 0.5s ease" }} />
         </div>
         {streak > 0 && (
-          <div style={{ marginTop: 8, fontSize: 12, color: "#D4860B", fontWeight: 600 }}>
+          <div style={{ marginTop: 8, fontSize: 12, color: "#A96A08", fontWeight: 600 }}>
             <Flame size={16} /> {streak} day streak
           </div>
         )}

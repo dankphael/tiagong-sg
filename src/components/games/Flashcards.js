@@ -103,7 +103,9 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
           </div>
 
           {/* Flashcard */}
-          <div className="card-3d flashcard" style={{ marginBottom: 20, position: "relative" }} onClick={() => setFlipped(!flipped)}>
+          <div className="card-3d flashcard" style={{ marginBottom: 20, position: "relative" }} onClick={() => setFlipped(!flipped)}
+            role="button" tabIndex={0} aria-label="Flip card"
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(!flipped); } }}>
             <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}>
               <ReportButton dialectId={dialectId} card={currentCard} gameMode="flashcards" category={selectedCategory} />
             </div>
@@ -126,7 +128,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
                 </span>
               </div>
               <div className="card-face card-back" style={{ background: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", cursor: "pointer", border: `3px solid ${dialect.color}`, borderRadius: 20, padding: "24px 20px", overflowY: "auto" }}>
-                <div style={{ fontSize: 10, letterSpacing: 3, color: "#9B8B75", textTransform: "uppercase", marginBottom: 10 }}>Meaning</div>
+                <div style={{ fontSize: 10, letterSpacing: 3, color: "var(--color-text-muted)", textTransform: "uppercase", marginBottom: 10 }}>Meaning</div>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#1A1208", textAlign: "center", padding: "0 12px" }}>
                   {currentCard?.meaning}
                 </div>
@@ -137,7 +139,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
                   {currentCard?.chinese}
                 </div>
                 {currentCard?.ipa && (
-                  <div style={{ fontSize: 13, color: "#9B8B75", marginTop: 8, fontStyle: "italic" }}>
+                  <div style={{ fontSize: 13, color: "var(--color-text-muted)", marginTop: 8, fontStyle: "italic" }}>
                     {currentCard?.ipa}
                   </div>
                 )}
@@ -146,12 +148,12 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
                     <span style={{ fontSize: 10, background: "#F0E8DA", color: "#8B7355", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{currentCard?.pos}</span>
                   )}
                   {currentCard?.frequency && (
-                    <span style={{ fontSize: 10, background: currentCard?.frequency === 'very_common' ? "#EAFAF1" : "#FEF9E7", color: currentCard?.frequency === 'very_common' ? "#1A6B3C" : "#D4860B", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{currentCard?.frequency}</span>
+                    <span style={{ fontSize: 10, background: currentCard?.frequency === 'very_common' ? "#EAFAF1" : "#FEF9E7", color: currentCard?.frequency === 'very_common' ? "#1A6B3C" : "#A96A08", padding: "2px 8px", borderRadius: 8, fontWeight: 600 }}>{currentCard?.frequency}</span>
                   )}
                 </div>
                 {currentCard?.examples && currentCard?.examples.length > 0 && (
                   <div style={{ marginTop: 10, width: "100%" }}>
-                    <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Example</div>
+                    <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Example</div>
                     {currentCard.examples.slice(0, 2).map((ex, i) => (
                       <div key={i} style={{ background: "#FAF6F0", borderRadius: 8, padding: "8px 12px", marginBottom: 4, fontSize: 12, color: "#1A1208", borderLeft: `3px solid ${dialect.color}` }}>
                         <div style={{ fontStyle: "italic" }}>"{ex.text_source_lang}"</div>
@@ -199,7 +201,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
           ) : (
             <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
               <button className="btn-hover" onClick={prevCard} disabled={cardIndex === 0}
-                style={{ flex: 1, padding: "13px", background: cardIndex === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#C0B0A0" : "#1A1208", fontFamily: "inherit" }}>
+                style={{ flex: 1, padding: "13px", background: cardIndex === 0 ? "#F0EBE3" : "white", border: "2px solid #E8DDD0", borderRadius: 12, fontSize: 14, cursor: cardIndex === 0 ? "default" : "pointer", color: cardIndex === 0 ? "#8A7866" : "#1A1208", fontFamily: "inherit" }}>
                 <ArrowLeft size={15} /> Prev
               </button>
               <button className="btn-hover" onClick={nextCard}

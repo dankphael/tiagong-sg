@@ -375,7 +375,7 @@ export default function DictionaryPage() {
                   />
                   <SealChip dialect={d} size="sm" active={searchDialects.includes(d.id)} />
                   <span style={{ fontSize: 13, color: "var(--color-text)", fontWeight: searchDialects.includes(d.id) ? 600 : 400 }}>{d.name}</span>
-                  {!searchDialects.includes(d.id) && <span style={{ fontSize: 10, color: "#C0B0A0", marginLeft: "auto" }}>off</span>}
+                  {!searchDialects.includes(d.id) && <span style={{ fontSize: 10, color: "#8A7866", marginLeft: "auto" }}>off</span>}
                 </label>
               ))}
             </div>
@@ -440,11 +440,29 @@ export default function DictionaryPage() {
               {q && <> for "<em>{q}</em>"</>}
             </span>
             {filteredPhrases.length > 0 && !q && searchCategory === "all" && searchDialects.length === 5 && (
-              <span style={{ fontSize: 12, color: "#C0B0A0" }}>Showing all · use search or filters to narrow</span>
+              <span style={{ fontSize: 12, color: "#8A7866" }}>Showing all · use search or filters to narrow</span>
             )}
           </div>
 
-          {filteredPhrases.length === 0 ? (
+          {wordsError ? (
+            <div style={{ textAlign: "center", padding: "60px 24px", background: "var(--color-surface)", borderRadius: "var(--radius-lg)", border: "1.5px solid var(--color-border)" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "#C0392B" }}><Search size={48} /></div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>Couldn't load the dictionary</div>
+              <p style={{ color: "#6B5B45", fontSize: 14, marginBottom: 20 }}>
+                Something went wrong fetching entries — this isn't about your search, try again.
+              </p>
+              <button className="btn-hover" onClick={loadDictionary}
+                style={{ padding: "10px 24px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+                Retry
+              </button>
+            </div>
+          ) : wordsLoading && filteredPhrases.length === 0 ? (
+            <div className="search-results-grid">
+              {[0, 1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="shimmer" style={{ height: 180, borderRadius: 14, background: "#F0E8DA" }} />
+              ))}
+            </div>
+          ) : filteredPhrases.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 24px", background: "var(--color-surface)", borderRadius: "var(--radius-lg)", border: "1.5px solid var(--color-border)" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "var(--color-text-faint)" }}><Search size={48} /></div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>No matches found</div>
@@ -475,10 +493,12 @@ export default function DictionaryPage() {
               <div className="search-results-grid">
                 {pageResults.map((p) => (
                   <div key={p.wordId} className="result-card btn-hover" onClick={() => openWordModal(p)}
+                    role="button" tabIndex={0} aria-label={`View details for ${p.phrase}`}
+                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openWordModal(p); } }}
                     style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
                     <button onClick={e => { e.stopPropagation(); toggleBookmark(p.wordId, p.dialect); }}
                       aria-label={bookmarks[p.wordId] ? "Remove from saved" : "Save this entry"}
-                      style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", cursor: "pointer", color: bookmarks[p.wordId] ? "#1A6B3C" : "#C0B0A0", padding: 4 }}>
+                      style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", cursor: "pointer", color: bookmarks[p.wordId] ? "#1A6B3C" : "#8A7866", padding: 4 }}>
                       <Bookmark size={16} fill={bookmarks[p.wordId] ? "#1A6B3C" : "none"} />
                     </button>
                     <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap", paddingRight: 26 }}>
@@ -503,14 +523,14 @@ export default function DictionaryPage() {
                     <div style={{ fontSize: 13, color: "#1A6B3C", fontWeight: 600, marginBottom: 3 }}>
                       {p.meaning}
                     </div>
-                    <div style={{ fontSize: 12, color: "#9B8B75", fontStyle: "italic", marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, color: "var(--color-text-muted)", fontStyle: "italic", marginBottom: 10 }}>
                       /{p.romanisation}/
                     </div>
                     {p.isCommunity && p.contributorName && (
-                      <div style={{ fontSize: 11, color: "#9B8B75", marginBottom: 10 }}>Contributed by {p.contributorName}</div>
+                      <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginBottom: 10 }}>Contributed by {p.contributorName}</div>
                     )}
                     {myReports[p.wordId] && (
-                      <div style={{ fontSize: 11, color: myReports[p.wordId].status === "rejected" ? "#C0392B" : myReports[p.wordId].status === "accepted" ? "#1A6B3C" : "#D4860B", marginBottom: 10, fontWeight: 600 }}>
+                      <div style={{ fontSize: 11, color: myReports[p.wordId].status === "rejected" ? "#C0392B" : myReports[p.wordId].status === "accepted" ? "#1A6B3C" : "#A96A08", marginBottom: 10, fontWeight: 600 }}>
                         You reported this — {myReports[p.wordId].status}
                       </div>
                     )}
@@ -549,7 +569,7 @@ export default function DictionaryPage() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 24 }}>
                   <button onClick={() => { setSearchPage(p => p - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                     disabled={searchPage === 1}
-                    style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === 1 ? "#F5EFE6" : "white", color: searchPage === 1 ? "#C0B0A0" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === 1 ? "default" : "pointer", fontFamily: "inherit" }}>
+                    style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === 1 ? "#F5EFE6" : "white", color: searchPage === 1 ? "#8A7866" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === 1 ? "default" : "pointer", fontFamily: "inherit" }}>
                     <ArrowLeft size={15} /> Previous
                   </button>
                   <span style={{ fontSize: 13, color: "#6B5B45" }}>
@@ -557,7 +577,7 @@ export default function DictionaryPage() {
                   </span>
                   <button onClick={() => { setSearchPage(p => p + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                     disabled={searchPage === totalPages}
-                    style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === totalPages ? "#F5EFE6" : "white", color: searchPage === totalPages ? "#C0B0A0" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === totalPages ? "default" : "pointer", fontFamily: "inherit" }}>
+                    style={{ padding: "9px 20px", borderRadius: 10, border: "1.5px solid #E8DDD0", background: searchPage === totalPages ? "#F5EFE6" : "white", color: searchPage === totalPages ? "#8A7866" : "#1A1208", fontWeight: 600, fontSize: 13, cursor: searchPage === totalPages ? "default" : "pointer", fontFamily: "inherit" }}>
                     Next <ArrowRight size={15} />
                   </button>
                 </div>

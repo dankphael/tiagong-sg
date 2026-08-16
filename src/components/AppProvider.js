@@ -39,6 +39,7 @@ let toastId = 0;
 export function AppProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [profilesError, setProfilesError] = useState(false);
   const [xp, setXp] = useState(0);
   const [streak, setStreak] = useState(0);
   const [dailyCompleted, setDailyCompleted] = useState(false);
@@ -107,7 +108,10 @@ export function AppProvider({ children }) {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ source }),
-      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
+      }).then(res => {
+        if (res.status === 401) { handleSessionExpired(); return; }
+        if (!res.ok) showToast("XP earned locally but couldn't be saved to your account", "error");
+      }).catch(() => showToast("XP earned locally but couldn't be saved to your account", "error"));
     }
   }, []);
 
@@ -365,10 +369,11 @@ export function AppProvider({ children }) {
     if (!token) return;
     profilesRequestedRef.current = true;
     setProfilesLoading(true);
+    setProfilesError(false);
     fetch("/api/users/profiles", { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
       .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
-      .catch(err => { console.error("Failed to load profiles:", err); profilesRequestedRef.current = false; })
+      .catch(err => { console.error("Failed to load profiles:", err); profilesRequestedRef.current = false; setProfilesError(true); })
       .finally(() => setProfilesLoading(false));
   }, []);
 
@@ -433,7 +438,10 @@ export function AppProvider({ children }) {
           knownCards,
           completedCategories: progress,
         }),
-      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
+      }).then(res => {
+        if (res.status === 401) { handleSessionExpired(); return; }
+        if (!res.ok) showToast("Couldn't save your progress — check your connection", "error");
+      }).catch(() => showToast("Couldn't save your progress — check your connection", "error"));
     }, 1500);
     return () => clearTimeout(tid);
   }, [knownCards, progress, selectedDialect, currentUser]);
@@ -475,13 +483,16 @@ export function AppProvider({ children }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ lastDailyDate: today }),
-      }).then(res => { if (res.status === 401) handleSessionExpired(); }).catch(() => {});
+      }).then(res => {
+        if (res.status === 401) { handleSessionExpired(); return; }
+        if (!res.ok) showToast("Your streak was updated locally but couldn't be saved", "error");
+      }).catch(() => showToast("Your streak was updated locally but couldn't be saved", "error"));
     }
   }
 
   const value = {
     currentUser, setCurrentUser,
-    registeredUsers, setRegisteredUsers, profilesLoading, loadProfiles, overlay, refreshOverlay,
+    registeredUsers, setRegisteredUsers, profilesLoading, profilesError, loadProfiles, overlay, refreshOverlay,
     bookmarks, toggleBookmark,
     introDismissed, markIntroSeen,
     xp, setXp, streak, setStreak,

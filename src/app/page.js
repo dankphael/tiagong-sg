@@ -29,9 +29,9 @@ function ProfileNudge() {
         <strong style={{ color: "#1A1208" }}>Finish setting up your profile</strong> — add your availability and interests so Sin Sehs can find you.
       </div>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <Link href="/profile" style={{ fontSize: 13, fontWeight: 600, color: "#D4860B", textDecoration: "none" }}>Complete profile →</Link>
+        <Link href="/profile" style={{ fontSize: 13, fontWeight: 600, color: "#A96A08", textDecoration: "none" }}>Complete profile →</Link>
         <button onClick={() => { localStorage.setItem(NUDGE_DISMISSED_KEY, '1'); setDismissed(true); }}
-          style={{ background: "none", border: "none", cursor: "pointer", color: "#9B8B75", fontSize: 13, fontFamily: "inherit" }}>
+          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-text-muted)", fontSize: 13, fontFamily: "inherit" }}>
           Dismiss
         </button>
       </div>
@@ -93,7 +93,7 @@ function CommunityStrip() {
         <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", display: "flex", alignItems: "center", gap: 6 }}>
           <Sparkles size={15} color="#C0392B" /> Just happened
         </div>
-        <Link href="/community" style={{ fontSize: 12, fontWeight: 600, color: "#D4860B", textDecoration: "none" }}>See all →</Link>
+        <Link href="/community" style={{ fontSize: 12, fontWeight: 600, color: "#A96A08", textDecoration: "none" }}>See all →</Link>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {activity.map((item, i) => {
@@ -265,8 +265,9 @@ function DialectPlatformContent() {
                 const tooltipBelow = y < -150;
                 const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
                 return (
-                  <div
+                  <button
                     key={d.id}
+                    type="button"
                     className="orbital-card"
                     onClick={() => router.push(`/learn/${d.id}`)}
                     style={{
@@ -274,6 +275,8 @@ function DialectPlatformContent() {
                       top: `calc(50% + ${y}px)`,
                       animationDelay: `${0.1 + i * 0.1}s`,
                       "--dialect-glow": `${d.color}99`,
+                      font: "inherit",
+                      color: "inherit",
                     }}
                   >
                     <div className={`orbital-tooltip ${tooltipBelow ? "orbital-tooltip-below" : "orbital-tooltip-above"}`}>
@@ -290,7 +293,7 @@ function DialectPlatformContent() {
                         <div style={{ width: `${(dialectProgress / 3) * 100}%`, height: "100%", background: d.color, borderRadius: 1 }} />
                       </div>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -316,8 +319,8 @@ function DialectPlatformContent() {
                 {dialects.map((d, i) => {
                   const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
                   return (
-                    <div key={d.id} className="orbital-mobile-card" onClick={() => router.push(`/learn/${d.id}`)}
-                      style={{ border: `1px solid ${d.color}44`, animationDelay: `${i * 0.08}s` }}>
+                    <button key={d.id} type="button" className="orbital-mobile-card" onClick={() => router.push(`/learn/${d.id}`)}
+                      style={{ border: `1px solid ${d.color}44`, animationDelay: `${i * 0.08}s`, textAlign: "left", width: "100%", font: "inherit", color: "inherit" }}>
                       <div style={{ fontSize: 32 }}>{d.icon}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>{d.name}</div>
@@ -325,7 +328,7 @@ function DialectPlatformContent() {
                         <p style={{ fontSize: 13, color: "#8B7355", marginTop: 4, lineHeight: 1.5 }}>{d.description}</p>
                       </div>
                       <div style={{ color: d.color, fontSize: 22, fontWeight: 300 }}>›</div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>

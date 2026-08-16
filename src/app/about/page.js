@@ -116,14 +116,15 @@ export default function AboutPage() {
             { num: "1", color: "#C0392B", title: "Choose your dialect", desc: "Five Singapore dialects to explore — pick where your roots lie, or where curiosity leads.", target: "/learn" },
             { num: "2", color: "#8E44AD", title: "Learn phrases & idioms", desc: "Flashcards, story quizzes, and fill-in-the-blank exercises to build vocabulary your grandparents would recognise.", target: "/learn" },
             { num: "3", color: "#1A6B3C", title: "Find a Sin Seh", desc: "Connect with fluent mentors in our community who can guide you through real conversations.", target: "/network" },
-            { num: "4", color: "#D4860B", title: "Practice in Singlish", desc: "See how dialect words already live in everyday Singlish — and use them with confidence.", target: "/singlish" },
+            { num: "4", color: "#A96A08", title: "Practice in Singlish", desc: "See how dialect words already live in everyday Singlish — and use them with confidence.", target: "/singlish" },
           ].map(s => (
-            <div key={s.num} onClick={() => router.push(s.target)} className="about-step-card" style={{ borderTopColor: s.color }}>
+            <button key={s.num} type="button" onClick={() => router.push(s.target)} className="about-step-card"
+              style={{ borderTopColor: s.color, textAlign: "left", width: "100%", font: "inherit", color: "inherit" }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 38, fontWeight: 700, color: s.color, lineHeight: 1, marginBottom: 12 }}>0{s.num}</div>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, color: "#1A1208", marginBottom: 8 }}>{s.title}</div>
               <p style={{ color: "#6B5B45", lineHeight: 1.6, fontSize: 14 }}>{s.desc}</p>
               <div style={{ marginTop: 14, color: s.color, fontSize: 13, fontWeight: 600, letterSpacing: 0.5 }}>Go &rarr;</div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -307,7 +308,7 @@ Best regards,
               );
             })}
           </div>
-          <div style={{ marginTop: 12, color: "#9B8B75", fontSize: 12, fontStyle: "italic" }}>
+          <div style={{ marginTop: 12, color: "var(--color-text-muted)", fontSize: 12, fontStyle: "italic" }}>
             Tip: clicking a button copies the full email template to your clipboard. Fill in the bracketed fields and send to raphaeleeingwi@gmail.com
           </div>
         </div>

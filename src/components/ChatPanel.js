@@ -151,7 +151,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
             ))}
           </div>
         ) : accepted.length === 0 ? (
-          <div style={{ padding: "24px 18px", fontSize: 13, color: "#9B8B75", textAlign: "center" }}>
+          <div style={{ padding: "24px 18px", fontSize: 13, color: "var(--color-text-muted)", textAlign: "center" }}>
             No conversations yet. Connect with someone to start chatting.
           </div>
         ) : (
@@ -161,9 +161,9 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
                 style={{ width: "100%", textAlign: "left", padding: "14px 18px", border: "none", borderBottom: "1px solid #F0E8DA", background: activeId === c.id ? "#FAF6F0" : "white", cursor: "pointer", fontFamily: "inherit" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: "#1A1208" }}>{c.connected_user_name}</div>
-                  {c.connected_user_verified && <span style={{ fontSize: 11, color: "#D4860B" }}>✓</span>}
+                  {c.connected_user_verified && <span style={{ fontSize: 11, color: "#A96A08" }}>✓</span>}
                 </div>
-                <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {c.last_message_body || "Say hello 👋"}
                 </div>
               </button>
@@ -174,7 +174,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
 
       <div className={`card${!active ? " chat-thread-col-hidden-mobile" : ""}`} style={{ padding: 0, display: "flex", flexDirection: "column" }}>
         {!active ? (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#9B8B75", padding: 40 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--color-text-muted)", padding: 40 }}>
             <MessageCircle size={36} style={{ marginBottom: 12 }} />
             <div style={{ fontSize: 14 }}>Select a conversation to start chatting</div>
           </div>
@@ -196,7 +196,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
                 </div>
               ) : messages.length === 0 && (
                 <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 8 }}>Not sure how to start? Try:</div>
+                  <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: 8 }}>Not sure how to start? Try:</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {icebreakers.map((text, i) => (
                       <button key={i} onClick={() => sendMessage("text", text)}
@@ -223,7 +223,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
                       ) : st === "declined" ? (
                         <div style={{ fontSize: 13, fontWeight: 700, color: "#C0392B" }}>Declined</div>
                       ) : isMe ? (
-                        <div style={{ fontSize: 12, color: "#D4860B", fontWeight: 600 }}>Waiting for response…</div>
+                        <div style={{ fontSize: 12, color: "#A96A08", fontWeight: 600 }}>Waiting for response…</div>
                       ) : (
                         <div style={{ display: "flex", gap: 8 }}>
                           <button onClick={() => respondToProposal(m.id, "decline_meetup")}
@@ -244,7 +244,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
                     <div style={{ padding: "10px 14px", borderRadius: 14, background: isMe ? "#1A1208" : "#FAF6F0", color: isMe ? "#F5E6C8" : "#1A1208", fontSize: 13, opacity: m._pending ? 0.6 : 1 }}>
                       {m.body}
                     </div>
-                    <div style={{ fontSize: 10, color: "#9B8B75", marginTop: 3, textAlign: isMe ? "right" : "left" }}>{fmtTime(m.created_at)}</div>
+                    <div style={{ fontSize: 10, color: "var(--color-text-muted)", marginTop: 3, textAlign: isMe ? "right" : "left" }}>{fmtTime(m.created_at)}</div>
                   </div>
                 );
               })}
@@ -275,14 +275,15 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
             )}
 
             <div style={{ padding: 14, borderTop: "1px solid #E8DDD0", display: "flex", gap: 8 }}>
-              <button onClick={() => setProposing(p => !p)} title="Propose a meetup"
+              <button onClick={() => setProposing(p => !p)} title="Propose a meetup" aria-label="Propose a meetup"
                 style={{ padding: "10px 12px", borderRadius: 10, background: "#FAF6F0", border: "1px solid #E8DDD0", cursor: "pointer", color: "#6B5B45" }}>
                 <Calendar size={16} />
               </button>
               <input value={draft} onChange={e => setDraft(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && draft.trim()) { sendMessage("text", draft.trim()); setDraft(""); } }}
-                placeholder="Type a message..." className="input" style={{ flex: 1, height: 40 }} />
+                placeholder="Type a message..." className="input" style={{ flex: 1, height: 40 }} aria-label="Message" />
               <button onClick={() => { if (draft.trim()) { sendMessage("text", draft.trim()); setDraft(""); } }}
+                aria-label="Send message"
                 style={{ padding: "10px 14px", borderRadius: 10, background: "#C0392B", color: "white", border: "none", cursor: "pointer" }}>
                 <Send size={16} />
               </button>

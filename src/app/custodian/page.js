@@ -87,13 +87,13 @@ export default function CustodianPage() {
         <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 4 }}>
           Reviewing for: {currentUser.custodianDialects?.length > 0 ? currentUser.custodianDialects.join(", ") : "All dialects (admin)"} · {queue.length} pending
         </p>
-        <p style={{ color: "#9B8B75", fontSize: 12 }}>
+        <p style={{ color: "var(--color-text-muted)", fontSize: 12 }}>
           Pronunciations, meanings, examples, and corrections now publish instantly and are decided by community votes — this queue is just new-word submissions (which mint a new dictionary card) and flagged issues. You can also remove any published contribution directly from its entry in the Dictionary.
         </p>
       </div>
 
       {queue.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>
+        <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
           <div style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#1A1208", marginBottom: 8 }}>All caught up</div>
           <p style={{ fontSize: 14 }}>No new words or flagged issues waiting for your dialects right now.</p>
         </div>

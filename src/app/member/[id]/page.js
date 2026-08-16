@@ -71,7 +71,7 @@ export default function MemberPage() {
         <div style={{ fontSize: 56, marginBottom: 10 }}>{getAvatar(profile.gender, profile.role)}</div>
         <div style={{ fontFamily: 'var(--font-serif)', fontSize: 26, color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
           {profile.firstName} {profile.lastName}
-          {profile.verified && <span style={{ color: '#D4860B', fontSize: 18 }} title="Verified">✓</span>}
+          {profile.verified && <span style={{ color: '#A96A08', fontSize: 18 }} title="Verified">✓</span>}
         </div>
         {profile.languageInterest && (
           <div style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>Learning {profile.languageInterest}</div>
@@ -133,7 +133,7 @@ export default function MemberPage() {
             </div>
           </div>
           {profile.streak > 0 && (
-            <div style={{ fontSize: 13, color: '#D4860B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ fontSize: 13, color: '#A96A08', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
               <Flame size={14} /> {profile.streak} day streak
             </div>
           )}

@@ -157,7 +157,7 @@ export default function FillInBlank({ dialect, dialectId, onSwitchMode }) {
           if (correct) setScore(s => s + 1);
           setShowResult(true);
         }} disabled={selectedAnswer === null}
-          style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "#9B8B75", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
+          style={{ width: "100%", padding: "14px", background: selectedAnswer !== null ? dialect.color : "#E8DDD0", color: selectedAnswer !== null ? "white" : "var(--color-text-muted)", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: selectedAnswer !== null ? "pointer" : "default", fontFamily: "inherit" }}>
           Check Answer
         </button>
       ) : (

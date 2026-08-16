@@ -22,7 +22,8 @@ export default function LearnIndexPage() {
         {dialects.map(d => {
           const dialectProgress = Object.keys(progress).filter(k => k.startsWith(d.id)).length;
           return (
-            <div key={d.id} className="card card-hover" style={{ padding: 24, cursor: "pointer" }}
+            <button key={d.id} type="button" className="card card-hover"
+              style={{ padding: 24, cursor: "pointer", textAlign: "left", width: "100%", font: "inherit", color: "inherit" }}
               onClick={() => router.push(`/learn/${d.id}`)}>
               <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 14 }}>
                 <SealChip dialect={d} size="lg" />
@@ -36,7 +37,7 @@ export default function LearnIndexPage() {
               {dialectProgress > 0 && (
                 <div style={{ marginTop: 12, fontSize: 12, color: d.color, fontWeight: 600 }}>Continue where you left off →</div>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

@@ -91,19 +91,19 @@ function SignInContent() {
 
           <div className="form-grid-2" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
             <div>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>First name</label>
-              <input className="input" type="text" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} placeholder="First name" />
+              <label htmlFor="signin-first-name" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>First name</label>
+              <input id="signin-first-name" className="input" type="text" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} placeholder="First name" />
               {fieldErrors.firstName && <div style={{ fontSize: 12, color: "#C0392B", marginTop: 4 }}>{fieldErrors.firstName}</div>}
             </div>
             <div>
-              <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Last name</label>
-              <input className="input" type="text" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Last name" />
+              <label htmlFor="signin-last-name" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Last name</label>
+              <input id="signin-last-name" className="input" type="text" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Last name" />
             </div>
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Which dialect are you learning?</label>
-            <div className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <div id="signin-dialect-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Which dialect are you learning?</div>
+            <div role="group" aria-labelledby="signin-dialect-label" className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {dialects.map(d => (
                 <button key={d.id} type="button" onClick={() => setForm(f => ({ ...f, languageInterest: d.name }))}
                   className={form.languageInterest === d.name ? "active" : ""}
@@ -116,8 +116,8 @@ function SignInContent() {
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Gender</label>
-            <div style={{ display: "flex", gap: 12 }}>
+            <div id="signin-gender-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>Gender</div>
+            <div role="group" aria-labelledby="signin-gender-label" style={{ display: "flex", gap: 12 }}>
               {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, Icon, label]) => (
                 <button key={val} type="button" onClick={() => setForm(f => ({ ...f, gender: val }))}
                   style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (form.gender === val ? "#C0392B" : "#E8DDD0"), background: form.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
@@ -130,8 +130,8 @@ function SignInContent() {
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>I want to join as a</label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            <div id="signin-role-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>I want to join as a</div>
+            <div role="group" aria-labelledby="signin-role-label" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               {[["mentee", "Learner"], ["mentor", "Sin Seh"], ["both", "Both"]].map(([val, label]) => (
                 <button key={val} type="button" onClick={() => setForm(f => ({ ...f, role: val }))}
                   style={{ flex: 1, minWidth: 90, padding: "10px 12px", borderRadius: 10, border: "2px solid " + (form.role === val ? "#C0392B" : "#E8DDD0"), background: form.role === val ? "#FDF0EF" : "white", color: form.role === val ? "#C0392B" : "#6B5B45", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>

@@ -31,13 +31,13 @@ function LeaderboardRow({ entry, highlight }) {
         display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10,
         background: highlight ? 'var(--color-surface-warm)' : 'transparent',
       }}>
-        <div style={{ width: 24, textAlign: 'center', fontWeight: 700, fontSize: 13, color: entry.rank <= 3 ? '#D4860B' : 'var(--color-text-muted)' }}>
+        <div style={{ width: 24, textAlign: 'center', fontWeight: 700, fontSize: 13, color: entry.rank <= 3 ? '#A96A08' : 'var(--color-text-muted)' }}>
           {entry.rank}
         </div>
         <AvatarDot gender={entry.gender} role={entry.role} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {entry.name}{entry.verified && <span style={{ color: '#D4860B', marginLeft: 4 }}>✓</span>}
+            {entry.name}{entry.verified && <span style={{ color: '#A96A08', marginLeft: 4 }}>✓</span>}
           </div>
         </div>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary)' }}>{entry.score}</div>
@@ -94,7 +94,7 @@ export default function CommunityPage() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: 20, alignItems: 'start' }}>
         {/* Leaderboard */}
         <div className="card" style={{ padding: 24 }}>
           <div className="pill-toggle" style={{ marginBottom: 16 }}>

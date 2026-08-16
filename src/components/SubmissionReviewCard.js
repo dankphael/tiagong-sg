@@ -66,14 +66,14 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
     <div className="card" style={{ padding: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
         <div>
-          <span style={{ fontSize: 11, background: "#FEF3E2", color: "#D4860B", padding: "3px 10px", borderRadius: 8, fontWeight: 700, marginRight: 6 }}>
+          <span style={{ fontSize: 11, background: "#FEF3E2", color: "#A96A08", padding: "3px 10px", borderRadius: 8, fontWeight: 700, marginRight: 6 }}>
             {TYPE_LABELS[submission.type] || submission.type}
           </span>
           <span style={{ fontSize: 11, background: "#F5F0EA", color: "#6B5B45", padding: "3px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>
             {submission.dialect}
           </span>
         </div>
-        <div style={{ fontSize: 12, color: "#9B8B75" }}>Submitted by {submitterName}</div>
+        <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Submitted by {submitterName}</div>
       </div>
 
       {currentWord ? (
@@ -94,7 +94,7 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
       {submission.type === "correction" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 10 }}>
           <div style={{ padding: "8px 12px", borderRadius: 8, background: "#FAF6F0" }}>
-            <div style={{ fontSize: 11, color: "#9B8B75", marginBottom: 2 }}>Current ({submission.payload?.field})</div>
+            <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginBottom: 2 }}>Current ({submission.payload?.field})</div>
             <div style={{ fontSize: 13, color: "#1A1208" }}>{submission.payload?.currentValue || "—"}</div>
           </div>
           <div style={{ padding: "8px 12px", borderRadius: 8, background: "#EAFAF1" }}>
@@ -108,7 +108,7 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
         <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FAF6F0", marginBottom: 10, fontSize: 13, color: "#1A1208" }}>
           <div><strong>{submission.payload?.romanized}</strong> {submission.payload?.traditional}</div>
           <div style={{ color: "#6B5B45" }}>{submission.payload?.english}</div>
-          {submission.payload?.partOfSpeech && <div style={{ fontSize: 12, color: "#9B8B75" }}>{submission.payload.partOfSpeech}</div>}
+          {submission.payload?.partOfSpeech && <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{submission.payload.partOfSpeech}</div>}
         </div>
       )}
 

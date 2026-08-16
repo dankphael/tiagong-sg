@@ -39,7 +39,7 @@ const COMPACT_STYLE = { display: "inline-flex", alignItems: "center", gap: 5, ba
 // where several of these render side by side (e.g. StoryQuiz's dialogue
 // options) so the same disclaimer doesn't repeat three or four times on one
 // screen; the Volume2 icon still marks each one as synthetic.
-export default function HearItButton({ wordId, dialect, phrase, label = "Hear it", compact = false, style, className, onRecord, mutedColor = "#9B8B75", as = "button", hideDisclaimer = false }) {
+export default function HearItButton({ wordId, dialect, phrase, label = "Hear it", compact = false, style, className, onRecord, mutedColor = "var(--color-text-muted)", as = "button", hideDisclaimer = false }) {
   const { overlay, showToast } = useApp();
   const clip = wordId ? topPronunciation(overlay.variants[wordId]) : null;
 

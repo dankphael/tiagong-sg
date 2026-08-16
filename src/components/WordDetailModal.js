@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Mic, Bookmark, Share2, PenLine, MessageSquarePlus, Flag } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
+import { useModalA11y } from "@/lib/useModalA11y";
 import VariantChips from "@/components/VariantChips";
 import WordComments from "@/components/WordComments";
 import HearItButton from "@/components/HearItButton";
 
 const FREQUENCY_LABELS = { very_common: "Very common", common: "Common", uncommon: "Uncommon", rare: "Rare" };
-const REPORT_STATUS_COLORS = { pending: "#D4860B", accepted: "#1A6B3C", rejected: "#C0392B" };
+const REPORT_STATUS_COLORS = { pending: "#A96A08", accepted: "#1A6B3C", rejected: "#C0392B" };
 
 // Full detail view for a dictionary word — opened by tapping a result card.
 // `word` is the flattened card object (always present — every card, DB-backed
@@ -36,16 +37,7 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    function onKeyDown(e) { if (e.key === "Escape") onClose(); }
-    document.addEventListener("keydown", onKeyDown);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [onClose]);
+  const { containerRef, titleId } = useModalA11y(onClose, { active: mounted && !!word });
 
   if (!word || !mounted) return null;
 
@@ -57,7 +49,8 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
   return createPortal(
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 150, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(12px, 4vw, 24px)" }}
       onClick={onClose}>
-      <div style={{ background: "white", borderRadius: 20, maxWidth: 560, width: "100%", maxHeight: "85vh", overflowY: "auto", padding: "clamp(20px, 5vw, 32px)", boxShadow: "0 8px 40px rgba(0,0,0,0.25)", position: "relative" }}
+      <div ref={containerRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
+        style={{ background: "white", borderRadius: 20, maxWidth: 560, width: "100%", maxHeight: "85vh", overflowY: "auto", padding: "clamp(20px, 5vw, 32px)", boxShadow: "0 8px 40px rgba(0,0,0,0.25)", position: "relative", outline: "none" }}
         onClick={e => e.stopPropagation()}>
         <div style={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 6 }}>
           <button onClick={onToggleSave} aria-label={isSaved ? "Remove from saved" : "Save this entry"}
@@ -85,10 +78,10 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
           )}
         </div>
 
-        <div className="romanized" style={{ fontSize: 32, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>{word.phrase}</div>
+        <div id={titleId} className="romanized" style={{ fontSize: 32, fontWeight: 700, color: "#1A1208", marginBottom: 4 }}>{word.phrase}</div>
         <div style={{ fontFamily: "var(--font-chinese)", fontSize: 20, color: "#8B7355", marginBottom: 8 }}>{word.chinese}</div>
         <div style={{ fontSize: 16, color: "#1A6B3C", fontWeight: 600, marginBottom: 4 }}>{word.meaning}</div>
-        <div style={{ fontSize: 13, color: "#9B8B75", fontStyle: "italic", marginBottom: 12 }}>/{word.romanisation}/</div>
+        <div style={{ fontSize: 13, color: "var(--color-text-muted)", fontStyle: "italic", marginBottom: 12 }}>/{word.romanisation}/</div>
 
         {(fullWord?.part_of_speech || fullWord?.frequency || fullWord?.register) && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
@@ -99,11 +92,11 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
         )}
 
         {word.isCommunity && word.contributorName && (
-          <div style={{ fontSize: 12, color: "#9B8B75", marginBottom: 16 }}>Contributed by {word.contributorName}</div>
+          <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: 16 }}>Contributed by {word.contributorName}</div>
         )}
 
         {reportStatus && (
-          <div style={{ fontSize: 12, color: REPORT_STATUS_COLORS[reportStatus.status] || "#D4860B", fontWeight: 600, marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: REPORT_STATUS_COLORS[reportStatus.status] || "#A96A08", fontWeight: 600, marginBottom: 16 }}>
             You reported this — {reportStatus.status}
             {reportStatus.status === "rejected" && reportStatus.reviewNote && (
               <span style={{ display: "block", fontStyle: "italic", fontWeight: 400, marginTop: 2 }}>Custodian note: {reportStatus.reviewNote}</span>
@@ -124,13 +117,13 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
 
         {pronunciations.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Pronunciation</div>
+            <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Pronunciation</div>
             {pronunciations.map((pr, i) => (
               <div key={i} style={{ fontSize: 13, color: "#6B5B45", marginBottom: 2 }}>
                 <span style={{ textTransform: "capitalize" }}>{pr.type}</span>
                 {pr.romanization_system && <> · {pr.romanization_system.toUpperCase()}</>}
                 {pr.romanization && <> {pr.romanization}</>}
-                {pr.ipa && <span style={{ color: "#9B8B75", fontStyle: "italic" }}> {pr.ipa}</span>}
+                {pr.ipa && <span style={{ color: "var(--color-text-muted)", fontStyle: "italic" }}> {pr.ipa}</span>}
               </div>
             ))}
           </div>
@@ -139,13 +132,13 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
         {/* Definitions + examples */}
         {definitions && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+            <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
               {definitions.length > 1 ? "Definitions" : "Definition"}
             </div>
             {definitions.map((def, i) => (
               <div key={i} style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 14, color: "#1A1208", fontWeight: 600 }}>
-                  {definitions.length > 1 && <span style={{ color: "#9B8B75", fontWeight: 400 }}>{def.order || i + 1}. </span>}
+                  {definitions.length > 1 && <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}>{def.order || i + 1}. </span>}
                   {def.english}
                 </div>
                 {def.mandarin && <div style={{ fontSize: 13, color: "#8B7355", fontFamily: "var(--font-chinese)", marginTop: 2 }}>{def.mandarin}</div>}
@@ -169,7 +162,7 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
 
         {fullWord?.etymology && (
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Etymology</div>
+            <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Etymology</div>
             <div style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.6 }}>{fullWord.etymology}</div>
           </div>
         )}
@@ -182,7 +175,7 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
           <div style={{ marginBottom: 16 }}>
             {synonyms.length > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Synonyms</div>
+                <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Synonyms</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {synonyms.map((s, i) => <span key={i} className="chip">{s}</span>)}
                 </div>
@@ -190,7 +183,7 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
             )}
             {relatedWords.length > 0 && (
               <div>
-                <div style={{ fontSize: 10, color: "#9B8B75", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Related words</div>
+                <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Related words</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {relatedWords.map((r, i) => <span key={i} className="chip">{r}</span>)}
                 </div>

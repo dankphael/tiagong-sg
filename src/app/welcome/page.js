@@ -88,12 +88,13 @@ export default function WelcomePage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16 }}>
             {dialects.map(d => (
-              <div key={d.id} className="card card-hover" style={{ padding: 20, cursor: "pointer", textAlign: "center" }}
+              <button key={d.id} type="button" className="card card-hover"
+                style={{ padding: 20, cursor: "pointer", textAlign: "center", width: "100%", font: "inherit", color: "inherit" }}
                 onClick={() => pickDialect(d)}>
                 <SealChip dialect={d} size="lg" style={{ margin: "0 auto 10px" }} />
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700 }}>{d.name}</div>
                 <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 4 }}>{d.speakers}</div>
-              </div>
+              </button>
             ))}
           </div>
           <div style={{ textAlign: "center", marginTop: 24 }}>
@@ -112,7 +113,9 @@ export default function WelcomePage() {
           <div className="progress" style={{ marginBottom: 24 }}>
             <div className="progress-fill" style={{ width: `${((cardIndex + 1) / microCards.length) * 100}%`, background: dialect.color }} />
           </div>
-          <div className="card-3d flashcard" style={{ marginBottom: 20, cursor: "pointer" }} onClick={() => setFlipped(!flipped)}>
+          <div className="card-3d flashcard" style={{ marginBottom: 20, cursor: "pointer" }} onClick={() => setFlipped(!flipped)}
+            role="button" tabIndex={0} aria-label="Flip card"
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(!flipped); } }}>
             <div className={`card-inner ${flipped ? "flipped" : ""}`} style={{ height: "100%", width: "100%" }}>
               <div className="card-face" style={{ background: `linear-gradient(135deg, ${dialect.color}, ${dialect.accent})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRadius: 20 }}>
                 <div className="romanized" style={{ fontSize: 36, fontWeight: 700, color: "white", textAlign: "center", padding: "0 24px" }}>

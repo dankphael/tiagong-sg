@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const {
     currentUser, xp, streak, authError, setAuthError, successMessage,
     pendingGoogle, saveProfile: ctxSaveProfile, handleLogout,
-    setSelectedDialect,
+    setSelectedDialect, ready,
   } = useApp();
 
   const [profileForm, setProfileForm] = useState({
@@ -36,43 +36,45 @@ export default function ProfilePage() {
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px" }} className="fade-up">
-      {currentUser ? (
+      {!ready ? (
+        <div className="card shimmer" style={{ padding: 36, height: 220, background: "#F0E8DA" }} />
+      ) : currentUser ? (
         <div className="fade-up">
           {profileEditMode ? (
             <div className="card" style={{ padding: 32 }}>
               <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 20 }}>Edit Profile</div>
 
               <div className="form-grid-2" style={{ display: "grid", gap: 12, marginBottom: 16 }}>
-                {[["First Name", "text", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
-                  ["Last Name", "text", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, val, setter]) => (
+                {[["First Name", "text", "profile-first-name", profileForm.firstName, v => setProfileForm(f => ({ ...f, firstName: v }))],
+                  ["Last Name", "text", "profile-last-name", profileForm.lastName, v => setProfileForm(f => ({ ...f, lastName: v }))]].map(([label, type, id, val, setter]) => (
                   <div key={label}>
-                    <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                    <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
+                    <label htmlFor={id} style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                    <input id={id} className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
                   </div>
                 ))}
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Username</label>
+                <label htmlFor="profile-username" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Username</label>
                 <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
-                  <span style={{ position: "absolute", left: 16, fontSize: 14, color: "#9B8B75", pointerEvents: "none", zIndex: 1 }}>@</span>
-                  <input className="input" type="text" value={profileForm.username} onChange={e => setProfileForm(f => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30) }))} placeholder="pick a username"
+                  <span style={{ position: "absolute", left: 16, fontSize: 14, color: "var(--color-text-muted)", pointerEvents: "none", zIndex: 1 }}>@</span>
+                  <input id="profile-username" className="input" type="text" value={profileForm.username} onChange={e => setProfileForm(f => ({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 30) }))} placeholder="pick a username"
                     style={{ paddingLeft: 28 }} />
                 </div>
                 <div style={{ fontSize: 11, color: "#B8A898", marginTop: 4 }}>Lowercase letters, numbers and underscores. 3–30 characters.</div>
               </div>
 
-              {[["Age", "number", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
-                ["Occupation", "text", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, val, setter]) => (
+              {[["Age", "number", "profile-age", profileForm.age, v => setProfileForm(f => ({ ...f, age: v }))],
+                ["Occupation", "text", "profile-occupation", profileForm.occupation, v => setProfileForm(f => ({ ...f, occupation: v }))]].map(([label, type, id, val, setter]) => (
                 <div key={label} style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
-                  <input className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
+                  <label htmlFor={id} style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>{label}</label>
+                  <input id={id} className="input" type={type} value={val} onChange={e => setter(e.target.value)} placeholder={label} />
                 </div>
               ))}
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
-                <select value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))} className="input"
+                <label htmlFor="profile-dialect-interest" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 6 }}>Dialect Interest (Optional)</label>
+                <select id="profile-dialect-interest" value={profileForm.languageInterest} onChange={e => setProfileForm(f => ({ ...f, languageInterest: e.target.value }))} className="input"
                   style={{ height: 44 }}>
                   <option value="">—  Not interested in learning</option>
                   {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => <option key={d}>{d}</option>)}
@@ -80,8 +82,8 @@ export default function ProfilePage() {
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</label>
-                <div className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <div id="profile-dialects-known-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects I already know</div>
+                <div role="group" aria-labelledby="profile-dialects-known-label" className="pill-toggle" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {["Hokkien", "Cantonese", "Teochew", "Hakka", "Hainanese"].map(d => {
                     const checked = (profileForm.dialectsKnown || []).includes(d);
                     return (
@@ -102,8 +104,8 @@ export default function ProfilePage() {
               </div>
 
               <div style={{ marginBottom: 28 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</label>
-                <div style={{ display: "flex", gap: 12 }}>
+                <div id="profile-gender-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>My gender</div>
+                <div role="group" aria-labelledby="profile-gender-label" style={{ display: "flex", gap: 12 }}>
                   {[["male", Mars, "Male"], ["female", Venus, "Female"]].map(([val, Icon, label]) => (
                     <button key={val} type="button" onClick={() => setProfileForm(f => ({ ...f, gender: val }))}
                       style={{ flex: 1, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.gender === val ? "#C0392B" : "#E8DDD0"), background: profileForm.gender === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
@@ -115,8 +117,8 @@ export default function ProfilePage() {
               </div>
 
               <div style={{ marginBottom: 28 }}>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I am a</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                <div id="profile-role-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>I am a</div>
+                <div role="group" aria-labelledby="profile-role-label" style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
                   {[["mentee", "Mentee", "Learn dialects"], ["mentor", "Mentor", "Teach as a Sin Seh"], ["both", "Both", "Learn & teach"], ["none", "Observer", "Just exploring"]].map(([val, label, sub]) => {
                     const emoji = val === "both" || val === "none" ? "👤" : getAvatar(profileForm.gender, val);
                     return (
@@ -124,7 +126,7 @@ export default function ProfilePage() {
                         style={{ flex: 1, minWidth: 120, padding: "14px 12px", borderRadius: 12, border: "2px solid " + (profileForm.role === val ? "#C0392B" : "#E8DDD0"), background: profileForm.role === val ? "#FDF0EF" : "white", cursor: "pointer", fontFamily: "inherit", textAlign: "center", transition: "all 0.2s" }}>
                         <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
                         <div style={{ fontWeight: 700, fontSize: 14, color: profileForm.role === val ? "#C0392B" : "#1A1208" }}>{label}</div>
-                        <div style={{ fontSize: 11, color: "#9B8B75", marginTop: 2 }}>{sub}</div>
+                        <div style={{ fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>{sub}</div>
                       </button>
                     );
                   })}
@@ -138,11 +140,11 @@ export default function ProfilePage() {
 
               <div style={{ borderTop: "1px solid #E8DDD0", paddingTop: 20, marginBottom: 20 }}>
                 <div style={{ fontSize: 11, letterSpacing: 2, color: "#C0392B", textTransform: "uppercase", fontWeight: 700, marginBottom: 16 }}>Community Profile</div>
-                <label style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>My Dialect Journey</label>
-                <textarea value={profileForm.heritageStory || ""} onChange={e => setProfileForm(f => ({ ...f, heritageStory: e.target.value.slice(0, 1000) }))}
+                <label htmlFor="profile-heritage-story" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>My Dialect Journey</label>
+                <textarea id="profile-heritage-story" value={profileForm.heritageStory || ""} onChange={e => setProfileForm(f => ({ ...f, heritageStory: e.target.value.slice(0, 1000) }))}
                   placeholder="Which dialect did your family speak? Why are you learning it? Share your story — it'll show on your public community profile."
                   className="input" style={{ minHeight: 100, resize: "vertical", marginBottom: 4 }} />
-                <div style={{ fontSize: 11, color: "#9B8B75", textAlign: "right", marginBottom: 16 }}>{(profileForm.heritageStory || "").length}/1000</div>
+                <div style={{ fontSize: 11, color: "var(--color-text-muted)", textAlign: "right", marginBottom: 16 }}>{(profileForm.heritageStory || "").length}/1000</div>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#6B5B45", cursor: "pointer" }}>
                   <input type="checkbox" checked={!!profileForm.leaderboardOptOut}
                     onChange={e => setProfileForm(f => ({ ...f, leaderboardOptOut: e.target.checked }))} />
@@ -187,7 +189,7 @@ export default function ProfilePage() {
                                 <span>{level.icon}</span>{level.name}
                               </div>
                             )}
-                            <div style={{ fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : currentUser.role === "both" ? "#E8D5F2" : currentUser.role === "none" ? "#F0E8DA" : "#EEF2FF", color: currentUser.role === "mentor" ? "#D4860B" : currentUser.role === "both" ? "#6B21A8" : currentUser.role === "none" ? "#6B5B45" : "#5B21B6", padding: "4px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
+                            <div style={{ fontSize: 11, background: currentUser.role === "mentor" ? "#FEF3E2" : currentUser.role === "both" ? "#E8D5F2" : currentUser.role === "none" ? "#F0E8DA" : "#EEF2FF", color: currentUser.role === "mentor" ? "#A96A08" : currentUser.role === "both" ? "#6B21A8" : currentUser.role === "none" ? "#6B5B45" : "#5B21B6", padding: "4px 10px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize" }}>{currentUser.role}</div>
                           </div>
                         </div>
                       </div>
@@ -246,7 +248,7 @@ export default function ProfilePage() {
                               <div className="progress" style={{ height: 8 }}>
                                 <div className="progress-fill" style={{ width: progress + "%", background: level?.color || "#C0392B" }}></div>
                               </div>
-                              <div style={{ fontSize: 12, color: "#9B8B75", marginTop: 6 }}>
+                              <div style={{ fontSize: 12, color: "var(--color-text-muted)", marginTop: 6 }}>
                                 {xp} XP · {nextLevel.minXP - xp} XP to {nextLevel.name}
                               </div>
                             </div>
@@ -297,7 +299,7 @@ export default function ProfilePage() {
                             })}
                           </div>
                         ) : (
-                          <div style={{ fontSize: 13, color: "#9B8B75", fontStyle: "italic" }}>
+                          <div style={{ fontSize: 13, color: "var(--color-text-muted)", fontStyle: "italic" }}>
                             Add dialects you know in your profile to celebrate your heritage.
                           </div>
                         )}
