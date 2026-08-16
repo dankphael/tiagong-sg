@@ -19,9 +19,12 @@ export function variantTypeFor(type, payload) {
 }
 
 // Looks up a user's display name the same way everywhere a contribution
-// gets attributed, falling back to an anonymous label.
-export async function resolveContributorName(userId) {
-  const result = await query(`SELECT first_name, last_name FROM users WHERE id = $1`, [userId]);
+// gets attributed, falling back to an anonymous label. Pass a transaction
+// client when called from inside withTransaction (src/lib/db.js) so the
+// lookup runs on the same connection as the rest of the write.
+export async function resolveContributorName(userId, client) {
+  const run = client ? client.query.bind(client) : query;
+  const result = await run(`SELECT first_name, last_name FROM users WHERE id = $1`, [userId]);
   const user = result.rows[0];
   return user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'A community member' : 'A community member';
 }
@@ -36,8 +39,11 @@ export async function resolveContributorName(userId) {
 // (api/recordings/vote/route.js) from paying it again once the variant
 // separately crosses the upvote threshold. The instant-publish path
 // defaults to `false` since XP there is earned only by community upvotes.
-export async function insertVariant(contribution, contributorName, { xpAwarded = false } = {}) {
-  await query(
+// Pass a transaction client (see resolveContributorName above) when this
+// insert must land atomically with the contribution row it belongs to.
+export async function insertVariant(contribution, contributorName, { xpAwarded = false } = {}, client) {
+  const run = client ? client.query.bind(client) : query;
+  await run(
     `INSERT INTO word_variants (contribution_id, word_id, dialect, variant_type, payload, contributor_name, context_note, xp_awarded)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
     [

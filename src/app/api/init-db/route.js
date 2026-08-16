@@ -224,6 +224,15 @@ export async function GET(req) {
     await query(`CREATE INDEX IF NOT EXISTS idx_contributions_word ON contributions(word_id)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_word_variants_word ON word_variants(word_id)`);
 
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_comments_user_time ON word_comments(user_id, created_at DESC)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_time ON contributions(created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_status_time ON contributions(status, created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_variants_time ON word_variants(created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_users_time ON users(created_at DESC)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_recording_votes_user ON recording_votes(user_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_connections_updated ON connections(updated_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_custodian_applications_status ON custodian_applications(status)`);
+
     return Response.json({ success: true, message: '✅ Database initialized!' }, { status: 200 });
   } catch (error) {
     console.error('❌ Database initialization failed:', error);

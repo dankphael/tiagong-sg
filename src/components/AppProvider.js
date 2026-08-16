@@ -47,12 +47,16 @@ export function AppProvider({ children }) {
   const [knownCards, setKnownCards] = useState({});
   const [selectedDialect, setSelectedDialect] = useState(null);
   const [apiWords, setApiWords] = useState([]);
+  const [wordsLoading, setWordsLoading] = useState(false);
+  const [wordsError, setWordsError] = useState(false);
+  const wordsRequestedRef = useRef(false);
+  const profilesRequestedRef = useRef(false);
   const [authError, setAuthError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [pendingGoogle, setPendingGoogle] = useState(null);
   const [ready, setReady] = useState(false);
   const [toasts, setToasts] = useState([]);
-  const [profilesLoading, setProfilesLoading] = useState(true);
+  const [profilesLoading, setProfilesLoading] = useState(false);
   const [overlay, setOverlay] = useState({ variants: {}, newWords: [] });
   const [introDismissed, setIntroDismissed] = useState(false);
   const [bookmarks, setBookmarks] = useState({}); // { [wordId]: true }
@@ -334,28 +338,49 @@ export function AppProvider({ children }) {
       .catch(() => {});
   }, []);
 
-  // Bootstrap: dictionary, community profiles, session restore
+  // Loads the ~1.7MB dictionary.json — only the pages that actually read
+  // apiWords call this on mount (dictionary, learn/[dialect], custodian,
+  // community, about); every other route (network, profile, signin, …)
+  // never pays the fetch/parse cost. Ref-guarded so multiple consumer pages
+  // mounting don't refetch once it's loaded; a failed attempt clears the
+  // ref so a retry can try again.
+  const loadDictionary = useCallback(() => {
+    if (wordsRequestedRef.current) return;
+    wordsRequestedRef.current = true;
+    setWordsLoading(true);
+    setWordsError(false);
+    fetch("/dictionary.json")
+      .then(r => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then(data => setApiWords(data.words || []))
+      .catch(() => { wordsRequestedRef.current = false; setWordsError(true); })
+      .finally(() => setWordsLoading(false));
+  }, []);
+
+  // Loads the member directory — only network/ and member/[id]/ call this,
+  // since they're the only consumers of registeredUsers. Requires a signed-
+  // in session (the API is auth-gated); a no-op for guests.
+  const loadProfiles = useCallback(() => {
+    if (profilesRequestedRef.current) return;
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    profilesRequestedRef.current = true;
+    setProfilesLoading(true);
+    fetch("/api/users/profiles", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
+      .catch(err => { console.error("Failed to load profiles:", err); profilesRequestedRef.current = false; })
+      .finally(() => setProfilesLoading(false));
+  }, []);
+
+  // Bootstrap: session restore only — dictionary and community profiles are
+  // lazy-loaded by the pages that need them (see loadDictionary/loadProfiles
+  // above).
   useEffect(() => {
     setIntroDismissed(localStorage.getItem("tiagong_onboarded") === "1");
-
-    fetch("/dictionary.json")
-      .then(r => r.json())
-      .then(data => setApiWords(data.words || []))
-      .catch(() => {});
 
     refreshOverlay();
 
     const token = localStorage.getItem("auth_token");
-    if (token) {
-      fetch("/api/users/profiles", { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => r.json())
-        .then(users => setRegisteredUsers(Array.isArray(users) ? users : []))
-        .catch(err => console.error("Failed to load profiles:", err))
-        .finally(() => setProfilesLoading(false));
-    } else {
-      setProfilesLoading(false);
-    }
-
     if (token) {
       fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
         .then(r => r.ok ? r.json() : null)
@@ -456,7 +481,7 @@ export function AppProvider({ children }) {
 
   const value = {
     currentUser, setCurrentUser,
-    registeredUsers, setRegisteredUsers, profilesLoading, overlay, refreshOverlay,
+    registeredUsers, setRegisteredUsers, profilesLoading, loadProfiles, overlay, refreshOverlay,
     bookmarks, toggleBookmark,
     introDismissed, markIntroSeen,
     xp, setXp, streak, setStreak,
@@ -464,7 +489,7 @@ export function AppProvider({ children }) {
     progress, setProgress,
     knownCards, setKnownCards,
     selectedDialect, setSelectedDialect, dialect,
-    apiWords,
+    apiWords, wordsLoading, wordsError, loadDictionary,
     authError, setAuthError,
     successMessage, setSuccessMessage,
     pendingGoogle, setPendingGoogle,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { GraduationCap, UserCheck, ArrowRight, Handshake, Sprout, BadgeCheck, MessageCircle, Search } from "lucide-react";
@@ -13,7 +13,8 @@ const HUAY_KUAN_BY_ID = Object.fromEntries(huayKuan.map(h => [h.id, h]));
 
 export default function NetworkPage() {
   const router = useRouter();
-  const { currentUser, registeredUsers, profilesLoading, showToast } = useApp();
+  const { currentUser, registeredUsers, profilesLoading, loadProfiles, showToast } = useApp();
+  useEffect(() => { loadProfiles(); }, [loadProfiles, currentUser?.id]);
 
   const [networkView, setNetworkView] = useState("directory");
   const [sinSehDialectFilter, setSinSehDialectFilter] = useState("All");
@@ -227,6 +228,60 @@ export default function NetworkPage() {
 
   const dColors = { Hokkien: "#C0392B", Cantonese: "#8E44AD", Teochew: "#1A6B3C", Hakka: "#D4860B", Hainanese: "#1A7EA6" };
 
+  const { filtered: sinSehsFiltered, sorted: sinSehsSorted } = useMemo(() => {
+    const sinSehs = registeredUsers.filter(u => (u.role === "mentor" || u.role === "both") && u.id !== currentUser?.id);
+    const ageFilterFn = (u) => {
+      if (sinSehAgeFilter === "All") return true;
+      if (sinSehAgeFilter === "Under 18") return u.age < 18;
+      if (sinSehAgeFilter === "18–24") return u.age >= 18 && u.age <= 24;
+      if (sinSehAgeFilter === "25–34") return u.age >= 25 && u.age <= 34;
+      if (sinSehAgeFilter === "35–44") return u.age >= 35 && u.age <= 44;
+      if (sinSehAgeFilter === "45+") return u.age >= 45;
+      return true;
+    };
+    let filtered = sinSehs.filter(u => {
+      if (sinSehDialectFilter !== "All" && u.languageInterest !== sinSehDialectFilter) return false;
+      if (sinSehGenderFilter !== "All" && u.gender !== sinSehGenderFilter.toLowerCase()) return false;
+      if (!ageFilterFn(u)) return false;
+      if (sinsehSearch) {
+        const q = sinsehSearch.toLowerCase();
+        const nameMatch = `${u.firstName} ${u.lastName}`.toLowerCase().includes(q);
+        const usernameMatch = u.username && u.username.toLowerCase().includes(q);
+        if (!nameMatch && !usernameMatch) return false;
+      }
+      return true;
+    });
+    if (sinSehIntentFilter !== "All") {
+      filtered = filtered.filter(u => !Array.isArray(u.offerings) || u.offerings.length === 0 || u.offerings.includes(sinSehIntentFilter));
+    }
+    return { filtered, sorted: rankSinSehs(currentUser, filtered) };
+  }, [registeredUsers, currentUser, sinSehDialectFilter, sinSehGenderFilter, sinSehAgeFilter, sinsehSearch, sinSehIntentFilter]);
+
+  const everyoneFiltered = useMemo(() => {
+    const ageFilterFn = (u) => {
+      if (everyoneAgeFilter === "All") return true;
+      if (everyoneAgeFilter === "Under 18") return u.age < 18;
+      if (everyoneAgeFilter === "18–24") return u.age >= 18 && u.age <= 24;
+      if (everyoneAgeFilter === "25–34") return u.age >= 25 && u.age <= 34;
+      if (everyoneAgeFilter === "35–44") return u.age >= 35 && u.age <= 44;
+      if (everyoneAgeFilter === "45+") return u.age >= 45;
+      return true;
+    };
+    return registeredUsers.filter(m => {
+      if (everyoneSearch) {
+        const q = everyoneSearch.toLowerCase();
+        const nameMatch = `${m.firstName} ${m.lastName}`.toLowerCase().includes(q);
+        const usernameMatch = m.username && m.username.toLowerCase().includes(q);
+        if (!nameMatch && !usernameMatch) return false;
+      }
+      if (networkFilter !== "All" && m.role !== networkFilter.toLowerCase()) return false;
+      if (everyoneDialectFilter !== "All" && m.languageInterest !== everyoneDialectFilter) return false;
+      if (everyoneGenderFilter !== "All" && m.gender !== everyoneGenderFilter.toLowerCase()) return false;
+      if (!ageFilterFn(m)) return false;
+      return true;
+    });
+  }, [registeredUsers, everyoneSearch, networkFilter, everyoneDialectFilter, everyoneGenderFilter, everyoneAgeFilter]);
+
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }} className="fade-up">
       <div style={{ textAlign: "center", marginBottom: 40 }}>
@@ -403,33 +458,8 @@ export default function NetworkPage() {
           )}
 
           {(() => {
-            const sinSehs = registeredUsers.filter(u => (u.role === "mentor" || u.role === "both") && u.id !== currentUser?.id);
-            const ageFilterFn = (u) => {
-              if (sinSehAgeFilter === "All") return true;
-              if (sinSehAgeFilter === "Under 18") return u.age < 18;
-              if (sinSehAgeFilter === "18–24") return u.age >= 18 && u.age <= 24;
-              if (sinSehAgeFilter === "25–34") return u.age >= 25 && u.age <= 34;
-              if (sinSehAgeFilter === "35–44") return u.age >= 35 && u.age <= 44;
-              if (sinSehAgeFilter === "45+") return u.age >= 45;
-              return true;
-            };
-            let filtered = sinSehs.filter(u => {
-              if (sinSehDialectFilter !== "All" && u.languageInterest !== sinSehDialectFilter) return false;
-              if (sinSehGenderFilter !== "All" && u.gender !== sinSehGenderFilter.toLowerCase()) return false;
-              if (!ageFilterFn(u)) return false;
-              if (sinsehSearch) {
-                const q = sinsehSearch.toLowerCase();
-                const nameMatch = `${u.firstName} ${u.lastName}`.toLowerCase().includes(q);
-                const usernameMatch = u.username && u.username.toLowerCase().includes(q);
-                if (!nameMatch && !usernameMatch) return false;
-              }
-              return true;
-            });
-            if (sinSehIntentFilter !== "All") {
-              filtered = filtered.filter(u => !Array.isArray(u.offerings) || u.offerings.length === 0 || u.offerings.includes(sinSehIntentFilter));
-            }
-
-            const sorted = rankSinSehs(currentUser, filtered);
+            const filtered = sinSehsFiltered;
+            const sorted = sinSehsSorted;
 
             return profilesLoading ? (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap: 24 }}>
@@ -818,28 +848,7 @@ export default function NetworkPage() {
               <p style={{ fontSize: 14 }}>Be the first to join the community and connect with fellow dialect learners.</p>
             </div>
           ) : (() => {
-            const ageFilterFn = (u) => {
-              if (everyoneAgeFilter === "All") return true;
-              if (everyoneAgeFilter === "Under 18") return u.age < 18;
-              if (everyoneAgeFilter === "18–24") return u.age >= 18 && u.age <= 24;
-              if (everyoneAgeFilter === "25–34") return u.age >= 25 && u.age <= 34;
-              if (everyoneAgeFilter === "35–44") return u.age >= 35 && u.age <= 44;
-              if (everyoneAgeFilter === "45+") return u.age >= 45;
-              return true;
-            };
-            const filtered = registeredUsers.filter(m => {
-              if (everyoneSearch) {
-                const q = everyoneSearch.toLowerCase();
-                const nameMatch = `${m.firstName} ${m.lastName}`.toLowerCase().includes(q);
-                const usernameMatch = m.username && m.username.toLowerCase().includes(q);
-                if (!nameMatch && !usernameMatch) return false;
-              }
-              if (networkFilter !== "All" && m.role !== networkFilter.toLowerCase()) return false;
-              if (everyoneDialectFilter !== "All" && m.languageInterest !== everyoneDialectFilter) return false;
-              if (everyoneGenderFilter !== "All" && m.gender !== everyoneGenderFilter.toLowerCase()) return false;
-              if (!ageFilterFn(m)) return false;
-              return true;
-            });
+            const filtered = everyoneFiltered;
             if (filtered.length === 0) {
               return (
                 <div style={{ textAlign: "center", padding: "60px 24px", color: "#9B8B75" }}>

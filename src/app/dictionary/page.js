@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search, X, ChevronUp, ChevronDown, Filter, ArrowLeft, ArrowRight,
@@ -34,10 +34,12 @@ const PAGE_SIZE = 60;
 
 export default function DictionaryPage() {
   const router = useRouter();
-  const { apiWords, overlay, currentUser, showToast, bookmarks, toggleBookmark, refreshOverlay } = useApp();
+  const { apiWords, wordsLoading, wordsError, loadDictionary, overlay, currentUser, showToast, bookmarks, toggleBookmark, refreshOverlay } = useApp();
+  useEffect(() => { loadDictionary(); }, [loadDictionary]);
   const [contributionModal, setContributionModal] = useState(null); // { word, type } when composing
   const [wordModal, setWordModal] = useState(null); // flattened phrase object when viewing an entry
   const [commentCounts, setCommentCounts] = useState({});
+  const [voteMap, setVoteMap] = useState({}); // { [variantId]: myVote } — bulk-fetched once per page instead of per card
   const [myReports, setMyReports] = useState({}); // { [wordId]: { status, reviewNote } } — latest error_flag per word
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebouncedQuery, setSearchDebouncedQuery] = useState("");
@@ -83,61 +85,64 @@ export default function DictionaryPage() {
   // lesson phrases and accepted community new-words get a deterministic
   // synthetic id (src/lib/wordId.js) — so comments, error reports, suggested
   // edits, and recordings can anchor to any card, not just DB-backed ones.
-  const allPhrases = [];
-  for (const [dialectId, dialectData] of Object.entries(lessons)) {
-    const dialectInfo = dialects.find(d => d.id === dialectId);
-    for (const [category, phrases] of Object.entries(dialectData)) {
-      for (const p of phrases) {
-        const wordId = staticPhraseId(dialectId, category, p.phrase);
-        allPhrases.push({
-          ...p,
-          wordId,
-          dialect: dialectId,
-          dialectName: dialectInfo?.name || dialectId,
-          dialectColor: dialectInfo?.color || "#666",
-          dialectIcon: dialectInfo?.icon || "",
-          category,
-          variants: overlay.variants[wordId] || [],
-        });
+  const allPhrases = useMemo(() => {
+    const result = [];
+    for (const [dialectId, dialectData] of Object.entries(lessons)) {
+      const dialectInfo = dialects.find(d => d.id === dialectId);
+      for (const [category, phrases] of Object.entries(dialectData)) {
+        for (const p of phrases) {
+          const wordId = staticPhraseId(dialectId, category, p.phrase);
+          result.push({
+            ...p,
+            wordId,
+            dialect: dialectId,
+            dialectName: dialectInfo?.name || dialectId,
+            dialectColor: dialectInfo?.color || "#666",
+            dialectIcon: dialectInfo?.icon || "",
+            category,
+            variants: overlay.variants[wordId] || [],
+          });
+        }
       }
     }
-  }
-  for (const word of apiWords) {
-    const dialectInfo = dialects.find(d => d.id === word.dialect);
-    const cat = word.tags?.[0] || "other";
-    allPhrases.push({
-      wordId: word.id,
-      phrase: word.headword?.romanized || "",
-      chinese: word.headword?.traditional || "",
-      meaning: word.definitions?.[0]?.english || "",
-      romanisation: word.headword?.romanized || "",
-      dialect: word.dialect,
-      dialectName: dialectInfo?.name || word.dialect,
-      dialectColor: dialectInfo?.color || "#666",
-      dialectIcon: dialectInfo?.icon || "",
-      category: cat,
-      variants: overlay.variants[word.id] || [],
-    });
-  }
-  for (const nw of overlay.newWords || []) {
-    const dialectInfo = dialects.find(d => d.id === nw.dialect);
-    const wordId = communityWordId(nw.id);
-    allPhrases.push({
-      wordId,
-      phrase: nw.payload?.romanized || "",
-      chinese: nw.payload?.traditional || "",
-      meaning: nw.payload?.english || "",
-      romanisation: nw.payload?.romanized || "",
-      dialect: nw.dialect,
-      dialectName: dialectInfo?.name || nw.dialect,
-      dialectColor: dialectInfo?.color || "#666",
-      dialectIcon: dialectInfo?.icon || "",
-      category: nw.payload?.partOfSpeech || "other",
-      variants: overlay.variants[wordId] || [],
-      isCommunity: true,
-      contributorName: nw.contributor_name,
-    });
-  }
+    for (const word of apiWords) {
+      const dialectInfo = dialects.find(d => d.id === word.dialect);
+      const cat = word.tags?.[0] || "other";
+      result.push({
+        wordId: word.id,
+        phrase: word.headword?.romanized || "",
+        chinese: word.headword?.traditional || "",
+        meaning: word.definitions?.[0]?.english || "",
+        romanisation: word.headword?.romanized || "",
+        dialect: word.dialect,
+        dialectName: dialectInfo?.name || word.dialect,
+        dialectColor: dialectInfo?.color || "#666",
+        dialectIcon: dialectInfo?.icon || "",
+        category: cat,
+        variants: overlay.variants[word.id] || [],
+      });
+    }
+    for (const nw of overlay.newWords || []) {
+      const dialectInfo = dialects.find(d => d.id === nw.dialect);
+      const wordId = communityWordId(nw.id);
+      result.push({
+        wordId,
+        phrase: nw.payload?.romanized || "",
+        chinese: nw.payload?.traditional || "",
+        meaning: nw.payload?.english || "",
+        romanisation: nw.payload?.romanized || "",
+        dialect: nw.dialect,
+        dialectName: dialectInfo?.name || nw.dialect,
+        dialectColor: dialectInfo?.color || "#666",
+        dialectIcon: dialectInfo?.icon || "",
+        category: nw.payload?.partOfSpeech || "other",
+        variants: overlay.variants[wordId] || [],
+        isCommunity: true,
+        contributorName: nw.contributor_name,
+      });
+    }
+    return result;
+  }, [apiWords, overlay]);
 
   // Deep-link support: /dictionary?word=<id> opens that entry's detail modal
   // once the dictionary has loaded — resolves against all three card
@@ -154,21 +159,24 @@ export default function DictionaryPage() {
   }, [allPhrases.length]);
 
   const q = searchDebouncedQuery.toLowerCase().trim();
-  let filteredPhrases = allPhrases.filter(p => {
-    if (!searchDialects.includes(p.dialect)) return false;
-    if (searchCategory !== "all" && p.category !== searchCategory) return false;
-    if (savedOnly && !bookmarks[p.wordId]) return false;
-    if (!q) return true;
-    return (
-      p.meaning.toLowerCase().includes(q) ||
-      p.romanisation.toLowerCase().includes(q) ||
-      p.chinese.includes(q) ||
-      p.phrase.toLowerCase().includes(q)
-    );
-  });
+  const filteredPhrases = useMemo(() => {
+    const result = allPhrases.filter(p => {
+      if (!searchDialects.includes(p.dialect)) return false;
+      if (searchCategory !== "all" && p.category !== searchCategory) return false;
+      if (savedOnly && !bookmarks[p.wordId]) return false;
+      if (!q) return true;
+      return (
+        p.meaning.toLowerCase().includes(q) ||
+        p.romanisation.toLowerCase().includes(q) ||
+        p.chinese.includes(q) ||
+        p.phrase.toLowerCase().includes(q)
+      );
+    });
 
-  if (searchSort === "a-z") filteredPhrases.sort((a, b) => a.phrase.localeCompare(b.phrase));
-  else if (searchSort === "z-a") filteredPhrases.sort((a, b) => b.phrase.localeCompare(a.phrase));
+    if (searchSort === "a-z") result.sort((a, b) => a.phrase.localeCompare(b.phrase));
+    else if (searchSort === "z-a") result.sort((a, b) => b.phrase.localeCompare(a.phrase));
+    return result;
+  }, [allPhrases, searchDialects, searchCategory, savedOnly, bookmarks, q, searchSort]);
 
   const totalPages = Math.ceil(filteredPhrases.length / PAGE_SIZE);
   const start = (searchPage - 1) * PAGE_SIZE;
@@ -183,6 +191,20 @@ export default function DictionaryPage() {
       .then(data => setCommentCounts(prev => ({ ...prev, ...data })))
       .catch(() => {});
   }, [pageWordIds]);
+
+  // Bulk-fetch the caller's own votes for every variant on this page in one
+  // request — VariantChips would otherwise fire its own request per card
+  // (up to PAGE_SIZE requests just to load one page of results).
+  const pageVariantIds = pageResults.flatMap(p => (p.variants || []).map(v => v.id)).join(',');
+  useEffect(() => {
+    if (!pageVariantIds || !currentUser) { setVoteMap({}); return; }
+    const token = localStorage.getItem("auth_token");
+    if (!token) { setVoteMap({}); return; }
+    fetch(`/api/recordings/vote?variantIds=${pageVariantIds}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : {})
+      .then(setVoteMap)
+      .catch(() => {});
+  }, [pageVariantIds, currentUser]);
 
   function openContribution(word, type) {
     if (!currentUser) {
@@ -451,8 +473,8 @@ export default function DictionaryPage() {
           ) : (
             <>
               <div className="search-results-grid">
-                {pageResults.map((p, i) => (
-                  <div key={start + i} className="result-card btn-hover" onClick={() => openWordModal(p)}
+                {pageResults.map((p) => (
+                  <div key={p.wordId} className="result-card btn-hover" onClick={() => openWordModal(p)}
                     style={{ background: "white", borderRadius: 14, padding: "16px", border: "1.5px solid #E8DDD0", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
                     <button onClick={e => { e.stopPropagation(); toggleBookmark(p.wordId, p.dialect); }}
                       aria-label={bookmarks[p.wordId] ? "Remove from saved" : "Save this entry"}
@@ -493,7 +515,7 @@ export default function DictionaryPage() {
                       </div>
                     )}
                     <div onClick={e => e.stopPropagation()}>
-                      <VariantChips variants={p.variants} canModerate={canModerateDialect(p.dialect)} onRemove={handleRemoveVariant} />
+                      <VariantChips variants={p.variants} canModerate={canModerateDialect(p.dialect)} onRemove={handleRemoveVariant} voteMap={voteMap} />
                     </div>
                     <div onClick={e => e.stopPropagation()} style={{ display: "flex", flexWrap: "wrap", gap: 4, borderTop: "1px solid #F0E8DA", paddingTop: 4, marginLeft: -8 }}>
                       <button onClick={() => openContribution(p, "interpretation")}

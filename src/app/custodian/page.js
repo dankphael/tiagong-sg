@@ -6,7 +6,8 @@ import { useApp } from "@/components/AppProvider";
 import SubmissionReviewCard from "@/components/SubmissionReviewCard";
 
 export default function CustodianPage() {
-  const { currentUser, ready, apiWords, showToast } = useApp();
+  const { currentUser, ready, apiWords, showToast, loadDictionary } = useApp();
+  useEffect(() => { loadDictionary(); }, [loadDictionary]);
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
 

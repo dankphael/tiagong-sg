@@ -38,11 +38,13 @@ function LearnDialectContent() {
   const dialectId = params.dialect;
   const dialect = dialects.find(d => d.id === dialectId);
 
-  const { xp, streak, setSelectedDialect } = useApp();
+  const { xp, streak, setSelectedDialect, loadDictionary } = useApp();
 
   useEffect(() => {
     if (dialect) setSelectedDialect(dialect.id);
   }, [dialect, setSelectedDialect]);
+
+  useEffect(() => { loadDictionary(); }, [loadDictionary]);
 
   const [lessonMode, setLessonMode] = useState("flashcards");
   const [selectedCategory, setSelectedCategory] = useState("greetings");

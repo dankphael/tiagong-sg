@@ -47,7 +47,8 @@ function LeaderboardRow({ entry, highlight }) {
 }
 
 export default function CommunityPage() {
-  const { currentUser, apiWords, overlay } = useApp();
+  const { currentUser, apiWords, overlay, loadDictionary } = useApp();
+  useEffect(() => { loadDictionary(); }, [loadDictionary]);
   const [board, setBoard] = useState('learners');
   const [dialectFilter, setDialectFilter] = useState(null);
   const [leaderboard, setLeaderboard] = useState(null);

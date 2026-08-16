@@ -1,4 +1,4 @@
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import { requireActiveAuth } from '@/lib/auth';
 import { XP_REWARDS } from '@/data/xpSystem';
 import { insertVariant, resolveContributorName } from '@/lib/variants';
@@ -43,27 +43,36 @@ export async function PATCH(req, { params }) {
     }
 
     const newStatus = action === 'accept' ? 'accepted' : 'rejected';
-    const updated = await query(
-      `UPDATE contributions SET status = $1, reviewer_id = $2, review_note = $3, reviewed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $4
-       RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
-      [newStatus, decoded.userId, note || null, id]
-    );
+    // Wrapped in a transaction: previously the status UPDATE, the
+    // word_variants insert, and the XP grant were three separate
+    // unguarded writes, so a failure between them (e.g. insertVariant
+    // throwing) left a contribution permanently 'accepted' with no variant
+    // and no XP paid — an unfixable state with no transaction to roll back.
+    const updatedRow = await withTransaction(async (client) => {
+      const updated = await client.query(
+        `UPDATE contributions SET status = $1, reviewer_id = $2, review_note = $3, reviewed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $4
+         RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
+        [newStatus, decoded.userId, note || null, id]
+      );
 
-    if (action === 'accept') {
-      if (contribution.type !== 'error_flag') {
-        const contributorName = await resolveContributorName(contribution.user_id);
-        // xpAwarded: true — the unconditional XP grant below already pays
-        // out for this variant, so the vote route must not pay it again if
-        // it also crosses the upvote threshold.
-        await insertVariant(contribution, contributorName, { xpAwarded: true });
+      if (action === 'accept') {
+        if (contribution.type !== 'error_flag') {
+          const contributorName = await resolveContributorName(contribution.user_id, client);
+          // xpAwarded: true — the unconditional XP grant below already pays
+          // out for this variant, so the vote route must not pay it again if
+          // it also crosses the upvote threshold.
+          await insertVariant(contribution, contributorName, { xpAwarded: true }, client);
+        }
+
+        await client.query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, contribution.user_id]);
+        await client.query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'contribution_accepted')`, [contribution.user_id, XP_REWARDS.contributionAccepted]);
       }
 
-      await query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, contribution.user_id]);
-      await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'contribution_accepted')`, [contribution.user_id, XP_REWARDS.contributionAccepted]);
-    }
+      return updated.rows[0];
+    });
 
-    return Response.json(updated.rows[0], { status: 200 });
+    return Response.json(updatedRow, { status: 200 });
   } catch (err) {
     console.error('Error reviewing contribution:', err);
     return Response.json({ error: 'Failed to review contribution' }, { status: 500 });

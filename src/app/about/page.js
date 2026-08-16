@@ -11,10 +11,23 @@ import { dialects, huayKuan, lessons } from "@/data/staticData";
 
 export default function AboutPage() {
   const router = useRouter();
-  const { registeredUsers, apiWords } = useApp();
+  const { apiWords, loadDictionary } = useApp();
   const [aboutFaqOpen, setAboutFaqOpen] = useState(null);
   const [aboutStatsVisible, setAboutStatsVisible] = useState(false);
   const [aboutCopied, setAboutCopied] = useState(null);
+  const [learnerCount, setLearnerCount] = useState(0);
+
+  useEffect(() => { loadDictionary(); }, [loadDictionary]);
+
+  // Public headcount for the impact stats below — guests can't call the
+  // auth-gated /api/users/profiles directory, so this reads from a
+  // count-only endpoint instead.
+  useEffect(() => {
+    fetch("/api/users/count")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setLearnerCount(data.count); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const el = document.getElementById("about-stats");
@@ -50,7 +63,7 @@ export default function AboutPage() {
         {(() => {
           const lessonEntries = Object.values(lessons).reduce((sum, dialectData) => sum + Object.values(dialectData).reduce((s, arr) => s + arr.length, 0), 0);
           return [
-            { label: "Learners", value: registeredUsers.length },
+            { label: "Learners", value: learnerCount },
             { label: "Phrases", value: lessonEntries + apiWords.length },
             { label: "Dialects", value: dialects.length },
             { label: "Associations", value: huayKuan.length },

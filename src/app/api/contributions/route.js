@@ -1,4 +1,4 @@
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import { requireAuth, requireActiveAuth } from '@/lib/auth';
 import { assertUnderLimit } from '@/lib/rateLimit';
 import { dialects } from '@/data/staticData';
@@ -98,9 +98,8 @@ export async function POST(req) {
       // from the request. pronunciation_audio always publishes instantly
       // (it's in INSTANT_PUBLISH_TYPES), so the word_variants row is created
       // in the same transaction as the contribution + clip, never orphaned.
-      await query('BEGIN');
-      try {
-        const contributionResult = await query(
+      const contribution = await withTransaction(async (client) => {
+        const contributionResult = await client.query(
           `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason, status)
            VALUES ($1, $2, $3, $4, $5, $6, 'published')
            RETURNING id`,
@@ -108,37 +107,34 @@ export async function POST(req) {
         );
         const contributionId = contributionResult.rows[0].id;
 
-        const clipResult = await query(
+        const clipResult = await client.query(
           `INSERT INTO audio_clips (contribution_id, mime_type, data, duration_ms) VALUES ($1, $2, $3, $4) RETURNING id`,
           [contributionId, normalizeAudioMimeType(audioMimeType), audioData, Math.round(durationMs)]
         );
         const audioClipId = clipResult.rows[0].id;
 
-        const updated = await query(
+        const updated = await client.query(
           `UPDATE contributions SET payload = payload || $1::jsonb WHERE id = $2
            RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
           [JSON.stringify({ audioClipId }), contributionId]
         );
         const contribution = updated.rows[0];
 
-        const contributorName = await resolveContributorName(decoded.userId);
-        await insertVariant(contribution, contributorName);
+        const contributorName = await resolveContributorName(decoded.userId, client);
+        await insertVariant(contribution, contributorName, {}, client);
 
-        await query('COMMIT');
-        return Response.json(contribution, { status: 201 });
-      } catch (txErr) {
-        await query('ROLLBACK');
-        throw txErr;
-      }
+        return contribution;
+      });
+
+      return Response.json(contribution, { status: 201 });
     }
 
     const isInstant = INSTANT_PUBLISH_TYPES.includes(type);
 
     // Wrapped in a transaction so an instant-publish contribution never
     // exists without its word_variants row (mirrors the audio branch above).
-    await query('BEGIN');
-    try {
-      const result = await query(
+    const contribution = await withTransaction(async (client) => {
+      const result = await client.query(
         `INSERT INTO contributions (user_id, type, word_id, dialect, payload, reason, status)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING id, user_id, type, word_id, dialect, payload, reason, status, review_note, reviewed_at, created_at`,
@@ -147,16 +143,14 @@ export async function POST(req) {
       const contribution = result.rows[0];
 
       if (isInstant) {
-        const contributorName = await resolveContributorName(decoded.userId);
-        await insertVariant(contribution, contributorName);
+        const contributorName = await resolveContributorName(decoded.userId, client);
+        await insertVariant(contribution, contributorName, {}, client);
       }
 
-      await query('COMMIT');
-      return Response.json(contribution, { status: 201 });
-    } catch (txErr) {
-      await query('ROLLBACK');
-      throw txErr;
-    }
+      return contribution;
+    });
+
+    return Response.json(contribution, { status: 201 });
   } catch (err) {
     console.error('Error creating contribution:', err);
     return Response.json({ error: 'Failed to submit contribution' }, { status: 500 });

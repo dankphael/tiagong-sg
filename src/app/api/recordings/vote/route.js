@@ -1,4 +1,4 @@
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import { requireAuth, requireActiveAuth } from '@/lib/auth';
 import { assertUnderLimit } from '@/lib/rateLimit';
 import { XP_REWARDS } from '@/data/xpSystem';
@@ -43,11 +43,9 @@ export async function GET(req) {
 // guarded by word_variants.xp_awarded, so later downvotes never claw it
 // back and re-crossing the threshold never pays twice. Returns the
 // variant's fresh tally so the client can update without a full overlay
-// refetch. Wrapped in a transaction: this route does a read-then-write
-// (existing vote → insert/update/delete → tally → XP claim), and per-query
-// pool acquisition (src/lib/db.js) doesn't serialize across separate
-// `query()` calls the way a single transaction does — see the same
-// reasoning in api/contributions/route.js's audio insert.
+// refetch. Wrapped in withTransaction: this route does a read-then-write
+// (existing vote → insert/update/delete → tally → XP claim) that needs to
+// run on one connection, isolated from concurrent votes on the same variant.
 export async function POST(req) {
   const { error, status, decoded } = await requireActiveAuth(req);
   if (error) return Response.json({ error }, { status });
@@ -67,36 +65,34 @@ export async function POST(req) {
     });
     if (rateLimited) return Response.json({ error: rateLimited.error }, { status: rateLimited.status });
 
-    await query('BEGIN');
-    try {
-      const variantResult = await query(`SELECT id FROM word_variants WHERE id = $1`, [id]);
+    const result = await withTransaction(async (client) => {
+      const variantResult = await client.query(`SELECT id FROM word_variants WHERE id = $1`, [id]);
       if (variantResult.rows.length === 0) {
-        await query('ROLLBACK');
-        return Response.json({ error: 'Variant not found' }, { status: 404 });
+        return { notFound: true };
       }
 
-      const existing = await query(
+      const existing = await client.query(
         `SELECT value FROM recording_votes WHERE variant_id = $1 AND user_id = $2`,
         [id, decoded.userId]
       );
 
       let myVote = value;
       if (existing.rows.length === 0) {
-        await query(
+        await client.query(
           `INSERT INTO recording_votes (variant_id, user_id, value) VALUES ($1, $2, $3)`,
           [id, decoded.userId, value]
         );
       } else if (existing.rows[0].value === value) {
-        await query(`DELETE FROM recording_votes WHERE variant_id = $1 AND user_id = $2`, [id, decoded.userId]);
+        await client.query(`DELETE FROM recording_votes WHERE variant_id = $1 AND user_id = $2`, [id, decoded.userId]);
         myVote = 0;
       } else {
-        await query(
+        await client.query(
           `UPDATE recording_votes SET value = $1, created_at = CURRENT_TIMESTAMP WHERE variant_id = $2 AND user_id = $3`,
           [value, id, decoded.userId]
         );
       }
 
-      const tally = await query(
+      const tally = await client.query(
         `SELECT
            COUNT(*) FILTER (WHERE value = 1) AS up,
            COUNT(*) FILTER (WHERE value = -1) AS down
@@ -110,30 +106,29 @@ export async function POST(req) {
       if (score >= XP_VOTE_THRESHOLD) {
         // Atomic claim: only the request that flips xp_awarded false→true
         // gets a row back, so concurrent votes can't double-pay.
-        const claim = await query(
+        const claim = await client.query(
           `UPDATE word_variants SET xp_awarded = true WHERE id = $1 AND NOT xp_awarded RETURNING contribution_id`,
           [id]
         );
         if (claim.rows.length > 0 && claim.rows[0].contribution_id != null) {
-          const contributionResult = await query(`SELECT user_id FROM contributions WHERE id = $1`, [claim.rows[0].contribution_id]);
+          const contributionResult = await client.query(`SELECT user_id FROM contributions WHERE id = $1`, [claim.rows[0].contribution_id]);
           const submitterId = contributionResult.rows[0]?.user_id;
           // The flag is claimed above regardless — only the award itself is
           // skipped for a self-vote, so a submitter can't upvote their own
           // work for XP, but a later upvote from someone else still doesn't
           // re-trigger it (xp_awarded is already true).
           if (submitterId != null && submitterId !== decoded.userId) {
-            await query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, submitterId]);
-            await query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'contribution_upvoted')`, [submitterId, XP_REWARDS.contributionAccepted]);
+            await client.query(`UPDATE users SET xp = xp + $1 WHERE id = $2`, [XP_REWARDS.contributionAccepted, submitterId]);
+            await client.query(`INSERT INTO xp_events (user_id, amount, source) VALUES ($1, $2, 'contribution_upvoted')`, [submitterId, XP_REWARDS.contributionAccepted]);
           }
         }
       }
 
-      await query('COMMIT');
-      return Response.json({ variantId: id, up, down, score, myVote }, { status: 200 });
-    } catch (txErr) {
-      await query('ROLLBACK');
-      throw txErr;
-    }
+      return { variantId: id, up, down, score, myVote };
+    });
+
+    if (result.notFound) return Response.json({ error: 'Variant not found' }, { status: 404 });
+    return Response.json(result, { status: 200 });
   } catch (err) {
     console.error('Error voting on variant:', err);
     return Response.json({ error: 'Failed to record vote' }, { status: 500 });

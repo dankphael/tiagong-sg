@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useApp } from "@/components/AppProvider";
 import { ArrowLeft, ArrowRight, Repeat, Languages } from "lucide-react";
 import { lessons, categories } from "@/data/staticData";
@@ -15,7 +15,10 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
   const [cardIndex, setCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
-  const cards = buildCardsForCategory(apiWords, dialectId, selectedCategory);
+  const cards = useMemo(
+    () => buildCardsForCategory(apiWords, dialectId, selectedCategory),
+    [apiWords, dialectId, selectedCategory]
+  );
 
   // Keep cardIndex in range: the deck can shrink after dictionary words load
   // in, or when switching categories, which would otherwise leave cardIndex

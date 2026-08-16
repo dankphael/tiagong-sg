@@ -30,6 +30,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
   const pollRef = useRef(null);
   const sinceIdRef = useRef(null);
   const bottomRef = useRef(null);
+  const activeIdRef = useRef(activeId);
 
   const accepted = (connections || []).filter(c => c.status === "accepted");
   const active = accepted.find(c => c.id === activeId) || null;
@@ -39,6 +40,13 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
   }, [openConnectionId]);
 
   useEffect(() => {
+    // Guards against a slow request from the previous thread resolving
+    // after the user has already switched — without this, that response
+    // lands in the .then() after messages have been reset for the new
+    // thread and renders the old conversation under the new header.
+    const myId = activeId;
+    activeIdRef.current = myId;
+
     setMessages([]);
     sinceIdRef.current = null;
     if (pollRef.current) clearInterval(pollRef.current);
@@ -49,10 +57,11 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
       const token = localStorage.getItem("auth_token");
       if (!token) { if (isInitial) setThreadLoading(false); return; }
       try {
-        const params = new URLSearchParams({ connectionId: activeId });
+        const params = new URLSearchParams({ connectionId: myId });
         if (sinceIdRef.current) params.set("sinceId", sinceIdRef.current);
         const res = await fetch(`/api/messages?${params}`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
+        if (activeIdRef.current !== myId) return;
         if (!res.ok || !Array.isArray(data)) return;
         if (data.length > 0) {
           setMessages(prev => sinceIdRef.current ? [...prev, ...data] : data);
@@ -61,7 +70,7 @@ export default function ChatPanel({ currentUser, connections, openConnectionId, 
       } catch (e) {
         console.error("Failed to fetch messages:", e);
       } finally {
-        if (isInitial) setThreadLoading(false);
+        if (isInitial && activeIdRef.current === myId) setThreadLoading(false);
       }
     }
 

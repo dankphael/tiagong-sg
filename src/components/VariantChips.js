@@ -38,7 +38,11 @@ function variantValue(v) {
 // fate instead of a custodian queue — see api/recordings/vote/route.js.
 // Sorted highest-score first; heavily downvoted entries collapse behind a
 // toggle instead of disappearing.
-export default function VariantChips({ variants, canModerate, onRemove }) {
+// `voteMap` is an optional { [variantId]: myVote } map the parent has
+// already fetched in bulk (dictionary/page.js does one request for every
+// card on the page instead of one per card). When omitted — WordDetailModal
+// renders a single card at a time — this component fetches its own votes.
+export default function VariantChips({ variants, canModerate, onRemove, voteMap }) {
   const { currentUser, showToast } = useApp();
   const [voteState, setVoteState] = useState({}); // { [variantId]: {up, down, score, myVote} }
   const [showHidden, setShowHidden] = useState(false);
@@ -58,8 +62,10 @@ export default function VariantChips({ variants, canModerate, onRemove }) {
   }, [variantIds]);
 
   // Fetch the signed-in caller's own votes on these variants (per-user,
-  // never cached) so their active vote is highlighted.
+  // never cached) so their active vote is highlighted. Skipped when the
+  // parent already supplies a bulk-fetched voteMap.
   useEffect(() => {
+    if (voteMap) return;
     if (!variantIds || !currentUser) return;
     const token = localStorage.getItem("auth_token");
     if (!token) return;
@@ -76,7 +82,19 @@ export default function VariantChips({ variants, canModerate, onRemove }) {
       })
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantIds, currentUser]);
+  }, [variantIds, currentUser, voteMap]);
+
+  // Merge in a parent-supplied bulk voteMap whenever it updates.
+  useEffect(() => {
+    if (!voteMap) return;
+    setVoteState(prev => {
+      const next = { ...prev };
+      for (const [id, value] of Object.entries(voteMap)) {
+        if (next[id]) next[id] = { ...next[id], myVote: value };
+      }
+      return next;
+    });
+  }, [voteMap]);
 
   if (list.length === 0) return null;
 

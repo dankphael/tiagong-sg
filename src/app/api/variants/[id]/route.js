@@ -1,4 +1,4 @@
-import { query } from '@/lib/db';
+import { query, withTransaction } from '@/lib/db';
 import { requireActiveAuth } from '@/lib/auth';
 
 // DELETE — an admin or a custodian of the variant's dialect removes a
@@ -29,17 +29,12 @@ export async function DELETE(req, { params }) {
       return Response.json({ error: 'Not authorized to remove content for this dialect' }, { status: 403 });
     }
 
-    await query('BEGIN');
-    try {
-      await query(`DELETE FROM word_variants WHERE id = $1`, [id]);
+    await withTransaction(async (client) => {
+      await client.query(`DELETE FROM word_variants WHERE id = $1`, [id]);
       if (variant.contribution_id != null) {
-        await query(`UPDATE contributions SET status = 'removed', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, [variant.contribution_id]);
+        await client.query(`UPDATE contributions SET status = 'removed', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, [variant.contribution_id]);
       }
-      await query('COMMIT');
-    } catch (txErr) {
-      await query('ROLLBACK');
-      throw txErr;
-    }
+    });
 
     return Response.json({ success: true }, { status: 200 });
   } catch (err) {

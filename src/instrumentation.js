@@ -1,4 +1,4 @@
-import { query } from './lib/db.js';
+import { query, withTransaction } from './lib/db.js';
 import { insertVariant, resolveContributorName } from './lib/variants.js';
 
 // Types that now publish instantly on submit instead of sitting in the
@@ -17,14 +17,13 @@ async function backfillInstantPublish() {
     [INSTANT_PUBLISH_TYPES]
   );
   for (const contribution of pending.rows) {
-    await query('BEGIN');
     try {
-      const contributorName = await resolveContributorName(contribution.user_id);
-      await insertVariant(contribution, contributorName);
-      await query(`UPDATE contributions SET status = 'published', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, [contribution.id]);
-      await query('COMMIT');
+      await withTransaction(async (client) => {
+        const contributorName = await resolveContributorName(contribution.user_id, client);
+        await insertVariant(contribution, contributorName, {}, client);
+        await client.query(`UPDATE contributions SET status = 'published', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, [contribution.id]);
+      });
     } catch (err) {
-      await query('ROLLBACK');
       console.error(`Backfill: could not publish contribution ${contribution.id}:`, err.message);
     }
   }
@@ -45,6 +44,15 @@ export async function register() {
     await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_daily_date DATE`);
     await query(`ALTER TABLE connections ADD COLUMN IF NOT EXISTS message TEXT`);
     await query(`ALTER TABLE word_variants ADD COLUMN IF NOT EXISTS xp_awarded BOOLEAN DEFAULT false`);
+
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_comments_user_time ON word_comments(user_id, created_at DESC)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_time ON contributions(created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_contributions_status_time ON contributions(status, created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_word_variants_time ON word_variants(created_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_users_time ON users(created_at DESC)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_recording_votes_user ON recording_votes(user_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_connections_updated ON connections(updated_at)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_custodian_applications_status ON custodian_applications(status)`);
 
     console.log('Database migrations completed successfully');
 
