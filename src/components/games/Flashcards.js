@@ -156,7 +156,7 @@ export default function Flashcards({ dialect, dialectId, selectedCategory, onSel
                     <div style={{ fontSize: 10, color: "var(--color-text-muted)", fontWeight: 700, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Example</div>
                     {currentCard.examples.slice(0, 2).map((ex, i) => (
                       <div key={i} style={{ background: "#FAF6F0", borderRadius: 8, padding: "8px 12px", marginBottom: 4, fontSize: 12, color: "#1A1208", borderLeft: `3px solid ${dialect.color}` }}>
-                        <div style={{ fontStyle: "italic" }}>"{ex.text_source_lang}"</div>
+                        <div style={{ fontStyle: "italic" }}>&quot;{ex.text_source_lang}&quot;</div>
                         <div style={{ color: "#8B7355", marginTop: 2 }}>{ex.text_target_lang}</div>
                       </div>
                     ))}

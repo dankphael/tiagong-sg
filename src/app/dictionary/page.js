@@ -437,7 +437,7 @@ export default function DictionaryPage() {
                 ? "Not in the dictionary yet"
                 : <><strong style={{ color: "#1A1208" }}>{start + 1}–{end}</strong> of <strong style={{ color: "#1A1208" }}>{filteredPhrases.length}</strong> phrase{filteredPhrases.length !== 1 ? "s" : ""}</>
               }
-              {q && <> for "<em>{q}</em>"</>}
+              {q && <> for &quot;<em>{q}</em>&quot;</>}
             </span>
             {filteredPhrases.length > 0 && !q && searchCategory === "all" && searchDialects.length === 5 && (
               <span style={{ fontSize: 12, color: "#8A7866" }}>Showing all · use search or filters to narrow</span>
@@ -447,9 +447,9 @@ export default function DictionaryPage() {
           {wordsError ? (
             <div style={{ textAlign: "center", padding: "60px 24px", background: "var(--color-surface)", borderRadius: "var(--radius-lg)", border: "1.5px solid var(--color-border)" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "#C0392B" }}><Search size={48} /></div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>Couldn't load the dictionary</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#1A1208", marginBottom: 8 }}>Couldn&apos;t load the dictionary</div>
               <p style={{ color: "#6B5B45", fontSize: 14, marginBottom: 20 }}>
-                Something went wrong fetching entries — this isn't about your search, try again.
+                Something went wrong fetching entries — this isn&apos;t about your search, try again.
               </p>
               <button className="btn-hover" onClick={loadDictionary}
                 style={{ padding: "10px 24px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
@@ -470,7 +470,7 @@ export default function DictionaryPage() {
                 Try a different word or broaden your dialect and category filters.
               </p>
               <div style={{ fontSize: 13, color: "#8B7355" }}>
-                Try: <em>"rice"</em>, <em>"hello"</em>, <em>"thank you"</em>, <em>"morning"</em>, <em>"eat"</em>
+                Try: <em>&quot;rice&quot;</em>, <em>&quot;hello&quot;</em>, <em>&quot;thank you&quot;</em>, <em>&quot;morning&quot;</em>, <em>&quot;eat&quot;</em>
               </div>
               {searchDialects.length === 0 && (
                 <div style={{ marginTop: 16, fontSize: 13, color: "#C0392B", fontWeight: 600 }}>

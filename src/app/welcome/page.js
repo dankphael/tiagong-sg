@@ -154,7 +154,7 @@ export default function WelcomePage() {
           <div className="eyebrow" style={{ marginBottom: 8 }}>Nice work!</div>
           <h1 className="display-1" style={{ fontSize: 32, marginBottom: 12 }}>You earned {earnedXp} XP</h1>
           <p style={{ color: "var(--color-text-muted)", fontSize: 15, marginBottom: 28 }}>
-            You're ready to keep going in {dialect?.name || "your dialect"}.
+            You&apos;re ready to keep going in {dialect?.name || "your dialect"}.
           </p>
           <button className="btn-primary" onClick={goLearn} style={{ width: "100%", marginBottom: 20 }}>
             Start learning {dialect?.name} <ArrowRight size={16} />

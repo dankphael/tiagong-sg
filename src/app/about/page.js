@@ -54,7 +54,7 @@ export default function AboutPage() {
           A language lost is a <em style={{ color: "#C0392B" }}>worldview lost.</em>
         </h1>
         <p style={{ color: "#6B5B45", fontSize: 17, lineHeight: 1.6, maxWidth: 560, margin: "0 auto" }}>
-          We're rebuilding the bridge between generations — one phrase at a time.
+          We&apos;re rebuilding the bridge between generations — one phrase at a time.
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export default function AboutPage() {
       <div style={{ background: "linear-gradient(135deg, #FDF6EE, #F5EFE6)", borderRadius: 16, padding: "32px 36px", marginBottom: 64, border: "1px solid #EDE0CC" }}>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>Founder Note</div>
         <p style={{ color: "#3D2A18", fontSize: 16, lineHeight: 1.8, fontStyle: "italic", margin: 0 }}>
-          Built by <strong style={{ fontStyle: "normal", color: "#1A1208" }}>Raphael</strong>, a Singaporean who spent much of his childhood in his grandparents' Teochew-speaking household. Nostalgic for those days, he is building a platform where the social significance of culture and heritage can still shine in an increasingly monolingual Singapore.
+          Built by <strong style={{ fontStyle: "normal", color: "#1A1208" }}>Raphael</strong>, a Singaporean who spent much of his childhood in his grandparents&apos; Teochew-speaking household. Nostalgic for those days, he is building a platform where the social significance of culture and heritage can still shine in an increasingly monolingual Singapore.
         </p>
       </div>
 
@@ -145,7 +145,7 @@ export default function AboutPage() {
             Speak a dialect fluently?<br /><em style={{ color: "#E8D4A8" }}>Help validate our dictionary.</em>
           </h2>
           <p style={{ color: "#C9B58E", fontSize: 15, lineHeight: 1.7, maxWidth: 600, margin: "0 auto" }}>
-            Right now, our phrases are drafted with the help of AI (Qwen and Claude), and language is dynamic — spellings, meanings, and everyday usage shift between generations and families. That's why corrections, pronunciations, examples, and alternate meanings from fluent speakers go live immediately on the <Link href="/contribute" style={{ color: "#F5E6C8", textDecoration: "underline" }}>Contribute</Link> page — credited to you — and the community's own votes decide what rings true to how the dialect is actually spoken. Our <strong style={{ color: "#F5E6C8" }}>Language Custodians</strong> focus on the one thing that still needs a human gate: approving brand-new words before they join the dictionary, plus handling flagged issues and removing anything that shouldn't be up.
+            Right now, our phrases are drafted with the help of AI (Qwen and Claude), and language is dynamic — spellings, meanings, and everyday usage shift between generations and families. That&apos;s why corrections, pronunciations, examples, and alternate meanings from fluent speakers go live immediately on the <Link href="/contribute" style={{ color: "#F5E6C8", textDecoration: "underline" }}>Contribute</Link> page — credited to you — and the community&apos;s own votes decide what rings true to how the dialect is actually spoken. Our <strong style={{ color: "#F5E6C8" }}>Language Custodians</strong> focus on the one thing that still needs a human gate: approving brand-new words before they join the dictionary, plus handling flagged issues and removing anything that shouldn&apos;t be up.
           </p>
         </div>
         <div className="about-curator-grid">
@@ -177,7 +177,7 @@ export default function AboutPage() {
           { q: "What's a \"Sin Seh\"?", a: "Sin Seh (先生) is the Hokkien/Teochew term for a teacher, doctor, or wise mentor. The mentorship feature pairs learners with fluent speakers in the community who are willing to teach." },
           { q: "Can I contribute phrases or corrections?", a: "Yes — every dictionary entry has buttons to add your own interpretation, a pronunciation, an example, or a correction, and these publish immediately for the community to vote on. Brand-new words go on the Contribute page instead, where a Language Custodian for that dialect reviews them before they join the dictionary." },
           { q: "Is my learning data private?", a: "Your progress is stored only to track your own learning journey. We don't sell or share data, and we don't run third-party trackers." },
-          { q: "Will more dialects be added?", a: "The focus is on Singapore's five main dialects. Extensions to other dialects (Foochow / Hock Chew, Henghua, etc.) are possible in the future as the curator team grows." },
+          { q: "Will more dialects be added?", a: "The focus is on Singapore's five main dialects. Extensions to other dialects (Foochow / Hock Chew, Henghua, etc.) are possible in the future as the custodian team grows." },
         ].map((item, i) => {
           const open = aboutFaqOpen === i;
           return (
@@ -201,11 +201,11 @@ export default function AboutPage() {
 
       {/* 8. ROADMAP */}
       <div style={{ marginBottom: 64 }}>
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>What's Next</h2>
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 12, fontWeight: 700, color: "#C0392B", letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>What&apos;s Next</h2>
         <div style={{ background: "white", borderRadius: 16, padding: "28px 32px", border: "1px solid #F0E8DA", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
           <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             {[
-              ["Curator-validated dictionary", "Replace AI drafts with fluent-speaker-verified entries across all five dialects."],
+              ["Custodian-validated dictionary", "Replace AI drafts with fluent-speaker-verified entries across all five dialects."],
               ["Audio pronunciation", "Native-speaker recordings for every phrase — so learners hear, not just read."],
               ["Classroom partnerships", "Bring tiagongSG into Singapore schools and community centres as a heritage learning tool."],
               ["Community meetups", "In-person practice sessions co-hosted with clan associations (huay kuan)."],
@@ -269,16 +269,16 @@ Best regards,
 [Contact info]`
               },
               {
-                label: "Dialect Curator application",
-                template: `Subject: Dialect Curator application — [Dialect name]
+                label: "Language Custodian application",
+                template: `Subject: Language Custodian application — [Dialect name]
 
 Hi Raphael,
 
-I'd like to help validate [Dialect name] entries on tiagongSG as a Dialect Curator.
+I'd like to help validate [Dialect name] entries on tiagongSG as a Language Custodian.
 
 Dialect(s): [Which dialects are you fluent in?]
 Background: [How did you learn this dialect? Where are you from? How long have you spoken it?]
-Why curator: [What motivated you to volunteer?]
+Why custodian: [What motivated you to volunteer?]
 Availability: [How much time could you commit?]
 
 Looking forward to helping preserve our dialect heritage!

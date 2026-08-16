@@ -14,7 +14,7 @@ export function Footer() {
             <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#F5E6C8" }}>tiagongSG</div>
           </div>
           <p style={{ color: "#6B5B45", fontSize: 13, lineHeight: 1.7 }}>
-            Preserving Singapore's Chinese dialect heritage, one contributor at a time.
+            Preserving Singapore&apos;s Chinese dialect heritage, one contributor at a time.
           </p>
         </div>
         <div>
@@ -38,7 +38,7 @@ export function Footer() {
       </div>
       <div style={{ maxWidth: 1100, margin: "24px auto 0", paddingTop: 24, borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "center" }}>
         <p style={{ color: "#4A3A28", fontSize: 13, fontStyle: "italic" }}>
-          "A language lost is a culture lost." — Promote dialect preservation in Singapore.
+          &quot;A language lost is a culture lost.&quot; — Promote dialect preservation in Singapore.
         </p>
       </div>
     </div>

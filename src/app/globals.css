@@ -143,6 +143,13 @@ html {
 }
 .card-hover:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
+/* Generic hover lift for the ~30 custom-styled buttons across the app that
+   aren't .btn-primary/.btn-secondary/.btn-ghost — mirrors .card-hover's
+   treatment, scaled down for button-sized elements. */
+.btn-hover { transition: transform 0.15s, box-shadow 0.15s; }
+.btn-hover:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn-hover:active { transform: translateY(0); }
+
 /* ── Badges & chips ── */
 .badge {
   display: inline-flex; align-items: center; gap: 6px;

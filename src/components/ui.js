@@ -44,70 +44,11 @@ export function SealChip({ dialect, size = "md", active = true, style }) {
   );
 }
 
-export function Badge({ children, color, style }) {
-  return (
-    <span
-      className="badge"
-      style={{ ...(color ? { background: `${color}14`, color, borderColor: `${color}40` } : undefined), ...style }}
-    >
-      {children}
-    </span>
-  );
-}
-
-export function Chip({ children, style }) {
-  return (
-    <span className="chip" style={style}>
-      {children}
-    </span>
-  );
-}
-
-export function SectionHeader({ eyebrow, title, subtitle, action, className }) {
-  return (
-    <div className={`section-header${className ? " " + className : ""}`}>
-      {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-      {title && <h2 className="heading">{title}</h2>}
-      {subtitle && <p className="body-text" style={{ marginTop: "var(--space-2)", maxWidth: 640 }}>{subtitle}</p>}
-      {action}
-    </div>
-  );
-}
-
 export function Card({ children, hover, className, style }) {
   return (
     <div className={`card${hover ? " card-hover" : ""}${className ? " " + className : ""}`} style={style}>
       {children}
     </div>
-  );
-}
-
-export function IconButton({ children, onClick, label, style }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        padding: "10px 16px",
-        borderRadius: "var(--radius-md)",
-        border: "1.5px solid var(--color-border)",
-        background: "var(--color-surface)",
-        color: "var(--color-text-secondary)",
-        fontFamily: "var(--font-sans)",
-        fontSize: "var(--text-sm)",
-        fontWeight: 600,
-        cursor: "pointer",
-        transition: "background 0.15s, border-color 0.2s, color 0.2s",
-        ...style,
-      }}
-    >
-      {children}
-    </button>
   );
 }
 

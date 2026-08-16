@@ -98,7 +98,7 @@ export default function FillInBlank({ dialect, dialectId, onSwitchMode }) {
         </div>
         {showResult && (
           <div style={{ marginTop: 14, fontSize: 13, color: "rgba(255,255,255,0.8)", fontStyle: "italic" }}>
-            "{exercise.meaning}"
+            &quot;{exercise.meaning}&quot;
           </div>
         )}
       </div>

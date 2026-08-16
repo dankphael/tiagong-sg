@@ -93,7 +93,7 @@ export default function SinglishPage() {
                 <div style={{ fontSize: 11, letterSpacing: 3, color: "#C0392B", textTransform: "uppercase", marginBottom: 12 }}>Meaning</div>
                 <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, color: "#1A1208", marginBottom: 14, lineHeight: 1.4 }}>{cardPhrase.meaning}</div>
                 <div style={{ fontSize: 13, color: "#6B5B45", lineHeight: 1.7, marginBottom: 14 }}>{cardPhrase.fullExplanation}</div>
-                <div style={{ fontSize: 12, color: "#C0392B", fontStyle: "italic", fontWeight: 600 }}>"{cardPhrase.examples[0]}"</div>
+                <div style={{ fontSize: 12, color: "#C0392B", fontStyle: "italic", fontWeight: 600 }}>&quot;{cardPhrase.examples[0]}&quot;</div>
               </div>
             </div>
           </button>
@@ -127,7 +127,7 @@ export default function SinglishPage() {
               <div style={{ fontSize: 13, color: "#8B7355", fontWeight: 700, marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>Examples in use:</div>
               {cardPhrase.examples.map((ex, i) => (
                 <div key={i} style={{ background: "#FAF6F0", borderRadius: 10, padding: "12px 16px", marginBottom: 8, fontSize: 14, color: "#1A1208", fontStyle: "italic", borderLeft: "3px solid #C0392B" }}>
-                  "{ex}"
+                  &quot;{ex}&quot;
                 </div>
               ))}
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 16 }}>
@@ -197,7 +197,7 @@ export default function SinglishPage() {
                       <div style={{ fontSize: 12, color: "#8B7355", fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Examples:</div>
                       {p.examples.map((ex, i) => (
                         <div key={i} style={{ background: "#FAF6F0", borderRadius: 8, padding: "10px 14px", marginBottom: 6, fontSize: 13, color: "#1A1208", fontStyle: "italic", borderLeft: "3px solid " + p.dialectColor }}>
-                          "{ex}"
+                          &quot;{ex}&quot;
                         </div>
                       ))}
                       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 12 }}>
@@ -219,7 +219,7 @@ export default function SinglishPage() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 12, color: "var(--color-cream)" }}><Mic size={32} /></div>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 26, color: "#F5E6C8", marginBottom: 8 }}>Singlish is dialect in disguise</div>
         <p style={{ color: "#8B7355", fontSize: 14, lineHeight: 1.8, maxWidth: 600, margin: "0 auto" }}>
-          From "bojio" to "jialat", the phrases that make Singlish uniquely ours are rooted in Hokkien, Cantonese, Teochew, Hakka and Hainanese. Every time you say "walao" or "paiseh", you're speaking dialect — and keeping it alive.
+          From &quot;bojio&quot; to &quot;jialat&quot;, the phrases that make Singlish uniquely ours are rooted in Hokkien, Cantonese, Teochew, Hakka and Hainanese. Every time you say &quot;walao&quot; or &quot;paiseh&quot;, you&apos;re speaking dialect — and keeping it alive.
         </p>
       </div>
     </div>

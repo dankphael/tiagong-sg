@@ -229,7 +229,7 @@ export default function AudioRecorder({ onAudioReady, onClear }) {
           )}
           {!recordSupported && (
             <div style={{ fontSize: 12, color: "#8B7355" }}>
-              Recording isn't available in this browser — you can still upload a clip.
+              Recording isn&apos;t available in this browser — you can still upload a clip.
             </div>
           )}
           <button type="button" onClick={() => fileInputRef.current?.click()}

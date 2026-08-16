@@ -81,7 +81,7 @@ export default function VariantChips({ variants, canModerate, onRemove, voteMap 
         });
       })
       .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [variantIds, currentUser, voteMap]);
 
   // Merge in a parent-supplied bulk voteMap whenever it updates.
@@ -154,7 +154,7 @@ export default function VariantChips({ variants, canModerate, onRemove, voteMap 
             <div style={{ fontSize: 12, color: "#1A1208" }}>
               <span style={{ fontWeight: 600, color: "#1A6B3C" }}>{VARIANT_LABELS[v.variant_type] || v.variant_type}:</span>{" "}
               {variantValue(v)}
-              {v.context_note && <span style={{ color: "#8B7355", fontStyle: "italic" }}> — "{v.context_note}"</span>}
+              {v.context_note && <span style={{ color: "#8B7355", fontStyle: "italic" }}> — &quot;{v.context_note}&quot;</span>}
               {v.contributor_name && <div style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Contributed by {v.contributor_name}</div>}
             </div>
           )}

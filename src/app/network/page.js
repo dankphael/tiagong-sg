@@ -483,7 +483,7 @@ export default function NetworkPage() {
             ) : profilesError ? (
               <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "#C0392B" }}><UserCheck size={40} /></div>
-                <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Couldn't load Sin Sehs</div>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Couldn&apos;t load Sin Sehs</div>
                 <p style={{ fontSize: 14, marginBottom: 20 }}>Something went wrong on our end — try again.</p>
                 <button className="btn-hover" onClick={loadProfiles}
                   style={{ padding: "10px 24px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
@@ -670,7 +670,7 @@ export default function NetworkPage() {
                                   <span style={{ fontSize: 11, background: dialectColor + "18", color: dialectColor, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{r.language_interest}</span>
                                   <span style={{ fontSize: 11, background: "#EEF2FF", color: "#5B21B6", padding: "3px 8px", borderRadius: 8, fontWeight: 700, textTransform: "capitalize", marginLeft: 6 }}>{r.role}</span>
                                   {r.message && (
-                                    <div style={{ marginTop: 10, fontSize: 13, color: "#6B5B45", fontStyle: "italic", background: "#FAF6F0", borderRadius: 8, padding: "8px 12px" }}>"{r.message}"</div>
+                                    <div style={{ marginTop: 10, fontSize: 13, color: "#6B5B45", fontStyle: "italic", background: "#FAF6F0", borderRadius: 8, padding: "8px 12px" }}>&quot;{r.message}&quot;</div>
                                   )}
                                 </div>
                                 <div style={{ display: "flex", gap: 8 }}>
@@ -698,7 +698,7 @@ export default function NetworkPage() {
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontWeight: 700, fontSize: 16, color: "#1A1208" }}>{c.connected_user_name}</div>
                                 <span style={{ fontSize: 11, background: "#FEF3E2", color: "#A96A08", padding: "3px 8px", borderRadius: 8, fontWeight: 700 }}>Sin Seh · {c.connected_user_dialect}</span>
-                                {c.message && <div style={{ marginTop: 8, fontSize: 13, color: "#6B5B45", fontStyle: "italic" }}>"{c.message}"</div>}
+                                {c.message && <div style={{ marginTop: 8, fontSize: 13, color: "#6B5B45", fontStyle: "italic" }}>&quot;{c.message}&quot;</div>}
                               </div>
                               <div style={{ fontSize: 13, color: "#A96A08", fontWeight: 600 }}>Awaiting response…</div>
                             </div>
@@ -867,7 +867,7 @@ export default function NetworkPage() {
           ) : profilesError ? (
             <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--color-text-muted)" }}>
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 16, color: "#C0392B" }}><Sprout size={40} /></div>
-              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Couldn't load the member directory</div>
+              <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 8 }}>Couldn&apos;t load the member directory</div>
               <p style={{ fontSize: 14, marginBottom: 20 }}>Something went wrong on our end — try again.</p>
               <button className="btn-hover" onClick={loadProfiles}
                 style={{ padding: "10px 24px", background: "#1A1208", color: "#F5E6C8", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>

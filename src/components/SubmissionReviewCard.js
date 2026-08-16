@@ -114,7 +114,7 @@ export default function SubmissionReviewCard({ submission, currentWord, onReview
 
       {submission.type === "usage_example" && (
         <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FAF6F0", marginBottom: 10, fontSize: 13, color: "#1A1208" }}>
-          "{submission.payload?.exampleText}"
+          &quot;{submission.payload?.exampleText}&quot;
           {submission.payload?.translation && <div style={{ color: "#6B5B45", fontSize: 12 }}>{submission.payload.translation}</div>}
         </div>
       )}

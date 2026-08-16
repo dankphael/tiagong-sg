@@ -145,7 +145,7 @@ export default function WordDetailModal({ word, fullWord, onClose, onContribute,
                 {def.notes && <div style={{ fontSize: 12, color: "#8B7355", fontStyle: "italic", marginTop: 4 }}>{def.notes}</div>}
                 {(def.examples || []).map((ex, j) => (
                   <div key={j} style={{ background: "#FAF6F0", borderRadius: 8, padding: "8px 12px", marginTop: 6, fontSize: 12, borderLeft: `3px solid ${word.dialectColor}` }}>
-                    <div style={{ fontStyle: "italic", color: "#1A1208" }}>"{ex.text_source_lang}"</div>
+                    <div style={{ fontStyle: "italic", color: "#1A1208" }}>&quot;{ex.text_source_lang}&quot;</div>
                     <div style={{ color: "#8B7355", marginTop: 2 }}>{ex.text_target_lang}</div>
                     {(ex.context || ex.formality) && (
                       <div style={{ display: "flex", gap: 4, marginTop: 4 }}>

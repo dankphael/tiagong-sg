@@ -98,7 +98,7 @@ export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
             </div>
             {!cue.dialogues[selectedAnswer]?.correct && (
               <div style={{ fontSize: 12, color: "#6B5B45", marginTop: 2 }}>
-                Correct: <strong><DialectTooltip phrase={cue.dialogues.find(d => d.correct)?.phrase || ""} meaning={cue.dialogues.find(d => d.correct)?.meaning || ""} color={dialect.color} /></strong> — "{cue.dialogues.find(d => d.correct)?.meaning}"
+                Correct: <strong><DialectTooltip phrase={cue.dialogues.find(d => d.correct)?.phrase || ""} meaning={cue.dialogues.find(d => d.correct)?.meaning || ""} color={dialect.color} /></strong> — &quot;{cue.dialogues.find(d => d.correct)?.meaning}&quot;
               </div>
             )}
           </div>
@@ -122,7 +122,7 @@ export default function StoryQuiz({ dialect, dialectId, onSwitchMode }) {
               <div style={{ fontWeight: 700, marginBottom: 3 }}>
                 <DialectTooltip phrase={dialogue.phrase} meaning={dialogue.meaning} color={dialect.color} />
               </div>
-              <div style={{ fontSize: 12, opacity: 0.65 }}>"{dialogue.meaning}"</div>
+              <div style={{ fontSize: 12, opacity: 0.65 }}>&quot;{dialogue.meaning}&quot;</div>
               <span onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 6 }}>
                 <HearItButton dialect={dialectId} phrase={dialogue.phrase} label="Hear" compact as="span" hideDisclaimer
                   className="btn-tts"

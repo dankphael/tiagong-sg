@@ -131,7 +131,7 @@ export default function ContributionModal({ word, type, onClose }) {
         <div style={{ fontSize: 13, color: "var(--color-text-muted)", marginBottom: 8 }}>{word.phrase} · {word.meaning}</div>
         {type !== "error_flag" && (
           <div style={{ fontSize: 12, color: "#8B7355", background: "#FAF6F0", border: "1px solid #F0E8DA", borderRadius: 8, padding: "8px 12px", marginBottom: 16 }}>
-            This goes live right away, added alongside the existing entry — it doesn't replace it. The community votes on it from there; a custodian can still remove anything that shouldn't be up.
+            This goes live right away, added alongside the existing entry — it doesn&apos;t replace it. The community votes on it from there; a custodian can still remove anything that shouldn&apos;t be up.
           </div>
         )}
 
@@ -174,7 +174,7 @@ export default function ContributionModal({ word, type, onClose }) {
 
         {type === "error_flag" && (
           <>
-            <label htmlFor="cm-description" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What's wrong with this entry?</label>
+            <label htmlFor="cm-description" style={{ display: "block", fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 8 }}>What&apos;s wrong with this entry?</label>
             <textarea id="cm-description" value={description} onChange={e => setDescription(e.target.value)} rows={3}
               placeholder="Describe the issue you noticed..."
               className="input" style={{ marginBottom: 16, resize: "vertical", padding: 12 }} />

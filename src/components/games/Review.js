@@ -49,7 +49,7 @@ export default function Review({ dialect, dialectId, autoStart }) {
         <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><Star size={56} /></div>
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1208", marginBottom: 12 }}>All caught up!</h2>
         <p style={{ color: "#6B5B45", fontSize: 15, marginBottom: 32, maxWidth: 400, margin: "0 auto 32px" }}>
-          You've marked every card in this dialect as known. Keep learning new categories in Flashcards to build up more review material.
+          You&apos;ve marked every card in this dialect as known. Keep learning new categories in Flashcards to build up more review material.
         </p>
         <button className="btn-hover" onClick={startReview}
           style={{ padding: "14px 36px", background: dialect.color, color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>

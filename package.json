@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.5",
@@ -19,12 +19,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
-    "eslint": "^8",
+    "eslint": "^9",
     "eslint-config-next": "16"
-  },
-  "overrides": {
-    "eslint-config-next": {
-      "eslint": "^8"
-    }
   }
 }

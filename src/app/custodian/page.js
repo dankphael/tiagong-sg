@@ -70,7 +70,7 @@ export default function CustodianPage() {
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
         <div style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#1A1208", marginBottom: 12 }}>Custodian Access Required</div>
         <p style={{ color: "#8B7355", fontSize: 14, marginBottom: 24 }}>
-          This page is for Language Custodians approving new-word submissions and handling flagged issues. Apply on the Contribute page if you're a fluent dialect speaker.
+          This page is for Language Custodians approving new-word submissions and handling flagged issues. Apply on the Contribute page if you&apos;re a fluent dialect speaker.
         </p>
         <Link href="/contribute" className="btn-primary" style={{ display: "inline-block", textDecoration: "none" }}>
           Go to Contribute

@@ -6,7 +6,6 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, User, Flame } from "lucide-react";
 import { useApp } from "./AppProvider";
-import { getLevel } from "@/data/xpSystem";
 
 const NAV_GROUPS = [
   [
@@ -31,7 +30,7 @@ export function Nav() {
   const [queueCount, setQueueCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, handleLogout, xp, streak, dailyCompleted, selectedDialect } = useApp();
+  const { currentUser, handleLogout, streak, dailyCompleted, selectedDialect } = useApp();
   // Once a learner has a dialect in progress, "Learn" jumps straight back
   // into it instead of the dialect-chooser grid. First-time visitors (no
   // dialect chosen yet) still land on /learn to pick one.
@@ -44,7 +43,6 @@ export function Nav() {
       allLinks.push({ href, label, screenId, key: href });
     });
   });
-  const level = getLevel(xp);
   const isAdmin = currentUser?.accountType === 'admin';
   const isCustodian = currentUser?.custodianDialects?.length > 0 || isAdmin;
   const activeScreen = pathname === "/" ? "home" : pathname.replace(/^\//, "").split("/")[0];
@@ -112,11 +110,6 @@ export function Nav() {
         )}
         {currentUser ? (
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {level && (
-              <span style={{ fontSize: 12, color: level.color, fontWeight: 700, display: "none" }} className="nav-level-chip">
-                {level.icon} {level.name}
-              </span>
-            )}
             <button onClick={() => { router.push("/profile"); setOpen(false); }} className="nav-link" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--color-cream)", fontSize: 13, fontStyle: "normal", background: "none", border: "none", cursor: "pointer" }}>
               <User size={16} /> {currentUser.firstName}
             </button>

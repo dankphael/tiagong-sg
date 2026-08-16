@@ -88,9 +88,9 @@ export default function CommunityPage() {
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '32px 20px' }} className="fade-up">
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{ fontSize: 11, letterSpacing: 4, color: '#C0392B', textTransform: 'uppercase', marginBottom: 8 }}>Community</div>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 7vw, 42px)', color: 'var(--color-text)', marginBottom: 10 }}>What's happening at tiagongSG</h1>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(30px, 7vw, 42px)', color: 'var(--color-text)', marginBottom: 10 }}>What&apos;s happening at tiagongSG</h1>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 15, maxWidth: 560, margin: '0 auto' }}>
-          See who's learning, who's building the archive, and how much of each dialect has real pronunciation recordings.
+          See who&apos;s learning, who&apos;s building the archive, and how much of each dialect has real pronunciation recordings.
         </p>
       </div>
 
@@ -121,14 +121,14 @@ export default function CommunityPage() {
             </div>
           ) : lbError ? (
             <div style={{ textAlign: 'center', padding: '32px 12px', color: 'var(--color-text-muted)', fontSize: 13 }}>
-              Couldn't load the leaderboard right now — check back soon.
+              Couldn&apos;t load the leaderboard right now — check back soon.
             </div>
           ) : (
             <>
               {leaderboard?.champions?.length > 0 && (
                 <div style={{ background: 'linear-gradient(135deg, #FEF3E2, #FEF9E7)', border: '1px solid #D4860B30', borderRadius: 12, padding: '12px 14px', marginBottom: 16 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#8B6020', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <Crown size={13} /> Last week's champions
+                    <Crown size={13} /> Last week&apos;s champions
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                     {leaderboard.champions.map(c => (
@@ -142,7 +142,7 @@ export default function CommunityPage() {
 
               {(!leaderboard?.top || leaderboard.top.length === 0) ? (
                 <div style={{ textAlign: 'center', padding: '32px 12px', color: 'var(--color-text-muted)', fontSize: 13 }}>
-                  Nobody's scored yet this week{dialectFilter ? ` in ${dialectFilter}` : ''} — be the first!
+                  Nobody&apos;s scored yet this week{dialectFilter ? ` in ${dialectFilter}` : ''} — be the first!
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -212,7 +212,7 @@ export default function CommunityPage() {
               ))}
             </div>
             <div style={{ fontSize: 11, color: 'var(--color-text-faint)', marginTop: 12, textAlign: 'center' }}>
-              Help record — tap a word in the dictionary and hit "Record pronunciation"
+              Help record — tap a word in the dictionary and hit &quot;Record pronunciation&quot;
             </div>
           </div>
         </div>

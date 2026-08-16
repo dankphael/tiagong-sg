@@ -52,7 +52,7 @@ export default function MemberPage() {
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '64px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: 40, marginBottom: 12 }}>🫥</div>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--color-text)', marginBottom: 8 }}>Member not found</h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>This profile doesn't exist or is no longer available.</p>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: 14 }}>This profile doesn&apos;t exist or is no longer available.</p>
       </div>
     );
   }

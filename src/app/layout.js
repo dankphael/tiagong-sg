@@ -33,6 +33,7 @@ export const viewport = {
 };
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://tiagong.sg"),
   title: "tiagongSG",
   description: "Connect with Sin Sehs and learn Chinese dialects",
   icons: {
@@ -42,7 +43,16 @@ export const metadata = {
   openGraph: {
     title: "tiagongSG",
     description: "Preserve Singapore's Chinese dialect heritage",
+    type: "website",
+    url: "/",
+    siteName: "tiagongSG",
     images: [{ url: "/logo/01-vertical-dark-bg.png", width: 800, height: 600, alt: "tiagongSG" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "tiagongSG",
+    description: "Preserve Singapore's Chinese dialect heritage",
+    images: ["/logo/01-vertical-dark-bg.png"],
   },
 };
 

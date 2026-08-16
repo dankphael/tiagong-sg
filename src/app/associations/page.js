@@ -16,7 +16,7 @@ export default function AssociationsPage() {
               Clan Associations
             </h1>
             <p style={{ color: "#6B5B45", fontSize: 14, lineHeight: 1.6 }}>
-              The <em>huay kuan</em> (会馆) of Singapore's dialect communities — guardians of language, culture, and identity since the 1800s.
+              The <em>huay kuan</em> (会馆) of Singapore&apos;s dialect communities — guardians of language, culture, and identity since the 1800s.
             </p>
           </div>
         </div>

@@ -139,7 +139,7 @@ export default function ContributePage() {
         <p style={{ color: "#8B7355", fontSize: 15, maxWidth: 560, margin: "0 auto" }}>
           Language is alive. Spellings, meanings, and everyday usage shift between generations and families —
           this dictionary is written by everyone who speaks it. Add your own interpretation of a meaning,
-          contribute a pronunciation — recorded or uploaded, on any device — or correct what's here, and it
+          contribute a pronunciation — recorded or uploaded, on any device — or correct what&apos;s here, and it
           goes live immediately, credited to you, alongside the original entry. The community votes on it from
           there. New words are the one thing a Language Custodian still reviews before they join the dictionary.
         </p>
@@ -210,7 +210,7 @@ export default function ContributePage() {
                 {[0, 1].map(i => <div key={i} className="shimmer" style={{ background: "#F0E8DA", borderRadius: 10, height: 56 }} />)}
               </div>
             ) : !Array.isArray(submissions) || submissions.length === 0 ? (
-              <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>You haven't submitted anything yet. Add a new word above, or suggest an edit from the Dictionary.</p>
+              <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>You haven&apos;t submitted anything yet. Add a new word above, or suggest an edit from the Dictionary.</p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {submissions.map(s => {
@@ -223,7 +223,7 @@ export default function ContributePage() {
                       </div>
                       {s.payload?.proposedValue && <div style={{ fontSize: 13, color: "#6B5B45" }}>→ {s.payload.proposedValue}</div>}
                       {s.payload?.romanized && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.romanized} — {s.payload.english}</div>}
-                      {s.payload?.exampleText && <div style={{ fontSize: 13, color: "#6B5B45" }}>"{s.payload.exampleText}"</div>}
+                      {s.payload?.exampleText && <div style={{ fontSize: 13, color: "#6B5B45" }}>&quot;{s.payload.exampleText}&quot;</div>}
                       {s.payload?.description && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.description}</div>}
                       {s.payload?.meaning && <div style={{ fontSize: 13, color: "#6B5B45" }}>{s.payload.meaning}</div>}
                       {s.type === "pronunciation_audio" && (
@@ -258,14 +258,14 @@ export default function ContributePage() {
           <div className="card" style={{ padding: 28 }}>
             <div style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "#1A1208", marginBottom: 8 }}>Become a Language Custodian</div>
             <p style={{ fontSize: 14, color: "#8B7355", marginBottom: 20 }}>
-              Custodians are trusted dialect experts who approve new-word submissions for their dialect(s), handle flagged issues, and can remove any published contribution that shouldn't be up.
+              Custodians are trusted dialect experts who approve new-word submissions for their dialect(s), handle flagged issues, and can remove any published contribution that shouldn&apos;t be up.
             </p>
 
             {applicationLoading ? (
               <div className="shimmer" style={{ background: "#F0E8DA", borderRadius: 10, height: 56 }} />
             ) : isCustodian ? (
               <div style={{ padding: "14px 16px", borderRadius: 10, background: "#EAFAF1", border: "1px solid #1A6B3C40", fontSize: 14, color: "#1A6B3C", fontWeight: 600 }}>
-                You're a Language Custodian for {currentUser.custodianDialects.join(", ")}. Visit the Custodian console to review new words and flagged issues.
+                You&apos;re a Language Custodian for {currentUser.custodianDialects.join(", ")}. Visit the Custodian console to review new words and flagged issues.
               </div>
             ) : application ? (
               <div style={{ padding: "14px 16px", borderRadius: 10, background: STATUS_COLORS[application.status]?.bg || "#FEF3E2", border: "1px solid #E8DDD0", fontSize: 14, color: STATUS_COLORS[application.status]?.color || "#A96A08", fontWeight: 600 }}>
@@ -274,7 +274,7 @@ export default function ContributePage() {
             ) : (
               <>
                 <div style={{ marginBottom: 16 }}>
-                  <div id="ca-dialects-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects you're an expert in</div>
+                  <div id="ca-dialects-label" style={{ fontSize: 13, color: "#6B5B45", fontWeight: 600, marginBottom: 10 }}>Dialects you&apos;re an expert in</div>
                   <div role="group" aria-labelledby="ca-dialects-label" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {dialects.map(d => {
                       const checked = applicationForm.dialects.includes(d.id);

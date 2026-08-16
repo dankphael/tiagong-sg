@@ -205,7 +205,7 @@ function DialectPlatformContent() {
           <Link href={`/learn/${dialect.id}?mode=review`} style={{ textDecoration: "none" }}>
             <div className="card card-hover" style={{ padding: 24 }}>
               <div style={{ fontWeight: 700, color: "var(--color-text)", marginBottom: 8 }}>Review weak cards</div>
-              <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Cycle through cards you haven't marked "known" yet in {dialect.name}.</p>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>Cycle through cards you haven&apos;t marked &quot;known&quot; yet in {dialect.name}.</p>
             </div>
           </Link>
           <Link href="/learn" style={{ textDecoration: "none" }}>
@@ -247,7 +247,7 @@ function DialectPlatformContent() {
                   <Image src="/logo/seal_and_name_transparent.png" alt="tiagongSG" width={200} height={164} priority style={{ width: "100%", height: "auto" }} />
                 </div>
                 <p style={{ color: "#E8D4A8", lineHeight: 1.6, marginBottom: 12, fontSize: 15, maxWidth: 320 }}>
-                  Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
+                  Singapore&apos;s Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
                 <p style={{ color: "#E8D4A8", fontSize: 14, fontStyle: "italic", lineHeight: 1.6, maxWidth: 320 }}>
                   每一句方言，都是一条连接过去的线。<br />Every dialect phrase is a thread connecting us to our past.
@@ -305,7 +305,7 @@ function DialectPlatformContent() {
                   <Image src="/logo/seal_and_name_transparent.png" alt="tiagongSG" width={140} height={114} priority style={{ width: "100%", height: "auto", maxWidth: 140, margin: "0 auto" }} />
                 </div>
                 <p className="hero-subtext" style={{ color: "#A08060", lineHeight: 1.6, marginBottom: 8, fontSize: 14 }}>
-                  Singapore's Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
+                  Singapore&apos;s Chinese dialects — Hokkien, Cantonese, Teochew, Hakka, Hainanese — are living bridges to our ancestors.
                 </p>
                 <p style={{ color: "#7A6040", fontSize: 13, fontStyle: "italic", marginBottom: 12 }}>
                   每一句方言，都是一条连接过去的线。 · Every dialect phrase is a thread connecting us to our past.
